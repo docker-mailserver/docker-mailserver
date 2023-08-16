@@ -1,6 +1,9 @@
 #!/bin/bash
 # Support for Postfix features
 
+readonly POSTFIX_MAIN_CF='/etc/postfix/main.cf'
+# readonly POSTFIX_MASTER_CF='/etc/postfix/master.cf'
+
 # Docs - virtual_mailbox_domains (Used in /etc/postfix/main.cf):
 # http://www.postfix.org/ADDRESS_CLASS_README.html#virtual_mailbox_class
 # http://www.postfix.org/VIRTUAL_README.html
@@ -91,3 +94,27 @@ function _vhost_ldap_support() {
 #
 # /etc/aliases is handled by `alias.sh` and uses `postalias` to update the Postfix alias database. No need for `postmap`.
 # http://www.postfix.org/postalias.1.html
+
+# Add an key with an value to Postfix's main configuration file
+# or update an existing key. An already existing key can be updated
+# by either appending to the existing value (default) or by prepending.
+#
+# @param ${1} = key name in Postfix's main configuration file
+# @param ${2} = new value (appended or prepended)
+# @param ${3} = "append" (default) or "prepend" [OPTIONAL]
+function _add_to_or_update_postfix_main() {
+  local KEY=${1:?Key name is required}
+  local NEW_VALUE=${2:?New value is required}
+  if grep -q -E "^${KEY}" "${POSTFIX_MAIN_CF}"; then
+    KEY=$(_escape_for_sed "${KEY}")
+    NEW_VALUE=$(_escape_for_sed "${NEW_VALUE}")
+    if [[ ${3:-append} == 'append' ]]; then
+      local SED_STRING="/${NEW_VALUE}/! s|^(${KEY} *=.*)|\1 ${NEW_VALUE}|g"
+    else
+      local SED_STRING="/${NEW_VALUE}/! s|^(${KEY}) *= *(.*)|\1 = ${NEW_VALUE} \2|g"
+    fi
+    sed -i -E "${SED_STRING}" "${POSTFIX_MAIN_CF}"
+  else
+    echo "${KEY} = ${NEW_VALUE}" >>"${POSTFIX_MAIN_CF}"
+  fi
+}
