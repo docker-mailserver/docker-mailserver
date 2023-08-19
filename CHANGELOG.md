@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Added
+
+- New environment variable `MARK_SPAM_AS_READ` which if set to `1` marks incoming junk as read so no notification is generated
+
 ## [v12.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v12.1.0)
 
 ### Added

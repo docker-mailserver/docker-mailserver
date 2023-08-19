@@ -309,6 +309,18 @@ will be automatically moved to the Junk folder (with the help of a Sieve script)
 - 0 => Spam messages will be delivered in the mailbox.
 - **1** => Spam messages will be delivered in the `Junk` folder.
 
+##### MARK_SPAM_AS_READ
+
+When enabled, e-mails marked with the
+
+1. `X-Spam: Yes` header added by Rspamd
+2. `X-Spam-Flag: YES` header added by SpamAssassin (requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox))
+
+will be automatically marked as read and will not trigger any client notifications.
+
+- **0** => disabled
+- 1 => Spam messages will be marked as read
+
 #### Rspamd
 
 ##### ENABLE_RSPAMD
