@@ -1,0 +1,14 @@
+dn: cn=postfix-book,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: postfix-book
+olcAttributeTypes: {0}( 1.3.6.1.4.1.29426.1.10.1 NAME 'mailHomeDirectory' DESC 'The absolute path to the mail user home directory' EQUALITY caseExactIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+olcAttributeTypes: {1}( 1.3.6.1.4.1.29426.1.10.2 NAME 'mailAlias' DESC 'RFC822 Mailbox - mail alias' EQUALITY caseIgnoreIA5Match SUBSTR caseIgnoreIA5SubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+olcAttributeTypes: {2}( 1.3.6.1.4.1.29426.1.10.3 NAME 'mailUidNumber' DESC 'UID required to access the mailbox' EQUALITY integerMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+olcAttributeTypes: {3}( 1.3.6.1.4.1.29426.1.10.4 NAME 'mailGidNumber' DESC 'GID required to access the mailbox' EQUALITY integerMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+olcAttributeTypes: {4}( 1.3.6.1.4.1.29426.1.10.5 NAME 'mailEnabled' DESC 'TRUE to enable, FALSE to disable account' EQUALITY booleanMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE )
+olcAttributeTypes: {5}( 1.3.6.1.4.1.29426.1.10.6 NAME 'mailGroupMember' DESC 'Name of a mail distribution list' EQUALITY caseExactIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: {6}( 1.3.6.1.4.1.29426.1.10.7 NAME 'mailQuota' DESC 'Mail quota limit in kilobytes' EQUALITY caseExactIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: {7}( 1.3.6.1.4.1.29426.1.10.8 NAME 'mailStorageDirectory' DESC 'The absolute path to the mail users mailbox' EQUALITY caseExactIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+# PostfixBook object classes:
+olcObjectClasses: {0}( 1.3.6.1.4.1.29426.1.2.2.1 NAME 'PostfixBookMailAccount' DESC 'Mail account used in Postfix Book' SUP top AUXILIARY MUST mail MAY ( mailHomeDirectory $ mailAlias $ mailGroupMember $ mailUidNumber $ mailGidNumber $ mailEnabled $ mailQuota $ mailStorageDirectory ) )
+olcObjectClasses: {1}( 1.3.6.1.4.1.29426.1.2.2.2 NAME 'PostfixBookMailForward' DESC 'Mail forward used in Postfix Book' SUP top AUXILIARY MUST ( mail $ mailAlias ) )

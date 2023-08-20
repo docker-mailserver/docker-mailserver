@@ -19,15 +19,18 @@ function setup_file() {
   docker network create "${DMS_TEST_NETWORK}"
 
   # Setup local openldap service:
-  # NOTE: Building via Dockerfile is required? Image won't accept read-only if it needs to adjust permissions for bootstrap files.
-  # TODO: Upstream image is no longer maintained, may want to migrate?
-  docker build -t dms-openldap test/config/ldap/docker-openldap/
-
-  docker run -d --name "${CONTAINER2_NAME}" \
-    --env LDAP_DOMAIN="${FQDN_LOCALHOST_A}" \
+  docker run --rm -d --name "${CONTAINER2_NAME}" \
+    --env LDAP_ADMIN_PASSWORD=admin \
+    --env LDAP_ROOT='dc=localhost,dc=localdomain' \
+    --env LDAP_PORT_NUMBER=389 \
+    --env LDAP_SKIP_DEFAULT_TREE=yes \
+    --volume './test/config/ldap/docker-openldap/bootstrap/ldif/:/ldifs/:ro' \
+    --volume './test/config/ldap/docker-openldap/bootstrap/schemas/:/schemas/:ro' \
     --hostname "${FQDN_LDAP}" \
     --network "${DMS_TEST_NETWORK}" \
-    dms-openldap
+    bitnami/openldap:latest
+
+  _run_until_success_or_timeout 20 sh -c "docker logs ${CONTAINER2_NAME} 2>&1 | grep 'LDAP setup finished'"
 
   #
   # Setup DMS container

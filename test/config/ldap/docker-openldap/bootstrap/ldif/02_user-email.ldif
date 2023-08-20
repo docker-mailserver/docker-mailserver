@@ -1,25 +1,22 @@
-# --------------------------------------------------------------------
-# Create mail accounts
-# --------------------------------------------------------------------
-# Some User
+# NOTE: A standard user account to test against
 dn: uniqueIdentifier=some.user,ou=people,dc=localhost,dc=localdomain
-changetype: add
 objectClass: organizationalPerson
-objectClass: person
-objectClass: top
 objectClass: PostfixBookMailAccount
 objectClass: extensibleObject
 cn: Some User
-givenName: User
+givenName: Some
+surname: User
+uniqueIdentifier: some.user
+# Password is: secret
+userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx
 mail: some.user@localhost.localdomain
+# postfix-book.schema:
 mailAlias: postmaster@localhost.localdomain
 mailGroupMember: employees@localhost.localdomain
-mailEnabled: TRUE
-mailGidNumber: 5000
 mailHomeDirectory: /var/mail/localhost.localdomain/some.user/
-mailQuota: 10240
 mailStorageDirectory: maildir:/var/mail/localhost.localdomain/some.user/
+# postfix-book.schema generic options:
+mailEnabled: TRUE
 mailUidNumber: 5000
-sn: Some
-uniqueIdentifier: some.user
-userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx
+mailGidNumber: 5000
+mailQuota: 10240

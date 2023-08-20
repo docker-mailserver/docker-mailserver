@@ -1,5 +1,11 @@
+# The root object, all entries will branch off this one:
+dn: dc=localhost,dc=localdomain
+objectClass: dcObject
+objectClass: organization
+dc: localhost
+o: DMS Test
+
+# User accounts will belong to this subtree:
 dn: ou=people,dc=localhost,dc=localdomain
-changetype: add
 objectClass: organizationalUnit
-objectClass: top
 ou: people
