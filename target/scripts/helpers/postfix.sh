@@ -1,9 +1,6 @@
 #!/bin/bash
 # Support for Postfix features
 
-readonly POSTFIX_MAIN_CF='/etc/postfix/main.cf'
-# readonly POSTFIX_MASTER_CF='/etc/postfix/master.cf'
-
 # Docs - virtual_mailbox_domains (Used in /etc/postfix/main.cf):
 # http://www.postfix.org/ADDRESS_CLASS_README.html#virtual_mailbox_class
 # http://www.postfix.org/VIRTUAL_README.html
@@ -105,16 +102,21 @@ function _vhost_ldap_support() {
 function _add_to_or_update_postfix_main() {
   local KEY=${1:?Key name is required}
   local NEW_VALUE=${2:?New value is required}
-  if grep -q -E "^${KEY}" "${POSTFIX_MAIN_CF}"; then
+
+  if grep -q -E "^${KEY}" /etc/postfix/main.cf; then
     KEY=$(_escape_for_sed "${KEY}")
     NEW_VALUE=$(_escape_for_sed "${NEW_VALUE}")
-    if [[ ${3:-append} == 'append' ]]; then
-      local SED_STRING="/${NEW_VALUE}/! s|^(${KEY} *=.*)|\1 ${NEW_VALUE}|g"
-    else
-      local SED_STRING="/${NEW_VALUE}/! s|^(${KEY}) *= *(.*)|\1 = ${NEW_VALUE} \2|g"
+    local SED_STRING="/${NEW_VALUE}/! s|^(${KEY} *=.*)|\1 ${NEW_VALUE}|g"
+
+    if [[ ${3:-append} == 'prepend' ]]; then
+      SED_STRING="/${NEW_VALUE}/! s|^(${KEY}) *= *(.*)|\1 = ${NEW_VALUE} \2|g"
+    elif [[ ${3:-append} != 'append' ]]; then
+      _log 'err' "Action '${3}' in _add_to_or_update_postfix_main is unknown"
+      return 1
     fi
-    sed -i -E "${SED_STRING}" "${POSTFIX_MAIN_CF}"
+
+    sed -i -E "${SED_STRING}" /etc/postfix/main.cf
   else
-    echo "${KEY} = ${NEW_VALUE}" >>"${POSTFIX_MAIN_CF}"
+    postconf "${KEY} = ${NEW_VALUE}"
   fi
 }
