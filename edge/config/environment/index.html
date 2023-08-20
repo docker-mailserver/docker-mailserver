@@ -768,6 +768,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#mark_spam_as_read" class="md-nav__link">
+    MARK_SPAM_AS_READ
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2734,6 +2741,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#mark_spam_as_read" class="md-nav__link">
+    MARK_SPAM_AS_READ
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3766,6 +3780,19 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 <li>0 =&gt; Spam messages will be delivered in the mailbox.</li>
 <li><strong>1</strong> =&gt; Spam messages will be delivered in the <code>Junk</code> folder.</li>
 </ul>
+<h5 id="mark_spam_as_read"><a class="toclink" href="#mark_spam_as_read">MARK_SPAM_AS_READ</a></h5>
+<p>Enable to treat received spam as "read" (<em>avoids notification to MUA client of new mail</em>).</p>
+<p>Mail is received as spam when it has been marked with either header:</p>
+<ol>
+<li><code>X-Spam: Yes</code> (<em>by Rspamd</em>)</li>
+<li>
+<p><code>X-Spam-Flag: YES</code> (<em>by SpamAssassin - requires <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></a></em>)</p>
+</li>
+<li>
+<p><strong>0</strong> =&gt; disabled</p>
+</li>
+<li>1 =&gt; Spam messages will be marked as read</li>
+</ol>
 <h4 id="rspamd"><a class="toclink" href="#rspamd">Rspamd</a></h4>
 <h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
 <p>Enable or disable <a href="../security/rspamd/">Rspamd</a>.</p>
