@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
-- New environment variable `MARK_SPAM_AS_READ` which if set to `1` marks incoming junk as read so no notification is generated
+- New environment variable `MARK_SPAM_AS_READ`. When set to `1`, marks incoming junk as "read" to avoid unwanted notification of junk as new mail ([#3489](https://github.com/docker-mailserver/docker-mailserver/pull/3489))
 
 ## [v12.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v12.1.0)
 

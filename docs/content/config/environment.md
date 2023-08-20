@@ -311,12 +311,12 @@ will be automatically moved to the Junk folder (with the help of a Sieve script)
 
 ##### MARK_SPAM_AS_READ
 
-When enabled, e-mails marked with the
+Enable to treat received spam as "read" (_avoids notification to MUA client of new mail_).
 
-1. `X-Spam: Yes` header added by Rspamd
-2. `X-Spam-Flag: YES` header added by SpamAssassin (requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox))
+Mail is received as spam when it has been marked with either header:
 
-will be automatically marked as read and will not trigger any client notifications.
+1. `X-Spam: Yes` (_by Rspamd_)
+2. `X-Spam-Flag: YES` (_by SpamAssassin - requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox)_)
 
 - **0** => disabled
 - 1 => Spam messages will be marked as read

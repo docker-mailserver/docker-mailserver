@@ -3,7 +3,6 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 
 # Tests originally contributed in PR: https://github.com/docker-mailserver/docker-mailserver/pull/1485
 # That introduced both ENV: SPAMASSASSIN_SPAM_TO_INBOX and MOVE_SPAM_TO_JUNK
-# Added ENV: MARK_SPAM_AS_READ
 
 BATS_TEST_NAME_PREFIX='[Spam - Amavis] ENV SPAMASSASSIN_SPAM_TO_INBOX '
 CONTAINER1_NAME='dms-test_spam-amavis_bounced'
@@ -37,7 +36,6 @@ function teardown() { _default_teardown ; }
     --env SA_SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MOVE_SPAM_TO_JUNK=0
-    --env MARK_SPAM_AS_READ=0
     --env PERMIT_DOCKER=container
   )
   _init_with_defaults
@@ -59,7 +57,6 @@ function teardown() { _default_teardown ; }
     --env SA_SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MOVE_SPAM_TO_JUNK=1
-    --env MARK_SPAM_AS_READ=0
     --env PERMIT_DOCKER=container
   )
   _init_with_defaults
@@ -80,7 +77,6 @@ function teardown() { _default_teardown ; }
     --env ENABLE_SPAMASSASSIN=1
     --env SA_SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
-    --env MOVE_SPAM_TO_JUNK=0
     --env MARK_SPAM_AS_READ=1
     --env PERMIT_DOCKER=container
   )
@@ -90,8 +86,8 @@ function teardown() { _default_teardown ; }
   _should_send_spam_message
   _should_be_received_by_amavis 'Passed SPAM {RelayedTaggedInbound,Quarantined}'
 
-  # Should move delivered spam to INBOX as read (cur instead of new)
-  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/cur/'
+  # Should move delivered spam to Junk folder as read (`cur` instead of `new`)
+  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/Junk/cur/'
 }
 
 function _should_send_spam_message() {

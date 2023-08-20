@@ -276,6 +276,8 @@ function _setup_spam_mark_as_read() {
   if [[ ${MARK_SPAM_AS_READ} -eq 1 ]]; then
     _log 'debug' 'Spam emails will be marked as read'
     mkdir -p /usr/lib/dovecot/sieve-global/after/
+
+    # Header support: `X-Spam-Flag` (SpamAssassin), `X-Spam` (Rspamd)
     cat >/usr/lib/dovecot/sieve-global/after/spam_mark_as_read.sieve << EOF
 require ["mailbox","imap4flags"];
 
