@@ -102,21 +102,29 @@ function _vhost_ldap_support() {
 function _add_to_or_update_postfix_main() {
   local KEY=${1:?Key name is required}
   local NEW_VALUE=${2:?New value is required}
+  local ACTION=${3:-append}
 
-  if grep -q -E "^${KEY}" /etc/postfix/main.cf; then
+  # If entry does not exist, add it - otherwise update with ACTION:
+  if ! grep -q -E "^${KEY}" /etc/postfix/main.cf; then
+    postconf "${KEY} = ${NEW_VALUE}"
+  else
     KEY=$(_escape_for_sed "${KEY}")
     NEW_VALUE=$(_escape_for_sed "${NEW_VALUE}")
-    local SED_STRING="/${NEW_VALUE}/! s|^(${KEY} *=.*)|\1 ${NEW_VALUE}|g"
+    local SED_STRING
 
-    if [[ ${3:-append} == 'prepend' ]]; then
-      SED_STRING="/${NEW_VALUE}/! s|^(${KEY}) *= *(.*)|\1 = ${NEW_VALUE} \2|g"
-    elif [[ ${3:-append} != 'append' ]]; then
-      _log 'err' "Action '${3}' in _add_to_or_update_postfix_main is unknown"
-      return 1
-    fi
+    case "${ACTION}" in
+      ('append')
+        SED_STRING="/${NEW_VALUE}/! s|^(${KEY} *=.*)|\1 ${NEW_VALUE}|g"
+        ;;
+      ('prepend')
+        SED_STRING="/${NEW_VALUE}/! s|^(${KEY}) *= *(.*)|\1 = ${NEW_VALUE} \2|g"
+        ;;
+      (*)
+        _log 'error' "Action '${3}' in _add_to_or_update_postfix_main is unknown"
+        return 1
+        ;;
+    esac
 
     sed -i -E "${SED_STRING}" /etc/postfix/main.cf
-  else
-    postconf "${KEY} = ${NEW_VALUE}"
   fi
 }
