@@ -16,7 +16,7 @@ Prefer ports with Implicit [TLS][wikipedia-tls] ports, they're more secure than 
 | IMAP4                    | 143                      | 993             | Retrieval            | Yes                |
 
 1. A connection _may_ be secured over TLS when both ends support `STARTTLS`. On ports 110, 143 and 587, DMS will reject a connection that cannot be secured. Port 25 is [required][ref-port25-mandatory] to support insecure connections.
-2. Receives email, DMS additionally filters for spam and viruses. For submitting email to the server to be sent to third-parties, you should prefer the _submission_ ports (465, 587) - which require authentication. Unless a relay host is configured (eg: SendGrid), outgoing email will leave the server via port 25 (_thus outbound traffic must not be blocked by your provider or firewall_).
+2. Receives email, DMS additionally filters for spam and viruses. For submitting email to the server to be sent to third-parties, you need to use the _submission_ ports (465, 587) - which require authentication. Unless a relay host is configured (eg: SendGrid), outgoing email will leave the server via port 25 (_thus outbound traffic must not be blocked by your provider or firewall_).
 3. A _submission_ port since 2018 ([RFC 8314][rfc-8314]).
 
 ??? warning "Beware of outdated advice on port 465"
