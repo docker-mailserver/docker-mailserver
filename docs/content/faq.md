@@ -143,7 +143,7 @@ imap port:          143 or 993 with STARTTLS/SSL (recommended)
 imap path prefix:   INBOX
 
 # SMTP
-smtp port:          25 or 587/465 with STARTTLS/SSL (recommended)
+smtp port:          587 or 465 with STARTTLS/SSL (recommended)
 username:           <user1@example.com>
 password:           <mypassword>
 ```
