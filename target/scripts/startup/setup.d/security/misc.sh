@@ -271,3 +271,28 @@ EOF
     _log 'debug' 'Spam emails will not be moved to the Junk folder'
   fi
 }
+
+function _setup_spam_mark_as_read() {
+  if [[ ${MARK_SPAM_AS_READ} -eq 1 ]]; then
+    _log 'debug' 'Spam emails will be marked as read'
+    mkdir -p /usr/lib/dovecot/sieve-global/after/
+
+    # Header support: `X-Spam-Flag` (SpamAssassin), `X-Spam` (Rspamd)
+    cat >/usr/lib/dovecot/sieve-global/after/spam_mark_as_read.sieve << EOF
+require ["mailbox","imap4flags"];
+
+if anyof (header :contains "X-Spam-Flag" "YES",
+          header :contains "X-Spam" "Yes") {
+    setflag "\\\\Seen";
+}
+EOF
+    sievec /usr/lib/dovecot/sieve-global/after/spam_mark_as_read.sieve
+    chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_mark_as_read.{sieve,svbin}
+
+    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
+      _log 'warning' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MARK_SPAM_AS_READ=1' to work"
+    fi
+  else
+    _log 'debug' 'Spam emails will not be marked as read'
+  fi
+}
