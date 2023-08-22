@@ -309,6 +309,18 @@ will be automatically moved to the Junk folder (with the help of a Sieve script)
 - 0 => Spam messages will be delivered in the mailbox.
 - **1** => Spam messages will be delivered in the `Junk` folder.
 
+##### MARK_SPAM_AS_READ
+
+Enable to treat received spam as "read" (_avoids notification to MUA client of new mail_).
+
+Mail is received as spam when it has been marked with either header:
+
+1. `X-Spam: Yes` (_by Rspamd_)
+2. `X-Spam-Flag: YES` (_by SpamAssassin - requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox)_)
+
+- **0** => disabled
+- 1 => Spam messages will be marked as read
+
 #### Rspamd
 
 ##### ENABLE_RSPAMD
@@ -337,6 +349,15 @@ The purpose of this setting is to opt-out of starting an internal Redis instance
 
 - 0 => Disabled
 - 1 => Enabled
+
+##### RSPAMD_CHECK_AUTHENTICATED
+
+This settings controls whether checks should be performed on emails coming from authenticated users (i.e. most likely outgoing emails). The default value is `0` in order to align better with SpamAssassin. **We recommend** reading through [the Rspamd documentation on scanning outbound emails][rspamd-scanning-outbound] though to decide for yourself whether you need and want this feature.
+
+- **0** => No checks will be performed for authenticated users
+- 1 => All default checks will be performed for authenticated users
+
+[rspamd-scanning-outbound]: https://rspamd.com/doc/tutorials/scanning_outbound.html
 
 ##### RSPAMD_GREYLISTING
 
@@ -645,7 +666,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 ##### DOVECOT_DNPASS
 
 - **empty** => same as `LDAP_BIND_PW`
-- => Password for LDAP dn sepecifified in `DOVECOT_DN`.
+- => Password for LDAP dn specified in `DOVECOT_DN`.
 
 ##### DOVECOT_URIS
 

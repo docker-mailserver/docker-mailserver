@@ -24,6 +24,7 @@ function setup_file() {
     --env LOG_LEVEL=trace
     --env MOVE_SPAM_TO_JUNK=0
     --env RSPAMD_LEARN=0
+    --env RSPAMD_CHECK_AUTHENTICATED=1
     --env RSPAMD_GREYLISTING=0
     --env RSPAMD_HFILTER=0
   )
@@ -83,5 +84,14 @@ function teardown_file() { _default_teardown ; }
 
 @test 'hfilter group module configuration is deleted' {
   _run_in_container_bash '[[ -f /etc/rspamd/local.d/hfilter_group.conf ]]'
+  assert_failure
+}
+
+@test 'checks on authenticated users are enabled' {
+  local MODULE_FILE='/etc/rspamd/local.d/settings.conf'
+  _run_in_container_bash "[[ -f ${MODULE_FILE} ]]"
+  assert_success
+
+  _run_in_container grep -E 'authenticated \{' "${MODULE_FILE}"
   assert_failure
 }
