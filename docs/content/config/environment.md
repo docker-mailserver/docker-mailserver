@@ -309,6 +309,18 @@ will be automatically moved to the Junk folder (with the help of a Sieve script)
 - 0 => Spam messages will be delivered in the mailbox.
 - **1** => Spam messages will be delivered in the `Junk` folder.
 
+##### MARK_SPAM_AS_READ
+
+Enable to treat received spam as "read" (_avoids notification to MUA client of new mail_).
+
+Mail is received as spam when it has been marked with either header:
+
+1. `X-Spam: Yes` (_by Rspamd_)
+2. `X-Spam-Flag: YES` (_by SpamAssassin - requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox)_)
+
+- **0** => disabled
+- 1 => Spam messages will be marked as read
+
 #### Rspamd
 
 ##### ENABLE_RSPAMD
