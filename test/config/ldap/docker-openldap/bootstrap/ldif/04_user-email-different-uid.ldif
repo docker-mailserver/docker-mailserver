@@ -1,23 +1,21 @@
-# --------------------------------------------------------------------
-# Create mail accounts
-# --------------------------------------------------------------------
-# Some User
+# NOTE: This user differs by local-part of mail address not matching their uniqueIdentifier attribute
+# They also do not have any alias or groups configured
 dn: uniqueIdentifier=some.user.id,ou=people,dc=localhost,dc=localdomain
-changetype: add
 objectClass: organizationalPerson
-objectClass: person
-objectClass: top
 objectClass: PostfixBookMailAccount
 objectClass: extensibleObject
 cn: Some User
-givenName: User
-mail: some.user.email@localhost.localdomain
-mailEnabled: TRUE
-mailGidNumber: 5000
-mailHomeDirectory: /var/mail/localhost.localdomain/some.user.id/
-mailQuota: 10240
-mailStorageDirectory: maildir:/var/mail/localhost.localdomain/some.user.id/
-mailUidNumber: 5000
-sn: Some
+givenName: Some
+surname: User
 uniqueIdentifier: some.user.id
+# Password is: secret
 userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx
+mail: some.user.email@localhost.localdomain
+# postfix-book.schema:
+mailHomeDirectory: /var/mail/localhost.localdomain/some.user.id/
+mailStorageDirectory: maildir:/var/mail/localhost.localdomain/some.user.id/
+# postfix-book.schema generic options:
+mailEnabled: TRUE
+mailUidNumber: 5000
+mailGidNumber: 5000
+mailQuota: 10240
