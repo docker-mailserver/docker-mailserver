@@ -4,6 +4,15 @@ function _escape() {
   echo "${1//./\\.}"
 }
 
+# Replaces a string so that it can be used inside
+# `sed` safely.
+#
+# @param ${1} = string to escape
+# @output     = prints the escaped string
+function _escape_for_sed() {
+  sed -E 's/[]\/$*.^[]/\\&/g' <<< "${1:?String to escape for sed is required}"
+}
+
 # Returns input after filtering out lines that are:
 # empty, white-space, comments (`#` as the first non-whitespace character)
 function _get_valid_lines_from_file() {

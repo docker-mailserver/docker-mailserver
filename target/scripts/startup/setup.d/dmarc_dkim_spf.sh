@@ -16,10 +16,9 @@ function _setup_opendkim() {
     _log 'trace' "Adding OpenDKIM to Postfix's milters"
     postconf 'dkim_milter = inet:localhost:8891'
     # shellcheck disable=SC2016
-    sed -i -E                                            \
-      -e '/\$dkim_milter/! s|^(smtpd_milters =.*)|\1 \$dkim_milter|g'     \
-      -e '/\$dkim_milter/! s|^(non_smtpd_milters =.*)|\1 \$dkim_milter|g' \
-      /etc/postfix/main.cf
+    _add_to_or_update_postfix_main 'smtpd_milters' '$dkim_milter'
+    # shellcheck disable=SC2016
+    _add_to_or_update_postfix_main 'non_smtpd_milters' '$dkim_milter'
 
     # check if any keys are available
     if [[ -e /tmp/docker-mailserver/opendkim/KeyTable ]]; then
@@ -64,7 +63,7 @@ function _setup_opendmarc() {
     postconf 'dmarc_milter = inet:localhost:8893'
     # Make sure to append the OpenDMARC milter _after_ the OpenDKIM milter!
     # shellcheck disable=SC2016
-    sed -i -E '/\$dmarc_milter/! s|^(smtpd_milters =.*)|\1 \$dmarc_milter|g' /etc/postfix/main.cf
+    _add_to_or_update_postfix_main 'smtpd_milters' '$dmarc_milter'
 
     sed -i \
       -e "s|^AuthservID.*$|AuthservID          ${HOSTNAME}|g" \
