@@ -25,6 +25,6 @@ body:
     value: |
       <!---
       Please do not use this form to bypass doing a proper bug report.
-      The issue is tracker is anything relevant to the project itself, not individual support queries.
+      The issue tracker is for anything relevant to the project itself, not individual support queries.
       If you don't want to fill out a bug report, please ask support questions at our community discussions page: https://github.com/orgs/docker-mailserver/discussions
       -->
