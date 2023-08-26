@@ -92,7 +92,7 @@ function _vhost_ldap_support() {
 # /etc/aliases is handled by `alias.sh` and uses `postalias` to update the Postfix alias database. No need for `postmap`.
 # http://www.postfix.org/postalias.1.html
 
-# Add an key with an value to Postfix's main configuration file
+# Add a key with a value to Postfix's main configuration file
 # or update an existing key. An already existing key can be updated
 # by either appending to the existing value (default) or by prepending.
 #
