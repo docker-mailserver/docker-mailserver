@@ -98,7 +98,7 @@ function _vhost_ldap_support() {
 #
 # @param ${1} = key name in Postfix's main configuration file
 # @param ${2} = new value (appended or prepended)
-# @param ${3} = "append" (default) or "prepend" [OPTIONAL]
+# @param ${3} = action "append" (default) or "prepend" [OPTIONAL]
 function _add_to_or_update_postfix_main() {
   local KEY=${1:?Key name is required}
   local NEW_VALUE=${2:?New value is required}
