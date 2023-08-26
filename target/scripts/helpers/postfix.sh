@@ -114,10 +114,10 @@ function _add_to_or_update_postfix_main() {
 
     case "${ACTION}" in
       ('append')
-        SED_STRING="/${NEW_VALUE}/! s|^(${KEY}\s*=.*)|\1 ${NEW_VALUE}|g"
+        SED_STRING="/^${KEY}\s*=.*${NEW_VALUE}/! s|^(${KEY}\s*=.*)|\1 ${NEW_VALUE}|g"
         ;;
       ('prepend')
-        SED_STRING="/${NEW_VALUE}/! s|^(${KEY})\s*=\s*(.*)|\1 = ${NEW_VALUE} \2|g"
+        SED_STRING="/^${KEY}\s*=.*${NEW_VALUE}/! s|^(${KEY})\s*=\s*(.*)|\1 = ${NEW_VALUE} \2|g"
         ;;
       (*)
         _log 'error' "Action '${3}' in _add_to_or_update_postfix_main is unknown"
