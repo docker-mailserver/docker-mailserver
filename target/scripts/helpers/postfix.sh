@@ -105,6 +105,8 @@ function _add_to_or_update_postfix_main() {
   local ACTION=${3:-append}
   local CURRENT_VALUE
 
+  _adjust_mtime_for_postfix_maincf
+
   # Get current value from /etc/postfix/main.cf
   CURRENT_VALUE=$(postconf -h "${KEY}" 2>/dev/null)
 
