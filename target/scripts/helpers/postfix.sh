@@ -105,10 +105,10 @@ function _add_to_or_update_postfix_main() {
   local ACTION=${3:-append}
   local CURRENT_VALUE
 
-  # Get current value if present
+  # Get current value from /etc/postfix/main.cf
   CURRENT_VALUE=$(postconf -h "${KEY}" 2>/dev/null)
 
-  # If entry does not exist, add it - otherwise update with ACTION:
+  # If key does not exist or value is empty, add it - otherwise update with ACTION:
   if [[ -z ${CURRENT_VALUE} ]]; then
     postconf "${KEY} = ${NEW_VALUE}"
   else
