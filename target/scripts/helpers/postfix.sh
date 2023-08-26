@@ -105,7 +105,7 @@ function _add_to_or_update_postfix_main() {
   local ACTION=${3:-append}
 
   # If entry does not exist, add it - otherwise update with ACTION:
-  if ! grep -q -E "^${KEY}\s+=" /etc/postfix/main.cf; then
+  if ! grep -q -E "^${KEY}\s*=" /etc/postfix/main.cf; then
     postconf "${KEY} = ${NEW_VALUE}"
   else
     KEY=$(_escape_for_sed "${KEY}")
