@@ -103,28 +103,31 @@ function _add_to_or_update_postfix_main() {
   local KEY=${1:?Key name is required}
   local NEW_VALUE=${2:?New value is required}
   local ACTION=${3:-append}
+  local CURRENT_VALUE
+
+  # Get current value if present
+  CURRENT_VALUE=$(postconf -h "${KEY}" 2>/dev/null)
 
   # If entry does not exist, add it - otherwise update with ACTION:
-  if ! grep -q -E "^${KEY}\s*=" /etc/postfix/main.cf; then
+  if [[ -z ${CURRENT_VALUE} ]]; then
     postconf "${KEY} = ${NEW_VALUE}"
   else
-    KEY=$(_escape_for_sed "${KEY}")
-    NEW_VALUE=$(_escape_for_sed "${NEW_VALUE}")
-    local SED_STRING
+    # If $NEW_VALUE is already present --> nothing to do, skip.
+    if grep -qF " ${NEW_VALUE} " <<<" {$CURRENT_VALUE} "; then
+      return 0
+    fi
 
     case "${ACTION}" in
       ('append')
-        SED_STRING="/^${KEY}\s*=.*${NEW_VALUE}/! s|^(${KEY}\s*=.*)|\1 ${NEW_VALUE}|g"
+        postconf "${KEY} = ${CURRENT_VALUE} ${NEW_VALUE}"
         ;;
       ('prepend')
-        SED_STRING="/^${KEY}\s*=.*${NEW_VALUE}/! s|^(${KEY})\s*=\s*(.*)|\1 = ${NEW_VALUE} \2|g"
+        postconf "${KEY} = ${NEW_VALUE} ${CURRENT_VALUE}"
         ;;
       (*)
         _log 'error' "Action '${3}' in _add_to_or_update_postfix_main is unknown"
         return 1
         ;;
     esac
-
-    sed -i -E "${SED_STRING}" /etc/postfix/main.cf
   fi
 }
