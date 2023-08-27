@@ -4,6 +4,7 @@ function _escape() {
   echo "${1//./\\.}"
 }
 
+# TODO: Not in use currently. Maybe in the future: https://github.com/docker-mailserver/docker-mailserver/pull/3484/files#r1299410851
 # Replaces a string so that it can be used inside
 # `sed` safely.
 #
