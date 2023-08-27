@@ -114,7 +114,7 @@ function _add_to_or_update_postfix_main() {
     postconf "${KEY} = ${NEW_VALUE}"
   else
     # If $NEW_VALUE is already present --> nothing to do, skip.
-    if grep -qF " ${NEW_VALUE} " <<<" ${CURRENT_VALUE} "; then
+    if [[ " ${CURRENT_VALUE} " == *" ${NEW_VALUE} "* ]]; then
       return 0
     fi
 
