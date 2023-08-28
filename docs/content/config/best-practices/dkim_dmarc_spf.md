@@ -62,9 +62,11 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         Your new DKIM key(s) and OpenDKIM config files have been added to `/tmp/docker-mailserver/opendkim/`.
 
-    ??? note "LDAP accounts need to specify domains explicitly"
+    ??? note "LDAP accounts need to specify mail domains explicitly"
 
-        The command is unable to infer the domains from LDAP user accounts, you must specify them:
+        `setup config dkim` only makes an assumption of the primary mail domain from the FQDN assigned to DMS. When the DMS FQDN is `mail.example.com` or `example.com`, by default this command will generate DKIM keys for `example.com` as the primary domain for your users mail accounts to be using (`hello@example.com`).
+
+        Otherwise, the commands defaults (_when DMS is configured with `ACCOUNT_PROVISIONER=LDAP`_) are not able to source the extra mail domains known by your LDAP provider. If you need to support additional mail domains, then you must explicitly specify them by using the `domain` option:
 
         ```sh
         setup config dkim domain 'example.com,another-example.com'
