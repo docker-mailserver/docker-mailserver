@@ -35,6 +35,8 @@ DKIM requires a public/private key pair to enable **signing (_via private key_)*
 
 ### Generating Keys
 
+You'll need to repeat this process if you add any new domains.
+
 You should have:
 
 - At least one [email account setup][docs-accounts-add]
@@ -72,40 +74,44 @@ You should have:
 
         You [should not need a key length beyond 2048-bit][github-issue-dkimlength]. If 2048-bit does not meet your security needs, you may want to instead consider adopting key rotation or switching from RSA to ECC keys for DKIM.
 
+??? note "You may need to specify mail domains explicitly"
+
+    Required when using LDAP and Rspamd.
+
+    `setup config dkim` will generate DKIM keys for what is assumed as the primary mail domain (_derived from the FQDN assigned to DMS, minus any subdomain_).
+
+    When the DMS FQDN is `mail.example.com` or `example.com`, by default this command will generate DKIM keys for `example.com` as the primary domain for your users mail accounts (eg: `hello@example.com`).
+
+    The DKIM generation does not have support to query LDAP for additionanl mail domains it should know about. If the primary mail domain is not sufficient, then you must explicitly specify any extra domains via the `domain` option:
+
+    ```sh
+    # ENABLE_OPENDKIM=1 (default):
+    setup config dkim domain 'example.com,another-example.com'
+
+    # ENABLE_RSPAMD=1 + ENABLE_OPENDKIM=0:
+    setup config dkim domain example.com
+    setup config dkim domain another-example.com
+    ```
+
+    !!! info "OpenDKIM with `ACCOUNT_PROVISIONER=FILE`"
+
+        When DMS uses this configuration, it will by default also detect mail domains (_from accounts added via `setup email add`_), generating additional DKIM keys.
+
 DKIM is currently supported by either OpenDKIM or Rspamd:
 
 === "OpenDKIM"
 
     OpenDKIM is currently [enabled by default][docs-env-opendkim].
 
-    Your new DKIM key(s) and OpenDKIM config files have been added to `/tmp/docker-mailserver/opendkim/`.
-
-    ??? note "LDAP accounts need to specify mail domains explicitly"
-
-        `setup config dkim` only makes an assumption of the primary mail domain from the FQDN assigned to DMS.
-
-        When the DMS FQDN is `mail.example.com` or `example.com`, by default this command will generate DKIM keys for `example.com` as the primary domain for your users mail accounts to be using (`hello@example.com`).
-
-        The DKIM generation does not have support to query LDAP for additionanl mail domains it should know about. If the primary mail domain is not sufficient, then you must explicitly specify any extra domains via the `domain` option:
-
-        ```sh
-        # ENABLE_OPENDKIM=1 (default):
-        setup config dkim domain 'example.com,another-example.com'
-
-        # ENABLE_RSPAMD=1 + ENABLE_OPENDKIM=0:
-        setup config dkim domain example.com
-        setup config dkim domain another-example.com
-        ```
+    After running `setup config dkim`, your new DKIM key files (_and OpenDKIM config_) have been added to `/tmp/docker-mailserver/opendkim/`.
 
     !!! info "Restart required"
 
         After restarting DMS, outgoing mail will now be signed with your new DKIM key(s) :tada:
 
-        **NOTE:** You'll need to repeat this process if you add any new domains.
-
 === "Rspamd"
 
-    Opt-in via [`ENABLE_RSPAMD=1`][docs-env-rspamd] (_and disable the default OpenDKIM: `ENABLE_OPENDKIM=0`_).
+    Requires opt-in via [`ENABLE_RSPAMD=1`][docs-env-rspamd] (_and disable the default OpenDKIM: `ENABLE_OPENDKIM=0`_).
 
     Rspamd provides DKIM support through two separate modules:
 
@@ -114,13 +120,9 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
     ??? warning "Using Multiple Domains"
 
-        Unlike the current support for OpenDKIM, DKIM keys generation for Rspamd will **not** create keys for all domains DMS is configured to manage.
-
-        DKIM keys are generated only for what is assumed as the primary mail domain (_derived from the FQDN assigned to DMS, minus any subdomain_).
-
         If you have multiple domains, you need to:
 
-        - Run the command `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` multiple times to create a key for each domain DMS should sign for.
+        - Create a key wth `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` for each domain DMS should sign outgoing mail for.
         - Provide a custom `dkim_signing.conf` (for which an example is shown below), as the default config only supports one domain.
 
     !!! info "About the Helper Script"
