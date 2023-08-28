@@ -14,8 +14,7 @@ function _early_variables_setup() {
 # completely with a single version.
 function __environment_variables_backwards_compatibility() {
   if [[ ${ENABLE_LDAP:-0} -eq 1 ]]; then
-    _log 'warn' "'ENABLE_LDAP=1' is deprecated (and will be removed in v13.0.0) => use 'ACCOUNT_PROVISIONER=LDAP' instead"
-    ACCOUNT_PROVISIONER='LDAP'
+    _log 'error' "'ENABLE_LDAP=1' has been changed to 'ACCOUNT_PROVISIONER=LDAP' since DMS v13"
   fi
 
   # TODO this can be uncommented in a PR handling the HOSTNAME/DOMAINNAME issue
