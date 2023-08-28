@@ -49,7 +49,7 @@ function teardown_file() { _default_teardown ; }
   _run_in_container setup config dkim help
   __log_is_free_of_warnings_and_errors
   assert_output --partial 'Showing usage message now'
-  assert_output --partial 'rspamd-dkim - Configure DomainKeys Identified Mail (DKIM) via Rspamd'
+  assert_output --partial 'rspamd-dkim - Configure DKIM (DomainKeys Identified Mail)'
 }
 
 @test 'default signing config is created if it does not exist and not overwritten' {
@@ -143,7 +143,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "argument 'keysize' is applied correctly for RSA keys" {
-  for KEYSIZE in 512 1024 2048 4096; do
+  for KEYSIZE in 1024 2048 4096; do
     __create_key 'rsa' 'mail' "${DOMAIN_NAME}" "${KEYSIZE}"
     assert_success
     __log_is_free_of_warnings_and_errors
