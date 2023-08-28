@@ -8,7 +8,7 @@ if [[ -f /etc/dms-settings ]] && [[ $(_get_dms_env_value 'ENABLE_RSPAMD') -eq 1 
   exit
 fi
 
-KEYSIZE=4096
+KEYSIZE=2048
 SELECTOR=mail
 DOMAINS=
 
@@ -30,7 +30,7 @@ ${ORANGE}OPTIONS${RESET}
         help       Print the usage information.
 
     ${BLUE}Configuration adjustments${RESET}
-        keysize    Set the size of the keys to be generated. Possible are 1024, 2048 and 4096 (default).
+        keysize    Set the size of the keys to be generated (default: 2048). Possible are: 1024, 2048 and 4096.
         selector   Set a manual selector (default is 'mail') for the key. (${LCYAN}ATTENTION${RESET}: NOT IMPLEMENTED YET!)
         domain     Provide the domain(s) for which keys are to be generated.
 
