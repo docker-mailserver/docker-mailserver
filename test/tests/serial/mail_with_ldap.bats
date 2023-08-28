@@ -21,7 +21,7 @@ function setup_file() {
   # Setup local openldap service:
   docker run --rm -d --name "${CONTAINER2_NAME}" \
     --env LDAP_ADMIN_PASSWORD=admin \
-    --env LDAP_ROOT='dc=localhost,dc=localdomain' \
+    --env LDAP_ROOT='dc=example,dc=test' \
     --env LDAP_PORT_NUMBER=389 \
     --env LDAP_SKIP_DEFAULT_TREE=yes \
     --volume './test/config/ldap/docker-openldap/bootstrap/ldif/:/ldifs/:ro' \
@@ -37,26 +37,29 @@ function setup_file() {
   #
 
   local ENV_LDAP_CONFIG=(
-    # Configure for LDAP account provisioner and alternative to Dovecot SASL:
     --env ACCOUNT_PROVISIONER=LDAP
+
+    # Postfix SASL auth provider (SASLAuthd instead of default Dovecot provider):
     --env ENABLE_SASLAUTHD=1
     --env SASLAUTHD_MECHANISMS=ldap
+    --env SASLAUTHD_LDAP_FILTER='(&(userID=%U)(mailEnabled=TRUE))'
 
     # ENV to configure LDAP configs for Dovecot + Postfix:
     # NOTE: `scripts/startup/setup.d/ldap.sh:_setup_ldap()` uses `_replace_by_env_in_file()` to configure settings (stripping `DOVECOT_` / `LDAP_` prefixes):
     # Dovecot:
-    --env DOVECOT_PASS_FILTER='(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))'
+    --env DOVECOT_PASS_FILTER='(&(objectClass=PostfixBookMailAccount)(userID=%n))'
     --env DOVECOT_TLS=no
-    --env DOVECOT_USER_FILTER='(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))'
+    --env DOVECOT_USER_FILTER='(&(objectClass=PostfixBookMailAccount)(userID=%n))'
+
     # Postfix:
-    --env LDAP_BIND_DN='cn=admin,dc=localhost,dc=localdomain'
+    --env LDAP_BIND_DN='cn=admin,dc=example,dc=test'
     --env LDAP_BIND_PW='admin'
     --env LDAP_QUERY_FILTER_ALIAS='(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))'
     --env LDAP_QUERY_FILTER_DOMAIN='(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))'
     --env LDAP_QUERY_FILTER_GROUP='(&(mailGroupMember=%s)(mailEnabled=TRUE))'
-    --env LDAP_QUERY_FILTER_SENDERS='(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(uniqueIdentifier=some.user.id))'
+    --env LDAP_QUERY_FILTER_SENDERS='(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(userID=some.user.id))'
     --env LDAP_QUERY_FILTER_USER='(&(mail=%s)(mailEnabled=TRUE))'
-    --env LDAP_SEARCH_BASE='ou=people,dc=localhost,dc=localdomain'
+    --env LDAP_SEARCH_BASE='ou=users,dc=example,dc=test'
     --env LDAP_SERVER_HOST="${FQDN_LDAP}"
     --env LDAP_START_TLS=no
   )
@@ -108,7 +111,7 @@ function teardown_file() {
   # Test email receiving from a other domain then the primary domain of the mailserver
   _should_exist_in_ldap_tables "some.other.user@${FQDN_LOCALHOST_B}"
 
-  # Should not require `uniqueIdentifier` to match the local part of `mail` (`.ldif` defined settings):
+  # Should not require `userID` / `uid` to match the local part of `mail` (`.ldif` defined settings):
   # REF: https://github.com/docker-mailserver/docker-mailserver/pull/642#issuecomment-313916384
   # NOTE: This account has no `mailAlias` or `mailGroupMember` defined in it's `.ldif`.
   local MAIL_ACCOUNT="some.user.email@${FQDN_LOCALHOST_A}"
@@ -137,8 +140,8 @@ function teardown_file() {
   local LDAP_SETTINGS_POSTFIX=(
     "server_host = ${FQDN_LDAP}"
     'start_tls = no'
-    'search_base = ou=people,dc=localhost,dc=localdomain'
-    'bind_dn = cn=admin,dc=localhost,dc=localdomain'
+    'search_base = ou=users,dc=example,dc=test'
+    'bind_dn = cn=admin,dc=example,dc=test'
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_POSTFIX[@]}"; do
@@ -177,8 +180,8 @@ function teardown_file() {
   local LDAP_SETTINGS_DOVECOT=(
     "uris = ldap://${FQDN_LDAP}"
     'tls = no'
-    'base = ou=people,dc=localhost,dc=localdomain'
-    'dn = cn=admin,dc=localhost,dc=localdomain'
+    'base = ou=users,dc=example,dc=test'
+    'dn = cn=admin,dc=example,dc=test'
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_DOVECOT[@]}"; do

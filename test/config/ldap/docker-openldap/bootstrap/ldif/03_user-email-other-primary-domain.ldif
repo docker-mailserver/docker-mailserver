@@ -1,13 +1,12 @@
 # NOTE: This user differs via the domain-part of their mail address
 # They also have their mail directory attributes using the primary domain, not their domain-part
-dn: uniqueIdentifier=some.other.user,ou=people,dc=localhost,dc=localdomain
-objectClass: organizationalPerson
+dn: uid=some.other.user,ou=users,dc=example,dc=test
+objectClass: inetOrgPerson
 objectClass: PostfixBookMailAccount
-objectClass: extensibleObject
 cn: Some Other User
 givenName: Some
 surname: Other User
-uniqueIdentifier: some.other.user
+userID: some.other.user
 # Password is: secret
 userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx
 mail: some.other.user@localhost.otherdomain
