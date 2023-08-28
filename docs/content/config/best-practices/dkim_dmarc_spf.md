@@ -42,7 +42,9 @@ You should have:
 
 !!! warning "RSA Key Sizes >= 4096 Bit"
 
-    Keys of size 4096-bit could be denied by some mail servers. According to [RFC 6376][rfc-6376], keys are [preferably between 512 and 2048 bits][github-issue-dkimlength] (_**NOTE:** 512-bit is considered insecure_).
+    According to [RFC 8301][rfc-8301], keys are preferably between 1024 and 2048 bits. Keys of size 4096-bit or larger may not be compatible to all systems your mail is intended for.
+
+    You [should not need a key length beyond 2048-bit][github-issue-dkimlength]. If 2048-bit does not meet your security needs, you may want to instead consider adopting key rotation or switching from RSA to ECC keys for DKIM.
 
 DKIM is currently supported by either OpenDKIM or Rspamd:
 
@@ -337,8 +339,8 @@ volumes:
 [docs-env-rspamd]: ../environment.md#enable_rspamd
 [docs-rspamd-config-dropin]: ../security/rspamd.md#manually
 [cloudflare-dkim-dmarc-spf]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
-[rfc-6376]: https://tools.ietf.org/html/rfc6376
-[github-issue-dkimlength]: https://github.com/docker-mailserver/docker-mailserver/issues/1854
+[rfc-8301]: https://datatracker.ietf.org/doc/html/rfc8301#section-3.2
+[github-issue-dkimlength]: https://github.com/docker-mailserver/docker-mailserver/issues/1854#issuecomment-806280929
 [rspamd-docs-dkim-checks]: https://www.rspamd.com/doc/modules/dkim.html
 [rspamd-docs-dkim-signing]: https://www.rspamd.com/doc/modules/dkim_signing.html
 [dns::example-webui]: https://www.vultr.com/docs/introduction-to-vultr-dns/
