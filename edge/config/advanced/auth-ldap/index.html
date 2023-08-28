@@ -1638,8 +1638,7 @@
 <details class="example" open="open">
 <summary>Example</summary>
 <p>A really simple <code>LDAP_QUERY_FILTER</code> configuration, using only the <em>user filter</em> and allowing only <code>admin@*</code> to spoof any sender addresses.</p>
-<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"> </span><span class="c1"># with the :edge tag, use ACCOUNT_PROVISIONER</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_START_TLS=yes</span>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_START_TLS=yes</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACCOUNT_PROVISIONER=LDAP</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=example,dc=org&quot;</span>
@@ -1787,7 +1786,6 @@ update-ca-certificates
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_POSTGREY=1</span>
 
 <span class="w">      </span><span class="c1"># &gt;&gt;&gt; Postfix LDAP Integration</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"> </span><span class="c1"># with the :edge tag, use ACCOUNT_PROVISIONER</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACCOUNT_PROVISIONER=LDAP</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=ldap.example.org</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org</span>
@@ -1855,7 +1853,6 @@ update-ca-certificates
 <span class="w">      </span><span class="c1"># &lt;&lt;&lt; SASL Authentication</span>
 
 <span class="w">      </span><span class="c1"># &gt;&gt;&gt; Postfix Ldap Integration</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LDAP=1</span><span class="w"> </span><span class="c1"># with the :edge tag, use ACCOUNT_PROVISIONER</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACCOUNT_PROVISIONER=LDAP</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SERVER_HOST=&lt;yourLdapContainer/yourLdapServer&gt;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_SEARCH_BASE=dc=mydomain,dc=loc</span>
