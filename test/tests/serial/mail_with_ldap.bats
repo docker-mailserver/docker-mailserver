@@ -54,10 +54,10 @@ function setup_file() {
     # Postfix:
     --env LDAP_BIND_DN='cn=admin,dc=example,dc=test'
     --env LDAP_BIND_PW='admin'
-    --env LDAP_QUERY_FILTER_ALIAS='(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))'
-    --env LDAP_QUERY_FILTER_DOMAIN='(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))'
+    --env LDAP_QUERY_FILTER_ALIAS='(| (&(mailAlias=%s)(objectClass=PostfixBookMailForward)) (&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) )'
+    --env LDAP_QUERY_FILTER_DOMAIN='(| (&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) (&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) (&(mailAlias=*@%s)(objectClass=PostfixBookMailForward)))'
     --env LDAP_QUERY_FILTER_GROUP='(&(mailGroupMember=%s)(mailEnabled=TRUE))'
-    --env LDAP_QUERY_FILTER_SENDERS='(|(&(mail=%s)(mailEnabled=TRUE))(&(mailGroupMember=%s)(mailEnabled=TRUE))(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))(userID=some.user.id))'
+    --env LDAP_QUERY_FILTER_SENDERS='(| (&(mail=%s)(mailEnabled=TRUE)) (&(mailGroupMember=%s)(mailEnabled=TRUE)) (| (&(mailAlias=%s)(objectClass=PostfixBookMailForward)) (&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ) (userID=some.user.id) )'
     --env LDAP_QUERY_FILTER_USER='(&(mail=%s)(mailEnabled=TRUE))'
     --env LDAP_SEARCH_BASE='ou=users,dc=example,dc=test'
     --env LDAP_SERVER_HOST="${FQDN_LDAP}"
