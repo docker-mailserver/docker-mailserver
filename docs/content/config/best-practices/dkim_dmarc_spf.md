@@ -40,6 +40,22 @@ You should have:
 - At least one [email account setup][docs-accounts-add]
 - Attached a [volume for config][docs-volumes-config] to persist the generated files to local storage
 
+!!! example "Creating DKIM Keys"
+
+    DKIM keys can be generated with good defaults by running:
+
+    ```bash
+    docker exec -it <CONTAINER NAME> setup config dkim
+    ```
+
+    If you need to generate your keys with different settings, check the `help` output for supported config options and examples:
+
+    ```bash
+    docker exec -it <CONTAINER NAME> setup config dkim help
+    ```
+
+    As described by the help output, you may need to use the `domain` option explicitly when you're using LDAP or Rspamd.
+
 !!! warning "RSA Key Sizes >= 4096 Bit"
 
     According to [RFC 8301][rfc-8301], keys are preferably between 1024 and 2048 bits. Keys of size 4096-bit or larger may not be compatible to all systems your mail is intended for.
@@ -52,17 +68,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
     OpenDKIM is currently [enabled by default][docs-env-opendkim].
 
-    The command `docker exec <CONTAINER NAME> setup config dkim help` will provide details of supported config options, along with some examples.
-
-    !!! example "Creating a DKIM key"
-
-        Generate the DKIM files with:
-
-        ```sh
-        docker exec -it <CONTAINER NAME> setup config dkim
-        ```
-
-        Your new DKIM key(s) and OpenDKIM config files have been added to `/tmp/docker-mailserver/opendkim/`.
+    Your new DKIM key(s) and OpenDKIM config files have been added to `/tmp/docker-mailserver/opendkim/`.
 
     ??? note "LDAP accounts need to specify mail domains explicitly"
 
@@ -98,22 +104,6 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
     1. [Verifying DKIM signatures from inbound mail][rspamd-docs-dkim-checks] is enabled by default.
     2. [Signing outbound mail with your DKIM key][rspamd-docs-dkim-signing] needs additional setup (key + dns + config).
-
-    !!! example "Creating DKIM Keys"
-
-        You can simply run
-
-        ```bash
-        docker exec -it <CONTAINER NAME> setup config dkim help
-        ```
-
-        which provides you with an overview of what the script can do. Just running
-
-        ```bash
-        docker exec -it <CONTAINER NAME> setup config dkim
-        ```
-
-        will execute the helper script with default parameters.
 
     ??? warning "Using Multiple Domains"
 
