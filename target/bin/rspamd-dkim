@@ -16,14 +16,14 @@ function __usage() {
   echo -e "${PURPLE}RSPAMD-DKIM${RED}(${YELLOW}8${RED})
 
 ${ORANGE}NAME${RESET}
-    rspamd-dkim - Configure DomainKeys Identified Mail (DKIM) via Rspamd
+    rspamd-dkim - Configure DKIM (DomainKeys Identified Mail)
 
 ${ORANGE}SYNOPSIS${RESET}
     setup config dkim [ OPTIONS${RED}...${RESET} ]
 
 ${ORANGE}DESCRIPTION${RESET}
-    This script aids in creating DKIM signing keys. The keys are created and managed by Rspamd.
-    OPTIONS can be used to configure a more complex setup.
+    Creates DKIM keys and configures them within DMS for Rspamd.
+    OPTIONS can be used when your requirements are not met by the defaults.
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
@@ -32,30 +32,27 @@ ${ORANGE}OPTIONS${RESET}
         help      Print the usage information.
 
     ${BLUE}Configuration adjustments${RESET}
-        keytype   Set the type of key you want to use
+        keytype   Set the type of key you want to use.
                   Possible values: rsa, ed25519
                   Default: rsa
-        keysize   Set the size of the keys to be generated
+        keysize   Set the size of the keys to be generated.
                   Possible values: 1024, 2048 and 4096
                   Default: 2048
                   Only applies when using keytype=rsa
-        selector  Set a manual selector for the key
+        selector  Set a manual selector for the key.
                   Default: mail
-        domain    Provide the domain for which keys are to be generated
-                  Default: primary domain name of DMS
+        domain    Provide the domain for which to generate keys for.
+                  Default: The FQDN assigned to DMS, excluding any subdomain.
 
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}setup config dkim keysize 2048${RESET}
-        Creates keys of length 2048 bit in a default setup where domains are obtained from
-        your accounts.
+    ${LWHITE}setup config dkim keysize 4096${RESET}
+        Creates keys with their length increased to a size of 4096-bit.
 
-    ${LWHITE}setup config dkim keysize 512 selector 2023-dkim${RESET}
-        Creates keys of length 512 bit in a default setup where domains are obtained from
-        your accounts. The DKIM selector used is '2023-dkim'.
+    ${LWHITE}setup config dkim keysize 1024 selector 2023-dkim${RESET}
+        Creates 1024-bit sized keys, and changes the DKIM selector to '2023-dkim'.
 
-    ${LWHITE}setup config dkim keysize 1024 selector 2023-dkim domain whoami.com${RESET}
-        Creates keys of length 1024 bit in a default setup where domains are obtained from your accounts.
-        The DKIM selector used is '2023-dkim'. The domain for which DKIM keys are generated is whoami.com.
+    ${LWHITE}setup config dkim domain example.com${RESET}
+        Generate the DKIM key for a different domain (example.com).
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain

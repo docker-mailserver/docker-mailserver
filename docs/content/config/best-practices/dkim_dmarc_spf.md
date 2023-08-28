@@ -35,14 +35,67 @@ DKIM requires a public/private key pair to enable **signing (_via private key_)*
 
 ### Generating Keys
 
+You'll need to repeat this process if you add any new domains.
+
 You should have:
 
 - At least one [email account setup][docs-accounts-add]
 - Attached a [volume for config][docs-volumes-config] to persist the generated files to local storage
 
-!!! warning "RSA Key Sizes >= 4096 Bit"
+!!! example "Creating DKIM Keys"
 
-    Keys of 4096 bits could be denied by some mail servers. According to [RFC 6376][rfc-6376], keys are [preferably between 512 and 2048 bits][github-issue-dkimlength].
+    DKIM keys can be generated with good defaults by running:
+
+    ```bash
+    docker exec -it <CONTAINER NAME> setup config dkim
+    ```
+
+    If you need to generate your keys with different settings, check the `help` output for supported config options and examples:
+
+    ```bash
+    docker exec -it <CONTAINER NAME> setup config dkim help
+    ```
+
+    As described by the help output, you may need to use the `domain` option explicitly when you're using LDAP or Rspamd.
+
+??? info "Changing the key size"
+
+    The keypair generated for using with DKIM presently defaults to RSA-2048. This is a good size but you can lower the security to `1024-bit`, or increase it to `4096-bit` (_discouraged as that is excessive_).
+    
+    To generate a key with different size (_for RSA 1024-bit_) run:
+
+    ```sh
+    setup config dkim keysize 1024
+    ```
+
+    !!! warning "RSA Key Sizes >= 4096 Bit"
+
+        According to [RFC 8301][rfc-8301], keys are preferably between 1024 and 2048 bits. Keys of size 4096-bit or larger may not be compatible to all systems your mail is intended for.
+
+        You [should not need a key length beyond 2048-bit][github-issue-dkimlength]. If 2048-bit does not meet your security needs, you may want to instead consider adopting key rotation or switching from RSA to ECC keys for DKIM.
+
+??? note "You may need to specify mail domains explicitly"
+
+    Required when using LDAP and Rspamd.
+
+    `setup config dkim` will generate DKIM keys for what is assumed as the primary mail domain (_derived from the FQDN assigned to DMS, minus any subdomain_).
+
+    When the DMS FQDN is `mail.example.com` or `example.com`, by default this command will generate DKIM keys for `example.com` as the primary domain for your users mail accounts (eg: `hello@example.com`).
+
+    The DKIM generation does not have support to query LDAP for additionanl mail domains it should know about. If the primary mail domain is not sufficient, then you must explicitly specify any extra domains via the `domain` option:
+
+    ```sh
+    # ENABLE_OPENDKIM=1 (default):
+    setup config dkim domain 'example.com,another-example.com'
+
+    # ENABLE_RSPAMD=1 + ENABLE_OPENDKIM=0:
+    setup config dkim domain example.com
+    setup config dkim domain another-example.com
+    ```
+
+    !!! info "OpenDKIM with `ACCOUNT_PROVISIONER=FILE`"
+
+        When DMS uses this configuration, it will by default also detect mail domains (_from accounts added via `setup email add`_), generating additional DKIM keys.
 
 DKIM is currently supported by either OpenDKIM or Rspamd:
 
@@ -50,68 +103,27 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
     OpenDKIM is currently [enabled by default][docs-env-opendkim].
 
-    The command `docker exec <CONTAINER NAME> setup config dkim help` details supported config options, along with some examples.
-
-    !!! example "Creating a DKIM key"
-
-        Generate the DKIM files with:
-
-        ```sh
-        docker exec -ti <CONTAINER NAME> setup config dkim
-        ```
-
-        Your new DKIM key(s) and OpenDKIM config files have been added to `/tmp/docker-mailserver/opendkim/`.
-
-    ??? note "LDAP accounts need to specify domains explicitly"
-
-        The command is unable to infer the domains from LDAP user accounts, you must specify them:
-
-        ```sh
-        setup config dkim domain 'example.com,example.io'
-        ```
-
-    ??? tip "Changing the key size"
-
-        The private key presently defaults to RSA-4096. To create an RSA 2048-bit key run:
-
-        ```sh
-        setup config dkim keysize 2048
-        ```
+    After running `setup config dkim`, your new DKIM key files (_and OpenDKIM config_) have been added to `/tmp/docker-mailserver/opendkim/`.
 
     !!! info "Restart required"
 
         After restarting DMS, outgoing mail will now be signed with your new DKIM key(s) :tada:
 
-        You'll need to repeat this process if you add any new domains.
-
 === "Rspamd"
 
-    Opt-in via [`ENABLE_RSPAMD=1`][docs-env-rspamd] (_and disable the default OpenDKIM: `ENABLE_OPENDKIM=0`_).
+    Requires opt-in via [`ENABLE_RSPAMD=1`][docs-env-rspamd] (_and disable the default OpenDKIM: `ENABLE_OPENDKIM=0`_).
 
     Rspamd provides DKIM support through two separate modules:
 
     1. [Verifying DKIM signatures from inbound mail][rspamd-docs-dkim-checks] is enabled by default.
     2. [Signing outbound mail with your DKIM key][rspamd-docs-dkim-signing] needs additional setup (key + dns + config).
 
-    !!! example "Creating DKIM Keys"
-
-        You can simply run
-
-        ```bash
-        docker exec -ti <CONTAINER NAME> setup config dkim help
-        ```
-
-        which provides you with an overview of what the script can do. Just running
-
-        ```bash
-        docker exec -ti <CONTAINER NAME> setup config dkim
-        ```
-
-        will execute the helper script with default parameters.
-
     ??? warning "Using Multiple Domains"
 
-        Unlike the current script for OpenDKIM, the Rspamd script will **not** create keys for all domains DMS is managing, but only for the one it assumes to be the main domain (derived from DMS' domain name). Moreover, the default `dkim_signing.conf` configuration file that DMS ships will also only contain one domain. If you have multiple domains, you need to run the command `docker exec -ti <CONTAINER NAME> setup config dkim domain <DOMAIN>` multiple times to create all the keys for all domains, and then provide a custom `dkim_signing.conf` (for which an example is shown below).
+        If you have multiple domains, you need to:
+
+        - Create a key wth `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` for each domain DMS should sign outgoing mail for.
+        - Provide a custom `dkim_signing.conf` (for which an example is shown below), as the default config only supports one domain.
 
     !!! info "About the Helper Script"
 
@@ -121,7 +133,9 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         ---
 
-        In case you have not already provided a default DKIM signing configuration, the script will create one and write it to `/etc/rspamd/override.d/dkim_signing.conf`. If this file already exist, it will not be overwritten. When you're already using [the `rspamd/override.d/` directory][docs-rspamd-override-d], the file is created inside your volume and therefore persisted correctly. If you are not using `rspamd/override.d/`, you will need to persist the file yourself (otherwise it is lost on container restart).
+        In case you have not already provided a default DKIM signing configuration, the script will create one and write it to `/etc/rspamd/override.d/dkim_signing.conf`. If this file already exists, it will not be overwritten.
+
+        When you're already using [the `rspamd/override.d/` directory][docs-rspamd-config-dropin], the file is created inside your volume and therefore persisted correctly. If you are not using `rspamd/override.d/`, you will need to persist the file yourself (otherwise it is lost on container restart).
 
         An example of what a default configuration file for DKIM signing looks like can be found by expanding the example below.
 
@@ -190,8 +204,6 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         If there is a mismatch, a warning will be emitted to the Rspamd log `/var/log/supervisor/rspamd.log`.
 
-    [docs-rspamd-override-d]: ../security/rspamd.md#manually
-
 ### DNS Record { #dkim-dns }
 
 When mail signed with your DKIM key is sent from your mail server, the receiver needs to check a DNS `TXT` record to verify the DKIM signature is trustworthy.
@@ -221,11 +233,13 @@ When mail signed with your DKIM key is sent from your mail server, the receiver 
 
 ??? info "`<selector>.txt` - Formatting the `TXT` record value correctly"
 
-    This file was generated for use within a [DNS zone file][dns::wikipedia-zonefile]. DNS `TXT` records values that are longer than 255 characters need to be split into multiple parts. This is why the public key has multiple parts wrapped within double-quotes between `(` and `)`.
+    This file was generated for use within a [DNS zone file][dns::wikipedia-zonefile]. The file name uses the DKIM selector it was generated with (default DKIM selector is `mail`, which creates `mail.txt`_).
 
-    A DNS web-interface may handle this internally instead, while [others may not, but expect the input as a single line][dns::webui-dkim]_). You'll need to manually format the value as described below.
+    For your DNS setup, DKIM support needs to create a `TXT` record to store the public key for mail clients to use. `TXT` records with values that are longer than 255 characters need to be split into multiple parts. This is why the generated `<selector>.txt` file (_containing your public key for use with DKIM_) has multiple value parts wrapped within double-quotes between `(` and `)`.
 
-    Your DNS record file (eg: `mail.txt`) should look similar to this:
+    A DNS web-interface may handle this separation internally instead, and [could expect the value provided all as a single line][dns::webui-dkim] instead of split. When that is required, you'll need to manually format the value as described below.
+
+    Your generated DNS record file (`<selector>.txt`) should look similar to this:
 
     ```txt
     mail._domainkey IN TXT ( "v=DKIM1; k=rsa; "
@@ -243,7 +257,7 @@ When mail signed with your DKIM key is sent from your mail server, the receiver 
     To test that your new DKIM record is correct, query it with the `dig` command. The `TXT` value response should be a single line split into multiple parts wrapped in double-quotes:
 
     ```console
-    $ dig +short TXT dkim-rsa._domainkey.example.com
+    $ dig +short TXT mail._domainkey.example.com
     "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqQMMqhb1S52Rg7VFS3EC6JQIMxNDdiBmOKZvY5fiVtD3Z+yd9ZV+V8e4IARVoMXWcJWSR6xkloitzfrRtJRwOYvmrcgugOalkmM0V4Gy/2aXeamuiBuUc4esDQEI3egmtAsHcVY1XCoYfs+9VqoHEq3vdr3UQ8zP/l+FP5UfcaJFCK/ZllqcO2P1GjIDVSHLdPpRHbMP/tU1a9mNZ5QMZBJ/JuJK/s+2bp8gpxKn8rh1akSQjlynlV9NI+7J3CC7CUf3bGvoXIrb37C/lpJehS39" "KNtcGdaRufKauSfqx/7SxA0zyZC+r13f7ASbMaQFzm+/RRusTqozY/p/MsWx8QIDAQAB"
     ```
 
@@ -328,10 +342,9 @@ volumes:
 [docs-env-opendkim]: ../environment.md#enable_opendkim
 [docs-env-rspamd]: ../environment.md#enable_rspamd
 [docs-rspamd-config-dropin]: ../security/rspamd.md#manually
-[docs-rspamd-config-declarative]: ../security/rspamd.md#with-the-help-of-a-custom-file
 [cloudflare-dkim-dmarc-spf]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
-[rfc-6376]: https://tools.ietf.org/html/rfc6376
-[github-issue-dkimlength]: https://github.com/docker-mailserver/docker-mailserver/issues/1854
+[rfc-8301]: https://datatracker.ietf.org/doc/html/rfc8301#section-3.2
+[github-issue-dkimlength]: https://github.com/docker-mailserver/docker-mailserver/issues/1854#issuecomment-806280929
 [rspamd-docs-dkim-checks]: https://www.rspamd.com/doc/modules/dkim.html
 [rspamd-docs-dkim-signing]: https://www.rspamd.com/doc/modules/dkim_signing.html
 [dns::example-webui]: https://www.vultr.com/docs/introduction-to-vultr-dns/
