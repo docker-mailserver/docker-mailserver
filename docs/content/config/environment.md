@@ -49,7 +49,7 @@ User provisioning via OIDC is planned for the future, see [this tracking issue](
 - OIDC => use OIDC authentication (**not yet implemented**)
 - FILE => use local files (this is used as the default)
 
-A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
+A second container for the ldap service is necessary (e.g. [`bitnami/openldap`](https://hub.docker.com/r/bitnami/openldap/)).
 
 ##### PERMIT_DOCKER
 
@@ -584,9 +584,7 @@ Enable or disable `getmail`.
 
 #### LDAP
 
-##### ENABLE_LDAP
 
-Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 
 ##### LDAP_START_TLS
 

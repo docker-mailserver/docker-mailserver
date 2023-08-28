@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Breaking
+
+- The environment variable `ENABLE_LDAP=1` has been changed to `ACCOUNT_PROVISIONER=LDAP`.
+
 ### Added
 
 - New environment variable `MARK_SPAM_AS_READ`. When set to `1`, marks incoming junk as "read" to avoid unwanted notification of junk as new mail ([#3489](https://github.com/docker-mailserver/docker-mailserver/pull/3489))
@@ -210,7 +214,11 @@ Notable changes are:
 
 ### Summary
 
-This release features a lot of small and medium-sized changes, many related to how the image is build and tested during CI. The build now requires Docker Buildkit as the ClamAV Signatures are added via `COPY --link ...` during build-time. Moreover, the build is now multi-stage. `ENABLE_LDAP` is now deprecated.
+This release features a lot of small and medium-sized changes, many related to how the image is build and tested during CI. The build now multi-stage based and requires Docker Buildkit, as the ClamAV Signatures are added via `COPY --link ...` during build-time.
+
+### Deprecated
+
+- The environment variable `ENABLE_LDAP` is deprecated and will be removed in [13.0.0]. Use `ACCOUNT_PROVISIONER=LDAP` now.
 
 ### Added
 
@@ -236,10 +244,6 @@ This release features a lot of small and medium-sized changes, many related to h
 - **scripts**: improve `helpers/log.sh`
 - **build**: adjust build arguments
 - **build**: enhance build process
-
-### Deprecated
-
-- The environment variable `ENABLE_LDAP` is deprecated and will be removed in [13.0.0]. Use `ACCOUNT_PROVISIONER=LDAP` now.
 
 ### Removed
 
