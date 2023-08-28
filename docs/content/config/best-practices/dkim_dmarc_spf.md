@@ -56,11 +56,21 @@ You should have:
 
     As described by the help output, you may need to use the `domain` option explicitly when you're using LDAP or Rspamd.
 
-!!! warning "RSA Key Sizes >= 4096 Bit"
+??? info "Changing the key size"
 
-    According to [RFC 8301][rfc-8301], keys are preferably between 1024 and 2048 bits. Keys of size 4096-bit or larger may not be compatible to all systems your mail is intended for.
+    The keypair generated for using with DKIM presently defaults to RSA-2048. This is a good size but you can lower the security to `1024-bit`, or increase it to `4096-bit` (_discouraged as that is excessive_).
+    
+    To generate a key with different size (_for RSA 1024-bit_) run:
 
-    You [should not need a key length beyond 2048-bit][github-issue-dkimlength]. If 2048-bit does not meet your security needs, you may want to instead consider adopting key rotation or switching from RSA to ECC keys for DKIM.
+    ```sh
+    setup config dkim keysize 1024
+    ```
+
+    !!! warning "RSA Key Sizes >= 4096 Bit"
+
+        According to [RFC 8301][rfc-8301], keys are preferably between 1024 and 2048 bits. Keys of size 4096-bit or larger may not be compatible to all systems your mail is intended for.
+
+        You [should not need a key length beyond 2048-bit][github-issue-dkimlength]. If 2048-bit does not meet your security needs, you may want to instead consider adopting key rotation or switching from RSA to ECC keys for DKIM.
 
 DKIM is currently supported by either OpenDKIM or Rspamd:
 
@@ -72,22 +82,19 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
     ??? note "LDAP accounts need to specify mail domains explicitly"
 
-        `setup config dkim` only makes an assumption of the primary mail domain from the FQDN assigned to DMS. When the DMS FQDN is `mail.example.com` or `example.com`, by default this command will generate DKIM keys for `example.com` as the primary domain for your users mail accounts to be using (`hello@example.com`).
+        `setup config dkim` only makes an assumption of the primary mail domain from the FQDN assigned to DMS.
 
-        Otherwise, the commands defaults (_when DMS is configured with `ACCOUNT_PROVISIONER=LDAP`_) are not able to source the extra mail domains known by your LDAP provider. If you need to support additional mail domains, then you must explicitly specify them by using the `domain` option:
+        When the DMS FQDN is `mail.example.com` or `example.com`, by default this command will generate DKIM keys for `example.com` as the primary domain for your users mail accounts to be using (`hello@example.com`).
+
+        The DKIM generation does not have support to query LDAP for additionanl mail domains it should know about. If the primary mail domain is not sufficient, then you must explicitly specify any extra domains via the `domain` option:
 
         ```sh
+        # ENABLE_OPENDKIM=1 (default):
         setup config dkim domain 'example.com,another-example.com'
-        ```
 
-    ??? info "Changing the key size"
-
-        The keypair generated for using with DKIM presently defaults to RSA-2048. This is a good size but you can lower the security to `1024-bit`, or increase it to `4096-bit` (_discouraged as that is excessive_).
-        
-        To generate a key with different size (_for RSA 1024-bit_) run:
-
-        ```sh
-        setup config dkim keysize 1024
+        # ENABLE_RSPAMD=1 + ENABLE_OPENDKIM=0:
+        setup config dkim domain example.com
+        setup config dkim domain another-example.com
         ```
 
     !!! info "Restart required"
@@ -107,9 +114,14 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
     ??? warning "Using Multiple Domains"
 
-        Unlike the current script for OpenDKIM, the Rspamd script will **not** create keys for all domains DMS is managing, but only for the one it assumes to be the main domain (_derived from the FQDN assigned to DMS, minus any subdomain_). Moreover, the default `dkim_signing.conf` configuration file that DMS ships will also only contain one domain.
+        Unlike the current support for OpenDKIM, DKIM keys generation for Rspamd will **not** create keys for all domains DMS is configured to manage.
 
-        If you have multiple domains, you need to run the command `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` multiple times to create all the keys for all domains, and then provide a custom `dkim_signing.conf` (for which an example is shown below).
+        DKIM keys are generated only for what is assumed as the primary mail domain (_derived from the FQDN assigned to DMS, minus any subdomain_).
+
+        If you have multiple domains, you need to:
+
+        - Run the command `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` multiple times to create a key for each domain DMS should sign for.
+        - Provide a custom `dkim_signing.conf` (for which an example is shown below), as the default config only supports one domain.
 
     !!! info "About the Helper Script"
 
