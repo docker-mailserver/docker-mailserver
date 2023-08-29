@@ -49,6 +49,8 @@ Both components will be built using Docker and included into a custom `docker-ma
         make install
     EOF
 
+    # Use an older Go version as Go >= 1.20 causes this issue: https://github.com/freswa/dovecot-xaps-daemon/issues/24#issuecomment-1483876081
+    # Note that the underlying issue are non-standard-compliant Apple http servers which might get fixed at some point
     FROM golang:1.19-alpine AS dovecot-xaps-daemon
     ENV GOPROXY=https://proxy.golang.org,direct
     ENV CGO_ENABLED=0
