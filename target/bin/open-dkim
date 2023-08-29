@@ -8,7 +8,7 @@ if [[ -f /etc/dms-settings ]] && [[ $(_get_dms_env_value 'ENABLE_RSPAMD') -eq 1 
   exit
 fi
 
-KEYSIZE=4096
+KEYSIZE=2048
 SELECTOR=mail
 DOMAINS=
 
@@ -16,37 +16,40 @@ function __usage() {
   printf '%s' "${PURPLE}OPEN-DKIM${RED}(${YELLOW}8${RED})
 
 ${ORANGE}NAME${RESET}
-    open-dkim - configure DomainKeys Identified Mail (DKIM)
+    open-dkim - Configure DKIM (DomainKeys Identified Mail)
 
 ${ORANGE}SYNOPSIS${RESET}
-    ./setup.sh config dkim [ OPTIONS${RED}...${RESET} ]
+    setup config dkim [ OPTIONS${RED}...${RESET} ]
 
 ${ORANGE}DESCRIPTION${RESET}
-    Configures DKIM keys. OPTIONS can be used to configure a more complex setup.
-    LDAP setups require these options.
+    Creates DKIM keys and configures them within DMS for OpenDKIM.
+    OPTIONS can be used when your requirements are not met by the defaults.
+    When not using 'ACCOUNT_PROVISIONER=FILE' (default), you may need to explicitly
+    use the 'domain' option to generate DKIM keys for your mail account domains.
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
-        help       Print the usage information.
+        help      Print the usage information.
 
     ${BLUE}Configuration adjustments${RESET}
-        keysize    Set the size of the keys to be generated. Possible are 1024, 2048 and 4096 (default).
-        selector   Set a manual selector (default is 'mail') for the key. (${LCYAN}ATTENTION${RESET}: NOT IMPLEMENTED YET!)
-        domain     Provide the domain(s) for which keys are to be generated.
+        keysize   Set the size of the keys to be generated.
+                  Possible values: 1024, 2048 and 4096
+                  Default: 2048
+        selector  Set a manual selector for the key.
+                  Default: mail
+        domain    Provide the domain(s) for which to generate keys for.
+                  Default: The FQDN assigned to DMS, excluding any subdomain.
+                           'ACCOUNT_PROVISIONER=FILE' also sources domains from mail accounts.
 
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./setup.sh config dkim keysize 2048${RESET}
-        Creates keys of length 2048 bit in a default setup where domains are obtained from
-        your accounts.
+    ${LWHITE}setup config dkim keysize 4096${RESET}
+        Creates keys with their length increased to a size of 4096-bit.
 
-    ${LWHITE}./setup.sh config dkim keysize 2048 selector 2021-dkim${RESET}
-        Creates keys of length 2048 bit in a default setup where domains are obtained from
-        your accounts. The DKIM selector used is '2021-dkim'.
+    ${LWHITE}setup config dkim keysize 1024 selector 2023-dkim${RESET}
+        Creates 1024-bit sized keys, and changes the DKIM selector to '2023-dkim'.
 
-    ${LWHITE}./setup.sh config dkim keysize 2048 selector 2021-dkim domain 'whoami.com,whoareyou.org'${RESET}
-        Appropriate for an LDAP setup. Creates keys of length 2048 bit in a default setup
-        where domains are obtained from your accounts. The DKIM selector used is '2021-dkim'.
-        The domains for which DKIM keys are generated are 'whoami.com' and 'whoareyou.org'.
+    ${LWHITE}setup config dkim domain 'example.com,another-example.com'${RESET}
+        Only generates DKIM keys for the specified domains: 'example.com' and 'another-example.com'.
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain

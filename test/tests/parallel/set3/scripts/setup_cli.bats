@@ -237,7 +237,7 @@ function teardown_file() { _default_teardown ; }
 @test "config dkim (help correctly displayed)" {
   run ./setup.sh -c "${CONTAINER_NAME}" config dkim help
   assert_success
-  assert_line --index 3 --partial "    open-dkim - configure DomainKeys Identified Mail (DKIM)"
+  assert_line --index 3 --partial "open-dkim - Configure DKIM (DomainKeys Identified Mail)"
 }
 
 # debug
