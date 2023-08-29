@@ -10,13 +10,13 @@ To support mail push Dovecot needs to advertise the `XAPPLEPUSHSERVICE` IMAP ext
 
 This can be done with two components:
 
-- A Dovecot plugin ("dovecot-xaps-plugin") which is triggered whenever a mail is created or moved from/to a mail folder
-- A daemon service ("dovecot-xaps-daemon") that manages both the device registrations as well as sending notifications to the APNs
+- A Dovecot plugin (`dovecot-xaps-plugin`) which is triggered whenever a mail is created or moved from/to a mail folder.
+- A daemon service (`dovecot-xaps-daemon`) that manages both the device registrations as well as sending notifications to the APNs.
 
 ## Prerequisites
 
-- An Apple developer account to create the required Apple Push Notification service certificate
-- Knowledge creating Docker images as well as using the commandline and creating shell scripts
+- An Apple developer account to create the required Apple Push Notification service certificate.
+- Knowledge creating Docker images, using the command-line, and creating shell scripts.
 
 ## Limitations
 
@@ -33,45 +33,47 @@ This can be done with two components:
 
 ## Installation
 
-Both components will be built using Docker and included into a custom `docker-mailserver` image. Afterwards the required configuration is added to `docker-data/dms/config`. The registration data is stored in `/var/mail-state/lib-xapsd` to be consistent with `ONE_DIR=1`.
+Both components will be built using Docker and included into a custom `docker-mailserver` image. Afterwards the required configuration is added to `docker-data/dms/config`. The registration data is stored in `/var/mail-state/lib-xapsd`.
 
-1. Create a Dockerfile to build a `docker-mailserver` image that includes the [dovecot-xaps-plugin](https://github.com/freswa/dovecot-xaps-plugin) as well as the [dovecot-xaps-daemon](https://github.com/freswa/dovecot-xaps-daemon). This is required to ensure that the Dovecot plugin is built against the same Dovecot version. The `:edge` tag is used here, but you might want to use a released version instead.
+1. Create a Dockerfile to build a `docker-mailserver` image that includes the [`dovecot-xaps-plugin`](https://github.com/freswa/dovecot-xaps-plugin) as well as the [`dovecot-xaps-daemon`](https://github.com/freswa/dovecot-xaps-daemon). This is required to ensure that the Dovecot plugin is built against the same Dovecot version. The `:edge` tag is used here, but you might want to use a released version instead.
 
-    ```txt
+    ```dockerfile
     FROM mailserver/docker-mailserver:edge AS dovecot-plugin-xaps
-    RUN apt-get update && \
-        apt-get -y --no-install-recommends install git cmake make build-essential dovecot-dev && \
-        mkdir /tmp/dovecot-xaps-plugin && \
-        cd /tmp/dovecot-xaps-plugin && \
-        git clone https://github.com/freswa/dovecot-xaps-plugin.git . && \
-        mkdir build && \
-        cd build && \
-        cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    WORKDIR /tmp/dovecot-xaps-plugin
+    RUN <<EOF
+        apt-get update
+        apt-get -y --no-install-recommends install git cmake make build-essential dovecot-dev
+        git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-plugin.git .
+        mkdir build && cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
         make install
+    EOF
 
     FROM golang:1.19-alpine AS dovecot-xaps-daemon
     ENV GOPROXY=https://proxy.golang.org,direct
     ENV CGO_ENABLED=0
-    WORKDIR /go
-    RUN apk add --no-cache --virtual build-dependencies git && \
-        mkdir /go/dovecot-xaps-daemon && \
-        cd /go/dovecot-xaps-daemon && \
-        git clone https://github.com/freswa/dovecot-xaps-daemon . && \
+    WORKDIR /go/dovecot-xaps-daemon
+    RUN <<EOF
+        apk add --no-cache --virtual build-dependencies git
+        git clone --single-branch --depth=1 https://github.com/freswa/dovecot-xaps-daemon .
         go build ./cmd/xapsd
+    EOF
 
     FROM mailserver/docker-mailserver:edge
     COPY --from=dovecot-plugin-xaps /usr/lib/dovecot/modules/*_xaps_* /usr/lib/dovecot/modules/
     COPY --from=dovecot-xaps-daemon /go/dovecot-xaps-daemon/xapsd /usr/bin/xapsd
 
     # create a non-root user for the daemon process as well as configuration and run state directories
-    RUN adduser --quiet --system --group --disabled-password --home /var/mail-state/lib-xapsd --no-create-home xapsd && \
+    RUN <<EOF
+        adduser --quiet --system --group --disabled-password --home /var/mail-state/lib-xapsd --no-create-home xapsd
         mkdir -p /var/run/xapsd /etc/xapsd
+    EOF
     ```
 
 2. Build the new image:
-    ```
+    ```sh
     docker build -t yourname/docker-mailserver .
-     ```
+    ```
 
 3. Modify your `compose.yaml` to use the newly create image:
     ```yaml
@@ -86,7 +88,7 @@ Both components will be built using Docker and included into a custom `docker-ma
     docker compose up -d
     ```
 
-5. Create a hash of your Apple developer account password using the provided `xapsd -pass` command
+5. Create a hash of your Apple developer account password using the provided `xapsd -pass` command:
     ```sh
     docker exec -it mailserver xapsd -pass
     ```
@@ -98,8 +100,7 @@ Both components will be built using Docker and included into a custom `docker-ma
         - Replace `appleId` and `appleIdHashedPassword` with your actual credentials. For reference see also [here](https://github.com/freswa/dovecot-xaps-daemon/blob/master/configs/xapsd/xapsd.yaml).
         - The service will use the provided username/hash combination to automatically request a new certificate from Apple as well as renewing an older certificate if needed.
 
-        ```yaml
-        # xapsd.yaml
+        ```yaml title="xapsd.yaml"
 
         # set the loglevel to either
         # trace, debug, error, fatal, info, panic or warn
@@ -149,8 +150,7 @@ Both components will be built using Docker and included into a custom `docker-ma
         ```
 
     - Create a file named `95-xaps.conf` in `docker-data/dms/config/xaps`. For reference see also [here](https://github.com/freswa/dovecot-xaps-plugin/blob/master/xaps.conf).
-        ```txt
-        # 95-xaps.conf
+        ```txt title="95-xaps.conf"
 
         protocol imap {
           mail_plugins = $mail_plugins notify push_notification xaps_push_notification xaps_imap
@@ -177,8 +177,7 @@ Both components will be built using Docker and included into a custom `docker-ma
         ```
 
     - Create a supervisord file named `xapsd.conf` in `docker-data/dms/config/xaps` with the following content:
-        ```txt
-        # xapsd.conf
+        ```txt title="xapsd.conf"
 
         [program:xapsd]
         startsecs=0
@@ -192,15 +191,19 @@ Both components will be built using Docker and included into a custom `docker-ma
         ```
 
     - Create or update your `user-patches.sh` in `docker-data/dms/config` to move the files to their final location as well as starting the daemon service:
-        ```sh
-        # user-patches.sh
-
+        ```sh title="user-patches.sh"
         #!/bin/bash
-        mkdir -p /var/mail-state/lib-xapsd
-        chown -R xapsd:xapsd /var/mail-state/lib-xapsd
+
+        # Copy the configs to internal locations:
         cp /tmp/docker-mailserver/xaps/95-xaps.conf /etc/dovecot/conf.d/95-xaps.conf
         cp /tmp/docker-mailserver/xaps/xapsd.yaml /etc/xapsd/xapsd.yaml
         cp /tmp/docker-mailserver/xaps/xapsd.conf /etc/supervisor/conf.d/xapsd.conf
+
+        # Setup data persistence and ensure ownership is always for xapsd:
+        mkdir -p /var/mail-state/lib-xapsd
+        chown -R xapsd:xapsd /var/mail-state/lib-xapsd
+
+        # Start the xaps daemon:
         supervisorctl update
         supervisorctl start xapsd
         ```
