@@ -4,12 +4,14 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 BATS_TEST_NAME_PREFIX='[LDAP] '
 CONTAINER1_NAME='dms-test_ldap'
 CONTAINER2_NAME='dms-test_ldap_provider'
+# Single test-case specific containers:
+CONTAINER3_NAME='dms-test_ldap_custom-config'
 
 function setup_file() {
   export DMS_TEST_NETWORK='test-network-ldap'
-  export DOMAIN='example.test'
-  export FQDN_MAIL="mail.${DOMAIN}"
-  export FQDN_LDAP="ldap.${DOMAIN}"
+  export DMS_DOMAIN='example.test'
+  export FQDN_MAIL="mail.${DMS_DOMAIN}"
+  export FQDN_LDAP="ldap.${DMS_DOMAIN}"
   # LDAP is provisioned with two domains (via `.ldif` files) unrelated to the FQDN of DMS:
   export FQDN_LOCALHOST_A='localhost.localdomain'
   export FQDN_LOCALHOST_B='localhost.otherdomain'
@@ -115,7 +117,7 @@ function setup_file() {
     --env LDAP_START_TLS=no
   )
 
-  # Extra ENV needed to support specific testcases:
+  # Extra ENV needed to support specific test-cases:
   local ENV_SUPPORT=(
     --env PERMIT_DOCKER=container # Required for attempting SMTP auth on port 25 via nc
     # Required for openssl commands to be successul:
@@ -130,27 +132,56 @@ function setup_file() {
     --env SPOOF_PROTECTION=1
   )
 
+  export CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
-    --hostname "${FQDN_MAIL}"
-    --network "${DMS_TEST_NETWORK}"
-
     "${ENV_LDAP_CONFIG[@]}"
     "${ENV_SUPPORT[@]}"
+
+    --hostname "${FQDN_MAIL}"
+    --network "${DMS_TEST_NETWORK}"
   )
 
-  # Set default implicit container fallback for helpers:
-  export CONTAINER_NAME=${CONTAINER1_NAME}
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_smtp_port_in_container
 
+  # Single test-case containers below cannot be defined in a test-case when expanding arrays
+  # defined in `setup()`. Those arrays would need to be hoisted up to the top of the file vars.
+  # Alternatively for ENV overrides, separate `.env` files could be used. Better options
+  # are available once switching to `compose.yaml` in tests.
+
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    "${ENV_LDAP_CONFIG[@]}"
+
+    # `hostname` should be unique when connecting containers via network:
+    --hostname "custom-config.${DMS_DOMAIN}"
+    --network "${DMS_TEST_NETWORK}"
+  )
   _init_with_defaults
   # NOTE: `test/config/` has now been duplicated, can move test specific files to host-side `/tmp/docker-mailserver`:
   mv "${TEST_TMP_CONFIG}/ldap/overrides/"*.cf "${TEST_TMP_CONFIG}/"
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  _wait_for_smtp_port_in_container
+
+
+  # Set default implicit container fallback for helpers:
+  export CONTAINER_NAME=${CONTAINER1_NAME}
 }
 
 function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
   docker network rm "${DMS_TEST_NETWORK}"
+}
+
+# Could optionally call `_default_teardown` in test-cases that have specific containers.
+# This will otherwise handle it implicitly which is helpful when the test-case hits a failure,
+# As failure will bail early missing teardown, which then prevents network cleanup. This way is safer:
+function teardown() {
+  if [[ ${CONTAINER_NAME} != "${CONTAINER1_NAME}" ]] \
+  && [[ ${CONTAINER_NAME} != "${CONTAINER2_NAME}" ]]
+  then
+    _default_teardown
+  fi
 }
 
 # postfix
@@ -172,9 +203,10 @@ function teardown_file() {
 }
 
 # Custom LDAP config files support:
-# TODO: Compare to provided configs and if they're just including a test comment,
-# could just copy the config and append without carrying a separate test config?
 @test "postfix: ldap custom config files copied" {
+  # Use the test-case specific container from `setup()` (change only applies to test-case):
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+
   local LDAP_CONFIGS_POSTFIX=(
     /etc/postfix/ldap-users.cf
     /etc/postfix/ldap-groups.cf
