@@ -75,7 +75,7 @@ Both components will be built using Docker and included into a custom `docker-ma
     docker build -t yourname/docker-mailserver .
     ```
 
-3. Modify your `compose.yaml` to use the newly create image:
+3. Modify your `compose.yaml` to use the newly created image:
     ```yaml
         services:
             mailserver:
