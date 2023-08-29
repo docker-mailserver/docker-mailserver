@@ -215,3 +215,16 @@ Both components will be built using Docker and included into a custom `docker-ma
     ```
 
 8. Recreate your mail account on your iOS device and check the logs in `/var/log/supervisor/dovecot.log` and `/var/log/supervisor/xapsd.log` for any errors.
+
+
+## Other configuration options
+
+Both device registration and notifications send a username to the daemon to lookup the device. While the registration and other IMAP operations in Dovecot will send the Dovecot username, LMTP will send the provided authentication username.
+
+The format of that username is specified by the `auth_username_format` Dovecot setting. If you are not using mail addresses as Dovecot usernames - e.g. when using LDAP - you can either change the `auth_username_format` or add the mail address as property to the user account and use the lookup feature (see below).
+
+```sh title="user-patches.sh"
+sed -i -r "s|^#?(auth_username_format =).*|\1 %Ln|" /etc/dovecot/conf.d/10-auth.conf
+```
+
+You can also use notifications for Dovecot alias mailboxes. Depending on your server configuration, this might require to add the original Dovecot username as [Dovecot attribute](https://doc.dovecot.org/configuration_manual/authentication/user_database_extra_fields/) to the login user as well as changing the `user_lookup=theattribute` in `95-xaps.conf` to perform the lookup of that attribute.
