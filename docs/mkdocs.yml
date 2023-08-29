@@ -153,7 +153,6 @@ nav:
         - 'IPv6': config/advanced/ipv6.md
         - 'Podman': config/advanced/podman.md
         - 'Dovecot Master Accounts': config/advanced/dovecot-master-accounts.md
-        - 'iOS Mail Push Support': config/advanced/ios-mail-push-support.md
   - 'Examples':
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
@@ -163,6 +162,7 @@ nav:
     - 'Use Cases':
       - 'Forward-Only Mail-Server with LDAP': examples/use-cases/forward-only-mailserver-with-ldap-authentication.md
       - 'Customize IMAP Folders': examples/use-cases/imap-folders.md
+      - 'iOS Mail Push Support': examples/use-cases/ios-mail-push-support.md
   - 'FAQ' : faq.md
   - 'Contributing':
     - 'General Information': contributing/general.md
