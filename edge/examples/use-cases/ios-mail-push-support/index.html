@@ -12,13 +12,13 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/forward-only-mailserver-with-ldap-authentication/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/ios-mail-push-support/">
       
       
-        <link rel="prev" href="../../tutorials/blog-posts/">
+        <link rel="prev" href="../imap-folders/">
       
       
-        <link rel="next" href="../imap-folders/">
+        <link rel="next" href="../../../faq/">
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Use Cases | Forward-Only Mail Server with LDAP - Docker Mailserver</title>
+        <title>Advanced | iOS Mail Push Support - Docker Mailserver</title>
       
     
     
@@ -83,7 +83,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#building-a-forward-only-mail-server" class="md-skip">
+        <a href="#introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Use Cases | Forward-Only Mail Server with LDAP
+              Advanced | iOS Mail Push Support
             
           </span>
         </div>
@@ -1556,27 +1556,9 @@
                 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Forward-Only Mail-Server with LDAP
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1585,38 +1567,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#building-a-forward-only-mail-server" class="md-nav__link">
-    Building a Forward-Only Mail Server
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#authenticating-with-ldap" class="md-nav__link">
-    Authenticating with LDAP
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1646,9 +1596,27 @@
                 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../ios-mail-push-support/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    iOS Mail Push Support
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1657,6 +1625,66 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    Limitations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#privacy-concerns" class="md-nav__link">
+    Privacy concerns
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-configuration-options" class="md-nav__link">
+    Other configuration options
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1862,15 +1890,43 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#building-a-forward-only-mail-server" class="md-nav__link">
-    Building a Forward-Only Mail Server
+  <a href="#introduction" class="md-nav__link">
+    Introduction
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#authenticating-with-ldap" class="md-nav__link">
-    Authenticating with LDAP
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations" class="md-nav__link">
+    Limitations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#privacy-concerns" class="md-nav__link">
+    Privacy concerns
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-configuration-options" class="md-nav__link">
+    Other configuration options
   </a>
   
 </li>
@@ -1890,7 +1946,7 @@
                   
 
   
-    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/use-cases/forward-only-mailserver-with-ldap-authentication.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/use-cases/ios-mail-push-support.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -1899,97 +1955,237 @@
     
       
     
-    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/examples/use-cases/forward-only-mailserver-with-ldap-authentication.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/examples/use-cases/ios-mail-push-support.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-  <h1>Forward-Only Mail-Server with LDAP</h1>
+  <h1>iOS Mail Push Support</h1>
 
-<h2 id="building-a-forward-only-mail-server"><a class="toclink" href="#building-a-forward-only-mail-server">Building a Forward-Only Mail Server</a></h2>
-<p>A <strong>forward-only</strong> mail server does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where DMS is installed), using as sender any of the alias addresses.</p>
-<p>The important settings for this setup (on <code>mailserver.env</code>) are these:</p>
-<div class="highlight"><pre><span></span><code><span class="na">PERMIT_DOCKER</span><span class="o">=</span><span class="s">host</span>
-<span class="na">ENABLE_POP3</span><span class="o">=</span>
-<span class="na">ENABLE_CLAMAV</span><span class="o">=</span><span class="s">0</span>
-<span class="na">SMTP_ONLY</span><span class="o">=</span><span class="s">1</span>
-<span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span>
-<span class="na">ENABLE_FETCHMAIL</span><span class="o">=</span><span class="s">0</span>
+<h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
+<p>iOS Mail currently does not support the IMAP idle extension. Therefore users can only either check manually or configure intervals for fetching mails in their mail account preferences when using the default configuration.</p>
+<p>To support mail push Dovecot needs to advertise the <code>XAPPLEPUSHSERVICE</code> IMAP extension as well as sending the actual push notifications to the Apple Push Notification service (APNs) which will forward them to the device.</p>
+<p>This can be done with two components:</p>
+<ul>
+<li>A Dovecot plugin (<code>dovecot-xaps-plugin</code>) which is triggered whenever a mail is created or moved from/to a mail folder.</li>
+<li>A daemon service (<code>dovecot-xaps-daemon</code>) that manages both the device registrations as well as sending notifications to the APNs.</li>
+</ul>
+<h2 id="prerequisites"><a class="toclink" href="#prerequisites">Prerequisites</a></h2>
+<ul>
+<li>An Apple developer account to create the required Apple Push Notification service certificate.</li>
+<li>Knowledge creating Docker images, using the command-line, and creating shell scripts.</li>
+</ul>
+<h2 id="limitations"><a class="toclink" href="#limitations">Limitations</a></h2>
+<ul>
+<li>You need to maintain a custom <code>docker-mailserver</code> image.</li>
+<li>Push support is limited to the INBOX folder. Changes to other folders will not be pushed to the device regardless of the configuration settings.</li>
+<li>You currently cannot use the same account UUID on multiple devices. This means that if you use the same backup on multiple devices (e.g. old phone / new phone) only one of them will get the notification. Use different backups or recreate the mail account.</li>
+</ul>
+<h2 id="privacy-concerns"><a class="toclink" href="#privacy-concerns">Privacy concerns</a></h2>
+<ul>
+<li>The service does not send any part of the actual message to Apple.</li>
+<li>The information sent contains the device UUID to notify and the (on-device) account UUID which was generated by the iOS mail application when creating the account.</li>
+<li>Upon receiving the notification, the iOS mail application will connect to the IMAP server given by the provided account UUID and fetch the mail to notify the user.</li>
+<li>Apple therefore does not know the mail address for which the mail was received, only that a specific account on a specific device should be notified that a new mail or that a mail was moved to the INBOX folder.</li>
+</ul>
+<h2 id="installation"><a class="toclink" href="#installation">Installation</a></h2>
+<p>Both components will be built using Docker and included into a custom <code>docker-mailserver</code> image. Afterwards the required configuration is added to <code>docker-data/dms/config</code>. The registration data is stored in <code>/var/mail-state/lib-xapsd</code>.</p>
+<ol>
+<li>
+<p>Create a Dockerfile to build a <code>docker-mailserver</code> image that includes the <a href="https://github.com/freswa/dovecot-xaps-plugin"><code>dovecot-xaps-plugin</code></a> as well as the <a href="https://github.com/freswa/dovecot-xaps-daemon"><code>dovecot-xaps-daemon</code></a>. This is required to ensure that the Dovecot plugin is built against the same Dovecot version. The <code>:edge</code> tag is used here, but you might want to use a released version instead.</p>
+<div class="highlight"><pre><span></span><code><span class="k">FROM</span><span class="w"> </span><span class="s">mailserver/docker-mailserver:edge</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">dovecot-plugin-xaps</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/tmp/dovecot-xaps-plugin</span>
+<span class="k">RUN</span><span class="w"> </span>&lt;&lt;EOF
+<span class="w">    </span>apt-get<span class="w"> </span>update
+<span class="w">    </span>apt-get<span class="w"> </span>-y<span class="w"> </span>--no-install-recommends<span class="w"> </span>install<span class="w"> </span>git<span class="w"> </span>cmake<span class="w"> </span>make<span class="w"> </span>build-essential<span class="w"> </span>dovecot-dev
+<span class="w">    </span>git<span class="w"> </span>clone<span class="w"> </span>--single-branch<span class="w"> </span>--depth<span class="o">=</span><span class="m">1</span><span class="w"> </span>https://github.com/freswa/dovecot-xaps-plugin.git<span class="w"> </span>.
+<span class="w">    </span>mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build
+<span class="w">    </span>cmake<span class="w"> </span>..<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+<span class="w">    </span>make<span class="w"> </span>install
+EOF
+
+<span class="c"># Use an older Go version as Go &gt;= 1.20 causes this issue: https://github.com/freswa/dovecot-xaps-daemon/issues/24#issuecomment-1483876081</span>
+<span class="c"># Note that the underlying issue are non-standard-compliant Apple http servers which might get fixed at some point</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">golang:1.19-alpine</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">dovecot-xaps-daemon</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">GOPROXY</span><span class="o">=</span>https://proxy.golang.org,direct
+<span class="k">ENV</span><span class="w"> </span><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/go/dovecot-xaps-daemon</span>
+<span class="k">RUN</span><span class="w"> </span>&lt;&lt;EOF
+<span class="w">    </span>apk<span class="w"> </span>add<span class="w"> </span>--no-cache<span class="w"> </span>--virtual<span class="w"> </span>build-dependencies<span class="w"> </span>git
+<span class="w">    </span>git<span class="w"> </span>clone<span class="w"> </span>--single-branch<span class="w"> </span>--depth<span class="o">=</span><span class="m">1</span><span class="w"> </span>https://github.com/freswa/dovecot-xaps-daemon<span class="w"> </span>.
+<span class="w">    </span>go<span class="w"> </span>build<span class="w"> </span>./cmd/xapsd
+EOF
+
+<span class="k">FROM</span><span class="w"> </span><span class="s">mailserver/docker-mailserver:edge</span>
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>dovecot-plugin-xaps<span class="w"> </span>/usr/lib/dovecot/modules/*_xaps_*<span class="w"> </span>/usr/lib/dovecot/modules/
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>dovecot-xaps-daemon<span class="w"> </span>/go/dovecot-xaps-daemon/xapsd<span class="w"> </span>/usr/bin/xapsd
+
+<span class="c"># create a non-root user for the daemon process as well as configuration and run state directories</span>
+<span class="k">RUN</span><span class="w"> </span>&lt;&lt;EOF
+<span class="w">    </span>adduser<span class="w"> </span>--quiet<span class="w"> </span>--system<span class="w"> </span>--group<span class="w"> </span>--disabled-password<span class="w"> </span>--home<span class="w"> </span>/var/mail-state/lib-xapsd<span class="w"> </span>--no-create-home<span class="w"> </span>xapsd
+<span class="w">    </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/var/run/xapsd<span class="w"> </span>/etc/xapsd
+EOF
 </code></pre></div>
-<p>Since there are no local mailboxes, we use <code>SMTP_ONLY=1</code> to disable <code>dovecot</code>. We disable as well the other services that are related to local mailboxes (<code>POP3</code>, <code>ClamAV</code>, <code>SpamAssassin</code>, etc.)</p>
-<p>We can create aliases with <code>./setup.sh</code>, like this:</p>
-<div class="highlight"><pre><span></span><code>./setup.sh<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>add<span class="w"> </span>&lt;alias-address&gt;<span class="w"> </span>&lt;external-email-account&gt;
+</li>
+<li>
+<p>Build the new image:
+    <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>yourname/docker-mailserver<span class="w"> </span>.
+</code></pre></div></p>
+</li>
+<li>
+<p>Modify your <code>compose.yaml</code> to use the newly created image:
+    <div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nt">services</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourname/docker-mailserver:latest</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Recreate the container:
+    <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>down
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div></p>
+</li>
+<li>
+<p>Create a hash of your Apple developer account password using the provided <code>xapsd -pass</code> command:
+    <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>mailserver<span class="w"> </span>xapsd<span class="w"> </span>-pass
+</code></pre></div></p>
+</li>
+<li>
+<p>Add configuration for both components:</p>
+<ul>
+<li>
+<p>Create a folder named <code>xaps</code> in <code>docker-data/dms/config</code>.</p>
+</li>
+<li>
+<p>Create a file named <code>xapsd.yaml</code> in <code>docker-data/dms/config/xaps</code>. </p>
+<ul>
+<li>Replace <code>appleId</code> and <code>appleIdHashedPassword</code> with your actual credentials. For reference see also <a href="https://github.com/freswa/dovecot-xaps-daemon/blob/master/configs/xapsd/xapsd.yaml">here</a>.</li>
+<li>The service will use the provided username/hash combination to automatically request a new certificate from Apple as well as renewing an older certificate if needed.</li>
+</ul>
+<div class="highlight"><span class="filename">xapsd.yaml</span><pre><span></span><code><span class="c1"># set the loglevel to either</span>
+<span class="c1"># trace, debug, error, fatal, info, panic or warn</span>
+<span class="c1"># Default: info</span>
+<span class="nt">loglevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">info</span>
+
+<span class="c1"># xapsd creates a json file to store the registration persistent on disk.</span>
+<span class="c1"># This sets the location of the file.</span>
+<span class="nt">databaseFile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/mail-state/lib-xapsd/database.json</span>
+
+<span class="c1"># xapsd listens on a socket for http/https requests from the dovecot plugin.</span>
+<span class="c1"># This sets the address and port number of the listen socket.</span>
+<span class="nt">listenAddr</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;127.0.0.1&#39;</span>
+<span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">11619</span>
+
+<span class="c1"># xapsd is able to listen on a HTTPS Socket to allow HTTP/2 to be used</span>
+<span class="c1"># SSL is enabled implicitly when certfile and keyfile exist</span>
+<span class="c1"># !!! only use HTTPS for connection pooling with a proxy e.g. nginx or HaProxy</span>
+<span class="c1"># !!! direct usage with the plugin is discouraged and unsupported</span>
+<span class="nt">tlsCertfile</span><span class="p">:</span>
+<span class="nt">tlsKeyfile</span><span class="p">:</span>
+<span class="nt">tlsListenAddr</span><span class="p">:</span>
+<span class="nt">tlsPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">11620</span>
+
+<span class="c1"># Notifications that are not initiated by new messages are not sent immediately for two reasons:</span>
+<span class="c1"># 1. When you move/copy/delete messages you most likely move/copy/delete more messages within a short period of time.</span>
+<span class="c1"># 2. You don&#39;t need your mailboxes to synchronize immediately since they are automatically synchronized when opening</span>
+<span class="c1">#    the app</span>
+<span class="c1"># If a new message comes and the move/copy/delete notification is still on hold it will be sent with the notification</span>
+<span class="c1"># for the new message.</span>
+<span class="c1"># This sets the interval to check for delayed messages.</span>
+<span class="nt">checkInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+
+<span class="c1"># Set the time how long notifications for not-new messages should be delayed until they are sent.</span>
+<span class="c1"># Whenever checkInterval runs, it checks if &quot;delay&quot; &lt;= &quot;waiting time&quot; and sends the notification if the expression is</span>
+<span class="c1"># true.</span>
+<span class="nt">delay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+
+<span class="c1"># To retrieve certificates from Apple, we need to login with a valid Apple ID</span>
+<span class="c1"># The accounts email must be given in cleartext, but the password has to</span>
+<span class="c1"># be hashed before sending it. To not leak working credentials on running servers,</span>
+<span class="c1"># we do not accept the cleartext password here.</span>
+<span class="nt">appleId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foo@example.com</span>
+
+<span class="c1"># use `xaps -pass` to calculate the hash of the apple id password</span>
+<span class="nt">appleIdHashedPassword</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bar</span>
 </code></pre></div>
-<h2 id="authenticating-with-ldap"><a class="toclink" href="#authenticating-with-ldap">Authenticating with LDAP</a></h2>
-<p>If you want to send emails from outside the mail server you have to authenticate somehow (with a username and password). One way of doing it is described in <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1247">this discussion</a>. However if there are many user accounts, it is better to use authentication with LDAP. The settings for this on <code>mailserver.env</code> are:</p>
-<div class="highlight"><pre><span></span><code><span class="na">ACCOUNT_PROVISIONER</span><span class="o">=</span><span class="s">LDAP</span>
-<span class="na">LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span>
-<span class="na">LDAP_SERVER_HOST</span><span class="o">=</span><span class="s">ldap.example.org</span>
-<span class="na">LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span>
-<span class="na">LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span>
-<span class="na">LDAP_BIND_PW</span><span class="o">=</span><span class="s">pass1234</span>
+</li>
+<li>
+<p>Create a file named <code>95-xaps.conf</code> in <code>docker-data/dms/config/xaps</code>. For reference see also <a href="https://github.com/freswa/dovecot-xaps-plugin/blob/master/xaps.conf">here</a>.
+    <div class="highlight"><span class="filename">95-xaps.conf</span><pre><span></span><code>protocol imap {
+  mail_plugins = $mail_plugins notify push_notification xaps_push_notification xaps_imap
+}
 
-<span class="na">ENABLE_SASLAUTHD</span><span class="o">=</span><span class="s">1</span>
-<span class="na">SASLAUTHD_MECHANISMS</span><span class="o">=</span><span class="s">ldap</span>
-<span class="na">SASLAUTHD_LDAP_SERVER</span><span class="o">=</span><span class="s">ldap.example.org</span>
-<span class="na">SASLAUTHD_LDAP_START_TLS</span><span class="o">=</span><span class="s">yes</span>
-<span class="na">SASLAUTHD_LDAP_BIND_DN</span><span class="o">=</span><span class="s">cn=mailserver,dc=example,dc=org</span>
-<span class="na">SASLAUTHD_LDAP_PASSWORD</span><span class="o">=</span><span class="s">pass1234</span>
-<span class="na">SASLAUTHD_LDAP_SEARCH_BASE</span><span class="o">=</span><span class="s">ou=users,dc=example,dc=org</span>
-<span class="na">SASLAUTHD_LDAP_FILTER</span><span class="o">=</span><span class="s">(&amp;(uid=%U)(objectClass=inetOrgPerson))</span>
+protocol lda {
+  mail_plugins = $mail_plugins notify push_notification xaps_push_notification
+}
+
+protocol lmtp {
+  mail_plugins = $mail_plugins notify push_notification xaps_push_notification
+}
+
+plugin {
+    # xaps_config contains xaps specific configuration parameters
+    # url:              protocol, hostname and port under which xapsd listens
+    # user_lookup: Use if you want to determine the username used for PNs from environment variables provided by
+    #                   login mechanism. Value is variable name to look up.
+    # max_retries:      maximum num of retries the http client connects to the xaps daemon
+    # timeout_msecs     http timeout of the http connection
+    xaps_config = url=http://127.0.0.1:11619 user_lookup=theattribute max_retries=6 timeout_msecs=5000
+    push_notification_driver = xaps
+}
+</code></pre></div></p>
+</li>
+<li>
+<p>Create a supervisord file named <code>xapsd.conf</code> in <code>docker-data/dms/config/xaps</code> with the following content:
+    <div class="highlight"><span class="filename">xapsd.conf</span><pre><span></span><code>[program:xapsd]
+startsecs=0
+autostart=false
+autorestart=true
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+user=xapsd
+command=/usr/bin/xapsd
+pidfile=/var/run/xapsd/xapsd.pid
+</code></pre></div></p>
+</li>
+<li>
+<p>Create or update your <code>user-patches.sh</code> in <code>docker-data/dms/config</code> to move the files to their final location as well as starting the daemon service:
+    <div class="highlight"><span class="filename">user-patches.sh</span><pre><span></span><code><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Copy the configs to internal locations:</span>
+cp<span class="w"> </span>/tmp/docker-mailserver/xaps/95-xaps.conf<span class="w"> </span>/etc/dovecot/conf.d/95-xaps.conf
+cp<span class="w"> </span>/tmp/docker-mailserver/xaps/xapsd.yaml<span class="w"> </span>/etc/xapsd/xapsd.yaml
+cp<span class="w"> </span>/tmp/docker-mailserver/xaps/xapsd.conf<span class="w"> </span>/etc/supervisor/conf.d/xapsd.conf
+
+<span class="c1"># Setup data persistence and ensure ownership is always for xapsd:</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>/var/mail-state/lib-xapsd
+chown<span class="w"> </span>-R<span class="w"> </span>xapsd:xapsd<span class="w"> </span>/var/mail-state/lib-xapsd
+
+<span class="c1"># Start the xaps daemon:</span>
+supervisorctl<span class="w"> </span>update
+supervisorctl<span class="w"> </span>start<span class="w"> </span>xapsd
+</code></pre></div></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Recreate the container again to apply the new configuration:
+    <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>down
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div></p>
+</li>
+<li>
+<p>Recreate your mail account on your iOS device and check the logs in <code>/var/log/supervisor/dovecot.log</code> and <code>/var/log/supervisor/xapsd.log</code> for any errors.</p>
+</li>
+</ol>
+<h2 id="other-configuration-options"><a class="toclink" href="#other-configuration-options">Other configuration options</a></h2>
+<p>Both device registration and notifications send a username to the daemon to lookup the device. While the registration and other IMAP operations in Dovecot will send the Dovecot username, LMTP will send the provided authentication username.</p>
+<p>The format of that username is specified by the <code>auth_username_format</code> Dovecot setting. If you are not using mail addresses as Dovecot usernames - e.g. when using LDAP - you can either change the <code>auth_username_format</code> or add the mail address as property to the user account and use the lookup feature (see below).</p>
+<div class="highlight"><span class="filename">user-patches.sh</span><pre><span></span><code>sed<span class="w"> </span>-i<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;s|^#?(auth_username_format =).*|\1 %Ln|&quot;</span><span class="w"> </span>/etc/dovecot/conf.d/10-auth.conf
 </code></pre></div>
-<p>My LDAP data structure is very basic, containing only the username, password, and the external email address where to forward emails for this user. An entry looks like this:</p>
-<div class="highlight"><pre><span></span><code><span class="na">add</span><span class="w"> </span><span class="s">uid=username,ou=users,dc=example,dc=org</span>
-<span class="na">uid</span><span class="o">:</span><span class="w"> </span><span class="s">username</span>
-<span class="na">objectClass</span><span class="o">:</span><span class="w"> </span><span class="s">inetOrgPerson</span>
-<span class="na">sn</span><span class="o">:</span><span class="w"> </span><span class="s">username</span>
-<span class="na">cn</span><span class="o">:</span><span class="w"> </span><span class="s">username</span>
-<span class="na">userPassword</span><span class="o">:</span><span class="w"> </span><span class="s">{SSHA}abcdefghi123456789</span>
-<span class="na">email</span><span class="o">:</span><span class="w"> </span><span class="s">external-account@gmail.com</span>
-</code></pre></div>
-<p>This structure is different from what is expected/assumed from the configuration scripts of DMS, so it doesn't work just by using the <code>LDAP_QUERY_FILTER_...</code> settings. Instead, I had to use a custom configuration (<a href="../../../config/advanced/override-defaults/user-patches/">via <code>user-patches.sh</code></a>). I created the script <code>docker-data/dms/config/user-patches.sh</code>, with content like this:</p>
-<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
-
-rm<span class="w"> </span>-f<span class="w"> </span>/etc/postfix/<span class="o">{</span>ldap-groups.cf,ldap-domains.cf<span class="o">}</span>
-
-postconf<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="s2">&quot;virtual_mailbox_domains = /etc/postfix/vhost&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="s2">&quot;virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf texthash:/etc/postfix/virtual&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="s2">&quot;smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf&quot;</span>
-
-sed<span class="w"> </span>-i<span class="w"> </span>/etc/postfix/ldap-users.cf<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/query_filter/d&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/result_attribute/d&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/result_format/d&#39;</span>
-cat<span class="w"> </span><span class="s">&lt;&lt;EOF &gt;&gt; /etc/postfix/ldap-users.cf</span>
-<span class="s">query_filter = (uid=%u)</span>
-<span class="s">result_attribute = uid</span>
-<span class="s">result_format = %s@example.org</span>
-<span class="s">EOF</span>
-
-sed<span class="w"> </span>-i<span class="w"> </span>/etc/postfix/ldap-aliases.cf<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/domain/d&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/query_filter/d&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/result_attribute/d&#39;</span>
-cat<span class="w"> </span><span class="s">&lt;&lt;EOF &gt;&gt; /etc/postfix/ldap-aliases.cf</span>
-<span class="s">domain = example.org</span>
-<span class="s">query_filter = (uid=%u)</span>
-<span class="s">result_attribute = mail</span>
-<span class="s">EOF</span>
-
-postfix<span class="w"> </span>reload
-</code></pre></div>
-<p>You see that besides <code>query_filter</code>, I had to customize as well <code>result_attribute</code> and <code>result_format</code>.</p>
-<div class="admonition note">
-<p class="admonition-title">See also</p>
-<p>For more details about using LDAP see: <a href="https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains">LDAP managed mail server with Postfix and Dovecot for multiple domains</a></p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Another solution that serves as a forward-only mail server is <a href="https://gitlab.com/docker-scripts/postfix">this</a>.</p>
-</div>
+<p>You can also use notifications for Dovecot alias mailboxes. Depending on your server configuration, this might require to add the original Dovecot username as <a href="https://doc.dovecot.org/configuration_manual/authentication/user_database_extra_fields/">Dovecot attribute</a> to the login user as well as changing the <code>user_lookup=theattribute</code> in <code>95-xaps.conf</code> to perform the lookup of that attribute.</p>
 
 
 
