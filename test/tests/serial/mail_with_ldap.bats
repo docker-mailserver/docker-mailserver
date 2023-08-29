@@ -26,8 +26,8 @@ function setup_file() {
     --env LDAP_ROOT='dc=example,dc=test' \
     --env LDAP_PORT_NUMBER=389 \
     --env LDAP_SKIP_DEFAULT_TREE=yes \
-    --volume './test/config/ldap/docker-openldap/bootstrap/ldif/:/ldifs/:ro' \
-    --volume './test/config/ldap/docker-openldap/bootstrap/schemas/:/schemas/:ro' \
+    --volume "${REPOSITORY_ROOT}/test/config/ldap/openldap/ldifs/:/ldifs/:ro" \
+    --volume "${REPOSITORY_ROOT}/test/config/ldap/openldap/schemas/:/schemas/:ro" \
     --hostname "${FQDN_LDAP}" \
     --network "${DMS_TEST_NETWORK}" \
     bitnami/openldap:latest
