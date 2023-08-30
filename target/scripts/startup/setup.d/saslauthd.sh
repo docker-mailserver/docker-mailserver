@@ -10,14 +10,10 @@ function _setup_saslauthd() {
   && [[ ! -f /etc/saslauthd.conf ]]; then
     _log 'trace' 'Creating /etc/saslauthd.conf'
 
-    local SASLAUTHD_LDAP_SERVER="${SASLAUTHD_LDAP_SERVER:=${LDAP_SERVER_HOST}}"
-    # Fallback to `ldap://` if no valid URI scheme for LDAP was provided as a prefix:
-    [[ ${SASLAUTHD_LDAP_SERVER} != *'://'* ]] && SASLAUTHD_LDAP_SERVER="ldap://${SASLAUTHD_LDAP_SERVER}"
-
     # Create a config based on ENV
     # TODO: Remove keys with empty values via `sed`?
     cat > /etc/saslauthd.conf << EOF
-ldap_servers: ${SASLAUTHD_LDAP_SERVER}
+ldap_servers: ${SASLAUTHD_LDAP_SERVER:=${LDAP_SERVER_HOST}}
 
 ldap_auth_method: ${SASLAUTHD_LDAP_AUTH_METHOD:=bind}
 ldap_bind_dn: ${SASLAUTHD_LDAP_BIND_DN:=${LDAP_BIND_DN}}

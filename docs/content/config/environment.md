@@ -594,8 +594,8 @@ Enable or disable `getmail`.
 ##### LDAP_SERVER_HOST
 
 - **empty** => mail.example.com
-- => Specify the dns-name/ip-address where the ldap-server is listening, or an URI like `ldaps://mail.example.com`
-- NOTE: If you going to use DMS in combination with `compose.yaml` you can set the service name here
+- => Specify the `<dns-name>` / `<ip-address>` where the LDAP server is reachable via a URI like: `ldaps://mail.example.com`.
+- Note: You must include the desired URI scheme (`ldap://`, `ldaps://`, `ldapi://`).
 
 ##### LDAP_SEARCH_BASE
 
@@ -669,9 +669,8 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 ##### DOVECOT_URIS
 
 - **empty** => same as `LDAP_SERVER_HOST`
-- => Specify a space separated list of LDAP uris.
-- Note: If the protocol is missing, `ldap://` will be used.
-- Note: This deprecates `DOVECOT_HOSTS` (as it didn't allow to use LDAPS), which is currently still supported for backwards compatibility.
+- => Specify a space separated list of LDAP URIs.
+- Note: You must include the desired URI scheme (`ldap://`, `ldaps://`, `ldapi://`).
 
 ##### DOVECOT_LDAP_VERSION
 
@@ -764,7 +763,7 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 ##### SASLAUTHD_LDAP_SERVER
 
 - **empty** => same as `LDAP_SERVER_HOST`
-- Note: since version 10.0.0, you can specify a protocol here (like ldaps://); this deprecates SASLAUTHD_LDAP_SSL.
+- Note: You must include the desired URI scheme (`ldap://`, `ldaps://`, `ldapi://`).
 
 ##### SASLAUTHD_LDAP_START_TLS
 

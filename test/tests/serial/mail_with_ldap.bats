@@ -92,29 +92,32 @@ function setup_file() {
   local ENV_LDAP_CONFIG=(
     --env ACCOUNT_PROVISIONER=LDAP
 
+    # Common LDAP ENV:
+    # NOTE: `scripts/startup/setup.d/ldap.sh:_setup_ldap()` uses `_replace_by_env_in_file()` to configure settings (stripping `DOVECOT_` / `LDAP_` prefixes):
+    --env LDAP_SERVER_HOST="ldap://${FQDN_LDAP}"
+    --env LDAP_SEARCH_BASE='ou=users,dc=example,dc=test'
+    --env LDAP_START_TLS=no
+    # Credentials needed for read access to LDAP_SEARCH_BASE:
+    --env LDAP_BIND_DN='cn=admin,dc=example,dc=test'
+    --env LDAP_BIND_PW='admin'
+
     # Postfix SASL auth provider (SASLAuthd instead of default Dovecot provider):
     --env ENABLE_SASLAUTHD=1
     --env SASLAUTHD_MECHANISMS=ldap
     --env SASLAUTHD_LDAP_FILTER="${SASLAUTHD_QUERY}"
 
     # ENV to configure LDAP configs for Dovecot + Postfix:
-    # NOTE: `scripts/startup/setup.d/ldap.sh:_setup_ldap()` uses `_replace_by_env_in_file()` to configure settings (stripping `DOVECOT_` / `LDAP_` prefixes):
     # Dovecot:
     --env DOVECOT_PASS_FILTER="${DOVECOT_QUERY_PASS}"
-    --env DOVECOT_TLS=no
     --env DOVECOT_USER_FILTER="${DOVECOT_QUERY_USER}"
+    --env DOVECOT_TLS=no
 
     # Postfix:
-    --env LDAP_BIND_DN='cn=admin,dc=example,dc=test'
-    --env LDAP_BIND_PW='admin'
     --env LDAP_QUERY_FILTER_ALIAS="${QUERY_ALIAS}"
     --env LDAP_QUERY_FILTER_DOMAIN="${QUERY_DOMAIN}"
     --env LDAP_QUERY_FILTER_GROUP="${QUERY_GROUP}"
     --env LDAP_QUERY_FILTER_SENDERS="${QUERY_SENDERS}"
     --env LDAP_QUERY_FILTER_USER="${QUERY_USER}"
-    --env LDAP_SEARCH_BASE='ou=users,dc=example,dc=test'
-    --env LDAP_SERVER_HOST="${FQDN_LDAP}"
-    --env LDAP_START_TLS=no
   )
 
   # Extra ENV needed to support specific test-cases:
@@ -221,7 +224,7 @@ function teardown() {
 
 @test "postfix: ldap config overwrites success" {
   local LDAP_SETTINGS_POSTFIX=(
-    "server_host = ${FQDN_LDAP}"
+    "server_host = ldap://${FQDN_LDAP}"
     'start_tls = no'
     'search_base = ou=users,dc=example,dc=test'
     'bind_dn = cn=admin,dc=example,dc=test'

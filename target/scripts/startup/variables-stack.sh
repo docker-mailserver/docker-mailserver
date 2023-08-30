@@ -17,6 +17,14 @@ function __environment_variables_backwards_compatibility() {
     _log 'error' "'ENABLE_LDAP=1' has been changed to 'ACCOUNT_PROVISIONER=LDAP' since DMS v13"
   fi
 
+  # Dovecot and SASLAuthd have applied an 'ldap://' fallback for compatibility since v10 (June 2021)
+  # This was silently applied, but users should be explicit:
+  if [[ ${LDAP_SERVER_HOST:-'://'}      != *'://'* ]] \
+  || [[ ${DOVECOT_URIS:-'://'}          != *'://'* ]] \
+  || [[ ${SASLAUTHD_LDAP_SERVER:-'://'} != *'://'* ]]; then
+    _log 'error' "The ENV for which LDAP host to connect to must include the URI scheme ('ldap://', 'ldaps://', 'ldapi://')"
+  fi
+
   # TODO this can be uncommented in a PR handling the HOSTNAME/DOMAINNAME issue
   # TODO see check_for_changes.sh and dns.sh
   # if [[ -n ${OVERRIDE_HOSTNAME:-} ]]
