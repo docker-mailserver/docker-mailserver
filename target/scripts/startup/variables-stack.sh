@@ -141,6 +141,7 @@ function __environment_variables_general_setup() {
 }
 
 # This function handles environment variables related to LDAP.
+# NOTE: SASLAuthd and Dovecot LDAP support inherit these common ENV.
 function _environment_variables_ldap() {
   _log 'debug' 'Setting LDAP-related environment variables now'
 
@@ -152,55 +153,12 @@ function _environment_variables_ldap() {
 }
 
 # This function handles environment variables related to SASLAUTHD
-# and, if activated, variables related to SASLAUTHD and LDAP.
+# LDAP specific ENV handled in: `startup/setup.d/saslauthd.sh:_setup_saslauthd()`
 function _environment_variables_saslauthd() {
   _log 'debug' 'Setting SASLAUTHD-related environment variables now'
 
+  # Only used by the supervisor service command (upstream default: `/etc/default/saslauthd`)
   VARS[SASLAUTHD_MECHANISMS]="${SASLAUTHD_MECHANISMS:=pam}"
-
-  # SASL ENV for configuring an LDAP specific
-  # `saslauthd.conf` via `setup-stack.sh:_setup_sasulauthd()`
-  if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]; then
-    _log 'trace' 'Setting SASLSAUTH-LDAP variables nnow'
-
-    VARS[SASLAUTHD_LDAP_AUTH_METHOD]="${SASLAUTHD_LDAP_AUTH_METHOD:=bind}"
-    VARS[SASLAUTHD_LDAP_BIND_DN]="${SASLAUTHD_LDAP_BIND_DN:=${LDAP_BIND_DN}}"
-    VARS[SASLAUTHD_LDAP_FILTER]="${SASLAUTHD_LDAP_FILTER:=(&(uniqueIdentifier=%u)(mailEnabled=TRUE))}"
-    VARS[SASLAUTHD_LDAP_PASSWORD]="${SASLAUTHD_LDAP_PASSWORD:=${LDAP_BIND_PW}}"
-    VARS[SASLAUTHD_LDAP_SEARCH_BASE]="${SASLAUTHD_LDAP_SEARCH_BASE:=${LDAP_SEARCH_BASE}}"
-    VARS[SASLAUTHD_LDAP_SERVER]="${SASLAUTHD_LDAP_SERVER:=${LDAP_SERVER_HOST}}"
-    [[ ${SASLAUTHD_LDAP_SERVER} != *'://'* ]] && SASLAUTHD_LDAP_SERVER="ldap://${SASLAUTHD_LDAP_SERVER}"
-    VARS[SASLAUTHD_LDAP_START_TLS]="${SASLAUTHD_LDAP_START_TLS:=no}"
-    VARS[SASLAUTHD_LDAP_TLS_CHECK_PEER]="${SASLAUTHD_LDAP_TLS_CHECK_PEER:=no}"
-
-    if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_FILE} ]]; then
-      SASLAUTHD_LDAP_TLS_CACERT_FILE=''
-    else
-      SASLAUTHD_LDAP_TLS_CACERT_FILE="ldap_tls_cacert_file: ${SASLAUTHD_LDAP_TLS_CACERT_FILE}"
-    fi
-    VARS[SASLAUTHD_LDAP_TLS_CACERT_FILE]="${SASLAUTHD_LDAP_TLS_CACERT_FILE}"
-
-    if [[ -z ${SASLAUTHD_LDAP_TLS_CACERT_DIR} ]]; then
-      SASLAUTHD_LDAP_TLS_CACERT_DIR=''
-    else
-      SASLAUTHD_LDAP_TLS_CACERT_DIR="ldap_tls_cacert_dir: ${SASLAUTHD_LDAP_TLS_CACERT_DIR}"
-    fi
-    VARS[SASLAUTHD_LDAP_TLS_CACERT_DIR]="${SASLAUTHD_LDAP_TLS_CACERT_DIR}"
-
-    if [[ -z ${SASLAUTHD_LDAP_PASSWORD_ATTR} ]]; then
-      SASLAUTHD_LDAP_PASSWORD_ATTR=''
-    else
-      SASLAUTHD_LDAP_PASSWORD_ATTR="ldap_password_attr: ${SASLAUTHD_LDAP_PASSWORD_ATTR}"
-    fi
-    VARS[SASLAUTHD_LDAP_PASSWORD_ATTR]="${SASLAUTHD_LDAP_PASSWORD_ATTR}"
-
-    if [[ -z ${SASLAUTHD_LDAP_MECH} ]]; then
-      SASLAUTHD_LDAP_MECH=''
-    else
-      SASLAUTHD_LDAP_MECH="ldap_mech: ${SASLAUTHD_LDAP_MECH}"
-    fi
-    VARS[SASLAUTHD_LDAP_MECH]="${SASLAUTHD_LDAP_MECH}"
-  fi
 }
 
 # This function Writes the contents of the `VARS` map (associative array)
