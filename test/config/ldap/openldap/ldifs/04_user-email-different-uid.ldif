@@ -1,13 +1,12 @@
 # NOTE: This user differs by local-part of mail address not matching their uniqueIdentifier attribute
 # They also do not have any alias or groups configured
-dn: uniqueIdentifier=some.user.id,ou=people,dc=localhost,dc=localdomain
-objectClass: organizationalPerson
+dn: uid=some.user.id,ou=users,dc=example,dc=test
+objectClass: inetOrgPerson
 objectClass: PostfixBookMailAccount
-objectClass: extensibleObject
 cn: Some User
 givenName: Some
 surname: User
-uniqueIdentifier: some.user.id
+userID: some.user.id
 # Password is: secret
 userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx
 mail: some.user.email@localhost.localdomain

@@ -1,12 +1,11 @@
 # NOTE: A standard user account to test against
-dn: uniqueIdentifier=some.user,ou=people,dc=localhost,dc=localdomain
-objectClass: organizationalPerson
+dn: uid=some.user,ou=users,dc=example,dc=test
+objectClass: inetOrgPerson
 objectClass: PostfixBookMailAccount
-objectClass: extensibleObject
 cn: Some User
 givenName: Some
 surname: User
-uniqueIdentifier: some.user
+userID: some.user
 # Password is: secret
 userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx
 mail: some.user@localhost.localdomain
