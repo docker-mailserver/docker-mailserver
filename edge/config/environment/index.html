@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.5">
+      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.2.6">
     
     
       
@@ -4406,8 +4406,8 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <h5 id="ldap_server_host"><a class="toclink" href="#ldap_server_host">LDAP_SERVER_HOST</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; mail.example.com</li>
-<li>=&gt; Specify the dns-name/ip-address where the ldap-server is listening, or an URI like <code>ldaps://mail.example.com</code></li>
-<li>NOTE: If you going to use DMS in combination with <code>compose.yaml</code> you can set the service name here</li>
+<li>=&gt; Specify the <code>&lt;dns-name&gt;</code> / <code>&lt;ip-address&gt;</code> where the LDAP server is reachable via a URI like: <code>ldaps://mail.example.com</code>.</li>
+<li>Note: You must include the desired URI scheme (<code>ldap://</code>, <code>ldaps://</code>, <code>ldapi://</code>).</li>
 </ul>
 <h5 id="ldap_search_base"><a class="toclink" href="#ldap_search_base">LDAP_SEARCH_BASE</a></h5>
 <ul>
@@ -4479,9 +4479,8 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <h5 id="dovecot_uris"><a class="toclink" href="#dovecot_uris">DOVECOT_URIS</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; same as <code>LDAP_SERVER_HOST</code></li>
-<li>=&gt; Specify a space separated list of LDAP uris.</li>
-<li>Note: If the protocol is missing, <code>ldap://</code> will be used.</li>
-<li>Note: This deprecates <code>DOVECOT_HOSTS</code> (as it didn't allow to use LDAPS), which is currently still supported for backwards compatibility.</li>
+<li>=&gt; Specify a space separated list of LDAP URIs.</li>
+<li>Note: You must include the desired URI scheme (<code>ldap://</code>, <code>ldaps://</code>, <code>ldapi://</code>).</li>
 </ul>
 <h5 id="dovecot_ldap_version"><a class="toclink" href="#dovecot_ldap_version">DOVECOT_LDAP_VERSION</a></h5>
 <ul>
@@ -4568,7 +4567,7 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <h5 id="saslauthd_ldap_server"><a class="toclink" href="#saslauthd_ldap_server">SASLAUTHD_LDAP_SERVER</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; same as <code>LDAP_SERVER_HOST</code></li>
-<li>Note: since version 10.0.0, you can specify a protocol here (like ldaps://); this deprecates SASLAUTHD_LDAP_SSL.</li>
+<li>Note: You must include the desired URI scheme (<code>ldap://</code>, <code>ldaps://</code>, <code>ldapi://</code>).</li>
 </ul>
 <h5 id="saslauthd_ldap_start_tls"><a class="toclink" href="#saslauthd_ldap_start_tls">SASLAUTHD_LDAP_START_TLS</a></h5>
 <ul>
