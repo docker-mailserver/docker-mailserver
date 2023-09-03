@@ -1,0 +1,4 @@
+bind             = yes
+query_filter     = (&(mail=%s)(mailEnabled=TRUE))
+result_attribute = mail
+version          = 3

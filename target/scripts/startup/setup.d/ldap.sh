@@ -2,33 +2,36 @@
 
 function _setup_ldap() {
   _log 'debug' 'Setting up LDAP'
-  _log 'trace' 'Checking for custom configs'
 
-  for i in 'users' 'groups' 'aliases' 'domains'; do
-    local FPATH="/tmp/docker-mailserver/ldap-${i}.cf"
-    if [[ -f ${FPATH} ]]; then
-      cp "${FPATH}" "/etc/postfix/ldap-${i}.cf"
-    fi
-  done
+  _log 'trace' "Configuring Postfix for LDAP"
+  mkdir -p /etc/postfix/ldap
 
-  _log 'trace' 'Starting to override configs'
+  # Generate Postfix LDAP configs:
+  for QUERY_KIND in 'users' 'groups' 'aliases' 'domains' 'senders'; do
+    # NOTE: Presently, only `query_filter` is supported for individually targeting:
+    case "${QUERY_KIND}" in
+      ( 'users' )
+        export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
+        ;;
 
-  local FILES=(
-    /etc/postfix/ldap-users.cf
-    /etc/postfix/ldap-groups.cf
-    /etc/postfix/ldap-aliases.cf
-    /etc/postfix/ldap-domains.cf
-    /etc/postfix/ldap-senders.cf
-    /etc/postfix/maps/sender_login_maps.ldap
-  )
+      ( 'groups' )
+        export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
+        ;;
 
-  for FILE in "${FILES[@]}"; do
-    [[ ${FILE} =~ ldap-user ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
-    [[ ${FILE} =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
-    [[ ${FILE} =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
-    [[ ${FILE} =~ ldap-domains ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
-    [[ ${FILE} =~ ldap-senders ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_SENDERS}"
-    [[ -f ${FILE} ]] && _replace_by_env_in_file 'LDAP_' "${FILE}"
+      ( 'aliases' )
+        export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
+        ;;
+
+      ( 'domains' )
+        export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
+        ;;
+
+      ( 'senders' )
+        export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_SENDERS}"
+        ;;
+    esac
+
+    _create_config_postfix "${QUERY_KIND}"
   done
 
   _log 'trace' "Configuring Dovecot for LDAP"
@@ -76,4 +79,15 @@ function _create_config_dovecot() {
     /tmp/docker-mailserver/ldap/dovecot.conf \
     <(_template_with_env 'DOVECOT_' /etc/dms/ldap/dovecot.tmpl) \
   ) > /etc/dovecot/dovecot-ldap.conf.ext
+}
+
+# NOTE: Only relies on the `LDAP_` prefix, presently assigned a `POSTFIX_` prefix.
+function _create_config_postfix() {
+  local QUERY_KIND=${1}
+
+  _cleanse_config '=' <(cat 2>/dev/null \
+    /etc/dms/ldap/postfix.base \
+    "/tmp/docker-mailserver/ldap-${QUERY_KIND}.cf" \
+    <(_template_with_env 'LDAP_' /etc/dms/ldap/postfix.tmpl) \
+  ) > "/etc/postfix/ldap-${QUERY_KIND}.cf"
 }
