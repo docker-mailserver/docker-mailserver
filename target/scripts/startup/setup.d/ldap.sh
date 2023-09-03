@@ -31,23 +31,10 @@ function _setup_ldap() {
     [[ -f ${FILE} ]] && _replace_by_env_in_file 'LDAP_' "${FILE}"
   done
 
-  _log 'trace' "Configuring Dovecot LDAP"
-
-  declare -A DOVECOT_LDAP_MAPPING
-
-  DOVECOT_LDAP_MAPPING['DOVECOT_BASE']="${DOVECOT_BASE:="${LDAP_SEARCH_BASE}"}"
-  DOVECOT_LDAP_MAPPING['DOVECOT_DN']="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
-  DOVECOT_LDAP_MAPPING['DOVECOT_DNPASS']="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
-  DOVECOT_LDAP_MAPPING['DOVECOT_URIS']="${DOVECOT_URIS:="${LDAP_SERVER_HOST}"}"
-
+  _log 'trace' "Configuring Dovecot for LDAP"
   # Default DOVECOT_PASS_FILTER to the same value as DOVECOT_USER_FILTER
-  DOVECOT_LDAP_MAPPING['DOVECOT_PASS_FILTER']="${DOVECOT_PASS_FILTER:="${DOVECOT_USER_FILTER}"}"
-
-  for VAR in "${!DOVECOT_LDAP_MAPPING[@]}"; do
-    export "${VAR}=${DOVECOT_LDAP_MAPPING[${VAR}]}"
-  done
-
-  _replace_by_env_in_file 'DOVECOT_' '/etc/dovecot/dovecot-ldap.conf.ext'
+  local DOVECOT_PASS_FILTER="${DOVECOT_PASS_FILTER:="${DOVECOT_USER_FILTER}"}"
+  _create_config_dovecot
 
   _log 'trace' 'Enabling Dovecot LDAP authentication'
 
@@ -78,4 +65,15 @@ function _setup_ldap() {
   sed -i 's|mydestination = \$myhostname, |mydestination = |' /etc/postfix/main.cf
 
   return 0
+}
+
+# Generates a config from an ENV template while layering several other sources
+# into a single temporary file, used as input into `_cleanse_config` which
+# prepares the final output config.
+function _create_config_dovecot() {
+  _cleanse_config '=' <(cat 2>/dev/null \
+    <(_template_with_env 'LDAP_' /etc/dms/ldap/dovecot.base) \
+    /tmp/docker-mailserver/ldap/dovecot.conf \
+    <(_template_with_env 'DOVECOT_' /etc/dms/ldap/dovecot.tmpl) \
+  ) > /etc/dovecot/dovecot-ldap.conf.ext
 }

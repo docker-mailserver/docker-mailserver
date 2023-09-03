@@ -1,0 +1,9 @@
+dn                  = ${BIND_DN}
+dnpass              = ${BIND_PW}
+uris                = ${SERVER_HOST}
+base                = ${SEARCH_BASE}
+default_pass_scheme = SSHA
+pass_attrs          = uniqueIdentifier=user,userPassword=password
+pass_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
+user_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
