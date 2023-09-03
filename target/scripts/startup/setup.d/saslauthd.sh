@@ -31,13 +31,12 @@ function _create_config_saslauthd() {
   local SASLAUTHD_LDAP_BIND_DN=${SASLAUTHD_LDAP_BIND_DN:=${LDAP_BIND_DN}}
   local SASLAUTHD_LDAP_PASSWORD=${SASLAUTHD_LDAP_PASSWORD:=${LDAP_BIND_PW}}
   local SASLAUTHD_LDAP_SEARCH_BASE=${SASLAUTHD_LDAP_SEARCH_BASE:=${LDAP_SEARCH_BASE}}
-  local SASLAUTHD_LDAP_FILTER=${SASLAUTHD_LDAP_FILTER:=(&(uniqueIdentifier=%u)(mailEnabled=TRUE))}
-  local SASLAUTHD_LDAP_REFERRALS=${SASLAUTHD_LDAP_REFERRALS:=yes}
 
   # Generates a config from an ENV template while layering several other sources
   # into a single temporary file, used as input into `_cleanse_config` which
   # prepares the final output config.
   _cleanse_config ':' <(cat 2>/dev/null \
+    /etc/dms/ldap/saslauthd.base \
     /tmp/docker-mailserver/ldap/saslauthd.conf \
     <(_template_with_env 'SASLAUTHD_' /etc/dms/ldap/saslauthd.tmpl) \
   ) > /etc/saslauthd.conf

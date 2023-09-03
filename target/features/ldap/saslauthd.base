@@ -1,0 +1,2 @@
+ldap_filter: (&(uniqueIdentifier=%u)(mailEnabled=TRUE))
+ldap_referrals: yes
