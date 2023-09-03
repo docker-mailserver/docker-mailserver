@@ -4,9 +4,15 @@ function _setup_ldap() {
   _log 'debug' 'Setting up LDAP'
 
   _log 'trace' "Configuring Postfix for LDAP"
-  mkdir -p /etc/postfix/ldap
+
+  # Configure Postfix settings for LDAP configs in advance:
+  postconf \
+    'virtual_mailbox_maps = ldap:/etc/postfix/ldap/users.cf' \
+    'virtual_mailbox_domains = /etc/postfix/vhost ldap:/etc/postfix/ldap/domains.cf' \
+    'virtual_alias_maps = ldap:/etc/postfix/ldap/aliases.cf ldap:/etc/postfix/ldap/groups.cf'
 
   # Generate Postfix LDAP configs:
+  mkdir -p /etc/postfix/ldap
   for QUERY_KIND in 'users' 'groups' 'aliases' 'domains' 'senders'; do
     # NOTE: Presently, only `query_filter` is supported for individually targeting:
     case "${QUERY_KIND}" in
@@ -44,26 +50,6 @@ function _setup_ldap() {
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
   sed -i -e '/\!include auth-passwdfile\.inc/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
 
-  _log 'trace' "Configuring LDAP"
-
-  if [[ -f /etc/postfix/ldap/users.cf ]]; then
-    postconf 'virtual_mailbox_maps = ldap:/etc/postfix/ldap/users.cf'
-  else
-    _log 'warn' "'/etc/postfix/ldap/users.cf' not found"
-  fi
-
-  if [[ -f /etc/postfix/ldap/domains.cf ]]; then
-    postconf 'virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap/domains.cf'
-  else
-    _log 'warn' "'/etc/postfix/ldap/domains.cf' not found"
-  fi
-
-  if [[ -f /etc/postfix/ldap/aliases.cf ]] && [[ -f /etc/postfix/ldap/groups.cf ]]; then
-    postconf 'virtual_alias_maps = ldap:/etc/postfix/ldap/aliases.cf, ldap:/etc/postfix/ldap/groups.cf'
-  else
-    _log 'warn' "'/etc/postfix/ldap/aliases.cf' and / or '/etc/postfix/ldap/groups.cf' not found"
-  fi
-
   # shellcheck disable=SC2016
   sed -i 's|mydestination = \$myhostname, |mydestination = |' /etc/postfix/main.cf
 
@@ -84,10 +70,18 @@ function _create_config_dovecot() {
 # NOTE: Only relies on the `LDAP_` prefix, presently assigned a `POSTFIX_` prefix.
 function _create_config_postfix() {
   local QUERY_KIND=${1}
+  local LDAP_CONFIG_FILE="/etc/postfix/ldap/${QUERY_KIND}.cf"
 
   _cleanse_config '=' <(cat 2>/dev/null \
     /etc/dms/ldap/postfix.base \
     "/tmp/docker-mailserver/ldap-${QUERY_KIND}.cf" \
     <(_template_with_env 'LDAP_' /etc/dms/ldap/postfix.tmpl) \
-  ) > "/etc/postfix/ldap/${QUERY_KIND}.cf"
+  ) > "${LDAP_CONFIG_FILE}"
+
+  # Opt-out of generated config if `query_filter` was not configured:
+  if ! grep --silent '^query_filter =' "${LDAP_CONFIG_FILE}"; then
+    _log 'warn' "'${LDAP_CONFIG_FILE}' is missing the 'query_filter' setting - disabling"
+
+    sed -i "s/$(_escape_for_sed <<< ${LDAP_CONFIG_FILE})//" /etc/postfix/main.cf
+  fi
 }
