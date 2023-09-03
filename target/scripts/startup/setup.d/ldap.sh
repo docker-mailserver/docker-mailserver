@@ -46,22 +46,22 @@ function _setup_ldap() {
 
   _log 'trace' "Configuring LDAP"
 
-  if [[ -f /etc/postfix/ldap-users.cf ]]; then
-    postconf 'virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf'
+  if [[ -f /etc/postfix/ldap/users.cf ]]; then
+    postconf 'virtual_mailbox_maps = ldap:/etc/postfix/ldap/users.cf'
   else
-    _log 'warn' "'/etc/postfix/ldap-users.cf' not found"
+    _log 'warn' "'/etc/postfix/ldap/users.cf' not found"
   fi
 
-  if [[ -f /etc/postfix/ldap-domains.cf ]]; then
-    postconf 'virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf'
+  if [[ -f /etc/postfix/ldap/domains.cf ]]; then
+    postconf 'virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap/domains.cf'
   else
-    _log 'warn' "'/etc/postfix/ldap-domains.cf' not found"
+    _log 'warn' "'/etc/postfix/ldap/domains.cf' not found"
   fi
 
-  if [[ -f /etc/postfix/ldap-aliases.cf ]] && [[ -f /etc/postfix/ldap-groups.cf ]]; then
-    postconf 'virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf'
+  if [[ -f /etc/postfix/ldap/aliases.cf ]] && [[ -f /etc/postfix/ldap/groups.cf ]]; then
+    postconf 'virtual_alias_maps = ldap:/etc/postfix/ldap/aliases.cf, ldap:/etc/postfix/ldap/groups.cf'
   else
-    _log 'warn' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
+    _log 'warn' "'/etc/postfix/ldap/aliases.cf' and / or '/etc/postfix/ldap/groups.cf' not found"
   fi
 
   # shellcheck disable=SC2016
@@ -89,5 +89,5 @@ function _create_config_postfix() {
     /etc/dms/ldap/postfix.base \
     "/tmp/docker-mailserver/ldap-${QUERY_KIND}.cf" \
     <(_template_with_env 'LDAP_' /etc/dms/ldap/postfix.tmpl) \
-  ) > "/etc/postfix/ldap-${QUERY_KIND}.cf"
+  ) > "/etc/postfix/ldap/${QUERY_KIND}.cf"
 }
