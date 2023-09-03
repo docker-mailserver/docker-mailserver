@@ -120,6 +120,9 @@ COPY \
   target/postfix/ldap-senders.cf \
   /etc/postfix/
 
+# LDAP config support:
+COPY --link target/features/ldap/ /etc/dms/ldap/
+
 # hadolint ignore=SC2016
 RUN <<EOF
   sedfile -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin

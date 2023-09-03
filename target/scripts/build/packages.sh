@@ -92,6 +92,18 @@ function _install_packages() {
     "${DEBUG_PACKAGES[@]}"
 }
 
+function _install_feature_config_templates() {
+  _log 'debug' 'Installing support for feature - Config Templates'
+
+  # envsubst:
+  apt-get "${QUIET}" --no-install-recommends install gettext-base
+
+  # zenv:
+  local URL_ZENV="https://github.com/numToStr/zenv/releases/download/0.8.0/zenv-0.8.0-$(uname --machine)-unknown-linux-gnu.tar.gz"
+  # Download from GH releases to stdout, then extract the zenv file to make available via PATH:
+  curl -L "${URL_ZENV}" -o - | tar --gzip --extract --directory /usr/local/bin --file - zenv
+}
+
 function _install_dovecot() {
   declare -a DOVECOT_PACKAGES
 
@@ -219,5 +231,6 @@ _install_rspamd
 _install_fail2ban
 _install_getmail
 _install_utils
+_install_feature_config_templates
 _remove_data_after_package_installations
 _post_installation_steps
