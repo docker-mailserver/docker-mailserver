@@ -229,19 +229,9 @@ function teardown() {
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_POSTFIX[@]}"; do
-    # "${LDAP_SETTING%=*}" is to match only the key portion of the var (helpful for assert_output error messages)
-    # NOTE: `start_tls = no` is a default setting, but the white-space differs when ENV `LDAP_START_TLS` is not set explicitly.
-    _run_in_container grep "${LDAP_SETTING%=*}" /etc/postfix/ldap/users.cf
-    assert_output "${LDAP_SETTING}"
-    assert_success
-
-    _run_in_container grep "${LDAP_SETTING%=*}" /etc/postfix/ldap/groups.cf
-    assert_output "${LDAP_SETTING}"
-    assert_success
-
-    _run_in_container grep "${LDAP_SETTING%=*}" /etc/postfix/ldap/aliases.cf
-    assert_output "${LDAP_SETTING}"
-    assert_success
+    _should_have_matching_setting "${LDAP_SETTING}" /etc/postfix/ldap/users.cf
+    _should_have_matching_setting "${LDAP_SETTING}" /etc/postfix/ldap/groups.cf
+    _should_have_matching_setting "${LDAP_SETTING}" /etc/postfix/ldap/aliases.cf
   done
 }
 
@@ -269,9 +259,7 @@ function teardown() {
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_DOVECOT[@]}"; do
-    _run_in_container grep "${LDAP_SETTING%=*}" /etc/dovecot/dovecot-ldap.conf.ext
-    assert_output "${LDAP_SETTING}"
-    assert_success
+    _should_have_matching_setting "${LDAP_SETTING}" /etc/dovecot/dovecot-ldap.conf.ext
   done
 }
 
@@ -436,4 +424,22 @@ function _should_successfully_deliver_mail_to() {
 
   # NOTE: Prevents compatibility for running testcases in parallel (for same container) when the count could become racey:
   _count_files_in_directory_in_container "${MAIL_STORAGE_RECIPIENT}" 1
+}
+
+function _should_have_matching_setting() {
+  local KEY_VALUE=${1}
+  local CONFIG_FILE=${2}
+
+  function __trim_whitespace() {
+    sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<< "${1}"
+  }
+
+  local KEY VALUE
+  # Split string into key/value vars and trim white-space:
+  KEY=$(__trim_whitespace "${KEY_VALUE%=*}")
+  VALUE=$(__trim_whitespace "${KEY_VALUE#*=}")
+
+  _run_in_container grep "${KEY}" "${CONFIG_FILE}"
+  assert_output --regexp "^${KEY}\s*=\s*${VALUE}$"
+  assert_success
 }

@@ -186,6 +186,6 @@ function _cleanse_config() {
   local KV_DELIMITER=${1:?KV Delimiter is required}
   local INPUT_FILE=${2?:Input file is required}
 
-  sed "/^[^${KV_DELIMITER}]*${KV_DELIMITER}\s*$/d" ${INPUT_FILE} \
+  sed "/^[^${KV_DELIMITER}]*${KV_DELIMITER}\s*$/d" "${INPUT_FILE}" \
   | tac | sort -u -t"${KV_DELIMITER}" -k1,1
 }
