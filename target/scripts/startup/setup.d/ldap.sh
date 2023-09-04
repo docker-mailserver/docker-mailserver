@@ -59,6 +59,6 @@ function _create_config_postfix() {
   if ! grep --silent '^query_filter =' "${LDAP_CONFIG_FILE}"; then
     _log 'warn' "'${LDAP_CONFIG_FILE}' is missing the 'query_filter' setting - disabling"
 
-    sed -i "s/$(_escape_for_sed <<< ${LDAP_CONFIG_FILE})//" /etc/postfix/main.cf
+    sed -i "s/$(_escape_for_sed <<< "${LDAP_CONFIG_FILE}")//" /etc/postfix/main.cf
   fi
 }

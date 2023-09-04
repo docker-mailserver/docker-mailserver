@@ -429,17 +429,12 @@ function _should_successfully_deliver_mail_to() {
 function _should_have_matching_setting() {
   local KEY_VALUE=${1}
   local CONFIG_FILE=${2}
+  local KV_DELIMITER=${3:-'='}
 
-  function __trim_whitespace() {
-    sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<< "${1}"
-  }
-
-  local KEY VALUE
-  # Split string into key/value vars and trim white-space:
-  KEY=$(__trim_whitespace "${KEY_VALUE%=*}")
-  VALUE=$(__trim_whitespace "${KEY_VALUE#*=}")
-
-  _run_in_container grep "${KEY}" "${CONFIG_FILE}"
-  assert_output --regexp "^${KEY}\s*=\s*${VALUE}$"
+  local KEY
+  KEY="${KEY_VALUE%%"${KV_DELIMITER}"*}"
+  # Look up the KEY portion from the target config file and use sed to reduce white-space between key and value:
+  _run_in_container_bash "grep '^${KEY}' '${CONFIG_FILE}' | sed 's/\s*${KV_DELIMITER}\s*/ ${KV_DELIMITER} /'"
+  assert_output "${LDAP_SETTING}"
   assert_success
 }
