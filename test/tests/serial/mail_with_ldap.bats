@@ -95,7 +95,6 @@ function setup_file() {
     # NOTE: `scripts/startup/setup.d/ldap.sh:_setup_ldap()` uses helper methods to generate / override LDAP configs (grouped by common ENV prefixes):
     --env LDAP_SERVER_HOST="ldap://${FQDN_LDAP}"
     --env LDAP_SEARCH_BASE='ou=users,dc=example,dc=test'
-    --env LDAP_START_TLS=no
     # Credentials needed for read access to LDAP_SEARCH_BASE:
     --env LDAP_BIND_DN='cn=admin,dc=example,dc=test'
     --env LDAP_BIND_PW='admin'
@@ -117,6 +116,7 @@ function setup_file() {
     --env POSTFIX_GROUPS_QUERY_FILTER="${QUERY_GROUPS}"
     --env POSTFIX_SENDERS_QUERY_FILTER="${QUERY_SENDERS}"
     --env POSTFIX_USERS_QUERY_FILTER="${QUERY_USERS}"
+    --env POSTFIX_START_TLS=no
   )
 
   # Extra ENV needed to support specific test-cases:
