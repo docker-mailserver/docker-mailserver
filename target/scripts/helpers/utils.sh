@@ -154,9 +154,7 @@ function _env_var_expect_integer() {
   return 1
 }
 
-# Ensures that zenv only runs envsubst with ENV filtered from the provided prefix.
-# Those ENV are loaded by zenv in the format of an `.env` file (with prefix dropped by sed)
-# When an ENV is not available, envsubst will evaluate it as empty.
+# Replace `${VAR}` variables of the input file with their equivalent ENV values (excluding the common prefix)
 #
 # @param ${1} = Use a prefix for a group of environment variables
 # @param ${2} = Filepath to ENV template
@@ -169,6 +167,10 @@ function _template_with_env() {
     _dms_panic__invalid_value "file '${ENV_TEMPLATE}' does not exist" 'utils.sh:_use_env_template'
   fi
 
+  # Ensures that zenv only runs envsubst with ENV filtered from the provided prefix.
+  # Those ENV are loaded by zenv in the format of an `.env` file (with prefix dropped by sed)
+  # When an ENV is not available, envsubst will evaluate it as empty.
+  #
   # NOTE: $PATH is retained to avoid needing absolute paths for binaries.
   env --ignore-environment PATH="${PATH}" \
     zenv --file <(env | grep "^${ENV_PREFIX}" | sed "s/^${ENV_PREFIX}//") \
