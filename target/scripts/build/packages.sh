@@ -99,10 +99,8 @@ function _install_feature_config_templates() {
   apt-get "${QUIET}" --no-install-recommends install gettext-base
 
   # zenv:
-  local URL_ZENV
-  URL_ZENV="https://github.com/numToStr/zenv/releases/download/0.8.0/zenv-0.8.0-$(uname --machine)-unknown-linux-gnu.tar.gz"
   # Download from GH releases to stdout, then extract the zenv file to make available via PATH:
-  curl -L "${URL_ZENV}" -o - | tar --gzip --extract --directory /usr/local/bin --file - zenv
+  curl -L "https://github.com/numToStr/zenv/releases/download/0.8.0/zenv-0.8.0-$(uname --machine)-unknown-linux-gnu.tar.gz" -o - | tar --gzip --extract --directory /usr/local/bin --file - zenv
 }
 
 function _install_dovecot() {

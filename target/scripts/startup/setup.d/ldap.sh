@@ -45,7 +45,7 @@ function _create_config_dovecot() {
 }
 
 function _create_config_postfix() {
-  local QUERY_KIND=${1}
+local QUERY_KIND=${1:?QUERY_KIND is required in _create_config_postfix}
   local LDAP_CONFIG_FILE="/etc/postfix/ldap/${QUERY_KIND}.cf"
 
   _cleanse_config '=' <(cat 2>/dev/null \
@@ -56,9 +56,9 @@ function _create_config_postfix() {
   ) > "${LDAP_CONFIG_FILE}"
 
   # Opt-out of generated config if `query_filter` was not configured:
-  if ! grep --silent '^query_filter =' "${LDAP_CONFIG_FILE}"; then
+  if ! grep -q '^query_filter =' "${LDAP_CONFIG_FILE}"; then
     _log 'warn' "'${LDAP_CONFIG_FILE}' is missing the 'query_filter' setting - disabling"
 
-    sed -i "s/$(_escape_for_sed <<< "${LDAP_CONFIG_FILE}")//" /etc/postfix/main.cf
+    sed -i "s/$(_escape_for_sed "${LDAP_CONFIG_FILE}")//" /etc/postfix/main.cf
   fi
 }
