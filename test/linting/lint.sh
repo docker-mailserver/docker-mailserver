@@ -35,7 +35,7 @@ function _hadolint() {
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
     --name dms-test_hadolint \
-    "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yaml" Dockerfile
+    "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yml" Dockerfile
   then
     _log 'info' 'Hadolint succeeded'
   else
