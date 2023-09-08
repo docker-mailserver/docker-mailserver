@@ -92,7 +92,9 @@ Next, configure a network with an IPv6 subnet for your container with any of the
             networks:
               dms-ipv6:
                 enable_ipv6: true
-                subnet: fd00:cafe:face:feed::/64
+                ipam:
+                  config:
+                    - subnet: fd00:cafe:face:feed::/64
             ```
 
             ??? tip "Override the implicit `default` network"
