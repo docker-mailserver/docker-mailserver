@@ -73,7 +73,7 @@ jobs:
       # workflow, which is required due to branch protection, is not important for this type
       # of PR, so we skip it and pretend it was successful.
       - name: 'Set Status for Linting Actions to Success (Skipped)'
-        uses: myrotvorets/set-commit-status-action@v1.1.7
+        uses: myrotvorets/set-commit-status-action@v2.0.0
         continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
