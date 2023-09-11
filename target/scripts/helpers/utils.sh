@@ -130,7 +130,7 @@ function _replace_by_env_in_file() {
     ESCAPED_KEY=$(_escape_for_sed "${KEY,,}")
     ESCAPED_VALUE=$(_escape_for_sed "${VALUE}")
     _log 'trace' "Setting value of '${KEY}' in '${CONFIG_FILE}' to '${VALUE}'"
-    sed -i -E "s#^(${ESCAPED_KEY}[[:space:]]*${KV_DELIMITER}[[:space:]]*).*#\1${ESCAPED_VALUE}#g" "${CONFIG_FILE}"
+    sedfile -i -E "s#^(${ESCAPED_KEY}[[:space:]]*${KV_DELIMITER}[[:space:]]*).*#\1${ESCAPED_VALUE}#gi" "${CONFIG_FILE}"
   done < <(env | grep "^${ENV_PREFIX}")
 }
 
