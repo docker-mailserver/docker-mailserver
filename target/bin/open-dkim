@@ -9,6 +9,7 @@ if [[ -f /etc/dms-settings ]] && [[ $(_get_dms_env_value 'ENABLE_RSPAMD') -eq 1 
   else
     /usr/local/bin/rspamd-dkim "${@}"
     exit
+  fi
 fi
 
 KEYSIZE=2048
