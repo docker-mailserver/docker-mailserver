@@ -23,19 +23,6 @@ For more details, see the [manual](https://containrrr.github.io/watchtower/)
 
 ## Automatic Cleanup
 
-When you are pulling new images in automatically, it would be nice to have them cleaned up as well. There is also a docker image for this: [`spotify/docker-gc`](https://hub.docker.com/r/spotify/docker-gc/).
+For cleanup you can use the [`--cleanup`](https://containrrr.github.io/watchtower/arguments/#cleanup) option provided by `containrrr/watchtower`.
 
-A Docker Compose example:
-
-```yaml
-services:
-  docker-gc:
-    restart: always
-    image: spotify/docker-gc:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-```
-
-For more details, see the [manual](https://github.com/spotify/docker-gc/blob/master/README.md)
-
-Or you can just use the [`--cleanup`](https://containrrr.github.io/watchtower/arguments/#cleanup) option provided by `containrrr/watchtower`.
+Or consider using ['docker prune command'](https://docs.docker.com/engine/reference/commandline/system_prune/)
