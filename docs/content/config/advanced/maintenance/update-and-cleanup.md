@@ -2,17 +2,15 @@
 title: 'Maintenance | Update and Cleanup'
 ---
 
-Running a service like [`containrrr/watchtower`][watchtower-dockerhub] can monitor your Docker images and automatically update them for you.
+[`containrrr/watchtower`][watchtower-dockerhub] is a service that monitors Docker images for updates, automatically applying them to running containers.
 
 !!! example "Automatic image updates + cleanup"
-
-    Enable the [`--cleanup` option][watchtower-cleanup] (`WATCHTOWER_CLEANUP` ENV) to remove orphaned images from disk that are no longer used.
 
     ```yaml title="compose.yaml"
     services:
       watchtower:
         image: containrrr/watchtower:latest
-        # Automatic cleanup (removes older image pulls wasting disk space):
+        # Automatic cleanup (removes older image pulls from wasting disk space):
         environment:
           - WATCHTOWER_CLEANUP=true
         volumes:
@@ -21,7 +19,7 @@ Running a service like [`containrrr/watchtower`][watchtower-dockerhub] can monit
 
 !!! tip "Updating only specific containers"
 
-    The default `watchtower` service will check every 24 hours for any new image updates to pull, not just images defined within your `compose.yaml`.
+    The default `watchtower` service will check every 24 hours for any new image updates to pull, **not only the images** defined within your `compose.yaml`.
 
     The images to update can be restricted with a custom command that provides a list of containers names and other config options. Configuration is detailed in the [`watchtower` docs][watchtower-docs].
 
@@ -30,9 +28,10 @@ Running a service like [`containrrr/watchtower`][watchtower-dockerhub] can monit
     `watchtower` also supports running on-demand with `docker run` or `compose.yaml` via the `--run-once` option.
     
     You can also directly invoke cleanup of Docker storage with:
+
     - [`docker image prune --all`][docker-docs-prune-image]
     - [`docker system prune --all`][docker-docs-prune-system] (_also removes unused containers, networks, build cache_).
-    - Avoid the `--all` option to only remove ["dangling" content][docker-prune-dangling].
+    - Avoid the `--all` option to only remove ["dangling" content][docker-prune-dangling] (_eg: Orphaned images_).
 
 [watchtower-dockerhub]: https://hub.docker.com/r/containrrr/watchtower
 [watchtower-cleanup]: https://containrrr.github.io/watchtower/arguments/#cleanup
