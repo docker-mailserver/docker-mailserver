@@ -82,11 +82,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#automatic-update" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -956,17 +951,6 @@
       
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Update and Cleanup
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -976,37 +960,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#automatic-update" class="md-nav__link">
-    Automatic Update
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#automatic-cleanup" class="md-nav__link">
-    Automatic Cleanup
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -1853,28 +1806,6 @@
   
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#automatic-update" class="md-nav__link">
-    Automatic Update
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#automatic-cleanup" class="md-nav__link">
-    Automatic Cleanup
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1906,30 +1837,34 @@
 
   <h1>Update and Cleanup</h1>
 
-<h2 id="automatic-update"><a class="toclink" href="#automatic-update">Automatic Update</a></h2>
-<p>Docker images are handy but it can become a hassle to keep them updated. Also when a repository is automated you want to get these images when they get out.</p>
-<p>One could setup a complex action/hook-based workflow using probes, but there is a nice, easy to use docker image that solves this issue and could prove useful: <a href="https://hub.docker.com/r/containrrr/watchtower"><code>watchtower</code></a>.</p>
-<p>A Docker Compose example:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<p><a href="https://hub.docker.com/r/containrrr/watchtower"><code>containrrr/watchtower</code></a> is a service that monitors Docker images for updates, automatically applying them to running containers.</p>
+<div class="admonition example">
+<p class="admonition-title">Automatic image updates + cleanup</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">watchtower</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">containrrr/watchtower:latest</span>
+<span class="w">    </span><span class="c1"># Automatic cleanup (removes older image pulls from wasting disk space):</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WATCHTOWER_CLEANUP=true</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock</span>
 </code></pre></div>
-<p>For more details, see the <a href="https://containrrr.github.io/watchtower/">manual</a></p>
-<h2 id="automatic-cleanup"><a class="toclink" href="#automatic-cleanup">Automatic Cleanup</a></h2>
-<p>When you are pulling new images in automatically, it would be nice to have them cleaned up as well. There is also a docker image for this: <a href="https://hub.docker.com/r/spotify/docker-gc/"><code>spotify/docker-gc</code></a>.</p>
-<p>A Docker Compose example:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">docker-gc</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spotify/docker-gc:latest</span>
-<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock</span>
-</code></pre></div>
-<p>For more details, see the <a href="https://github.com/spotify/docker-gc/blob/master/README.md">manual</a></p>
-<p>Or you can just use the <a href="https://containrrr.github.io/watchtower/arguments/#cleanup"><code>--cleanup</code></a> option provided by <code>containrrr/watchtower</code>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Updating only specific containers</p>
+<p>The default <code>watchtower</code> service will check every 24 hours for any new image updates to pull, <strong>not only the images</strong> defined within your <code>compose.yaml</code>.</p>
+<p>The images to update can be restricted with a custom command that provides a list of containers names and other config options. Configuration is detailed in the <a href="https://containrrr.dev/watchtower/"><code>watchtower</code> docs</a>.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Manual cleanup</p>
+<p><code>watchtower</code> also supports running on-demand with <code>docker run</code> or <code>compose.yaml</code> via the <code>--run-once</code> option.</p>
+<p>You can also directly invoke cleanup of Docker storage with:</p>
+<ul>
+<li><a href="https://docs.docker.com/engine/reference/commandline/image_prune/"><code>docker image prune --all</code></a></li>
+<li><a href="https://docs.docker.com/engine/reference/commandline/system_prune/"><code>docker system prune --all</code></a> (<em>also removes unused containers, networks, build cache</em>).</li>
+<li>Avoid the <code>--all</code> option to only remove <a href="https://stackoverflow.com/questions/45142528/what-is-a-dangling-image-and-what-is-an-unused-image/60756668#60756668">"dangling" content</a> (<em>eg: Orphaned images</em>).</li>
+</ul>
+</div>
 
 
 
