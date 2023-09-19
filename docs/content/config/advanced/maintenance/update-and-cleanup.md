@@ -2,40 +2,41 @@
 title: 'Maintenance | Update and Cleanup'
 ---
 
-## Automatic Update
+[`containrrr/watchtower`][watchtower-dockerhub] is a service that monitors Docker images for updates, automatically applying them to running containers.
 
-Docker images are handy but it can become a hassle to keep them updated. Also when a repository is automated you want to get these images when they get out.
+!!! example "Automatic image updates + cleanup"
 
-One could setup a complex action/hook-based workflow using probes, but there is a nice, easy to use docker image that solves this issue and could prove useful: [`watchtower`](https://hub.docker.com/r/containrrr/watchtower).
+    ```yaml title="compose.yaml"
+    services:
+      watchtower:
+        image: containrrr/watchtower:latest
+        # Automatic cleanup (removes older image pulls from wasting disk space):
+        environment:
+          - WATCHTOWER_CLEANUP=true
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+    ```
 
-A Docker Compose example:
+!!! tip "Updating only specific containers"
 
-```yaml
-services:
-  watchtower:
-    restart: always
-    image: containrrr/watchtower:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-```
+    The default `watchtower` service will check every 24 hours for any new image updates to pull, **not only the images** defined within your `compose.yaml`.
 
-For more details, see the [manual](https://containrrr.github.io/watchtower/)
+    The images to update can be restricted with a custom command that provides a list of containers names and other config options. Configuration is detailed in the [`watchtower` docs][watchtower-docs].
 
-## Automatic Cleanup
+!!! info "Manual cleanup"
 
-When you are pulling new images in automatically, it would be nice to have them cleaned up as well. There is also a docker image for this: [`spotify/docker-gc`](https://hub.docker.com/r/spotify/docker-gc/).
+    `watchtower` also supports running on-demand with `docker run` or `compose.yaml` via the `--run-once` option.
+    
+    You can also directly invoke cleanup of Docker storage with:
 
-A Docker Compose example:
+    - [`docker image prune --all`][docker-docs-prune-image]
+    - [`docker system prune --all`][docker-docs-prune-system] (_also removes unused containers, networks, build cache_).
+    - Avoid the `--all` option to only remove ["dangling" content][docker-prune-dangling] (_eg: Orphaned images_).
 
-```yaml
-services:
-  docker-gc:
-    restart: always
-    image: spotify/docker-gc:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-```
+[watchtower-dockerhub]: https://hub.docker.com/r/containrrr/watchtower
+[watchtower-cleanup]: https://containrrr.github.io/watchtower/arguments/#cleanup
+[watchtower-docs]: https://containrrr.dev/watchtower/
 
-For more details, see the [manual](https://github.com/spotify/docker-gc/blob/master/README.md)
-
-Or you can just use the [`--cleanup`](https://containrrr.github.io/watchtower/arguments/#cleanup) option provided by `containrrr/watchtower`.
+[docker-docs-prune-image]: https://docs.docker.com/engine/reference/commandline/image_prune/
+[docker-docs-prune-system]: https://docs.docker.com/engine/reference/commandline/system_prune/
+[docker-prune-dangling]: https://stackoverflow.com/questions/45142528/what-is-a-dangling-image-and-what-is-an-unused-image/60756668#60756668
