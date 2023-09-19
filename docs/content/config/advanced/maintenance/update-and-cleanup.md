@@ -2,51 +2,42 @@
 title: 'Maintenance | Update and Cleanup'
 ---
 
-## Automatic Update
+Running a service like [`containrrr/watchtower`][watchtower-dockerhub] can monitor your Docker images and automatically update them for you.
 
-Docker images are handy but it can become a hassle to keep them updated. Also when a repository is automated you want to get these images when they get out.
+!!! example "Automatic image updates + cleanup"
 
-One could setup a complex action/hook-based workflow using probes, but there is a nice, easy to use docker image that solves this issue and could prove useful: [`watchtower`](https://hub.docker.com/r/containrrr/watchtower).
+    Enable the [`--cleanup` option][watchtower-cleanup] (`WATCHTOWER_CLEANUP` ENV) to remove orphaned images from disk that are no longer used.
 
-A Docker Compose example:
+    ```yaml title="compose.yaml"
+    services:
+      watchtower:
+        image: containrrr/watchtower:latest
+        # Automatic cleanup (removes older image pulls wasting disk space):
+        environment:
+          - WATCHTOWER_CLEANUP=true
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+    ```
 
-```yaml
-services:
-  watchtower:
-    restart: always
-    image: containrrr/watchtower:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-```
+!!! tip "Updating only specific containers"
 
-For more details, see the [manual](https://containrrr.github.io/watchtower/)
+    The default `watchtower` service will check every 24 hours for any new image updates to pull, not just images defined within your `compose.yaml`.
 
-## Automatic Cleanup
+    The images to update can be restricted with a custom command that provides a list of containers names and other config options. Configuration is detailed in the [`watchtower` docs][watchtower-docs].
 
-The service [`containrrr/watchtower`][watchtower] can monitor your images and automatically update them. Enable the [`--cleanup` option][watchtower-cleanup] to remove orphaned images from storage that are no longer used.
+!!! info "Manual cleanup"
 
-[watchtower]: https://containrrr.dev/watchtower/
+    `watchtower` also supports running on-demand with `docker run` or `compose.yaml` via the `--run-once` option.
+    
+    You can also directly invoke cleanup of Docker storage with:
+    - [`docker image prune --all`][docker-docs-prune-image]
+    - [`docker system prune --all`][docker-docs-prune-system] (_also removes unused containers, networks, build cache_).
+    - Avoid the `--all` option to only remove ["dangling" content][docker-prune-dangling].
+
+[watchtower-dockerhub]: https://hub.docker.com/r/containrrr/watchtower
 [watchtower-cleanup]: https://containrrr.github.io/watchtower/arguments/#cleanup
-
-```yaml
-services:
-  watchtower:
-    image: containrrr/watchtower
-    environment:
-      - WATCHTOWER_CLEANUP=true
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-```
-
-!!! tip "Only update specific containers"
-
-    The default `watchtower` service will poll every 24 hours for all images to update, not just within your `compose.yaml`.
-
-    View their docs to provide a list of containers names and other settings if you'd like to restrict that behaviour.
-
-!!! tip "Manual cleanup"
-
-    While `watchtower` also supports running once with `docker run` or `compose.yaml` with the `--run-once` option, you can also directly invoke cleanup with [`docker image prune --all`][docker-docs-prune-image] or the more thorough [`docker system prune --all`][docker-docs-prune-system] (_also removes unused containers, networks, build cache_). Avoid the `--all` option if you only want to cleanup "dangling" content.
+[watchtower-docs]: https://containrrr.dev/watchtower/
 
 [docker-docs-prune-image]: https://docs.docker.com/engine/reference/commandline/image_prune/
 [docker-docs-prune-system]: https://docs.docker.com/engine/reference/commandline/system_prune/
+[docker-prune-dangling]: https://stackoverflow.com/questions/45142528/what-is-a-dangling-image-and-what-is-an-unused-image/60756668#60756668
