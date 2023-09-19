@@ -74,16 +74,16 @@ jobs:
             cache-buildx-
 
       - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v2.2.0
+        uses: docker/setup-qemu-action@v3.0.0
         with:
           platforms: arm64
 
       - name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v2.10.0
+        uses: docker/setup-buildx-action@v3.0.0
 
       # NOTE: AMD64 can build within 2 minutes
       - name: 'Build images'
-        uses: docker/build-push-action@v4.2.1
+        uses: docker/build-push-action@v5.0.0
         with:
           context: .
           # Build at least the AMD64 image (which runs against the test suite).

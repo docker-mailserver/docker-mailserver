@@ -23,7 +23,7 @@ jobs:
 
       - name: 'Prepare tags'
         id: prep
-        uses: docker/metadata-action@v4.6.0
+        uses: docker/metadata-action@v5.0.0
         with:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
@@ -35,12 +35,12 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
 
       - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v2.2.0
+        uses: docker/setup-qemu-action@v3.0.0
         with:
           platforms: arm64
 
       - name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v2.10.0
+        uses: docker/setup-buildx-action@v3.0.0
 
       # Try get the cached build layers from a prior `generic_build.yml` job.
       # NOTE: Until adopting `type=gha` scoped cache exporter (in `docker/build-push-action`),
@@ -54,13 +54,13 @@ jobs:
             cache-buildx-
 
       - name: 'Login to DockerHub'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: 'Login to GitHub Container Registry'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -72,7 +72,7 @@ jobs:
         run: echo "version=$(<VERSION)" >>"${GITHUB_OUTPUT}"
 
       - name: 'Build and publish images'
-        uses: docker/build-push-action@v4.2.1
+        uses: docker/build-push-action@v5.0.0
         with:
           context: .
           build-args: |
