@@ -39,7 +39,7 @@ function _get_dms_env_value() {
 # /var/mail folders (used during startup and change detection handling).
 function _chown_var_mail_if_necessary() {
   # fix permissions, but skip this if 3 levels deep the user id is already set
-  if find /var/mail -maxdepth 3 -a \( \! -user "${UID_DOCKER}" -o \! -group "${UID_DOCKER}" \) | read -r; then
+  if find /var/mail -maxdepth 3 -a \( \! -user "${UID_DOCKER}" -o \! -group "${GID_DOCKER}" \) | read -r; then
     _log 'trace' 'Fixing /var/mail permissions'
     chown -R "${UID_DOCKER}":"${GID_DOCKER}" /var/mail || return 1
   fi

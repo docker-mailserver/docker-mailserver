@@ -33,6 +33,14 @@ Here you can adjust the [log-level for Supervisor](http://supervisord.org/loggin
 
 The log-level will show everything in its class and above.
 
+##### UID_DOCKER
+
+Change on startup user UID to a custom value default to 5000
+
+##### GID_DOCKER
+
+Change on startup user UID to a custom value default to 5000
+
 ##### ONE_DIR
 
 - 0 => state in default directories.
