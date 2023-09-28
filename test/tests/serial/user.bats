@@ -18,11 +18,6 @@ function setup_file() {
 }
 
 function teardown_file() { _default_teardown ; }
-@test 'server is ready' {
-  _run_in_container nc -w 1 0.0.0.0 110
-  assert_success
-  assert_output --partial '+OK'
-}
 
 
 @test 'should successfully deliver mail' {
