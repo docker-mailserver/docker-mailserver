@@ -120,9 +120,9 @@ ENV_PROCESS_LIST=(
 
   # By this point the fetchmail processes have been verified to exist and restart,
   # For FETCHMAIL_PARALLEL=1 coverage, match full commandline for COUNTER values:
-  pgrep --full 'fetchmail-1.rc'
+  _run_in_container pgrep --full 'fetchmail-1.rc'
   assert_success
-  pgrep --full 'fetchmail-2.rc'
+  _run_in_container pgrep --full 'fetchmail-2.rc'
   assert_success
 
   _should_stop_cleanly
