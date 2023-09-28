@@ -41,7 +41,7 @@ function _chown_var_mail_if_necessary() {
   # fix permissions, but skip this if 3 levels deep the user id is already set
   if find /var/mail -maxdepth 3 -a \( \! -user "${UID_DOCKER}" -o \! -group "${GID_DOCKER}" \) | read -r; then
     _log 'trace' 'Fixing /var/mail permissions'
-    chown -R "${UID_DOCKER}":"${GID_DOCKER}" /var/mail || return 1
+    chown -R "${UID_DOCKER}:${GID_DOCKER}" /var/mail || return 1
   fi
 }
 

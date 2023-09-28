@@ -39,7 +39,7 @@ Change on startup user UID to a custom value default to 5000
 
 ##### GID_DOCKER
 
-Change on startup user UID to a custom value default to 5000
+Change on startup user GID to a custom value default to 5000
 
 ##### ONE_DIR
 
