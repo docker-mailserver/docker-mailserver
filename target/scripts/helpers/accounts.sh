@@ -70,7 +70,7 @@ function _create_accounts() {
 
       # Dovecot's userdb has the following format
       # user:password:uid:gid:(gecos):home:(shell):extra_fields
-      DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}/home::${USER_ATTRIBUTES}"
+      DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:${UID_DOCKER}:${GID_DOCKER}::/var/mail/${DOMAIN}/${USER}/home::${USER_ATTRIBUTES}"
       if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"; then
         _log 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
