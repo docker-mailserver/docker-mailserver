@@ -35,11 +35,15 @@ The log-level will show everything in its class and above.
 
 ##### DMS_VMAIL_UID
 
-Change on startup user UID to a custom value default to 5000
+Default: 5000
+
+The User ID assigned to the static vmail user for `/var/mail` (_Mail storage managed by Dovecot_).
 
 ##### DMS_VMAIL_GID
 
-Change on startup user GID to a custom value default to 5000
+Default: 5000
+
+The Group ID assigned to the static vmail group for `/var/mail` (_Mail storage managed by Dovecot_).
 
 ##### ONE_DIR
 
