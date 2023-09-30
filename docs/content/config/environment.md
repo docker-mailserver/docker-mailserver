@@ -33,6 +33,18 @@ Here you can adjust the [log-level for Supervisor](http://supervisord.org/loggin
 
 The log-level will show everything in its class and above.
 
+##### DMS_VMAIL_UID
+
+Default: 5000
+
+The User ID assigned to the static vmail user for `/var/mail` (_Mail storage managed by Dovecot_).
+
+##### DMS_VMAIL_GID
+
+Default: 5000
+
+The Group ID assigned to the static vmail group for `/var/mail` (_Mail storage managed by Dovecot_).
+
 ##### ONE_DIR
 
 - 0 => state in default directories.
