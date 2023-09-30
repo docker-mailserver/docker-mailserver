@@ -1,7 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
-BATS_TEST_NAME_PREFIX='[ENV] (DMS_VMAIL_UID + DMS_VMAIL_GID)'
+BATS_TEST_NAME_PREFIX='[ENV] (DMS_VMAIL_UID + DMS_VMAIL_GID) '
 CONTAINER_NAME='dms-test_env-change-vmail-id'
 
 function setup_file() {
@@ -18,7 +18,6 @@ function setup_file() {
 }
 
 function teardown_file() { _default_teardown ; }
-
 
 @test 'should successfully deliver mail' {
   _send_email 'email-templates/existing-user1'
