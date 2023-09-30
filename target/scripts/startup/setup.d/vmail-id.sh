@@ -1,4 +1,5 @@
 #!/bin/bash
+
 function _setup_vmail_id() {
   if [[ "${DMS_VMAIL_UID}" != "5000" ]]; then
     _log 'debug' "Setting 'docker' UID to ${DMS_VMAIL_UID}"
