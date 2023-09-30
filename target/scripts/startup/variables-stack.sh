@@ -46,8 +46,8 @@ function __environment_variables_general_setup() {
   VARS[POSTMASTER_ADDRESS]="${POSTMASTER_ADDRESS:=postmaster@${DOMAINNAME}}"
   VARS[REPORT_RECIPIENT]="${REPORT_RECIPIENT:=${POSTMASTER_ADDRESS}}"
   VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
-  VARS[UID_DOCKER]="${UID_DOCKER:=5000}"
-  VARS[GID_DOCKER]="${GID_DOCKER:=5000}"
+  VARS[DMS_VMAIL_UID]="${DMS_VMAIL_UID:=5000}"
+  VARS[DMS_VMAIL_GID]="${DMS_VMAIL_GID:=5000}"
 
   _log 'trace' 'Setting anti-spam & anti-virus environment variables'
 

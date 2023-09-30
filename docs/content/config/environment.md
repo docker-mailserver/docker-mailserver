@@ -33,11 +33,11 @@ Here you can adjust the [log-level for Supervisor](http://supervisord.org/loggin
 
 The log-level will show everything in its class and above.
 
-##### UID_DOCKER
+##### DMS_VMAIL_UID
 
 Change on startup user UID to a custom value default to 5000
 
-##### GID_DOCKER
+##### DMS_VMAIL_GID
 
 Change on startup user GID to a custom value default to 5000
 

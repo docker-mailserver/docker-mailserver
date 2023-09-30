@@ -9,8 +9,8 @@ function setup_file() {
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --env PERMIT_DOCKER=container
-    --env UID_DOCKER=9042
-    --env GID_DOCKER=9042
+    --env DMS_VMAIL_UID=9042
+    --env DMS_VMAIL_GID=9042
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
@@ -28,7 +28,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
-  
+
   # Verify successful delivery via Dovecot to `/var/mail` account by searching for the subject:
   _repeat_in_container_until_success_or_timeout 20 "${CONTAINER_NAME}" grep -R \
     'Subject: Test Message existing-user1.txt' \
@@ -63,11 +63,11 @@ function teardown_file() { _default_teardown ; }
   # Amavis: https://forum.howtoforge.com/threads/postfix-smtp-error-caused-by-clamav-cant-connect-to-a-unix-socket-var-run-clamav-clamd-ctl.81002/
   _run_in_container grep -i '(!)connect' /var/log/mail/mail.log
   assert_failure
-  
+
   # Postfix: https://github.com/docker-mailserver/docker-mailserver/pull/2597
   _run_in_container grep -i 'using backwards-compatible default setting' /var/log/mail/mail.log
   assert_failure
-  
+
   # Postgrey: https://github.com/docker-mailserver/docker-mailserver/pull/612#discussion_r117635774
   _run_in_container grep -i 'connect to 127.0.0.1:10023: Connection refused' /var/log/mail/mail.log
   assert_failure
