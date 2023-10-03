@@ -161,8 +161,9 @@ Obtain a Cloudflare API token:
     dns_cloudflare_api_token = YOUR_CLOUDFLARE_TOKEN_HERE
     ```
 
-   - As this is sensitive data, you should restrict access to it with `chmod 600` and `chown 0:0`.
-   - Store the file in a folder if you like, such as `docker-data/certbot/secrets/`.
+    - As this is sensitive data, you should restrict access to it with `chmod 600` and `chown 0:0`.
+    - Store the file in a folder if you like, such as `docker-data/certbot/secrets/`.
+
 5. Your `compose.yaml` should include the following:
 
     ```yaml
@@ -594,7 +595,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
         container_name: mailserver
         hostname: mail.example.com
         volumes:
-           - ./docker-data/traefik/acme.json:/etc/letsencrypt/acme.json:ro
+          - ./docker-data/traefik/acme.json:/etc/letsencrypt/acme.json:ro
         environment:
           SSL_TYPE: letsencrypt
           SSL_DOMAIN: mail.example.com
@@ -605,26 +606,26 @@ This setup only comes with one caveat: The domain has to be configured on anothe
         image: docker.io/traefik:latest #v2.5
         container_name: docker-traefik
         ports:
-           - "80:80"
-           - "443:443"
+          - "80:80"
+          - "443:443"
         command:
-           - --providers.docker
-           - --entrypoints.http.address=:80
-           - --entrypoints.http.http.redirections.entryPoint.to=https
-           - --entrypoints.http.http.redirections.entryPoint.scheme=https
-           - --entrypoints.https.address=:443
-           - --entrypoints.https.http.tls.certResolver=letsencrypt
-           - --certificatesresolvers.letsencrypt.acme.email=admin@example.com
-           - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
-           - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
+          - --providers.docker
+          - --entrypoints.http.address=:80
+          - --entrypoints.http.http.redirections.entryPoint.to=https
+          - --entrypoints.http.http.redirections.entryPoint.scheme=https
+          - --entrypoints.https.address=:443
+          - --entrypoints.https.http.tls.certResolver=letsencrypt
+          - --certificatesresolvers.letsencrypt.acme.email=admin@example.com
+          - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
+          - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
         volumes:
-           - ./docker-data/traefik/acme.json:/acme.json
-           - /var/run/docker.sock:/var/run/docker.sock:ro
+          - ./docker-data/traefik/acme.json:/acme.json
+          - /var/run/docker.sock:/var/run/docker.sock:ro
 
       whoami:
         image: docker.io/traefik/whoami:latest
         labels:
-           - "traefik.http.routers.whoami.rule=Host(`mail.example.com`)"
+          - "traefik.http.routers.whoami.rule=Host(`mail.example.com`)"
     ```
 
 ### Self-Signed Certificates

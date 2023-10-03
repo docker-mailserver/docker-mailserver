@@ -132,7 +132,7 @@ Next, configure a network with an IPv6 subnet for your container with any of the
 
         !!! warning "This approach is discouraged"
 
-             The [`bridge` network is considered legacy][docker-docs-network-bridge-legacy].
+            The [`bridge` network is considered legacy][docker-docs-network-bridge-legacy].
 
         Add these two extra IPv6 settings to your daemon config. They only apply to the [default `bridge` docker network][docker-docs-ipv6-create-default] aka `docker0` (_which containers are attached to by default when using `docker run`_).
 

@@ -511,8 +511,9 @@ require ["comparator-i;ascii-numeric","relational","fileinto"];
 if header :contains "X-Spam-Flag" "YES" {
   fileinto "Junk";
 } elsif allof (
-   not header :matches "x-spam-score" "-*",
-   header :value "ge" :comparator "i;ascii-numeric" "x-spam-score" "3.75" ) {
+  not header :matches "x-spam-score" "-*",
+  header :value "ge" :comparator "i;ascii-numeric" "x-spam-score" "3.75"
+) {
   fileinto "Junk";
 }
 ```

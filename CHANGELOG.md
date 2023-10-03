@@ -311,8 +311,8 @@ In this release the relay-host support saw [significant internal refactoring](ht
 
 1. **Many** minor improvements were made (cleanup & refactoring). Please refer to the section below to get an overview over all improvements. Moreover, there was a lot of cleanup in the scripts and in the tests. The documentation was adjusted accordingly.
 2. New environment variables were added:
-   1. [`CLAMAV_MESSAGE_SIZE_LIMIT`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#clamav_message_size_limit)
-   2. [`TZ`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#tz)
+    1. [`CLAMAV_MESSAGE_SIZE_LIMIT`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#clamav_message_size_limit)
+    2. [`TZ`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#tz)
 3. SpamAssassin KAM was added with [`ENABLE_SPAMASSASSIN_KAM`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#enable_spamassassin_kam).
 4. The `fail2ban` command was reworked and can now ban IP addresses as well.
 5. There were a few small fixes, especially when it comes to bugs in scripts and service restart loops (no functionality changes, only fixes of existing functionality). When building an image from the Dockerfile - Installation of Postfix on modern Linux distributions should now always succeed.
@@ -368,8 +368,7 @@ In this release the relay-host support saw [significant internal refactoring](ht
 
 ### Critical Changes
 
-1. This release fixes a critical issue for LDAP users, installing a needed package on Debian 11
-   on build-time. Moreover, a race-condition was eliminated ([#2341](https://github.com/docker-mailserver/docker-mailserver/pull/2341)).
+1. This release fixes a critical issue for LDAP users, installing a needed package on Debian 11 on build-time. Moreover, a race-condition was eliminated ([#2341](https://github.com/docker-mailserver/docker-mailserver/pull/2341)).
 2. A resource leak in `check-for-changes.sh` was fixed ([#2401](https://github.com/docker-mailserver/docker-mailserver/pull/2401))
 
 ### Other Minor Changes

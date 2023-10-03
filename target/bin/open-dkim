@@ -42,8 +42,8 @@ ${ORANGE}OPTIONS${RESET}
         selector  Set a manual selector for the key.
                   Default: mail
         domain    Provide the domain(s) for which to generate keys for.
-                  Default: The FQDN assigned to DMS, excluding any subdomain.
-                           'ACCOUNT_PROVISIONER=FILE' also sources domains from mail accounts.
+                  Default:  The FQDN assigned to DMS, excluding any subdomain.
+                            'ACCOUNT_PROVISIONER=FILE' also sources domains from mail accounts.
 
 ${ORANGE}EXAMPLES${RESET}
     ${LWHITE}setup config dkim keysize 4096${RESET}
