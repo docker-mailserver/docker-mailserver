@@ -1,4 +1,7 @@
+bind_dn          = ${BIND_DN}
+bind_pw          = ${BIND_PW}
+server_host      = ${SERVER_HOST}
+search_base      = ${SEARCH_BASE}
 bind             = yes
-query_filter     = (&(mail=%s)(mailEnabled=TRUE))
 result_attribute = mail
 version          = 3

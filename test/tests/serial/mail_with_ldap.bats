@@ -39,25 +39,24 @@ function setup_file() {
   #
 
   # LDAP filter queries explained.
-  # NOTE: All LDAP configs for Postfix (with the exception of `ldap/senders.cf`), return the `mail` attribute value of matched results.
-  # This is through the config key `result_attribute`, which the ENV substitution feature can only replace across all configs, not selectively like `query_filter`.
+  # NOTE: All LDAP configs use `result_attribute = mail` for Postfix to return the `mail` attribute value from query matched results.
   # NOTE: The queries below rely specifically upon attributes and classes defined by the schema `postfix-book.ldif`. These are not compatible with all LDAP setups.
 
-  # `mailAlias`` is supported by both classes provided from the schema `postfix-book.ldif`, but `mailEnabled` is only available to `PostfixBookMailAccount` class:
-  local QUERY_ALIAS='(&(mailAlias=%s) (| (objectClass=PostfixBookMailForward) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ))'
+  # `mailAlias` is supported by both classes provided from the schema `postfix-book.ldif`, but `mailEnabled` is only available to `PostfixBookMailAccount` class:
+  local QUERY_ALIASES='(&(mailAlias=%s) (| (objectClass=PostfixBookMailForward) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ))'
 
   # Postfix does domain lookups with the domain of the recipient to check if DMS manages the mail domain.
   # For this lookup `%s` only represents the domain, not a full email address. Hence the match pattern using a wildcard prefix `*@`.
-  # For a breakdown, see QUERY_SENDERS comment.
+  # For a breakdown, see the `QUERY_SENDERS` comment.
   # NOTE: Although `result_attribute = mail` will return each accounts full email address, Postfix will only compare to domain-part.
-  local QUERY_DOMAIN='(| (& (|(mail=*@%s) (mailAlias=*@%s) (mailGroupMember=*@%s)) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ) (&(mailAlias=*@%s)(objectClass=PostfixBookMailForward)) )'
+  local QUERY_DOMAINS='(| (& (|(mail=*@%s) (mailAlias=*@%s) (mailGroupMember=*@%s)) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ) (&(mailAlias=*@%s)(objectClass=PostfixBookMailForward)) )'
 
   # Simple queries for a single attribute that additionally requires `mailEnabled=TRUE` from the `PostfixBookMailAccount` class:
   # NOTE: `mail` attribute is not unique to `PostfixBookMailAccount`. The `mailEnabled` attribute is to further control valid mail accounts.
   # TODO: For tests, since `mailEnabled` is not relevant (always configured as TRUE currently),
   # a simpler query like `mail=%s` or `mailGroupMember=%s` would be sufficient. The additional constraints could be covered in our docs instead.
-  local QUERY_GROUP='(&(mailGroupMember=%s) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) )'
-  local QUERY_USER='(&(mail=%s) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) )'
+  local QUERY_GROUPS='(&(mailGroupMember=%s) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) )'
+  local QUERY_USERS='(&(mail=%s) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) )'
 
   # Given the sender address `%s` from Postfix, query LDAP for accounts that meet the search filter,
   # the `result_attribute` is `mail` + `uid` (`userID`) attributes for login names that are authorized to use that sender address.
@@ -93,7 +92,7 @@ function setup_file() {
     --env ACCOUNT_PROVISIONER=LDAP
 
     # Common LDAP ENV:
-    # NOTE: `scripts/startup/setup.d/ldap.sh:_setup_ldap()` uses `_replace_by_env_in_file()` to configure settings (stripping `DOVECOT_` / `LDAP_` prefixes):
+    # NOTE: `scripts/startup/setup.d/ldap.sh:_setup_ldap()` uses helper methods to generate / override LDAP configs (grouped by common ENV prefixes):
     --env LDAP_SERVER_HOST="ldap://${FQDN_LDAP}"
     --env LDAP_SEARCH_BASE='ou=users,dc=example,dc=test'
     --env LDAP_START_TLS=no
@@ -113,11 +112,11 @@ function setup_file() {
     --env DOVECOT_TLS=no
 
     # Postfix:
-    --env LDAP_QUERY_FILTER_ALIAS="${QUERY_ALIAS}"
-    --env LDAP_QUERY_FILTER_DOMAIN="${QUERY_DOMAIN}"
-    --env LDAP_QUERY_FILTER_GROUP="${QUERY_GROUP}"
-    --env LDAP_QUERY_FILTER_SENDERS="${QUERY_SENDERS}"
-    --env LDAP_QUERY_FILTER_USER="${QUERY_USER}"
+    --env POSTFIX_ALIASES_QUERY_FILTER="${QUERY_ALIASES}"
+    --env POSTFIX_DOMAINS_QUERY_FILTER="${QUERY_DOMAINS}"
+    --env POSTFIX_GROUPS_QUERY_FILTER="${QUERY_GROUPS}"
+    --env POSTFIX_SENDERS_QUERY_FILTER="${QUERY_SENDERS}"
+    --env POSTFIX_USERS_QUERY_FILTER="${QUERY_USERS}"
   )
 
   # Extra ENV needed to support specific test-cases:
