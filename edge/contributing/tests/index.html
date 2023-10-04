@@ -2092,40 +2092,42 @@
 <p>In this example, you've made a change to the Rspamd feature support (<em>or adjusted it's tests</em>). First verify no regressions have been introduced by running it's specific test file:</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>make<span class="w"> </span>clean<span class="w"> </span>generate-accounts<span class="w"> </span>test/rspamd
 <span class="go">rspamd.bats</span>
-<span class="go"> ✓ [Rspamd] Postfix&#39;s main.cf was adjusted [12]</span>
-<span class="go"> ✓ [Rspamd] normal mail passes fine [44]</span>
-<span class="go"> ✓ [Rspamd] detects and rejects spam [122]</span>
-<span class="go"> ✓ [Rspamd] detects and rejects virus [189]</span>
+<span class="go">  ✓ [Rspamd] Postfix&#39;s main.cf was adjusted [12]</span>
+<span class="go">  ✓ [Rspamd] normal mail passes fine [44]</span>
+<span class="go">  ✓ [Rspamd] detects and rejects spam [122]</span>
+<span class="go">  ✓ [Rspamd] detects and rejects virus [189]</span>
 </code></pre></div>
 <p>As your feature work progresses your change for Rspamd also affects ClamAV. As your change now spans more than just the Rspamd test file, you could run multiple test files serially:</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>make<span class="w"> </span>clean<span class="w"> </span>generate-accounts<span class="w"> </span>test/rspamd,clamav
 <span class="go">rspamd.bats</span>
-<span class="go"> ✓ [Rspamd] Postfix&#39;s main.cf was adjusted [12]</span>
-<span class="go"> ✓ [Rspamd] normal mail passes fine [44]</span>
-<span class="go"> ✓ [Rspamd] detects and rejects spam [122]</span>
-<span class="go"> ✓ [Rspamd] detects and rejects virus [189]</span>
+<span class="go">  ✓ [Rspamd] Postfix&#39;s main.cf was adjusted [12]</span>
+<span class="go">  ✓ [Rspamd] normal mail passes fine [44]</span>
+<span class="go">  ✓ [Rspamd] detects and rejects spam [122]</span>
+<span class="go">  ✓ [Rspamd] detects and rejects virus [189]</span>
+
 <span class="go">clamav.bats</span>
-<span class="go"> ✓ [ClamAV] log files exist at /var/log/mail directory [68]</span>
-<span class="go"> ✓ [ClamAV] should be identified by Amavis [67]</span>
-<span class="go"> ✓ [ClamAV] freshclam cron is enabled [76]</span>
-<span class="go"> ✓ [ClamAV] env CLAMAV_MESSAGE_SIZE_LIMIT is set correctly [63]</span>
-<span class="go"> ✓ [ClamAV] rejects virus [60]</span>
+<span class="go">  ✓ [ClamAV] log files exist at /var/log/mail directory [68]</span>
+<span class="go">  ✓ [ClamAV] should be identified by Amavis [67]</span>
+<span class="go">  ✓ [ClamAV] freshclam cron is enabled [76]</span>
+<span class="go">  ✓ [ClamAV] env CLAMAV_MESSAGE_SIZE_LIMIT is set correctly [63]</span>
+<span class="go">  ✓ [ClamAV] rejects virus [60]</span>
 </code></pre></div>
 <p>You're almost finished with your change before submitting it as a PR. It's a good idea to run the full parallel set those individual tests belong to (<em>especially if you've modified any tests</em>):</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>make<span class="w"> </span>clean<span class="w"> </span>generate-accounts<span class="w"> </span>tests/parallel/set1
 <span class="go">default_relay_host.bats</span>
-<span class="go"> ✓ [Relay] (ENV) &#39;DEFAULT_RELAY_HOST&#39; should configure &#39;main.cf:relayhost&#39; [88]</span>
+<span class="go">  ✓ [Relay] (ENV) &#39;DEFAULT_RELAY_HOST&#39; should configure &#39;main.cf:relayhost&#39; [88]</span>
+
 <span class="go">spam_virus/amavis.bats</span>
-<span class="go"> ✓ [Amavis] SpamAssassin integration should be active [1165]</span>
+<span class="go">  ✓ [Amavis] SpamAssassin integration should be active [1165]</span>
+
 <span class="go">spam_virus/clamav.bats</span>
-<span class="go"> ✓ [ClamAV] log files exist at /var/log/mail directory [73]</span>
-<span class="go"> ✓ [ClamAV] should be identified by Amavis [67]</span>
-<span class="go"> ✓ [ClamAV] freshclam cron is enabled [76]</span>
+<span class="go">  ✓ [ClamAV] log files exist at /var/log/mail directory [73]</span>
+<span class="go">  ✓ [ClamAV] should be identified by Amavis [67]</span>
+<span class="go">  ✓ [ClamAV] freshclam cron is enabled [76]</span>
 <span class="go">...</span>
 </code></pre></div>
 <p>Even better, before opening a PR run the full test suite:</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>make<span class="w"> </span>clean<span class="w"> </span>tests
-<span class="go">...</span>
 </code></pre></div>
 
 

@@ -1971,12 +1971,12 @@ If any filter in this filtering chain discards an incoming mail, the delivery pr
 <div class="highlight"><pre><span></span><code><span class="kn">require</span> <span class="p">[</span><span class="s">&quot;envelope&quot;</span><span class="p">,</span> <span class="s">&quot;fileinto&quot;</span><span class="p">,</span> <span class="s">&quot;mailbox&quot;</span><span class="p">,</span> <span class="s">&quot;subaddress&quot;</span><span class="p">,</span> <span class="s">&quot;variables&quot;</span><span class="p">];</span>
 
 <span class="nb">if</span> <span class="nb">envelope</span> <span class="nt">:detail</span> <span class="nt">:matches</span> <span class="s">&quot;to&quot;</span> <span class="s">&quot;*&quot;</span> <span class="p">{</span>
-    <span class="kd">set</span> <span class="nt">:lower</span> <span class="nt">:upperfirst</span> <span class="s">&quot;tag&quot;</span> <span class="s">&quot;${1}&quot;</span><span class="p">;</span>
-    <span class="nb">if</span> <span class="err">mailbox</span><span class="nb">exists</span> <span class="s">&quot;INBOX.${1}&quot;</span> <span class="p">{</span>
-        <span class="nb">fileinto</span> <span class="s">&quot;INBOX.${1}&quot;</span><span class="p">;</span>
-    <span class="p">}</span> <span class="nb">else</span> <span class="p">{</span>
-        <span class="nb">fileinto</span> <span class="nt">:create</span> <span class="s">&quot;INBOX.${tag}&quot;</span><span class="p">;</span>
-    <span class="p">}</span>
+  <span class="kd">set</span> <span class="nt">:lower</span> <span class="nt">:upperfirst</span> <span class="s">&quot;tag&quot;</span> <span class="s">&quot;${1}&quot;</span><span class="p">;</span>
+  <span class="nb">if</span> <span class="err">mailbox</span><span class="nb">exists</span> <span class="s">&quot;INBOX.${1}&quot;</span> <span class="p">{</span>
+    <span class="nb">fileinto</span> <span class="s">&quot;INBOX.${1}&quot;</span><span class="p">;</span>
+  <span class="p">}</span> <span class="nb">else</span> <span class="p">{</span>
+    <span class="nb">fileinto</span> <span class="nt">:create</span> <span class="s">&quot;INBOX.${tag}&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="manage-sieve"><a class="toclink" href="#manage-sieve">Manage Sieve</a></h2>

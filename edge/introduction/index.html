@@ -2087,10 +2087,10 @@ Fetching an email:   MUA &lt;--------------------------------- MDA
 </ul>
 <p>Here's where DMS's toolchain fits within the delivery chain:</p>
 <div class="highlight"><pre><span></span><code>                                    docker-mailserver is here:
-                                                         ┏━━━━━━━┓
-Sending an email:    MUA ---&gt; MTA ---&gt; (MTA relays) ---&gt; ┫ MTA ╮ ┃
-Fetching an email:   MUA &lt;------------------------------ ┫ MDA ╯ ┃
-                                                         ┗━━━━━━━┛
+                                                        ┏━━━━━━━┓
+Sending an email:   MUA ---&gt; MTA ---&gt; (MTA relays) ---&gt; ┫ MTA ╮ ┃
+Fetching an email:  MUA &lt;------------------------------ ┫ MDA ╯ ┃
+                                                        ┗━━━━━━━┛
 </code></pre></div>
 <details class="example">
 <summary>An Example</summary>
@@ -2116,18 +2116,18 @@ B) Bob sends an email to <code>alice@gmail.com</code> =&gt; the email is first s
 <p>When it comes to the specifics of email exchange, we have to look at protocols and ports enabled to support all the identified purposes. There are several valid options and they've been evolving overtime.</p>
 <h3 id="overview"><a class="toclink" href="#overview">Overview</a></h3>
 <p>The following picture gives a visualization of the interplay of all components and their <a href="../config/security/understanding-the-ports/">respective ports</a>:</p>
-<div class="highlight"><pre><span></span><code> ┏━━━━━━━━━━ Submission ━━━━━━━━━━━━┓┏━━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━┓
+<div class="highlight"><pre><span></span><code>  ┏━━━━━━━━━━ Submission ━━━━━━━━━━━━━┓┏━━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━┓
 
-                           ┌─────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
-MUA ----- STARTTLS ------&gt; ┤(587)   MTA ╮    (25)├ &lt;-- cleartext ---&gt; ┊ Third-party MTA ┊
-    ----- implicit TLS --&gt; ┤(465)       │        |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
-    ----- cleartext -----&gt; ┤(25)        │        |
-                           |┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|
-MUA &lt;---- STARTTLS ------- ┤(143)   MDA ╯        |
-    &lt;---- implicit TLS --- ┤(993)                |
-                           └─────────────────────┘
+                            ┌─────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+MUA ----- STARTTLS -------&gt; ┤(587)   MTA ╮    (25)├ &lt;-- cleartext ---&gt; ┊ Third-party MTA ┊
+    ----- implicit TLS ---&gt; ┤(465)       │        |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+    ----- cleartext ------&gt; ┤(25)        │        |
+                            |┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|
+MUA &lt;---- STARTTLS -------- ┤(143)   MDA ╯        |
+    &lt;---- implicit TLS ---- ┤(993)                |
+                            └─────────────────────┘
 
- ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━━━━┛
+  ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━━━━━┛
 </code></pre></div>
 <p>If you're new to email infrastructure, both that table and the schema may be confusing.
 Read on to expand your understanding and learn about DMS's configuration, including how you can customize it.</p>
@@ -2146,7 +2146,7 @@ Read on to expand your understanding and learn about DMS's configuration, includ
 <li>Outbound Submission (self-owned email is submitted directly to the MTA, then is relayed "outside")</li>
 <li>Inbound Submission (third-party email has been submitted &amp; relayed, then is accepted "inside" by the MTA)</li>
 </ul>
-<div class="highlight"><pre><span></span><code> ┏━━━━ Outbound Submission ━━━━┓
+<div class="highlight"><pre><span></span><code>  ┏━━━ Outbound Submission ━━━┓
 
                     ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
 Me ---------------&gt; ┤                    ├ -----------------&gt; ┊                 ┊
@@ -2154,7 +2154,7 @@ Me ---------------&gt; ┤                    ├ -----------------&gt; ┊     
                     │                    ├ &lt;----------------- ┊                 ┊
                     └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
 
-                               ┗━━━━━━━━━━ Inbound Submission ━━━━━━━━━━┛
+                              ┗━━━━━━━━━━ Inbound Submission ━━━━━━━━━━┛
 </code></pre></div>
 <h4 id="outbound-submission"><a class="toclink" href="#outbound-submission">Outbound Submission</a></h4>
 <p>When it comes to securing Outbound Submission you should prefer to use <em>Implicit TLS connection via ESMTP on port 465</em> (see <a href="https://tools.ietf.org/html/rfc8314">RFC 8314</a>). Please read our article about <a href="../config/security/understanding-the-ports/"><strong>Understanding the Ports</strong></a> for more details!</p>
@@ -2183,7 +2183,7 @@ Me ---------------&gt; ┤                    ├ -----------------&gt; ┊     
 <li>One may also secure Inbound Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.</li>
 </ul>
 <p>Overall, DMS's default configuration for SMTP looks like this:</p>
-<div class="highlight"><pre><span></span><code> ┏━━━━ Outbound Submission ━━━━┓
+<div class="highlight"><pre><span></span><code>  ┏━━━ Outbound Submission ━━━┓
 
                     ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
 Me -- cleartext --&gt; ┤(25)            (25)├ --- cleartext ---&gt; ┊                 ┊
@@ -2192,7 +2192,7 @@ Me -- STARTTLS ---&gt; ┤(587)               │                    ┊        
                     │                (25)├ &lt;---cleartext ---- ┊                 ┊
                     └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
 
-                               ┗━━━━━━━━━━ Inbound Submission ━━━━━━━━━━┛
+                              ┗━━━━━━━━━━ Inbound Submission ━━━━━━━━━━┛
 </code></pre></div>
 <h3 id="retrieval-imap"><a class="toclink" href="#retrieval-imap">Retrieval - IMAP</a></h3>
 <p>A MUA willing to fetch an email from a mail server will most likely communicate with its <a href="https://en.wikipedia.org/wiki/IMAP">IMAP</a> server. As with SMTP described earlier, communication will take place in the form of data packets exchanged over a network that both the client and the server are connected to. The IMAP protocol makes the server capable of handling <em>Retrieval</em>.</p>
