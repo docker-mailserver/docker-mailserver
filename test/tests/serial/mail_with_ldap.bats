@@ -50,7 +50,7 @@ function setup_file() {
   # For this lookup `%s` only represents the domain, not a full email address. Hence the match pattern using a wildcard prefix `*@`.
   # For a breakdown, see QUERY_SENDERS comment.
   # NOTE: Although `result_attribute = mail` will return each accounts full email address, Postfix will only compare to domain-part.
-  local QUERY_DOMAIN='(| (& (|(mail=*@%s) (mailAlias=*@%s) (mailGroupMember=*@%s)) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ) (&(mailAlias=*@%s)(objectClass=PostfixBookMailForward)) )'  
+  local QUERY_DOMAIN='(| (& (|(mail=*@%s) (mailAlias=*@%s) (mailGroupMember=*@%s)) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ) (&(mailAlias=*@%s)(objectClass=PostfixBookMailForward)) )'
 
   # Simple queries for a single attribute that additionally requires `mailEnabled=TRUE` from the `PostfixBookMailAccount` class:
   # NOTE: `mail` attribute is not unique to `PostfixBookMailAccount`. The `mailEnabled` attribute is to further control valid mail accounts.

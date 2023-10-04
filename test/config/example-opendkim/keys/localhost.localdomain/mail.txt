@@ -1,2 +1,2 @@
 mail._domainkey	IN	TXT	( "v=DKIM1; k=rsa; "
-	  "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzUJyyhq+TeT1wlIth5Z0yr7Ohd62n4rL5X3vRJO4EDyOEicJ73cjuaU4JLTYhbqmbNalOyXE9btS9I55Gv3RyomVBD1JpVTKdjVBUQug2L/ggw2dtt1FAn99svQWMs1XxmxiTR+sCEVkgKMmLSkCJuDCIfY/Bc9nlcng9+juB8wIDAQAB" )  ; ----- DKIM key mail for localhost.localdomain
+  "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzUJyyhq+TeT1wlIth5Z0yr7Ohd62n4rL5X3vRJO4EDyOEicJ73cjuaU4JLTYhbqmbNalOyXE9btS9I55Gv3RyomVBD1JpVTKdjVBUQug2L/ggw2dtt1FAn99svQWMs1XxmxiTR+sCEVkgKMmLSkCJuDCIfY/Bc9nlcng9+juB8wIDAQAB" )  ; ----- DKIM key mail for localhost.localdomain
