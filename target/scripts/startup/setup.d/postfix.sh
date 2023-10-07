@@ -57,6 +57,15 @@ EOF
   __postfix__log 'trace' "Configuring virtual mailbox size limit to '${POSTFIX_MAILBOX_SIZE_LIMIT}'"
   postconf "virtual_mailbox_limit = ${POSTFIX_MAILBOX_SIZE_LIMIT}"
 
+  if [[ ${POSTFIX_DSN} -eq 1 ]]; then
+    __postfix__log 'trace' 'Disabling DSN for unauthenticated users'
+    sedfile -i -E '/^submissions?\>/a\  -o smtpd_discard_ehlo_keyword_address_maps=' /etc/postfix/master.cf
+    postconf 'smtpd_discard_ehlo_keyword_address_maps = cidr:/etc/postfix/esmtp_access'
+  elif [[ ${POSTFIX_DSN} -eq 2 ]]; then
+    __postfix__log 'trace' 'Disabling DSN completely'
+    postconf 'smtpd_discard_ehlo_keywords = silent-discard, dsn'
+  fi
+
   if [[ ${POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME} -eq 1 ]]; then
     __postfix__log 'trace' 'Enabling reject_unknown_client_hostname to dms_smtpd_sender_restrictions'
     sedfile -i -E \
