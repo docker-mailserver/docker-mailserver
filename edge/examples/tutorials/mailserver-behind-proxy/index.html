@@ -2005,14 +2005,15 @@
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.smtp.loadbalancer.server.port=25&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.smtp.loadbalancer.proxyProtocol.version=1&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp-ssl.rule=HostSNI(`*`)&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp-ssl.tls=false&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp-ssl.entrypoints=smtp-ssl&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp-ssl.tls.passthrough=true&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.smtp-ssl.service=smtp-ssl&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.smtp-ssl.loadbalancer.server.port=465&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.smtp-ssl.loadbalancer.proxyProtocol.version=1&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.imap-ssl.rule=HostSNI(`*`)&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.imap-ssl.entrypoints=imap-ssl&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.imap-ssl.service=imap-ssl&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.imap-ssl.tls.passthrough=true&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.imap-ssl.loadbalancer.server.port=10993&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.services.imap-ssl.loadbalancer.proxyProtocol.version=2&quot;</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;traefik.tcp.routers.sieve.rule=HostSNI(`*`)&quot;</span>
