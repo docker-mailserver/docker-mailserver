@@ -97,6 +97,7 @@ function _install_dovecot() {
     dovecot-core dovecot-imapd
     dovecot-ldap dovecot-lmtpd dovecot-managesieved
     dovecot-pop3d dovecot-sieve dovecot-solr
+    dovecot-lua
   )
 
   if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]; then
