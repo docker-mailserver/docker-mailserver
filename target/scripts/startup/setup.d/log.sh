@@ -13,31 +13,25 @@ function _setup_logs_general() {
 function _setup_logrotate() {
   _log 'debug' 'Setting up logrotate'
 
-  LOGROTATE='/var/log/mail/mail.log\n{\n  compress\n  copytruncate\n  delaycompress\n'
+  if [[ ${LOGROTATE_INTERVAL} =~ ^(dai|week|month)ly$ ]]; then
+    _log 'trace' "Logrotate interval set to ${LOGROTATE_INTERVAL}"
+  else
+    _log 'warn' "Value '${LOGROTATE_INTERVAL}' for LOGROTATE_INTERVAL is invalid - falling back to default"
+    export LOGROTATE_INTERVAL='weekly'
+    # shellcheck disable=SC2034
+    VARS[LOGROTATE_INTERVAL]='weekly'
+  fi
 
-  case "${LOGROTATE_INTERVAL}" in
-    ( 'daily' )
-      _log 'trace' 'Setting postfix logrotate interval to daily'
-      LOGROTATE="${LOGROTATE}  rotate 4\n  daily\n"
-      ;;
-
-    ( 'weekly' )
-      _log 'trace' 'Setting postfix logrotate interval to weekly'
-      LOGROTATE="${LOGROTATE}  rotate 4\n  weekly\n"
-      ;;
-
-    ( 'monthly' )
-      _log 'trace' 'Setting postfix logrotate interval to monthly'
-      LOGROTATE="${LOGROTATE}  rotate 4\n  monthly\n"
-      ;;
-
-    ( * )
-      _log 'warn' 'LOGROTATE_INTERVAL not found in _setup_logrotate'
-      ;;
-
-  esac
-
-  echo -e "${LOGROTATE}}" >/etc/logrotate.d/maillog
+  cat >/etc/logrotate.d/maillog << EOF
+/var/log/mail/mail.log
+{
+  compress
+  copytruncate
+  delaycompress
+  rotate 4
+  ${LOGROTATE_INTERVAL}
+}
+EOF
 }
 
 function _setup_mail_summary() {
