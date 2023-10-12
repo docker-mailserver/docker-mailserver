@@ -43,10 +43,6 @@ function _install_postfix() {
 function _install_packages() {
   _log 'debug' 'Installing all packages now'
 
-  declare -a ANTI_VIRUS_SPAM_PACKAGES
-  declare -a CODECS_PACKAGES MISCELLANEOUS_PACKAGES
-  declare -a POSTFIX_PACKAGES MAIL_PROGRAMS_PACKAGES
-
   ANTI_VIRUS_SPAM_PACKAGES=(
     amavisd-new clamav clamav-daemon
     pyzor razor spamassassin
@@ -62,14 +58,13 @@ function _install_packages() {
   )
 
   MISCELLANEOUS_PACKAGES=(
-    apt-transport-https bind9-dnsutils binutils bsd-mailx
+    apt-transport-https binutils bsd-mailx
     ca-certificates curl dbconfig-no-thanks
-    dumb-init ed gnupg iproute2 iputils-ping
-    libdate-manip-perl libldap-common
-    libmail-spf-perl libnet-dns-perl
-    locales logwatch netcat-openbsd
-    nftables rsyslog supervisor
-    uuid whois
+    dumb-init gnupg libdate-manip-perl
+    libldap-common libmail-spf-perl
+    libnet-dns-perl locales logwatch
+    netcat-openbsd nftables rsyslog
+    supervisor uuid whois
   )
 
   POSTFIX_PACKAGES=(
@@ -82,12 +77,17 @@ function _install_packages() {
     opendmarc libsasl2-modules sasl2-bin
   )
 
+  DEBUG_PACKAGES=(
+    bind9-dnsutils iproute2 iputils-ping most nano
+  )
+
   apt-get "${QUIET}" --no-install-recommends install \
     "${ANTI_VIRUS_SPAM_PACKAGES[@]}" \
     "${CODECS_PACKAGES[@]}" \
     "${MISCELLANEOUS_PACKAGES[@]}" \
     "${POSTFIX_PACKAGES[@]}" \
-    "${MAIL_PROGRAMS_PACKAGES[@]}"
+    "${MAIL_PROGRAMS_PACKAGES[@]}" \
+    "${DEBUG_PACKAGES[@]}"
 }
 
 function _install_dovecot() {
@@ -206,6 +206,9 @@ function _post_installation_steps() {
   _log 'debug' 'Running post-installation steps (cleanup)'
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
+
+  _log 'debug' "Linking 'less' to 'most'"
+  ln -sf "$(command -v most)" /usr/local/bin/less
 
   _log 'info' 'Finished installing packages'
 }
