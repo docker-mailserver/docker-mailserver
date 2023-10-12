@@ -120,7 +120,7 @@ local http_status_failure = 401
 local http_header_forwarded_for = "X-Forwarded-For"
 
 package.path = package.path .. ";/etc/dovecot/lua/?.lua"
-require("base64")
+local base64 = require("base64")
 
 local http_client = dovecot.http.client {
     timeout = 1000;
@@ -144,30 +144,27 @@ function auth_passdb_lookup(req)
   then
     return dovecot.auth.PASSDB_RESULT_PASSWORD_MISMATCH, ""
   end
+
   local auth_request = http_client:request {
     url = http_url;
     method = http_method;
   }
-  local base64 = require("base64")
-  auth_request:add_header("Authorization", "Basic " .. (base64.encode(req.user .. ":" .. req.password)))
+  auth_request:add_header("Authorization", "Basic " .. base64.encode(req.user .. ":" .. req.password))
   auth_request:add_header(http_header_forwarded_for, req.remote_ip)
   local auth_response = auth_request:submit()
-  local resp_status = auth_response:status()
-  local reason = auth_response:reason()
 
   local returnStatus = dovecot.auth.PASSDB_RESULT_INTERNAL_FAILURE
-  local returnDesc = http_method .. " - " .. http_url .. " - " .. resp_status .. " " .. reason
-  if resp_status == http_status_ok
+  local returnDesc = http_method .. " - " .. http_url .. " - " .. auth_response:status() .. " " .. auth_response:reason()
+  if auth_response:status() == http_status_ok
   then
     returnStatus = dovecot.auth.PASSDB_RESULT_OK
     returnDesc = "nopassword=y"
-  elseif resp_status == http_status_failure
+  elseif auth_response:status() == http_status_failure
   then
     returnStatus = dovecot.auth.PASSDB_RESULT_PASSWORD_MISMATCH
     returnDesc = ""
   end
   return returnStatus, returnDesc
-end
 ```
 
 Replace the hostname in the URL to the actual hostname of Nextcloud.
