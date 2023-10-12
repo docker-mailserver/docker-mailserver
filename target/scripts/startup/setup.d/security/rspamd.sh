@@ -184,7 +184,7 @@ function __rspamd__setup_default_modules() {
     metric_exporter
   )
 
-  readonly DISABLE_MODULES
+  readonly -a DISABLE_MODULES
   local MODULE
   for MODULE in "${DISABLE_MODULES[@]}"; do
     __rspamd__helper__enable_disable_module "${MODULE}" 'false'
