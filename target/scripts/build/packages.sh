@@ -78,7 +78,7 @@ function _install_packages() {
   )
 
   DEBUG_PACKAGES=(
-    bind9-dnsutils iproute2 iputils-ping most nano
+    bind9-dnsutils iproute2 iputils-ping less nano
   )
 
   apt-get "${QUIET}" --no-install-recommends install \
