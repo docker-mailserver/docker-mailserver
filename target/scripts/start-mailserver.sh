@@ -82,10 +82,8 @@ function _register_functions() {
   _register_setup_function '_setup_opendmarc' # must come after `_setup_opendkim`
   _register_setup_function '_setup_policyd_spf'
 
-  _register_setup_function '_setup_logrotate'
-
   _register_setup_function '_setup_security_stack'
-  _register_setup_function '_setup_rspamd' # must come after _setup_logrotate
+  _register_setup_function '_setup_rspamd'
 
   _register_setup_function '_setup_ssl'
   _register_setup_function '_setup_docker_permit'
@@ -93,6 +91,7 @@ function _register_functions() {
   _register_setup_function '_setup_dovecot_hostname'
 
   _register_setup_function '_setup_postfix_early'
+  _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_fetchmail'
   _register_setup_function '_setup_fetchmail_parallel'
 
