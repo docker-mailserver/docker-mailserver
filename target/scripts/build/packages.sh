@@ -207,9 +207,6 @@ function _post_installation_steps() {
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
 
-  _log 'debug' "Linking 'less' to 'most'"
-  ln -sf "$(command -v most)" /usr/local/bin/less
-
   _log 'info' 'Finished installing packages'
 }
 
