@@ -91,7 +91,6 @@ function _register_functions() {
   _register_setup_function '_setup_dovecot_hostname'
 
   _register_setup_function '_setup_postfix_early'
-  _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_fetchmail'
   _register_setup_function '_setup_fetchmail_parallel'
 
@@ -106,6 +105,7 @@ function _register_functions() {
   fi
 
   _register_setup_function '_setup_postfix_late'
+  _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
 
