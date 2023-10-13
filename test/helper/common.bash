@@ -431,6 +431,7 @@ function _filter_service_log() {
   local CONTAINER_NAME=$(__handle_container_name "${3:-}")
   local FILE="/var/log/supervisor/${SERVICE}.log"
 
+  # Fallback to alternative log location:
   [[ -f ${FILE} ]] || FILE="/var/log/mail/${SERVICE}.log"
   _run_in_container grep -E "${STRING}" "${FILE}"
 }

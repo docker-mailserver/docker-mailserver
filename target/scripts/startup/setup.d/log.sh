@@ -13,7 +13,7 @@ function _setup_logs_general() {
 function _setup_logrotate() {
   _log 'debug' 'Setting up logrotate'
 
-  if [[ ${LOGROTATE_INTERVAL} =~ ^(dai|week|month)ly$ ]]; then
+  if [[ ${LOGROTATE_INTERVAL} =~ ^(daily|weekly|monthly)$ ]]; then
     _log 'trace' "Logrotate interval set to ${LOGROTATE_INTERVAL}"
   else
     _log 'warn' "Value '${LOGROTATE_INTERVAL}' for LOGROTATE_INTERVAL is invalid - falling back to default"

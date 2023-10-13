@@ -102,6 +102,7 @@ function __rspamd__run_early_setup_and_checks() {
   fi
 }
 
+# Keep in sync with `target/scripts/startup/setup.d/log.sh:_setup_logrotate()`
 function __rspamd__setup_logfile() {
   cat >/etc/logrotate.d/rspamd << EOF
 /var/log/mail/rspamd.log
