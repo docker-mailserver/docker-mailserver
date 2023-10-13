@@ -16,10 +16,7 @@ function _setup_logrotate() {
   if [[ ${LOGROTATE_INTERVAL} =~ ^(daily|weekly|monthly)$ ]]; then
     _log 'trace' "Logrotate interval set to ${LOGROTATE_INTERVAL}"
   else
-    _log 'warn' "Value '${LOGROTATE_INTERVAL}' for LOGROTATE_INTERVAL is invalid - falling back to default"
-    export LOGROTATE_INTERVAL='weekly'
-    # shellcheck disable=SC2034
-    VARS[LOGROTATE_INTERVAL]='weekly'
+    _dms_panic__invalid_value 'LOGROTATE_INTERVAL' 'Setup -> Logrotate'
   fi
 
   cat >/etc/logrotate.d/maillog << EOF
