@@ -69,6 +69,10 @@ DMS does not supply custom values for DNS servers to Rspamd. If you need to use 
 
     This setting is enabled to not allow spam to proceed just because DNS requests did not succeed. It could deny legitimate e-mails to pass though too in case your DNS setup is incorrect or not functioning properly.
 
+### Logs
+
+You can find the Rspamd logs at `/var/log/mail/rspamd.log`, and the corresponding logs for [Redis](#persistence-with-redis), if it is enabled, at `/var/log/supervisor/rspamd-redis.log`. We recommend inspecting these logs (with `docker exec -it <CONTAINER NAME> cat /var/log/mail/rspamd.log`) in case Rspamd does not work as expected.
+
 ### Modules
 
 You can find a list of all Rspamd modules [on their website][rspamd-docs-modules].
