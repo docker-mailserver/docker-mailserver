@@ -861,6 +861,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    Logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modules" class="md-nav__link">
     Modules
   </a>
@@ -2053,6 +2060,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    Logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#modules" class="md-nav__link">
     Modules
   </a>
@@ -2234,6 +2248,8 @@
 <p>While we do not provide values for custom DNS servers by default, we set <code>soft_reject_on_timeout = true;</code> by default. This setting will cause a soft reject if a task (presumably a DNS request) timeout takes place.</p>
 <p>This setting is enabled to not allow spam to proceed just because DNS requests did not succeed. It could deny legitimate e-mails to pass though too in case your DNS setup is incorrect or not functioning properly.</p>
 </div>
+<h3 id="logs"><a class="toclink" href="#logs">Logs</a></h3>
+<p>You can find the Rspamd logs at <code>/var/log/mail/rspamd.log</code>, and the corresponding logs for <a href="#persistence-with-redis">Redis</a>, if it is enabled, at <code>/var/log/supervisor/rspamd-redis.log</code>. We recommend inspecting these logs (with <code>docker exec -it &lt;CONTAINER NAME&gt; cat /var/log/mail/rspamd.log</code>) in case Rspamd does not work as expected.</p>
 <h3 id="modules"><a class="toclink" href="#modules">Modules</a></h3>
 <p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
 <h4 id="disabled-by-default"><a class="toclink" href="#disabled-by-default">Disabled By Default</a></h4>
