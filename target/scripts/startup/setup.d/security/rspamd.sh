@@ -7,6 +7,7 @@ function _setup_rspamd() {
     __rspamd__log 'trace' '----------  Setup started  ----------'
 
     __rspamd__run_early_setup_and_checks      # must run first
+    __rspamd__setup_logfile
     __rspamd__setup_redis
     __rspamd__setup_postfix
     __rspamd__setup_clamav
@@ -99,6 +100,20 @@ function __rspamd__run_early_setup_and_checks() {
   if [[ ${ENABLE_POSTGREY} -eq 1 ]] && [[ ${RSPAMD_GREYLISTING} -eq 1 ]]; then
     __rspamd__log 'warn' 'Running Postgrey & Rspamd at the same time is discouraged - we recommend Rspamd for greylisting'
   fi
+}
+
+# Keep in sync with `target/scripts/startup/setup.d/log.sh:_setup_logrotate()`
+function __rspamd__setup_logfile() {
+  cat >/etc/logrotate.d/rspamd << EOF
+/var/log/mail/rspamd.log
+{
+  compress
+  copytruncate
+  delaycompress
+  rotate 4
+  ${LOGROTATE_INTERVAL}
+}
+EOF
 }
 
 # Sets up Redis. In case the user does not use a dedicated Redis instance, we
