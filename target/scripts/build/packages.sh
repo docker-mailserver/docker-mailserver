@@ -60,7 +60,7 @@ function _install_packages() {
   MISCELLANEOUS_PACKAGES=(
     apt-transport-https binutils bsd-mailx
     ca-certificates curl dbconfig-no-thanks
-    dumb-init gnupg libdate-manip-perl
+    dumb-init gnupg iproute2 libdate-manip-perl
     libldap-common libmail-spf-perl
     libnet-dns-perl locales logwatch
     netcat-openbsd nftables rsyslog
@@ -77,8 +77,10 @@ function _install_packages() {
     opendmarc libsasl2-modules sasl2-bin
   )
 
+  # `bind9-dnsutils` provides the `dig` command
+  # `iputils-ping` provides the `ping` command
   DEBUG_PACKAGES=(
-    bind9-dnsutils iproute2 iputils-ping less nano
+    bind9-dnsutils iputils-ping less nano
   )
 
   apt-get "${QUIET}" --no-install-recommends install \
