@@ -1840,6 +1840,7 @@
 <p><a href="https://hub.docker.com/r/containrrr/watchtower"><code>containrrr/watchtower</code></a> is a service that monitors Docker images for updates, automatically applying them to running containers.</p>
 <div class="admonition example">
 <p class="admonition-title">Automatic image updates + cleanup</p>
+<p>Run a <code>watchtower</code> container with access to <code>docker.sock</code>, enabling the service to manage Docker:</p>
 <div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">watchtower</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">containrrr/watchtower:latest</span>
@@ -1851,19 +1852,27 @@
 </code></pre></div>
 </div>
 <div class="admonition tip">
+<p class="admonition-title">The image tag used for a container is monitored for updates (eg: <code>:latest</code>, <code>:edge</code>, <code>:13</code>)</p>
+<p>The automatic update support is <strong>only for updates to that specific image tag</strong>.</p>
+<ul>
+<li>Your container will not update to a new major version tag (<em>unless using <code>:latest</code></em>).</li>
+<li>Omit the minor or patch portion of the semver tag to receive updates for the omitted portion (<em>eg: <code>13</code> will represent the latest minor + patch release of <code>v13</code></em>).</li>
+</ul>
+</div>
+<div class="admonition tip">
 <p class="admonition-title">Updating only specific containers</p>
-<p>The default <code>watchtower</code> service will check every 24 hours for any new image updates to pull, <strong>not only the images</strong> defined within your <code>compose.yaml</code>.</p>
-<p>The images to update can be restricted with a custom command that provides a list of containers names and other config options. Configuration is detailed in the <a href="https://containrrr.dev/watchtower/"><code>watchtower</code> docs</a>.</p>
+<p>By default the <code>watchtower</code> service will check every 24 hours for new image updates to pull, based on currently running containers (<em><strong>not restricted</strong> to only those running within your <code>compose.yaml</code></em>).</p>
+<p>Images eligible for updates can configured with a <a href="https://docs.docker.com/compose/compose-file/05-services/#command">custom <code>command</code></a> that provides a list of container names, or via other supported options (eg: labels). This configuration is detailed in the <a href="https://containrrr.dev/watchtower/"><code>watchtower</code> docs</a>.</p>
 </div>
 <div class="admonition info">
 <p class="admonition-title">Manual cleanup</p>
 <p><code>watchtower</code> also supports running on-demand with <code>docker run</code> or <code>compose.yaml</code> via the <code>--run-once</code> option.</p>
-<p>You can also directly invoke cleanup of Docker storage with:</p>
+<p>You can alternatively invoke cleanup of Docker storage directly with:</p>
 <ul>
 <li><a href="https://docs.docker.com/engine/reference/commandline/image_prune/"><code>docker image prune --all</code></a></li>
 <li><a href="https://docs.docker.com/engine/reference/commandline/system_prune/"><code>docker system prune --all</code></a> (<em>also removes unused containers, networks, build cache</em>).</li>
-<li>Avoid the <code>--all</code> option to only remove <a href="https://stackoverflow.com/questions/45142528/what-is-a-dangling-image-and-what-is-an-unused-image/60756668#60756668">"dangling" content</a> (<em>eg: Orphaned images</em>).</li>
 </ul>
+<p>If you omit the <code>--all</code> option, this will instead only remove <a href="https://stackoverflow.com/questions/45142528/what-is-a-dangling-image-and-what-is-an-unused-image/60756668#60756668">"dangling" content</a> (<em>eg: Orphaned images</em>).</p>
 </div>
 
 
