@@ -9,6 +9,17 @@ All notable changes to this project will be documented in this file. The format 
 ### Breaking
 
 - The environment variable `ENABLE_LDAP=1` has been changed to `ACCOUNT_PROVISIONER=LDAP`.
+- Postfix now defaults to supporting DSNs (_[Delivery Status Notifications](https://github.com/docker-mailserver/docker-mailserver/pull/3572#issuecomment-1751880574)_) only for authenticated users. This is a security measure to reduce spammer abuse of your DMS instance as a backscatter source.
+  - If you need to modify this change, please let us know by opening an issue / discussion.
+  - You can [opt-out (_enable DSNs_) via the `postfix-main.cf` override support](https://docker-mailserver.github.io/docker-mailserver/v12.1/config/advanced/override-defaults/postfix/) using the contents: `smtpd_discard_ehlo_keywords =`.
+  - Likewise for authenticated users, the submission(s) ports (465 + 587) are configured internally via `master.cf` to keep DSNs enabled (_since authentication protects from abuse_).
+
+    If necessary, DSNs for authenticated users can be disabled via the `postfix-master.cf` override with the following contents:
+
+    ```
+    submission/inet/smtpd_discard_ehlo_keywords=silent-discard,dsn
+    submissions/inet/smtpd_discard_ehlo_keywords=silent-discard,dsn
+    ```
 
 ### Added
 
