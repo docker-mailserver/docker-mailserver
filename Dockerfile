@@ -201,7 +201,7 @@ RUN echo 'Reason_Message = Message {rejectdefer} due to: {spf}.' >>/etc/postfix-
 
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
 COPY target/getmail/getmailrc /etc/getmailrc_general
-COPY target/postfix/main.cf target/postfix/master.cf target/postfix/esmtp_access /etc/postfix/
+COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 
 # DH parameters for DHE cipher suites, ffdhe4096 is the official standard 4096-bit DH params now part of TLS 1.3
 # This file is for TLS <1.3 handshakes that rely on DHE cipher suites
