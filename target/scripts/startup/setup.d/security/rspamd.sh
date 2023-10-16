@@ -43,6 +43,8 @@ function __rspamd__helper__enable_disable_module() {
   local LOCAL_OR_OVERRIDE=${3:-local}
   local MESSAGE='Enabling'
 
+  readonly MODULE ENABLE_MODULE LOCAL_OR_OVERRIDE
+
   if [[ ! ${ENABLE_MODULE} =~ ^(true|false)$ ]]; then
     __rspamd__log 'warn' "__rspamd__helper__enable_disable_module got non-boolean argument for deciding whether module should be enabled or not"
     return 1
@@ -64,10 +66,12 @@ EOF
 function __rspamd__run_early_setup_and_checks() {
   # Note: Variables not marked with `local` are
   # used in other functions as well.
-  RSPAMD_LOCAL_D='/etc/rspamd/local.d'
-  RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
-  RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
+  readonly RSPAMD_LOCAL_D='/etc/rspamd/local.d'
+  readonly RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
+  readonly RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
+
   local RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d/"
+  readonly RSPAMD_DMS_OVERRIDE_D
 
   mkdir -p /var/lib/rspamd/
   : >/var/lib/rspamd/stats.ucl
@@ -77,7 +81,7 @@ function __rspamd__run_early_setup_and_checks() {
     if rmdir "${RSPAMD_OVERRIDE_D}" 2>/dev/null; then
       ln -s "${RSPAMD_DMS_OVERRIDE_D}" "${RSPAMD_OVERRIDE_D}"
     else
-      __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty? not a directory?; did you restart properly?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
+      __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty?; not a directory?; did you restart properly?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
     fi
   fi
 
@@ -195,6 +199,7 @@ function __rspamd__setup_default_modules() {
     metric_exporter
   )
 
+  readonly -a DISABLE_MODULES
   local MODULE
   for MODULE in "${DISABLE_MODULES[@]}"; do
     __rspamd__helper__enable_disable_module "${MODULE}" 'false'
@@ -211,6 +216,7 @@ function __rspamd__setup_learning() {
     __rspamd__log 'debug' 'Setting up intelligent learning of spam and ham'
 
     local SIEVE_PIPE_BIN_DIR='/usr/lib/dovecot/sieve-pipe'
+    readonly SIEVE_PIPE_BIN_DIR
     ln -s "$(type -f -P rspamc)" "${SIEVE_PIPE_BIN_DIR}/rspamc"
 
     sedfile -i -E 's|(mail_plugins =.*)|\1 imap_sieve|' /etc/dovecot/conf.d/20-imap.conf
@@ -264,6 +270,7 @@ function __rspamd__setup_greylisting() {
 # succeeds.
 function __rspamd__setup_hfilter_group() {
   local MODULE_FILE="${RSPAMD_LOCAL_D}/hfilter_group.conf"
+  readonly MODULE_FILE
   if _env_var_expect_zero_or_one 'RSPAMD_HFILTER' && [[ ${RSPAMD_HFILTER} -eq 1 ]]; then
     __rspamd__log 'debug' 'Hfilter (group) module is enabled'
     # Check if we received a number first
@@ -284,6 +291,7 @@ function __rspamd__setup_hfilter_group() {
 
 function __rspamd__setup_check_authenticated() {
   local MODULE_FILE="${RSPAMD_LOCAL_D}/settings.conf"
+  readonly MODULE_FILE
   if _env_var_expect_zero_or_one 'RSPAMD_CHECK_AUTHENTICATED' \
   && [[ ${RSPAMD_CHECK_AUTHENTICATED} -eq 0 ]]
   then
@@ -320,8 +328,10 @@ function __rspamd__handle_user_modules_adjustments() {
     local VALUE=${4:?Value belonging to an option must be provided}
     # remove possible whitespace at the end (e.g., in case ${ARGUMENT3} is empty)
     VALUE=${VALUE% }
-
     local FILE="${RSPAMD_OVERRIDE_D}/${MODULE_FILE}"
+
+    readonly MODULE_FILE MODULE_LOG_NAME OPTION VALUE FILE
+
     [[ -f ${FILE} ]] || touch "${FILE}"
 
     if grep -q -E "${OPTION}.*=.*" "${FILE}"; then
@@ -335,6 +345,7 @@ function __rspamd__handle_user_modules_adjustments() {
 
   local RSPAMD_CUSTOM_COMMANDS_FILE="${RSPAMD_DMS_D}/custom-commands.conf"
   local RSPAMD_CUSTOM_COMMANDS_FILE_OLD="${RSPAMD_DMS_D}-modules.conf"
+  readonly RSPAMD_CUSTOM_COMMANDS_FILE RSPAMD_CUSTOM_COMMANDS_FILE_OLD
 
   # We check for usage of the previous location of the commands file.
   # This can be removed after the release of v14.0.0.
@@ -347,6 +358,7 @@ function __rspamd__handle_user_modules_adjustments() {
   if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]; then
     __rspamd__log 'debug' "Found file '${RSPAMD_CUSTOM_COMMANDS_FILE}' - parsing and applying it"
 
+    local COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
     while read -r COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3; do
       case "${COMMAND}" in
         ('disable-module')
