@@ -28,7 +28,7 @@ title: 'Maintenance | Update and Cleanup'
 
 !!! tip "Updating only specific containers"
 
-    By default the `watchtower` service will check for new image updates to pull every 24 hours, based on containers running (_**not restricted** to those within your `compose.yaml`_).
+    By default the `watchtower` service will check every 24 hours for new image updates to pull, based on currently running containers (_**not restricted** to only those running within your `compose.yaml`_).
 
     Images eligible for updates can configured with a [custom `command`][docker-docs-compose-command] that provides a list of container names, or via other supported options (eg: labels). This configuration is detailed in the [`watchtower` docs][watchtower-docs].
 
