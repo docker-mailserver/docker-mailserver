@@ -19,9 +19,10 @@ title: 'Maintenance | Update and Cleanup'
           - /var/run/docker.sock:/var/run/docker.sock
     ```
 
-!!! tip "Updates are monitored via the container image tag used (eg: `:latest`, `:edge`, `:13`)"
+!!! tip "The image tag used for a container is monitored for updates (eg: `:latest`, `:edge`, `:13`)"
 
     The automatic update support is **only for updates to that specific image tag**.
+
     - Your container will not update to a new major version tag (_unless using `:latest`_).
     - Omit the minor or patch portion of the semver tag to receive updates for the omitted portion (_eg: `13` will represent the latest minor + patch release of `v13`_).
 
