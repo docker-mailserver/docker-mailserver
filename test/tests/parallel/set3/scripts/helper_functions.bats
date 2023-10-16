@@ -35,7 +35,11 @@ SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/
 
   run _env_var_expect_zero_or_one TWO
   assert_failure
-  assert_output --partial "The value of 'TWO' is not zero or one ('2'), but was expected to be"
+  assert_output --partial "The value of 'TWO' (= '2') is not 0 or 1, but was expected to be"
+
+  run _env_var_expect_zero_or_one UNSET
+  assert_failure
+  assert_output --partial "'UNSET' is not set, but was expected to be"
 
   run _env_var_expect_zero_or_one
   assert_failure
