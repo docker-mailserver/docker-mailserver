@@ -2186,7 +2186,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <details class="tip">
 <summary>Let Rspamd Check Your Keys</summary>
 <p>When <code>check_pubkey = true;</code> is set, Rspamd will query the DNS record for each DKIM selector, verifying each public key matches the private key configured.</p>
-<p>If there is a mismatch, a warning will be emitted to the Rspamd log <code>/var/log/supervisor/rspamd.log</code>.</p>
+<p>If there is a mismatch, a warning will be emitted to the Rspamd log <code>/var/log/mail/rspamd.log</code>.</p>
 </details>
 </div>
 </div>
@@ -2256,7 +2256,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 </details>
 <h3 id="dkim-debug"><a class="toclink" href="#dkim-debug">Troubleshooting</a></h3>
 <p><a href="https://mxtoolbox.com/dkim.aspx">MxToolbox has a DKIM Verifier</a> that you can use to check your DKIM DNS record(s).</p>
-<p>When using Rspamd, we recommend you turn on <code>check_pubkey = true;</code> in <code>dkim_signing.conf</code>. Rspamd will then check whether your private key matches your public key, and you can check possible mismatches by looking at <code>/var/log/supervisor/rspamd.log</code>.</p>
+<p>When using Rspamd, we recommend you turn on <code>check_pubkey = true;</code> in <code>dkim_signing.conf</code>. Rspamd will then check whether your private key matches your public key, and you can check possible mismatches by looking at <code>/var/log/mail/rspamd.log</code>.</p>
 <h2 id="dmarc"><a class="toclink" href="#dmarc">DMARC</a></h2>
 <p>With DMS, DMARC is pre-configured out of the box. You may disable extra and excessive DMARC checks when using Rspamd via <code>ENABLE_OPENDMARC=0</code>.</p>
 <p>The only thing you need to do in order to enable DMARC on a "DNS-level" is to add new <code>TXT</code>. In contrast to <a href="#dkim">DKIM</a>, DMARC DNS entries do not require any keys, but merely setting the <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md#overview-of-dmarc-configuration-tags">configuration values</a>. You can either handcraft the entry by yourself or use one of available generators (like <a href="https://dmarcguide.globalcyberalliance.org">this one</a>).</p>
