@@ -202,7 +202,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         When `check_pubkey = true;` is set, Rspamd will query the DNS record for each DKIM selector, verifying each public key matches the private key configured.
 
-        If there is a mismatch, a warning will be emitted to the Rspamd log `/var/log/supervisor/rspamd.log`.
+        If there is a mismatch, a warning will be emitted to the Rspamd log `/var/log/mail/rspamd.log`.
 
 ### DNS Record { #dkim-dns }
 
@@ -265,7 +265,7 @@ When mail signed with your DKIM key is sent from your mail server, the receiver 
 
 [MxToolbox has a DKIM Verifier][mxtoolbox-dkim-verifier] that you can use to check your DKIM DNS record(s).
 
-When using Rspamd, we recommend you turn on `check_pubkey = true;` in `dkim_signing.conf`. Rspamd will then check whether your private key matches your public key, and you can check possible mismatches by looking at `/var/log/supervisor/rspamd.log`.
+When using Rspamd, we recommend you turn on `check_pubkey = true;` in `dkim_signing.conf`. Rspamd will then check whether your private key matches your public key, and you can check possible mismatches by looking at `/var/log/mail/rspamd.log`.
 
 ## DMARC
 
