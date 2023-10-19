@@ -97,17 +97,24 @@ function _install_dovecot() {
     dovecot-core dovecot-imapd
     dovecot-ldap dovecot-lmtpd dovecot-managesieved
     dovecot-pop3d dovecot-sieve dovecot-solr
-    dovecot-lua
+    dovecot-auth-lua
   )
 
   if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]; then
-    _log 'trace' 'Using Dovecot community repository'
-    curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
-    gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
-    echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/bullseye bullseye main" > /etc/apt/sources.list.d/dovecot.list
+    # Dovecot's deb community repository only provides x86_64 packages, so do not include it
+    # when building for another architecture.
+    if [[ "$(uname --machine)" == "x86_64" ]]; then
+      _log 'trace' 'Using Dovecot community repository'
+      curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
+      gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
+      echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/bullseye bullseye main" > /etc/apt/sources.list.d/dovecot.list
 
-    _log 'trace' 'Updating Dovecot package signatures'
-    apt-get "${QUIET}" update
+      _log 'trace' 'Updating Dovecot package signatures'
+      apt-get "${QUIET}" update
+
+      # Additional community package needed for Lua support if the Dovecot community repository is used.
+      DOVECOT_PACKAGES+=dovecot-lua
+    fi
   fi
 
   _log 'debug' 'Installing Dovecot'
