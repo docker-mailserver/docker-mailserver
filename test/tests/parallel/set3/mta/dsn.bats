@@ -15,6 +15,7 @@ function teardown() { _default_teardown ; }
   )
 
   _init_with_defaults
+  # Unset `smtpd_discard_ehlo_keywords` to allow DSNs by default on any `smtpd` service:
   mv "${TEST_TMP_CONFIG}/dsn/postfix-main.cf" "${TEST_TMP_CONFIG}/postfix-main.cf"
   _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
@@ -31,6 +32,7 @@ function teardown() { _default_teardown ; }
   _should_output_number_of_lines 3
 }
 
+# Defaults test case
 @test "should only send a DSN when requested from ports 465/587" {
 
   local LOG_DSN='delivery status notification'
@@ -70,6 +72,7 @@ function teardown() { _default_teardown ; }
   )
 
   _init_with_defaults
+  # Mirror default main.cf (disable DSN on ports 465 + 587 too):
   mv "${TEST_TMP_CONFIG}/dsn/postfix-master.cf" "${TEST_TMP_CONFIG}/postfix-master.cf"
   _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 
