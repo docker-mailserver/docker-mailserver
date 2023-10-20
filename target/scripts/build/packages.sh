@@ -115,7 +115,7 @@ function _install_dovecot() {
       apt-get "${QUIET}" update
 
       # Additional community package needed for Lua support if the Dovecot community repository is used.
-      DOVECOT_PACKAGES+=dovecot-lua
+      DOVECOT_PACKAGES+=(dovecot-lua)
     fi
   fi
 
