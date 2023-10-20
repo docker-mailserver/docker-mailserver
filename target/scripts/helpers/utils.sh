@@ -127,9 +127,17 @@ function _replace_by_env_in_file() {
 function _env_var_expect_zero_or_one() {
   local ENV_VAR_NAME=${1:?ENV var name must be provided to _env_var_expect_zero_or_one}
 
-  [[ ${!ENV_VAR_NAME} =~ ^(0|1)$ ]] && return 0
-  _log 'warn' "The value of '${ENV_VAR_NAME}' is not zero or one ('${!ENV_VAR_NAME}'), but was expected to be"
-  return 1
+  if [[ ! -v ${ENV_VAR_NAME} ]]; then
+    _log 'warn' "'${ENV_VAR_NAME}' is not set, but was expected to be"
+    return 1
+  fi
+
+  if [[ ! ${!ENV_VAR_NAME} =~ ^(0|1)$ ]]; then
+    _log 'warn' "The value of '${ENV_VAR_NAME}' (= '${!ENV_VAR_NAME}') is not 0 or 1, but was expected to be"
+    return 1
+  fi
+
+  return 0
 }
 
 # Check if an environment variable's value is an integer.
