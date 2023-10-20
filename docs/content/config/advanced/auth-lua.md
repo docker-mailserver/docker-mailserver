@@ -6,23 +6,16 @@ title: 'Advanced | Lua Authentication'
 
 Dovecot has the ability to let users create their own custom user provisioning and authentication providers in [Lua](https://en.wikipedia.org/wiki/Lua_(programming_language)#Syntax). This allows any data source that can be approached from Lua to be used for authentication, including web servers. It is possible to do more with Dovecot and Lua, but other use cases fall outside of the scope of this documentation page.
 
-!!! warning
+!!! warning "Community contributed guide"
+    Dovecot authentication via Lua scripting is not officially supported in DMS. No assistance will be provided should you encounter any issues.
+    
+    DMS provides the required packages to support this guide. Note that these packages will be removed should they introduce any future maintenance burden.
 
-    DMS offers minimal support for Lua-based authentication due to it being an advanced method that can be used in many different ways. Do not open issues on GitHub or request support from DMS contributors for Lua scripts. The documentation on this page is all that is needed to get your own development started. Look elsewhere for Lua support.
+    The example in this guide relies on the current way in which DMS works with Dovecot configuration files. Changes to this to accommodate new authentication methods such as OpenID Connect will likely break this example in the future. This guide is updated on a best-effort base.
 
-!!! warning
+Dovecot's Lua support can be used for user provisioning (userdb functionality) and/or password verification (passdb functionality). Consider using other userdb and passdb options before considering Lua, since Lua does require the use of additional (unsupported) program code that might require maintenance when updating DMS.
 
-    Lua-based authentication relies on a Dovecot plugin. Dovecot is known to sometimes deprecate and remove support for their plugins (such as [CheckPassword](https://doc.dovecot.org/configuration_manual/authentication/checkpassword/)). DMS will drop support immediately if at some moment continued inclusion of the Lua plugin would not align with the DMS development process anymore.
-
-There are several questions you should ask yourself before you start:
-
-1. Do I want to use Lua to identify mailboxes and verify that users are are authorized to use mail services? This refers in the world of Dovecot to Lua providing 'userdb' functionality, as in a data source for user provisioning.
-1. Do I want to use Lua to verify passwords that users authenticate with for IMAP/POP3/SMTP in their (web) mail clients? This refers in the world of Dovecot to Lua providing 'passdb' functionality, as in a data source for user password verification.
-1. If the answer is 'yes' to question 1 or 2: are there other methods that better facilitate my use case aside of custom scripts which rely on me being a developer and not just a user?
-
-If the answer is 'no' to question 3, Lua-based authentication might just be the thing for you.
-
-Each implementation of Lua-based authentication is fully custom. Therefore it is impossible to write documentation that covers every scenario. Instead, this page describes a single scenario. If that scenario is followed, you will learn vital aspects that are necessary to kickstart your own Lua development:
+Each implementation of Lua-based authentication is custom. Therefore it is impossible to write documentation that covers every scenario. Instead, this page describes a single example scenario. If that scenario is followed, you will learn vital aspects that are necessary to kickstart your own Lua development:
 
 - How to override Dovecot's default configuration to disable parts that conflict with your scenario.
 - How to make Dovecot use your Lua script.
@@ -31,7 +24,7 @@ Each implementation of Lua-based authentication is fully custom. Therefore it is
 
 ## The example scenario
 
-This scenario starts with [DMS being configured to use LDAP][docs-authldap] for mailbox identification, user authorization and user authentication. In this scenario, [Nextcloud](https://nextcloud.com/) is also a service that uses the same LDAP server for user identification, authorization and authentication.
+This scenario starts with [DMS being configured to use LDAP][docs::auth-ldap] for mailbox identification, user authorization and user authentication. In this scenario, [Nextcloud](https://nextcloud.com/) is also a service that uses the same LDAP server for user identification, authorization and authentication.
 
 The goal of this scenario is to have Dovecot not authenticate the user against LDAP, but against Nextcloud. Furthermore, the user should should only be able to authenticate using a randomly generated [Nextcloud application password](https://docs.nextcloud.com/server/latest/user_manual/en/session_management.html#managing-devices) and not the main password of the user account (stored in LDAP). The idea behind this is that a compromised mailbox password does not compromise the user's account entirely. To make this work, password reset through mail is disabled in Nextcloud.
 
@@ -47,43 +40,27 @@ To answer the questions asked earlier for this specific scenario:
 
 While it is possible to extend what Nextcloud supports with [Nextcloud apps](https://apps.nextcloud.com/), there is currently a mismatch between what DMS supports and what Nextcloud applications support. This might change in the future. For now, Lua will be used to bridge the gap between DMS and Nextcloud for authentication only (Dovecot passdb), while LDAP will still be used to identify mailboxes and verify authorization (Dovecot userdb).
 
-## Container variables to adjust
-
-Since Docker Mailserver provides minimal support for Lua with Dovecot, there are no environment variables to configure specifically for Lua. Some environment variables that do exist for other aspects of DMS might need to be configured based on the scenario you want to follow.
-
-In the case of the example scenario, the environment variables must be configured as if users will be authenticated against LDAP (to support identification of mailboxes and verifying authorizations through LDAP). See [LDAP Authentication][docs-authldap] for more information. In addition, the following variables are required:
-
-???+ example
-
-    DMS configuration environment variables to let Postfix apply Lua authentication by proxy through Dovecot for authenticated SMTP.
-
-    ```yaml
-    - ENABLE_SASLAUTHD=1
-    - SASLAUTHD_MECHANISMS=rimap
-    - SASLAUTHD_MECH_OPTIONS=127.0.0.1
-    ```
-
-## Modifying Dovecot's configuration
+## Modify Dovecot's configuration
 
 Add the following volume values to the relevant part of `compose.yaml`:
 
 ???+ example
 
-    Override and add Dovecot configuration files and lua scripts.
-
     ```yaml
+        # All new volumes are marked :ro to configure them as read-only, since their contents are not changed from inside the container
         volumes:
+          # Configuration override to disable LDAP authentication
           - ./docker-data/dms/config/dovecot/auth-ldap.conf.ext:/etc/dovecot/conf.d/auth-ldap.conf.ext:ro
+          # Configuration addition to enable Lua authentication
           - ./docker-data/dms/config/dovecot/auth-lua-httpbasic.conf:/etc/dovecot/conf.d/auth-lua-httpbasic.conf:ro
+          # Directory containing Lua scripts
           - ./docker-data/dms/config/dovecot/lua/:/etc/dovecot/lua/:ro
     ```
 
-The first volume line [overrides][docs-dovecotoverrideconfiguration] Dovecot's standard LDAP authentication configuration file. The second line [adds][docs-dovecotaddconfiguration] a new configuration file for Lua authentication. The third line adds a directory which will contain Lua scripts. The files and directory will not be changed from inside the container, which is why they are configured as read-only.
-
-Make the necessary changes on the filesystem (*where `mailserver` is the container name*):
+Make the necessary changes on the filesystem:
 ```bash
 mkdir -p ./docker-data/dms/config/dovecot/lua
-docker cp mailserver:/etc/dovecot/conf.d/auth-ldap.conf.ext ./docker-data/dms/config/dovecot/auth-ldap.conf.ext
+docker cp CONTAINER_NAME:/etc/dovecot/conf.d/auth-ldap.conf.ext ./docker-data/dms/config/dovecot/auth-ldap.conf.ext
 ```
 
 Edit configuration file `./docker-data/dms/config/dovecot/auth-ldap.conf.ext`. Comment out the passdb section. An excerpt of what that part would look like after you are done:
@@ -120,12 +97,12 @@ local http_status_failure = 401
 local http_header_forwarded_for = "X-Forwarded-For"
 
 package.path = package.path .. ";/etc/dovecot/lua/?.lua"
-local base64 = require("base64")
+require("base64")
 
 local http_client = dovecot.http.client {
-    timeout = 1000;
-    max_attempts = 1;
-    debug = false;
+  timeout = 1000;
+  max_attempts = 1;
+  debug = false;
 }
 
 function script_init()
@@ -144,27 +121,30 @@ function auth_passdb_lookup(req)
   then
     return dovecot.auth.PASSDB_RESULT_PASSWORD_MISMATCH, ""
   end
-
   local auth_request = http_client:request {
     url = http_url;
     method = http_method;
   }
-  auth_request:add_header("Authorization", "Basic " .. base64.encode(req.user .. ":" .. req.password))
+  local base64 = require("base64")
+  auth_request:add_header("Authorization", "Basic " .. (base64.encode(req.user .. ":" .. req.password)))
   auth_request:add_header(http_header_forwarded_for, req.remote_ip)
   local auth_response = auth_request:submit()
+  local resp_status = auth_response:status()
+  local reason = auth_response:reason()
 
   local returnStatus = dovecot.auth.PASSDB_RESULT_INTERNAL_FAILURE
-  local returnDesc = http_method .. " - " .. http_url .. " - " .. auth_response:status() .. " " .. auth_response:reason()
-  if auth_response:status() == http_status_ok
+  local returnDesc = http_method .. " - " .. http_url .. " - " .. resp_status .. " " .. reason
+  if resp_status == http_status_ok
   then
     returnStatus = dovecot.auth.PASSDB_RESULT_OK
     returnDesc = "nopassword=y"
-  elseif auth_response:status() == http_status_failure
+  elseif resp_status == http_status_failure
   then
     returnStatus = dovecot.auth.PASSDB_RESULT_PASSWORD_MISMATCH
     returnDesc = ""
   end
   return returnStatus, returnDesc
+end
 ```
 
 Replace the hostname in the URL to the actual hostname of Nextcloud.
@@ -176,19 +156,25 @@ cd ./docker-data/dms/config/dovecot/lua
 curl -JLO https://raw.githubusercontent.com/iskolbin/lbase64/master/base64.lua
 ```
 
-Only use native (pure Lua) libraries as dependencies, such as `base64.lua` from the example. This ensures maximum compatibility. Performance is less of an issue since Lua scripts written for Dovecot probably won't be long or complex, and there won't be a lot of data processing by Lua itself. To see which Lua version is used by Dovecot if you plan to do something that is version dependent, run:
-
-```bash
-docker exec mailserver strings /usr/lib/dovecot/libdovecot-lua.so|grep '^LUA_'
-```
+Only use native (pure Lua) libraries as dependencies, such as `base64.lua` from the example. This ensures maximum compatibility. Performance is less of an issue since Lua scripts written for Dovecot probably won't be long or complex, and there won't be a lot of data processing by Lua itself.
 
 ## Debugging a Lua script
 
-Aside of succeeded and failed authentication attempts for any passdb backend, Dovecot also logs Lua scripting errors and messages send to Dovecot's [Lua API log functions](https://doc.dovecot.org/admin_manual/lua/#dovecot.i_debug). The combined DMS log (including that of Dovecot) can be viewed using `docker logs mailserver` (*where `mailserver` is the container name*). If the log is too noisy (due to other processes in the container also logging to it), `docker exec mailserver cat /var/log/mail/mail.log` can be used to view the log of Dovecot and Postfix specifically. If working with HTTP in Lua, setting `debug = true;` when initiating `dovecot.http.client` will create debug log messages for every HTTP request and response.
+To see which Lua version is used by Dovecot if you plan to do something that is version dependent, run:
 
-Note that Lua runs compiled bytecode, and that scripts will be compiled when they are initially started. Once compiled, the bytecode is cached and changes in the script will not be processed. [Restart sub-service Dovecot][docs-faqalterdms] using `docker exec mailserver supervisorctl restart dovecot` to have Dovecot load a changed Lua script.
+```bash
+docker exec CONTAINER_NAME strings /usr/lib/dovecot/libdovecot-lua.so|grep '^LUA_'
+```
 
-[docs-authldap]: ./auth-ldap.md
-[docs-dovecotoverrideconfiguration]: ./override-defaults/dovecot.md#override-configuration
-[docs-dovecotaddconfiguration]: ./override-defaults/dovecot.md#add-configuration
-[docs-faqalterdms]: ../../faq.md#how-to-alter-a-running-dms-instance-without-relaunching-the-container
+While Dovecot logs the status of authentication attempts for any passdb backend, Dovecot will also log Lua scripting errors and messages sent to Dovecot's [Lua API log functions](https://doc.dovecot.org/admin_manual/lua/#dovecot.i_debug).
+
+The combined DMS log (including that of Dovecot) can be viewed using `docker logs CONTAINER_NAME`. If the log is too noisy (_due to other processes in the container also logging to it_), `docker exec CONTAINER_NAME cat /var/log/mail/mail.log` can be used to view the log of Dovecot and Postfix specifically.
+
+If working with HTTP in Lua, setting `debug = true;` when initiating `dovecot.http.client` will create debug log messages for every HTTP request and response.
+
+Note that Lua runs compiled bytecode, and that scripts will be compiled when they are initially started. Once compiled, the bytecode is cached and changes in the Lua script will not be processed automatically. Dovecot will reload its configuration and clear its cached Lua bytecode when running `docker exec CONTAINER_NAME dovecot reload`. A (changed) Lua script will be compiled to bytecode the next time it is executed after running the Dovecot reload command.
+
+[docs::auth-ldap]: ./auth-ldap.md
+[docs::dovecot-override-configuration]: ./override-defaults/dovecot.md#override-configuration
+[docs::dovecot-add-configuration]: ./override-defaults/dovecot.md#add-configuration
+[docs::faq-alter-running-dms-instance-without-container-relaunch]: ../../faq.md#how-to-alter-a-running-dms-instance-without-relaunching-the-container
