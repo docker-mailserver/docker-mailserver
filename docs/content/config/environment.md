@@ -108,6 +108,15 @@ This enables DNS block lists in _Postscreen_. If you want to know which lists we
 - **0** => DNS block lists are disabled
 - 1     => DNS block lists are enabled
 
+##### ENABLE_MTA_STS
+
+Enables MTA-STS for outgoing mails.
+
+- **0** => Disabled
+- 1 => Enabled
+
+See [MTA-STS](advanced/mail-mta-sts.md) for further explanation.
+
 ##### ENABLE_OPENDKIM
 
 Enables the OpenDKIM service.
