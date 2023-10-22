@@ -4,8 +4,8 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 BATS_TEST_NAME_PREFIX='[Rspamd] (DKIM) '
 CONTAINER_NAME='dms-test_rspamd-dkim'
 
-DOMAIN_NAME='fixed.com'
-SIGNING_CONF_FILE='/etc/rspamd/override.d/dkim_signing.conf'
+DOMAIN_NAME='example.test'
+SIGNING_CONF_FILE='/tmp/docker-mailserver/rspamd/override.d/dkim_signing.conf'
 
 function setup_file() {
   _init_with_defaults
@@ -59,7 +59,7 @@ function teardown_file() { _default_teardown ; }
   __create_key
   assert_success
   __log_is_free_of_warnings_and_errors
-  assert_output --partial "Supplying a default configuration ('${SIGNING_CONF_FILE}')"
+  assert_output --partial "Supplying a default configuration (to '${SIGNING_CONF_FILE}')"
   refute_output --partial "'${SIGNING_CONF_FILE}' exists, not supplying a default"
   assert_output --partial "Finished DKIM key creation"
   _run_in_container_bash "[[ -f ${SIGNING_CONF_FILE} ]]"
