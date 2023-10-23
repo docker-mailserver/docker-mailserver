@@ -154,11 +154,30 @@ function _preflight_checks() {
   # in other functions (after this function was called).
   # Also keep in sync with: target/scripts/startup/setup.d/security/rspamd.sh:__rspamd__run_early_setup_and_checks
   local RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
-  RSPAMD_DMS_DKIM_D="${RSPAMD_DMS_D}/dkim"
-  RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d"
+  local RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
+  readonly RSPAMD_DMS_DKIM_D="${RSPAMD_DMS_D}/dkim"
+  readonly RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d"
 
   mkdir -p "${RSPAMD_DMS_DKIM_D}" "${RSPAMD_DMS_OVERRIDE_D}"
   chown _rspamd:_rspamd "${RSPAMD_DMS_DKIM_D}"
+
+  # Mimmick target/scripts/startup/setup.d/security/rspamd.sh:__rspamd__run_early_setup_and_checks where
+  # ${RSPAMD_OVERRIDE_D} is linked to ${RSPAMD_DMS_OVERRIDE_D}, but not if
+  #
+  # 1. ${RSPAMD_OVERRIDE_D} has already been linked to ${RSPAMD_DMS_OVERRIDE_D}
+  # 2. ${RSPAMD_OVERRIDE_D} has contents already
+  #
+  # If 1. is true, then we're good since DMS' default setup linked the directory already and we will save
+  # a persisted location in every case. If 1. is false, 2. should be false as well since by the default,
+  # ${RSPAMD_OVERRIDE_D} has not contents - we're good as well. What should logically never happen is
+  # that 1. is false but 2. is true; this case is caught nevertheless and a warning is emitted.
+  if [[ ! -h "${RSPAMD_OVERRIDE_D}" ]]; then
+    if rmdir "${RSPAMD_OVERRIDE_D}" &>/dev/null; then
+      ln -s "${RSPAMD_DMS_OVERRIDE_D}" "${RSPAMD_OVERRIDE_D}"
+    else
+      _log 'warn' "Could not link '${RSPAMD_OVERRIDE_D}' to '${RSPAMD_DMS_OVERRIDE_D}' (as '${RSPAMD_OVERRIDE_D}' does not appear to be empty, which is unexpected) - you will need to restart DMS for changes to take effect"
+    fi
+  fi
 }
 
 function _create_keys() {
