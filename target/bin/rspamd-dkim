@@ -168,8 +168,8 @@ function _preflight_checks() {
   # 2. ${RSPAMD_OVERRIDE_D} has contents already
   #
   # If 1. is true, then we're good since DMS' default setup linked the directory already and we will save
-  # a persisted location in every case. If 1. is false, 2. should be false as well since by the default,
-  # ${RSPAMD_OVERRIDE_D} has not contents - we're good as well. What should logically never happen is
+  # a persisted location in every case. If 1. is false, 2. should be false as well since by default,
+  # ${RSPAMD_OVERRIDE_D} has no contents - we're good as well. What should logically never happen is
   # that 1. is false but 2. is true; this case is caught nevertheless and a warning is emitted.
   if [[ ! -h "${RSPAMD_OVERRIDE_D}" ]]; then
     if rmdir "${RSPAMD_OVERRIDE_D}" &>/dev/null; then
