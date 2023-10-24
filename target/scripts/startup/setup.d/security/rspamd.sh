@@ -70,7 +70,7 @@ function __rspamd__run_early_setup_and_checks() {
   readonly RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
   readonly RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
 
-  local RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d/"
+  local RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d"
   readonly RSPAMD_DMS_OVERRIDE_D
 
   mkdir -p /var/lib/rspamd/
@@ -82,6 +82,7 @@ function __rspamd__run_early_setup_and_checks() {
       ln -s "${RSPAMD_DMS_OVERRIDE_D}" "${RSPAMD_OVERRIDE_D}"
     else
       __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty?; not a directory?; did you restart properly?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
+      __rspamd__log 'warn' "Note that using '${RSPAMD_DMS_OVERRIDE_D}' and placing files manually in '${RSPAMD_OVERRIDE_D}' is not supported"
     fi
   fi
 
