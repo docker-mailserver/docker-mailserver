@@ -27,9 +27,10 @@ ${ORANGE}DESCRIPTION${RESET}
 
 ${ORANGE}OPTIONS${RESET}
     ${BLUE}Generic Program Information${RESET}
-        -v        Enable verbose logging (setting the log level to 'debug').
-        -vv       Enable very verbose logging (setting the log level to 'trace').
-        help      Print the usage information.
+        -f | --force  Overwrite existing files if there are any
+        -v            Enable verbose logging (setting the log level to 'debug').
+        -vv           Enable very verbose logging (setting the log level to 'trace').
+        help          Print the usage information.
 
     ${BLUE}Configuration adjustments${RESET}
         keytype   Set the type of key you want to use.
@@ -69,6 +70,7 @@ function __do_as_rspamd_user() {
 }
 
 function _parse_arguments() {
+  FORCE=0
   KEYTYPE='rsa'
   KEYSIZE='2048'
   SELECTOR='mail'
@@ -110,6 +112,12 @@ function _parse_arguments() {
       ( 'help' )
         __usage
         exit 0
+        ;;
+
+      ( '-f' | '--force' )
+        FORCE=1
+        shift 1
+        continue
         ;;
 
       ( '-vv' )
@@ -194,6 +202,16 @@ function _create_keys() {
   PUBLIC_KEY_FILE="${BASE_FILE_NAME}.public.txt"
   PUBLIC_KEY_DNS_FILE="${BASE_FILE_NAME}.public.dns.txt"
   PRIVATE_KEY_FILE="${BASE_FILE_NAME}.private.txt"
+
+  if [[ -f ${PUBLIC_KEY_FILE} ]] || [[ -f ${PUBLIC_KEY_DNS_FILE} ]] || [[ -f ${PRIVATE_KEY_FILE} ]]; then
+    if [[ ${FORCE} -eq 0 ]]; then
+      _log 'error' "Not overwriting existing files (use '--force' to overwrite existing files)"
+      exit 1
+    else
+      _log 'info' "Overwriting existing files as the '--force' option was supplied"
+      rm "${PUBLIC_KEY_FILE}" "${PUBLIC_KEY_DNS_FILE}" "${PRIVATE_KEY_FILE}"
+    fi
+  fi
 
   # shellcheck disable=SC2310
   if __do_as_rspamd_user rspamadm \
