@@ -140,7 +140,6 @@ function _parse_arguments() {
         __usage
         _exit_with_error "Unknown option(s) '${1}' ${2:+"and '${2}'"}"
         ;;
-
     esac
 
     shift 2
@@ -158,13 +157,7 @@ function _preflight_checks() {
     _log 'warn' "The directory '/tmp/docker-mailserver' does not seem to be mounted by a volume - the Rspamd (DKIM) configuration will not be persisted"
   fi
 
-  # Note: Variables not marked with `local` are used
-  # in other functions (after this function was called).
-  # Also keep in sync with: target/scripts/startup/setup.d/security/rspamd.sh:__rspamd__run_early_setup_and_checks
-  local RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
-  local RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
-  readonly RSPAMD_DMS_DKIM_D="${RSPAMD_DMS_D}/dkim"
-  readonly RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d"
+  _rspamd_get_envs
 
   mkdir -p "${RSPAMD_DMS_DKIM_D}" "${RSPAMD_DMS_OVERRIDE_D}"
   chown _rspamd:_rspamd "${RSPAMD_DMS_DKIM_D}"
