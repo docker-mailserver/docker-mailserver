@@ -53,11 +53,11 @@ function _rspamd_handle_user_modules_adjustments() {
   }
 
   # We check for usage of the previous location of the commands file.
-  # This can be removed after the release of v14.0.0.
-  if [[ -f ${RSPAMD_CUSTOM_COMMANDS_FILE_OLD} ]]; then
-    __rspamd__log 'warn' "Detected usage of old file location for modules adjustment ('${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}') - please use the new location ('${RSPAMD_DMS_CUSTOM_COMMANDS_F}')"
-    __rspamd__log 'warn' "Using old file location now (deprecated) - this will prevent startup in v13.0.0"
-    RSPAMD_DMS_CUSTOM_COMMANDS_F=${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}
+  # TODO This can be removed after the release of v14.0.0.
+  local RSPAMD_DMS_CUSTOM_COMMANDS_F_OLD="${RSPAMD_DMS_D}-modules.conf"
+  readonly RSPAMD_DMS_CUSTOM_COMMANDS_F_OLD
+  if [[ -f ${RSPAMD_DMS_CUSTOM_COMMANDS_F_OLD} ]]; then
+    _dms_panic__general "Old custom commmands file '${RSPAMD_DMS_CUSTOM_COMMANDS_F_OLD}' is deprecated (use '${RSPAMD_DMS_CUSTOM_COMMANDS_F}' now)" 'Rspamd setup'
   fi
 
   if [[ -f "${RSPAMD_DMS_CUSTOM_COMMANDS_F}" ]]; then
