@@ -110,7 +110,7 @@ This enables DNS block lists in _Postscreen_. If you want to know which lists we
 
 ##### ENABLE_MTA_STS
 
-Enables MTA-STS for outgoing mails.
+Enables MTA-STS support for outbound mail.
 
 - **0** => Disabled
 - 1 => Enabled
