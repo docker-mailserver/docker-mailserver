@@ -1,25 +1,8 @@
 {
-  "Verbose": false,
-  "Debug": false,
   "IgnoreDefaults": false,
-  "SpacesAftertabs": true,
-  "NoColor": false,
   "Exclude": [
-    "^test/",
-    "\\.git.*",
-    "\\.cf$",
-    "\\.conf$",
-    "\\.init$",
-    "\\.md$"
-  ],
-  "AllowedContentTypes": [],
-  "PassedFiles": [],
-  "Disable": {
-    "EndOfLine": false,
-    "Indentation": false,
-    "InsertFinalNewline": false,
-    "TrimTrailingWhitespace": false,
-    "IndentSize": false,
-    "MaxLineLength": false
-  }
+    "^test/bats/",
+    "^test/test_helper/bats-(assert|support)",
+    "\\.git/"
+  ]
 }

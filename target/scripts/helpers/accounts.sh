@@ -70,7 +70,7 @@ function _create_accounts() {
 
       # Dovecot's userdb has the following format
       # user:password:uid:gid:(gecos):home:(shell):extra_fields
-      DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:5000:5000::/var/mail/${DOMAIN}/${USER}/home::${USER_ATTRIBUTES}"
+      DOVECOT_USERDB_LINE="${LOGIN}:${PASS}:${DMS_VMAIL_UID}:${DMS_VMAIL_GID}::/var/mail/${DOMAIN}/${USER}/home::${USER_ATTRIBUTES}"
       if grep -qF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"; then
         _log 'warn' "Login '${LOGIN}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
@@ -141,7 +141,7 @@ function _create_dovecot_alias_dummy_accounts() {
         fi
       fi
 
-      DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:5000:5000::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}"
+      DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:${DMS_VMAIL_UID}:${DMS_VMAIL_GID}::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}::${REAL_ACC[2]:-}"
       if grep -qi "^${ALIAS}:" "${DOVECOT_USERDB_FILE}"; then
         _log 'warn' "Alias '${ALIAS}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
