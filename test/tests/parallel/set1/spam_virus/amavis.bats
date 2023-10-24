@@ -19,7 +19,7 @@ function setup_file() {
 
   CONTAINER_NAME=${CONTAINER2_NAME}
   _init_with_defaults
-   local CUSTOM_SETUP_ARGUMENTS=(
+  local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=0
     --env ENABLE_SPAMASSASSIN=0
   )

@@ -1,18 +1,10 @@
 name: Other
-description: Miscellaneous questions and reports
+description: Miscellaneous questions and reports for the project (not support)
 title: 'other: '
 labels:
   - meta/help wanted
 
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Markdown formatting can be used in almost all text fields. The description will tell you if this is not the case for a specific field.
-
-        Be as precise as possible, and if in doubt, it's best to add more information that too few.
-
-        ---
   - type: dropdown
     id: subject
     attributes:
@@ -21,13 +13,18 @@ body:
         - I would like to contribute to the project
         - I would like to configure a not documented mail server use case
         - I would like some feedback concerning a use case
-        - I have questions about TLS/SSL/STARTTLS/OpenSSL
-        - Other
+        - Something else that requires developers attention
     validations:
       required: true
   - type: textarea
     id: description
-    attributes:
-      label: Description
     validations:
       required: true
+    attributes:
+      label: Description
+      value: |
+        <!---
+        Please do not use this form to bypass doing a proper bug report.
+        The issue tracker is for anything relevant to the project itself, not individual support queries.
+        If you don't want to fill out a bug report, please ask support questions at our community discussions page: https://github.com/orgs/docker-mailserver/discussions
+        -->

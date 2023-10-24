@@ -1,10 +1,10 @@
 # Testconfig for ldap integration
 bind             = yes
-bind_dn          = cn=admin,dc=domain,dc=com
+bind_dn          = cn=admin,dc=example,dc=test
 bind_pw          = admin
 query_filter     = (&(mail=%s)(mailEnabled=TRUE))
 result_attribute = mail
-search_base      = ou=people,dc=domain,dc=com
-server_host      = mail.domain.com
+search_base      = ou=users,dc=example,dc=test
+server_host      = mail.example.test
 start_tls        = no
 version          = 3

@@ -113,14 +113,14 @@ function teardown() { _default_teardown ; }
   __init_container_without_waiting '/tmp/docker-mailserver'
 
   # generate first key (with a custom selector)
-  __should_generate_dkim_key 4 '2048' 'domain1.tld' 'mailer'
+  __should_generate_dkim_key 4 '1024' 'domain1.tld' 'mailer'
   __assert_outputs_common_dkim_logs
   # generate two additional keys different to the previous one
-  __should_generate_dkim_key 2 '2048' 'domain2.tld,domain3.tld'
+  __should_generate_dkim_key 2 '1024' 'domain2.tld,domain3.tld'
   __assert_logged_dkim_creation 'domain2.tld'
   __assert_logged_dkim_creation 'domain3.tld'
   # generate an additional key whilst providing already existing domains
-  __should_generate_dkim_key 1 '2048' 'domain3.tld,domain4.tld'
+  __should_generate_dkim_key 1 '1024' 'domain3.tld,domain4.tld'
   __assert_logged_dkim_creation 'domain4.tld'
 
   __should_have_tables_trustedhosts_for_domain
@@ -197,7 +197,7 @@ function __should_support_creating_key_of_size() {
   __assert_logged_dkim_creation 'localhost.localdomain'
   __assert_logged_dkim_creation 'otherdomain.tld'
 
-  __should_have_expected_files "${EXPECTED_KEYSIZE:-4096}"
+  __should_have_expected_files "${EXPECTED_KEYSIZE:-2048}"
   _run_in_container rm -r /tmp/docker-mailserver/opendkim
 }
 

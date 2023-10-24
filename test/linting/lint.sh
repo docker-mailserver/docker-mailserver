@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 REPOSITORY_ROOT=$(realpath "$(dirname "$(readlink -f "${0}")")"/../../)
 LOG_LEVEL=${LOG_LEVEL:-debug}
 HADOLINT_VERSION='2.12.0'
-ECLINT_VERSION='2.7.0'
+ECLINT_VERSION='2.7.2'
 SHELLCHECK_VERSION='0.9.0'
 
 # shellcheck source=./../../target/scripts/helpers/log.sh
@@ -35,7 +35,7 @@ function _hadolint() {
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
     --name dms-test_hadolint \
-    "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yaml" Dockerfile
+    "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yml" Dockerfile
   then
     _log 'info' 'Hadolint succeeded'
   else

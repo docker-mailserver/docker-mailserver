@@ -1,8 +1,8 @@
-base                = ou=people,dc=domain,dc=com
+base                = ou=people,dc=example,dc=com
 default_pass_scheme = SSHA
-dn                  = cn=admin,dc=domain,dc=com
+dn                  = cn=admin,dc=example,dc=com
 dnpass              = admin
-uris                = ldap://mail.domain.com
+uris                = ldap://mail.example.com
 tls                 = no
 ldap_version        = 3
 pass_attrs          = uniqueIdentifier=user,userPassword=password
