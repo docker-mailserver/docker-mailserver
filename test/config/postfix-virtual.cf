@@ -1,5 +1,5 @@
 alias1@localhost.localdomain user1@localhost.localdomain
 # this is a test comment, please don't delete me :'(
-     # this is also a test comment, :O
+    # this is also a test comment, :O
 alias2@localhost.localdomain external1@otherdomain.tld
 @localdomain2.com user1@localhost.localdomain

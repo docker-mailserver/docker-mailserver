@@ -46,7 +46,7 @@ jobs:
       # but presently does not work correctly via split workflow. It is useful in a split workflow as the 1st stage
       # no longer indicates if the entire workflow/deployment was successful.
       - name: 'Commit Status: Set Workflow Status as Pending'
-        uses: myrotvorets/set-commit-status-action@v1.1.7
+        uses: myrotvorets/set-commit-status-action@v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: pending
@@ -106,7 +106,7 @@ jobs:
             Built with commit: ${{ env.PR_HEADSHA }}
 
       - name: 'Commit Status: Update deployment status'
-        uses: myrotvorets/set-commit-status-action@v1.1.7
+        uses: myrotvorets/set-commit-status-action@v2.0.0
         # Always run this step regardless of job failing early:
         if: ${{ always() }}
         env:

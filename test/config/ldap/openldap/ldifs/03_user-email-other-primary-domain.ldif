@@ -1,0 +1,22 @@
+# NOTE: This user differs via the domain-part of their mail address
+# They also have their mail directory attributes using the primary domain, not their domain-part
+dn: uid=some.other.user,ou=users,dc=example,dc=test
+objectClass: inetOrgPerson
+objectClass: PostfixBookMailAccount
+cn: Some Other User
+givenName: Some
+surname: Other User
+userID: some.other.user
+# Password is: secret
+userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx
+mail: some.other.user@localhost.otherdomain
+# postfix-book.schema:
+mailAlias: postmaster@localhost.otherdomain
+mailGroupMember: employees@localhost.otherdomain
+mailHomeDirectory: /var/mail/localhost.localdomain/some.other.user/
+mailStorageDirectory: maildir:/var/mail/localhost.localdomain/some.other.user/
+# postfix-book.schema generic options:
+mailEnabled: TRUE
+mailUidNumber: 5000
+mailGidNumber: 5000
+mailQuota: 10240

@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Breaking
+
+- The environment variable `ENABLE_LDAP=1` has been changed to `ACCOUNT_PROVISIONER=LDAP`.
+- Postfix now defaults to supporting DSNs (_[Delivery Status Notifications](https://github.com/docker-mailserver/docker-mailserver/pull/3572#issuecomment-1751880574)_) only for authenticated users. This is a security measure to reduce spammer abuse of your DMS instance as a backscatter source.
+  - If you need to modify this change, please let us know by opening an issue / discussion.
+  - You can [opt-out (_enable DSNs_) via the `postfix-main.cf` override support](https://docker-mailserver.github.io/docker-mailserver/v12.1/config/advanced/override-defaults/postfix/) using the contents: `smtpd_discard_ehlo_keywords =`.
+  - Likewise for authenticated users, the submission(s) ports (465 + 587) are configured internally via `master.cf` to keep DSNs enabled (_since authentication protects from abuse_).
+
+    If necessary, DSNs for authenticated users can be disabled via the `postfix-master.cf` override with the following contents:
+
+    ```
+    submission/inet/smtpd_discard_ehlo_keywords=silent-discard,dsn
+    submissions/inet/smtpd_discard_ehlo_keywords=silent-discard,dsn
+    ```
+
 ### Added
 
 - New environment variable `MARK_SPAM_AS_READ`. When set to `1`, marks incoming junk as "read" to avoid unwanted notification of junk as new mail ([#3489](https://github.com/docker-mailserver/docker-mailserver/pull/3489))
@@ -210,7 +225,11 @@ Notable changes are:
 
 ### Summary
 
-This release features a lot of small and medium-sized changes, many related to how the image is build and tested during CI. The build now requires Docker Buildkit as the ClamAV Signatures are added via `COPY --link ...` during build-time. Moreover, the build is now multi-stage. `ENABLE_LDAP` is now deprecated.
+This release features a lot of small and medium-sized changes, many related to how the image is build and tested during CI. The build now multi-stage based and requires Docker Buildkit, as the ClamAV Signatures are added via `COPY --link ...` during build-time.
+
+### Deprecated
+
+- The environment variable `ENABLE_LDAP` is deprecated and will be removed in [13.0.0]. Use `ACCOUNT_PROVISIONER=LDAP` now.
 
 ### Added
 
@@ -236,10 +255,6 @@ This release features a lot of small and medium-sized changes, many related to h
 - **scripts**: improve `helpers/log.sh`
 - **build**: adjust build arguments
 - **build**: enhance build process
-
-### Deprecated
-
-- The environment variable `ENABLE_LDAP` is deprecated and will be removed in [13.0.0]. Use `ACCOUNT_PROVISIONER=LDAP` now.
 
 ### Removed
 
@@ -307,8 +322,8 @@ In this release the relay-host support saw [significant internal refactoring](ht
 
 1. **Many** minor improvements were made (cleanup & refactoring). Please refer to the section below to get an overview over all improvements. Moreover, there was a lot of cleanup in the scripts and in the tests. The documentation was adjusted accordingly.
 2. New environment variables were added:
-   1. [`CLAMAV_MESSAGE_SIZE_LIMIT`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#clamav_message_size_limit)
-   2. [`TZ`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#tz)
+    1. [`CLAMAV_MESSAGE_SIZE_LIMIT`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#clamav_message_size_limit)
+    2. [`TZ`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#tz)
 3. SpamAssassin KAM was added with [`ENABLE_SPAMASSASSIN_KAM`](https://docker-mailserver.github.io/docker-mailserver/v11.0/config/environment/#enable_spamassassin_kam).
 4. The `fail2ban` command was reworked and can now ban IP addresses as well.
 5. There were a few small fixes, especially when it comes to bugs in scripts and service restart loops (no functionality changes, only fixes of existing functionality). When building an image from the Dockerfile - Installation of Postfix on modern Linux distributions should now always succeed.
@@ -364,8 +379,7 @@ In this release the relay-host support saw [significant internal refactoring](ht
 
 ### Critical Changes
 
-1. This release fixes a critical issue for LDAP users, installing a needed package on Debian 11
-   on build-time. Moreover, a race-condition was eliminated ([#2341](https://github.com/docker-mailserver/docker-mailserver/pull/2341)).
+1. This release fixes a critical issue for LDAP users, installing a needed package on Debian 11 on build-time. Moreover, a race-condition was eliminated ([#2341](https://github.com/docker-mailserver/docker-mailserver/pull/2341)).
 2. A resource leak in `check-for-changes.sh` was fixed ([#2401](https://github.com/docker-mailserver/docker-mailserver/pull/2401))
 
 ### Other Minor Changes

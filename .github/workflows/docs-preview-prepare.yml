@@ -29,7 +29,7 @@ jobs:
       NETLIFY_SITE_PREFIX: pullrequest-${{ github.event.pull_request.number }}
       NETLIFY_SITE_NAME: dms-doc-previews
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: 'Build with mkdocs-material via Docker'
         working-directory: docs

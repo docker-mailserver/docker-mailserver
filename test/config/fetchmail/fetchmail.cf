@@ -1,11 +1,11 @@
 poll pop3.third-party.test. with proto POP3
-	user 'remote_username' there with
-	password 'secret'
-	is 'local_username' here
-	options keep ssl
+  user 'remote_username' there with
+  password 'secret'
+  is 'local_username' here
+  options keep ssl
 
 poll imap.remote-service.test. with proto IMAP
-	user 'user3' there with
-	password 'secret'
-	is 'user3@example.test' here
-	options keep ssl
+  user 'user3' there with
+  password 'secret'
+  is 'user3@example.test' here
+  options keep ssl
