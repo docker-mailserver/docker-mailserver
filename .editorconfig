@@ -8,6 +8,7 @@ root = true
 [*]
 charset = utf-8
 end_of_line = lf
+indent_size = 2
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
@@ -16,21 +17,9 @@ trim_trailing_whitespace = true
 # --- Specific ----------------------------------
 # -----------------------------------------------
 
-[*.{yaml,yml,sh,bats}]
-indent_size = 2
-
-[Makefile]
+[{Makefile,.gitmodules}]
 indent_style = tab
 indent_size = 4
 
 [*.md]
 trim_trailing_whitespace = false
-
-# -----------------------------------------------
-# --- Git Submodules ----------------------------
-# -----------------------------------------------
-
-[{test/bats/**,test/test_helper/**}]
-indent_style = none
-indent_size = none
-end_of_line = none

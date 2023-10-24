@@ -1,7 +1,7 @@
 use strict;
 
 @local_domains_maps = (
-   read_hash('/etc/postfix/vhost')
+  read_hash('/etc/postfix/vhost')
 );
 
 1;  # ensure a defined return

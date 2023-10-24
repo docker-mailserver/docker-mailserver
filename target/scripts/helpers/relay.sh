@@ -173,7 +173,7 @@ function _setup_relayhost() {
   _log 'debug' 'Setting up Postfix Relay Hosts'
 
   if [[ -n ${DEFAULT_RELAY_HOST} ]]; then
-    _log 'trace' "Setting default relay host ${DEFAULT_RELAY_HOST} to /etc/postfix/main.cf"
+    _log 'trace' "Setting default relay host ${DEFAULT_RELAY_HOST}"
     postconf "relayhost = ${DEFAULT_RELAY_HOST}"
   fi
 

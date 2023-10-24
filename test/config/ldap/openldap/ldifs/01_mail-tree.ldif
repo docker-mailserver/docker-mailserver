@@ -1,0 +1,16 @@
+# The root object of the tree, all entries will branch off this one:
+dn: dc=example,dc=test
+# DN is formed from `example.test` DNS labels:
+# NOTE: This is just a common convention (not dependent on hostname or any external config)
+objectClass: dcObject
+# Must reference left most component:
+dc: example
+# It's required to use an `objectClass` that implements a "Structural Class":
+objectClass: organization
+# Value is purely descriptive, not important to tests:
+o: DMS Test
+
+# User accounts will belong to this subtree:
+dn: ou=users,dc=example,dc=test
+objectClass: organizationalUnit
+ou: users

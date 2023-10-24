@@ -134,9 +134,7 @@ EOF
 
 COPY target/postsrsd/postsrsd /etc/default/postsrsd
 COPY target/postgrey/postgrey /etc/default/postgrey
-COPY target/postgrey/postgrey.init /etc/init.d/postgrey
 RUN <<EOF
-  chmod 755 /etc/init.d/postgrey
   mkdir /var/run/postgrey
   chown postgrey:postgrey /var/run/postgrey
   curl -Lsfo /etc/postgrey/whitelist_clients https://postgrey.schweikert.ch/pub/postgrey_whitelist_clients

@@ -143,7 +143,7 @@ imap port:          143 or 993 with STARTTLS/SSL (recommended)
 imap path prefix:   INBOX
 
 # SMTP
-smtp port:          25 or 587/465 with STARTTLS/SSL (recommended)
+smtp port:          587 or 465 with STARTTLS/SSL (recommended)
 username:           <user1@example.com>
 password:           <mypassword>
 ```
@@ -511,8 +511,9 @@ require ["comparator-i;ascii-numeric","relational","fileinto"];
 if header :contains "X-Spam-Flag" "YES" {
   fileinto "Junk";
 } elsif allof (
-   not header :matches "x-spam-score" "-*",
-   header :value "ge" :comparator "i;ascii-numeric" "x-spam-score" "3.75" ) {
+  not header :matches "x-spam-score" "-*",
+  header :value "ge" :comparator "i;ascii-numeric" "x-spam-score" "3.75"
+) {
   fileinto "Junk";
 }
 ```

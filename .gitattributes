@@ -1,0 +1,160 @@
+# Normalize line endings of all non-binary files to LF upon check-in (`git add` / `git commit`):
+* text=auto
+
+#################################################
+###  General  ###################################
+#################################################
+
+## GENERIC
+### CI + docs/mkdocs.yml
+*.yml               text
+### Documentation (Project, Tests, Docs site)
+*.md                text
+### TLS certs (test/test-files/) + DHE params (target/shared/)
+*.pem               text
+*.pem.sha512sum     text
+
+#################################################
+###  Project  ###################################
+#################################################
+
+## BUILD:
+.dockerignore       text
+Dockerfile          text
+Makefile
+VERSION
+
+## EXAMPLE (RUNTIME):
+*.env               text
+*.yaml              text
+
+## PROJECT
+.all-contributorsrc text export-ignore
+.editorconfig       text export-ignore
+.gitattributes      text export-ignore
+.gitignore          text export-ignore
+.gitkeep            text export-ignore
+.gitmodules         text export-ignore
+LICENSE             text
+
+## SOURCE CODE
+*.sh                text eol=lf
+### acme.json extractor (target/bin/)
+*.py                text eol=lf
+### Only contain scripts (glob for extensionless)
+target/bin/**       text eol=lf
+
+#################################################
+###  Config  ####################################
+#################################################
+
+## CONFIG
+### Contains all text files (glob for extensionless)
+target/amavis/**    text
+target/fetchmail/** text
+target/getmail/**   text
+target/opendkim/**  text
+target/opendmarc/** text
+target/postgrey/**  text
+target/postsrsd/**  text
+### Generic target/ + test/config/
+*.cf                text
+*.conf              text
+### Dovecot
+*.ext               text
+*.sieve             text
+### Dovecot + Rspamd
+*.inc               text
+### Fail2Ban + Postgrey (test/config/)
+*.local             text
+### Postfix
+*.pcre              text
+
+#################################################
+###  Tests  #####################################
+#################################################
+
+## BATS
+*.bash              text
+*.bats              text
+
+## CONFIG (test/config/)
+### OpenLDAP image
+*.ldif              text
+### OpenDKIM
+*.private           text
+KeyTable            text
+SigningTable        text
+TrustedHosts        text
+### Postgrey
+whitelist_recipients text
+
+## MISC
+### test/config/ + test/test-files/
+*.txt               text
+### test/linting/ (.ecrc.json) + test/test-files/ (*.acme.json):
+*.json              text
+
+#################################################
+###  Documentation  Website #####################
+#################################################
+
+## DOCUMENTATION
+### docs/content/assets/
+*.css               text
+*.png               binary
+*.svg               text -diff
+*.woff              binary
+### docs/overrides/
+*.html              text
+*.ico               binary
+*.webp              binary
+
+#################################################
+###  Info # #####################################
+#################################################
+
+### WHAT IS THIS FILE?
+# `.gitattributes` - Pattern-based overrides (Project specific)
+# Documentation: https://git-scm.com/docs/gitattributes
+#
+# Travels with the project and can override the defaults from `.gitconfig`.
+# This helps to enforce consistent line endings (CRLF / LF) where needed via
+# patterns (_when the git client supports `.gitattributes`_).
+
+# `.gitconfig` - Global Git defaults (Dev environment)
+# Documentation: https://git-scm.com/docs/git-config
+#
+# Git settings `core.autocrlf` and `core.eol` can vary across dev environments.
+# Those defaults can introduce subtle bugs due to incompatible line endings.
+
+
+### WHY SHOULD I CARE?
+# The desired result is to ensure the repo contains normalized LF line endings,
+# notably avoiding unhelpful noise in diffs or issues incurred from mixed line
+# endings. Storing as LF ensures no surprises for line endings during checkout.
+# Additionally for checkout to the local working directory, line endings can be
+# forced to CRLF or LF per file where appropriate, which ensures the files have
+# compatible line endings where software expects a specific kind.
+#
+# Examples:
+# Diffs with nothing visual changed. Line endings appear invisible.
+# Tests that compare text from two sources where only line endings differ fail.
+# /bin/sh with a shebang fails to run a binary at the given path due to a CRLF.
+
+
+### ATTRIBUTES
+# `text` normalizes the line endings of a file to LF upon commit (CRLF -> LF).
+# `text=auto` sets `text` if Git doesn't consider the file as binary data.
+
+# `eol` sets an explicit line ending to write files to the working directory.
+# `core.eol` is used for any files not explicitly set with an `eol` attr value.
+# `core.eol` uses the native line endings for your platform by default.
+# `core.autocrlf` (if set to `true` or `input`) overrides the `core.eol` value.
+
+# `binary` is an alias for `-text -diff`. The file won't be normalized (-text).
+# `-diff` indicates to avoid creating a diff. Useful when diffs are unlikely
+# to be meaningful, such as generated content (SVG, Source Maps, Lockfiles).
+
+# `export-ignore` excludes matched files and directories during `git archive`,
+# which services like Github use to create releases with archived source files.
