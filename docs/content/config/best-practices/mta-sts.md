@@ -1,5 +1,7 @@
 ---
-title: 'Advanced | MTA-STS'
+title: 'Best practices | MTA-STS'
+hide:
+  - toc # Hide Table of Contents for this page
 ---
 
 MTA-STS is an optional mechanism for a domain to signal support for STARTTLS.

@@ -115,7 +115,7 @@ Enables MTA-STS support for outbound mail.
 - **0** => Disabled
 - 1 => Enabled
 
-See [MTA-STS](advanced/mail-mta-sts.md) for further explanation.
+See [MTA-STS](best-practices/mta-sts.md) for further explanation.
 
 ##### ENABLE_OPENDKIM
 
