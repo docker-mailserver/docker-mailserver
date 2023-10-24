@@ -9,4 +9,97 @@ function _rspamd_get_envs() {
   readonly RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
   readonly RSPAMD_DMS_DKIM_D="${RSPAMD_DMS_D}/dkim"
   readonly RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d"
+
+  readonly RSPAMD_DMS_CUSTOM_COMMANDS_F="${RSPAMD_DMS_D}/custom-commands.conf"
+}
+
+# Parses `RSPAMD_DMS_CUSTOM_COMMANDS_F` and executed the directives given by the file.
+# To get a detailed explanation of the commands and how the file works, visit
+# https://docker-mailserver.github.io/docker-mailserver/edge/config/security/rspamd/#with-the-help-of-a-custom-file
+function _rspamd_handle_user_modules_adjustments() {
+  # Adds an option with a corresponding value to a module, or, in case the option
+  # is already present, overwrites it.
+  #
+  # @param ${1} = file name in ${RSPAMD_OVERRIDE_D}/
+  # @param ${2} = module name as it should appear in the log
+  # @param ${3} = option name in the module
+  # @param ${4} = value of the option
+  #
+  # ## Note
+  #
+  # While this function is currently bound to the scope of `_rspamd_handle_user_modules_adjustments`,
+  # it is written in a versatile way (taking 4 arguments instead of assuming `ARGUMENT2` / `ARGUMENT3`
+  # are set) so that it may be used elsewhere if needed.
+  function __add_or_replace() {
+    local MODULE_FILE=${1:?Module file name must be provided}
+    local MODULE_LOG_NAME=${2:?Module log name must be provided}
+    local OPTION=${3:?Option name must be provided}
+    local VALUE=${4:?Value belonging to an option must be provided}
+    # remove possible whitespace at the end (e.g., in case ${ARGUMENT3} is empty)
+    VALUE=${VALUE% }
+    local FILE="${RSPAMD_OVERRIDE_D}/${MODULE_FILE}"
+
+    readonly MODULE_FILE MODULE_LOG_NAME OPTION VALUE FILE
+
+    [[ -f ${FILE} ]] || touch "${FILE}"
+
+    if grep -q -E "${OPTION}.*=.*" "${FILE}"; then
+      __rspamd__log 'trace' "Overwriting option '${OPTION}' with value '${VALUE}' for ${MODULE_LOG_NAME}"
+      sed -i -E "s|([[:space:]]*${OPTION}).*|\1 = ${VALUE};|g" "${FILE}"
+    else
+      __rspamd__log 'trace' "Setting option '${OPTION}' for ${MODULE_LOG_NAME} to '${VALUE}'"
+      echo "${OPTION} = ${VALUE};" >>"${FILE}"
+    fi
+  }
+
+  # We check for usage of the previous location of the commands file.
+  # This can be removed after the release of v14.0.0.
+  if [[ -f ${RSPAMD_CUSTOM_COMMANDS_FILE_OLD} ]]; then
+    __rspamd__log 'warn' "Detected usage of old file location for modules adjustment ('${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}') - please use the new location ('${RSPAMD_DMS_CUSTOM_COMMANDS_F}')"
+    __rspamd__log 'warn' "Using old file location now (deprecated) - this will prevent startup in v13.0.0"
+    RSPAMD_DMS_CUSTOM_COMMANDS_F=${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}
+  fi
+
+  if [[ -f "${RSPAMD_DMS_CUSTOM_COMMANDS_F}" ]]; then
+    __rspamd__log 'debug' "Found file '${RSPAMD_DMS_CUSTOM_COMMANDS_F}' - parsing and applying it"
+
+    local COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
+    while read -r COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3; do
+      case "${COMMAND}" in
+        ('disable-module')
+          __rspamd__helper__enable_disable_module "${ARGUMENT1}" 'false' 'override'
+          ;;
+
+        ('enable-module')
+          __rspamd__helper__enable_disable_module "${ARGUMENT1}" 'true' 'override'
+          ;;
+
+        ('set-option-for-module')
+          __add_or_replace "${ARGUMENT1}.conf" "module '${ARGUMENT1}'" "${ARGUMENT2}" "${ARGUMENT3}"
+          ;;
+
+        ('set-option-for-controller')
+          __add_or_replace 'worker-controller.inc' 'controller worker' "${ARGUMENT1}" "${ARGUMENT2} ${ARGUMENT3}"
+          ;;
+
+        ('set-option-for-proxy')
+          __add_or_replace 'worker-proxy.inc' 'proxy worker' "${ARGUMENT1}" "${ARGUMENT2} ${ARGUMENT3}"
+          ;;
+
+        ('set-common-option')
+          __add_or_replace 'options.inc' 'common options' "${ARGUMENT1}" "${ARGUMENT2} ${ARGUMENT3}"
+          ;;
+
+        ('add-line')
+          __rspamd__log 'trace' "Adding complete line to '${ARGUMENT1}'"
+          echo "${ARGUMENT2}${ARGUMENT3+ ${ARGUMENT3}}" >>"${RSPAMD_OVERRIDE_D}/${ARGUMENT1}"
+          ;;
+
+        (*)
+          __rspamd__log 'warn' "Command '${COMMAND}' is invalid"
+          continue
+          ;;
+      esac
+    done < <(_get_valid_lines_from_file "${RSPAMD_DMS_CUSTOM_COMMANDS_F}")
+  fi
 }

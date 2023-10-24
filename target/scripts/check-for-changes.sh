@@ -21,6 +21,10 @@ source /etc/dms-settings
 # usage with DMS_HOSTNAME, which should remove the need to call this:
 _obtain_hostname_and_domainname
 
+# This is a helper to properly set all Rspamd-related environment variables
+# correctly and in one place.
+_rspamd_get_envs
+
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]; then
   _exit_with_error "'${CHKSUM_FILE}' is missing" 0
@@ -49,6 +53,7 @@ function _check_for_changes() {
     # Handle any changes
     _ssl_changes
     _postfix_dovecot_changes
+    _rspamd_changes
 
     _log_with_date 'debug' 'Reloading services due to detected changes'
 
@@ -172,6 +177,26 @@ function _ssl_changes() {
 
   # If monitored certificate files in /etc/letsencrypt/live have changed and no `acme.json` is in use,
   # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
+}
+
+function _rspamd_changes() {
+  if [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]]; then
+    _log_with_date 'trace' 'Rspamd override configuration has changed - copying new configuration'
+    rm "${RSPAMD_OVERRIDE_D}"/*
+    cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
+  fi
+
+  if [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]]; then
+    _log_with_date 'trace' 'Rspamd custom commands file has changed - generating new configuration'
+    _rspamd_handle_user_modules_adjustments
+  fi
+
+  # The above are more specific than the below check, hence this will always
+  # trigger if the above triggered. DKIM updates are also realized here.
+  if [[ ${CHANGED} =~ ${RSPAMD_DMS_D}/.* ]]; then
+    _log_with_date 'debug' 'Rspamd configuration has changed - restarting now'
+    supervisorctl restart rspamd
+  fi
 }
 
 while true; do
