@@ -66,11 +66,8 @@ function teardown_file() { _default_teardown ; }
   assert_output 'rspamd_milter = inet:localhost:11332'
 }
 
-@test "'/etc/rspamd/override.d/' is linked correctly" {
+@test "contents of '/etc/rspamd/override.d/' are copied" {
   local OVERRIDE_D='/etc/rspamd/override.d'
-
-  _run_in_container_bash "[[ -h ${OVERRIDE_D} ]]"
-  assert_success
 
   _run_in_container_bash "[[ -f ${OVERRIDE_D}/testmodule_complicated.conf ]]"
   assert_success

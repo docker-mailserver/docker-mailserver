@@ -73,13 +73,7 @@ function __rspamd__run_early_setup_and_checks() {
   : >/var/lib/rspamd/stats.ucl
 
   if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]]; then
-    __rspamd__log 'debug' "Found directory '${RSPAMD_DMS_OVERRIDE_D}' - linking it to '${RSPAMD_OVERRIDE_D}'"
-    if rmdir "${RSPAMD_OVERRIDE_D}" 2>/dev/null; then
-      ln -s "${RSPAMD_DMS_OVERRIDE_D}" "${RSPAMD_OVERRIDE_D}"
-    else
-      __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty?; not a directory?; did you restart properly?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
-      __rspamd__log 'warn' "Note that using '${RSPAMD_DMS_OVERRIDE_D}' and placing files manually in '${RSPAMD_OVERRIDE_D}' is not supported"
-    fi
+    cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
   fi
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
