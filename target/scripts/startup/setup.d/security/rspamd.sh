@@ -1,12 +1,17 @@
 #!/bin/bash
 
-# Function called during global setup to handle the complete setup of Rspamd.
+# This file is executed during startup of DMS. Hence, the `index.sh` helper has already
+# been sourced, and thus, all helper functions from `rspamd.sh` are available.
+
+# Function called during global setup to handle the complete setup of Rspamd. Functions
+# with a single `_` prefix are sourced from the `rspamd.sh` helper.
 function _setup_rspamd() {
   if _env_var_expect_zero_or_one 'ENABLE_RSPAMD' && [[ ${ENABLE_RSPAMD} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring Rspamd'
     __rspamd__log 'trace' '----------  Setup started  ----------'
 
-    __rspamd__run_early_setup_and_checks      # must run first
+    _rspamd_get_envs                          # must run first
+    __rspamd__run_early_setup_and_checks      # must run second
     __rspamd__setup_logfile
     __rspamd__setup_redis
     __rspamd__setup_postfix
@@ -64,15 +69,6 @@ EOF
 # Run miscellaneous early setup tasks and checks, such as creating files needed at runtime
 # or checking for other anti-spam/anti-virus software.
 function __rspamd__run_early_setup_and_checks() {
-  # Note: Variables not marked with `local` are
-  # used in other functions as well.
-  readonly RSPAMD_LOCAL_D='/etc/rspamd/local.d'
-  readonly RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
-  readonly RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
-
-  local RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d"
-  readonly RSPAMD_DMS_OVERRIDE_D
-
   mkdir -p /var/lib/rspamd/
   : >/var/lib/rspamd/stats.ucl
 
