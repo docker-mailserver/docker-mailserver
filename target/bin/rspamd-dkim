@@ -219,7 +219,7 @@ function _check_permissions() {
 function _setup_default_signing_conf() {
   local DEFAULT_CONFIG_FILE="${RSPAMD_DMS_OVERRIDE_D}/dkim_signing.conf"
   if [[ -f ${DEFAULT_CONFIG_FILE} ]]; then
-    _log 'info' "'${DEFAULT_CONFIG_FILE}' exists, not supplying a default (this is not changed by supplying '--force' either; you need to adjust it manually)"
+    _log 'info' "'${DEFAULT_CONFIG_FILE}' exists, not supplying a default ('--force' does not overwrite this file, manual adjustment required)"
   else
     _log 'info' "Supplying a default configuration (to '${DEFAULT_CONFIG_FILE}')"
     cat >"${DEFAULT_CONFIG_FILE}" << EOF

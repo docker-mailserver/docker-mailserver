@@ -180,21 +180,28 @@ function _ssl_changes() {
 }
 
 function _rspamd_changes() {
-  if [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]]; then
-    _log_with_date 'trace' 'Rspamd override configuration has changed - copying new configuration'
-    rm "${RSPAMD_OVERRIDE_D}"/*
-    cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
-  fi
-
-  if [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]]; then
-    _log_with_date 'trace' 'Rspamd custom commands file has changed - generating new configuration'
-    _rspamd_handle_user_modules_adjustments
-  fi
-
-  # The above are more specific than the below check, hence this will always
-  # trigger if the above triggered. DKIM updates are also realized here.
+  # RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
   if [[ ${CHANGED} =~ ${RSPAMD_DMS_D}/.* ]]; then
-    _log_with_date 'debug' 'Rspamd configuration has changed - restarting now'
+
+    # "${RSPAMD_DMS_D}/override.d"
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]]; then
+      _log_with_date 'trace' 'Rspamd - Copying configuration overrides'
+      rm "${RSPAMD_OVERRIDE_D}"/*
+      cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
+    fi
+
+    # "${RSPAMD_DMS_D}/custom-commands.conf"
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]]; then
+      _log_with_date 'trace' 'Rspamd - Generating new configuration from custom commands'
+      _rspamd_handle_user_modules_adjustments
+    fi
+
+    # "${RSPAMD_DMS_D}/dkim"
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_DKIM_D} ]]; then
+      _log_with_date 'trace' 'Rspamd - DKIM files updated'
+    fi
+
+    _log_with_date 'debug' 'Rspamd configuration has changed - restarting service'
     supervisorctl restart rspamd
   fi
 }

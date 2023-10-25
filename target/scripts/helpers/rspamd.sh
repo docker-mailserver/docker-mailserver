@@ -15,7 +15,7 @@ function _rspamd_get_envs() {
 
 # Parses `RSPAMD_DMS_CUSTOM_COMMANDS_F` and executed the directives given by the file.
 # To get a detailed explanation of the commands and how the file works, visit
-# https://docker-mailserver.github.io/docker-mailserver/edge/config/security/rspamd/#with-the-help-of-a-custom-file
+# https://docker-mailserver.github.io/docker-mailserver/latest/config/security/rspamd/#with-the-help-of-a-custom-file
 function _rspamd_handle_user_modules_adjustments() {
   # Adds an option with a corresponding value to a module, or, in case the option
   # is already present, overwrites it.
@@ -57,7 +57,7 @@ function _rspamd_handle_user_modules_adjustments() {
   local RSPAMD_DMS_CUSTOM_COMMANDS_F_OLD="${RSPAMD_DMS_D}-modules.conf"
   readonly RSPAMD_DMS_CUSTOM_COMMANDS_F_OLD
   if [[ -f ${RSPAMD_DMS_CUSTOM_COMMANDS_F_OLD} ]]; then
-    _dms_panic__general "Old custom commmands file '${RSPAMD_DMS_CUSTOM_COMMANDS_F_OLD}' is deprecated (use '${RSPAMD_DMS_CUSTOM_COMMANDS_F}' now)" 'Rspamd setup'
+    _dms_panic__general "Old custom command file location '${RSPAMD_DMS_CUSTOM_COMMANDS_F_OLD}' is deprecated (use '${RSPAMD_DMS_CUSTOM_COMMANDS_F}' now)" 'Rspamd setup'
   fi
 
   if [[ -f "${RSPAMD_DMS_CUSTOM_COMMANDS_F}" ]]; then
