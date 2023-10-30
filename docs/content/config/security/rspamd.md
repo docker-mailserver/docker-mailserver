@@ -107,11 +107,11 @@ DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/lo
 
 !!! question "What is [`docker-data/dms/config/`][docs-dms-config-volume]?"
 
-If you want to overwrite the default settings and / or provide your own settings, you can place files at `docker-data/dms/config/rspamd/override.d/` (a directory that is linked to `/etc/rspamd/override.d/`, if it exists) to override Rspamd and DMS default settings. This directory will not do a complete file override, but a [forced override of the specific settings in that file][rspamd-docs-override-dir].
+If you want to overwrite the default settings and / or provide your own settings, you can place files at `docker-data/dms/config/rspamd/override.d/`. Files from this directory are copied to `/etc/rspamd/override.d/` during startup. These files [forcibly override][rspamd-docs-override-dir] Rspamd and DMS default settings.
 
 !!! warning "Clashing Overrides"
 
-    Note that when also [using the `rspamd-commands` file](#with-the-help-of-a-custom-file), files in `override.d` may be overwritten in case you adjust them manually and with the help of the file.
+    Note that when also [using the `custom-commands.conf` file](#with-the-help-of-a-custom-file), files in `override.d` may be overwritten in case you adjust them manually and with the help of the file.
 
 [rspamd-docs-override-dir]: https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 [docs-dms-config-volume]: ../../faq.md#what-about-the-docker-datadmsconfig-directory

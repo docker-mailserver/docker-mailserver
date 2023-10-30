@@ -68,8 +68,14 @@ function teardown_file() { _default_teardown ; }
   local INITIAL_SHA512_SUM=$(_exec_in_container sha512sum "${SIGNING_CONF_FILE}")
 
   __create_key
+  assert_failure
+  assert_output --partial "Not overwriting existing files (use '--force' to overwrite existing files)"
+
+  # the same as before, but with the '--force' option
+  __create_key 'rsa' 'mail' "${DOMAIN_NAME}" '2048' '--force'
   __log_is_free_of_warnings_and_errors
   refute_output --partial "Supplying a default configuration ('${SIGNING_CONF_FILE}')"
+  assert_output --partial "Overwriting existing files as the '--force' option was supplied"
   assert_output --partial "'${SIGNING_CONF_FILE}' exists, not supplying a default"
   assert_output --partial "Finished DKIM key creation"
   local SECOND_SHA512_SUM=$(_exec_in_container sha512sum "${SIGNING_CONF_FILE}")
@@ -188,11 +194,15 @@ function __create_key() {
   local SELECTOR=${2:-mail}
   local DOMAIN=${3:-${DOMAIN_NAME}}
   local KEYSIZE=${4:-2048}
+  local FORCE=${5:-}
 
-  _run_in_container setup config dkim \
-    keytype "${KEYTYPE}"              \
-    keysize "${KEYSIZE}"              \
-    selector "${SELECTOR}"            \
+  # Not quoting is intended here as we would othewise provide
+  # the argument "''" (empty string), which would cause errors
+  # shellcheck disable=SC2086
+  _run_in_container setup config dkim ${FORCE} \
+    keytype "${KEYTYPE}"   \
+    keysize "${KEYSIZE}"   \
+    selector "${SELECTOR}" \
     domain "${DOMAIN}"
 }
 

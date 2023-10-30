@@ -1,12 +1,17 @@
 #!/bin/bash
 
-# Function called during global setup to handle the complete setup of Rspamd.
+# This file is executed during startup of DMS. Hence, the `index.sh` helper has already
+# been sourced, and thus, all helper functions from `rspamd.sh` are available.
+
+# Function called during global setup to handle the complete setup of Rspamd. Functions
+# with a single `_` prefix are sourced from the `rspamd.sh` helper.
 function _setup_rspamd() {
   if _env_var_expect_zero_or_one 'ENABLE_RSPAMD' && [[ ${ENABLE_RSPAMD} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring Rspamd'
     __rspamd__log 'trace' '----------  Setup started  ----------'
 
-    __rspamd__run_early_setup_and_checks      # must run first
+    _rspamd_get_envs                          # must run first
+    __rspamd__run_early_setup_and_checks      # must run second
     __rspamd__setup_logfile
     __rspamd__setup_redis
     __rspamd__setup_postfix
@@ -16,7 +21,7 @@ function _setup_rspamd() {
     __rspamd__setup_greylisting
     __rspamd__setup_hfilter_group
     __rspamd__setup_check_authenticated
-    __rspamd__handle_user_modules_adjustments # must run last
+    _rspamd_handle_user_modules_adjustments   # must run last
 
     __rspamd__log 'trace' '----------  Setup finished  ----------'
   else
@@ -64,26 +69,11 @@ EOF
 # Run miscellaneous early setup tasks and checks, such as creating files needed at runtime
 # or checking for other anti-spam/anti-virus software.
 function __rspamd__run_early_setup_and_checks() {
-  # Note: Variables not marked with `local` are
-  # used in other functions as well.
-  readonly RSPAMD_LOCAL_D='/etc/rspamd/local.d'
-  readonly RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
-  readonly RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
-
-  local RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d"
-  readonly RSPAMD_DMS_OVERRIDE_D
-
   mkdir -p /var/lib/rspamd/
   : >/var/lib/rspamd/stats.ucl
 
   if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]]; then
-    __rspamd__log 'debug' "Found directory '${RSPAMD_DMS_OVERRIDE_D}' - linking it to '${RSPAMD_OVERRIDE_D}'"
-    if rmdir "${RSPAMD_OVERRIDE_D}" 2>/dev/null; then
-      ln -s "${RSPAMD_DMS_OVERRIDE_D}" "${RSPAMD_OVERRIDE_D}"
-    else
-      __rspamd__log 'warn' "Could not remove '${RSPAMD_OVERRIDE_D}' (not empty?; not a directory?; did you restart properly?) - not linking '${RSPAMD_DMS_OVERRIDE_D}'"
-      __rspamd__log 'warn' "Note that using '${RSPAMD_DMS_OVERRIDE_D}' and placing files manually in '${RSPAMD_OVERRIDE_D}' is not supported"
-    fi
+    cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
   fi
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
@@ -302,100 +292,5 @@ function __rspamd__setup_check_authenticated() {
     sed -i -E \
       '/DMS::SED_TAG::1::START/{:a;N;/DMS::SED_TAG::1::END/!ba};/authenticated/d' \
       "${MODULE_FILE}"
-  fi
-}
-
-# Parses `RSPAMD_CUSTOM_COMMANDS_FILE` and executed the directives given by the file.
-# To get a detailed explanation of the commands and how the file works, visit
-# https://docker-mailserver.github.io/docker-mailserver/edge/config/security/rspamd/#with-the-help-of-a-custom-file
-function __rspamd__handle_user_modules_adjustments() {
-  # Adds an option with a corresponding value to a module, or, in case the option
-  # is already present, overwrites it.
-  #
-  # @param ${1} = file name in ${RSPAMD_OVERRIDE_D}/
-  # @param ${2} = module name as it should appear in the log
-  # @param ${3} = option name in the module
-  # @param ${4} = value of the option
-  #
-  # ## Note
-  #
-  # While this function is currently bound to the scope of `__rspamd__handle_user_modules_adjustments`,
-  # it is written in a versatile way (taking 4 arguments instead of assuming `ARGUMENT2` / `ARGUMENT3`
-  # are set) so that it may be used elsewhere if needed.
-  function __add_or_replace() {
-    local MODULE_FILE=${1:?Module file name must be provided}
-    local MODULE_LOG_NAME=${2:?Module log name must be provided}
-    local OPTION=${3:?Option name must be provided}
-    local VALUE=${4:?Value belonging to an option must be provided}
-    # remove possible whitespace at the end (e.g., in case ${ARGUMENT3} is empty)
-    VALUE=${VALUE% }
-    local FILE="${RSPAMD_OVERRIDE_D}/${MODULE_FILE}"
-
-    readonly MODULE_FILE MODULE_LOG_NAME OPTION VALUE FILE
-
-    [[ -f ${FILE} ]] || touch "${FILE}"
-
-    if grep -q -E "${OPTION}.*=.*" "${FILE}"; then
-      __rspamd__log 'trace' "Overwriting option '${OPTION}' with value '${VALUE}' for ${MODULE_LOG_NAME}"
-      sed -i -E "s|([[:space:]]*${OPTION}).*|\1 = ${VALUE};|g" "${FILE}"
-    else
-      __rspamd__log 'trace' "Setting option '${OPTION}' for ${MODULE_LOG_NAME} to '${VALUE}'"
-      echo "${OPTION} = ${VALUE};" >>"${FILE}"
-    fi
-  }
-
-  local RSPAMD_CUSTOM_COMMANDS_FILE="${RSPAMD_DMS_D}/custom-commands.conf"
-  local RSPAMD_CUSTOM_COMMANDS_FILE_OLD="${RSPAMD_DMS_D}-modules.conf"
-  readonly RSPAMD_CUSTOM_COMMANDS_FILE RSPAMD_CUSTOM_COMMANDS_FILE_OLD
-
-  # We check for usage of the previous location of the commands file.
-  # This can be removed after the release of v14.0.0.
-  if [[ -f ${RSPAMD_CUSTOM_COMMANDS_FILE_OLD} ]]; then
-    __rspamd__log 'warn' "Detected usage of old file location for modules adjustment ('${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}') - please use the new location ('${RSPAMD_CUSTOM_COMMANDS_FILE}')"
-    __rspamd__log 'warn' "Using old file location now (deprecated) - this will prevent startup in v13.0.0"
-    RSPAMD_CUSTOM_COMMANDS_FILE=${RSPAMD_CUSTOM_COMMANDS_FILE_OLD}
-  fi
-
-  if [[ -f "${RSPAMD_CUSTOM_COMMANDS_FILE}" ]]; then
-    __rspamd__log 'debug' "Found file '${RSPAMD_CUSTOM_COMMANDS_FILE}' - parsing and applying it"
-
-    local COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
-    while read -r COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3; do
-      case "${COMMAND}" in
-        ('disable-module')
-          __rspamd__helper__enable_disable_module "${ARGUMENT1}" 'false' 'override'
-          ;;
-
-        ('enable-module')
-          __rspamd__helper__enable_disable_module "${ARGUMENT1}" 'true' 'override'
-          ;;
-
-        ('set-option-for-module')
-          __add_or_replace "${ARGUMENT1}.conf" "module '${ARGUMENT1}'" "${ARGUMENT2}" "${ARGUMENT3}"
-          ;;
-
-        ('set-option-for-controller')
-          __add_or_replace 'worker-controller.inc' 'controller worker' "${ARGUMENT1}" "${ARGUMENT2} ${ARGUMENT3}"
-          ;;
-
-        ('set-option-for-proxy')
-          __add_or_replace 'worker-proxy.inc' 'proxy worker' "${ARGUMENT1}" "${ARGUMENT2} ${ARGUMENT3}"
-          ;;
-
-        ('set-common-option')
-          __add_or_replace 'options.inc' 'common options' "${ARGUMENT1}" "${ARGUMENT2} ${ARGUMENT3}"
-          ;;
-
-        ('add-line')
-          __rspamd__log 'trace' "Adding complete line to '${ARGUMENT1}'"
-          echo "${ARGUMENT2}${ARGUMENT3+ ${ARGUMENT3}}" >>"${RSPAMD_OVERRIDE_D}/${ARGUMENT1}"
-          ;;
-
-        (*)
-          __rspamd__log 'warn' "Command '${COMMAND}' is invalid"
-          continue
-          ;;
-      esac
-    done < <(_get_valid_lines_from_file "${RSPAMD_CUSTOM_COMMANDS_FILE}")
   fi
 }
