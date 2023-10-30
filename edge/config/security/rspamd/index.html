@@ -2269,10 +2269,10 @@
 <div class="admonition question">
 <p class="admonition-title">What is <a href="../../../faq/#what-about-the-docker-datadmsconfig-directory"><code>docker-data/dms/config/</code></a>?</p>
 </div>
-<p>If you want to overwrite the default settings and / or provide your own settings, you can place files at <code>docker-data/dms/config/rspamd/override.d/</code> (a directory that is linked to <code>/etc/rspamd/override.d/</code>, if it exists) to override Rspamd and DMS default settings. This directory will not do a complete file override, but a <a href="https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories">forced override of the specific settings in that file</a>.</p>
+<p>If you want to overwrite the default settings and / or provide your own settings, you can place files at <code>docker-data/dms/config/rspamd/override.d/</code>. Files from this directory are copied to <code>/etc/rspamd/override.d/</code> during startup. These files <a href="https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories">forcibly override</a> Rspamd and DMS default settings.</p>
 <div class="admonition warning">
 <p class="admonition-title">Clashing Overrides</p>
-<p>Note that when also <a href="#with-the-help-of-a-custom-file">using the <code>rspamd-commands</code> file</a>, files in <code>override.d</code> may be overwritten in case you adjust them manually and with the help of the file.</p>
+<p>Note that when also <a href="#with-the-help-of-a-custom-file">using the <code>custom-commands.conf</code> file</a>, files in <code>override.d</code> may be overwritten in case you adjust them manually and with the help of the file.</p>
 </div>
 <h3 id="with-the-help-of-a-custom-file"><a class="toclink" href="#with-the-help-of-a-custom-file">With the Help of a Custom File</a></h3>
 <p>DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called <code>custom-commands.conf</code> into <code>docker-data/dms/config/rspamd/</code>. If this file is present, DMS will evaluate it. The structure is <em>very</em> simple. Each line in the file looks like this:</p>
