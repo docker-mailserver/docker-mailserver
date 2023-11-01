@@ -1,0 +1,6 @@
+path: /var/run/mta-sts/daemon.sock
+mode: 0666
+cache:
+  type: sqlite
+  options:
+    filename: "/var/lib/mta-sts/cache.db"
