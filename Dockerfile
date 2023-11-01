@@ -195,7 +195,7 @@ COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
 # --- postfix-mta-sts-daemon -----------------------
 # --------------------------------------------------
 COPY target/mta-sts-daemon/mta-sts-daemon.yml /etc/mta-sts-daemon.yml
-RUN << EOF
+RUN <<EOF
   mkdir /var/run/mta-sts
   chown -R _mta-sts:root /var/run/mta-sts
 EOF
