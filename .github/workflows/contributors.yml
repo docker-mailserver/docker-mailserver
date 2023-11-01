@@ -10,12 +10,6 @@ permissions:
   pull-requests: write
   statuses: write
 
-env:
-  # Assign commit authorship to official Github Actions bot:
-  GIT_USER: github-actions[bot]
-  GIT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
-  BRANCH_NAME: contributors-update
-
 jobs:
   add-contributors:
     name: 'Add Contributors'
@@ -24,64 +18,15 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v4
 
-      - name: 'Checkout New Branch and Push It'
-        run: |
-          git checkout -b ${{ env.BRANCH_NAME }}
-          git push --force https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:${{ env.BRANCH_NAME }}
-          git checkout master
-
-      # See https://github.com/marketplace/actions/auto-add-contributors for reference of the action.
-      #
-      # This action is not well documented, but it does the job for now. We pin the version in order
-      # to not have any issues in the future.
       - name: 'Update CONTRIBUTORS.md'
-        uses: BobAnkh/add-contributors@v0.2.2
+        uses: akhilmhdh/contributors-readme-action@v2.3.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          ACCESS_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          BRANCH: ${{ env.BRANCH_NAME }}
-          COMMIT_MESSAGE: 'docs: update `CONTRIBUTORS.md`'
-          PATH: /CONTRIBUTORS.md
-          CONTRIBUTOR: '## Contributors'
-          COLUMN_PER_ROW: 6
-          IMG_WIDTH: 100
-          FONT_SIZE: 14
-          AVATAR_SHAPE: round
-
-      # See https://github.com/marketplace/actions/create-pull-request for reference of the action.
-      - name: 'Create Pull Request'
-        uses: peter-evans/create-pull-request@v5.0.2
-        id: create-pr
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: master
-          branch: ${{ env.BRANCH_NAME }}
-          title: 'docs: update `CONTRIBUTORS.md`'
-          commit-message: 'docs: update `CONTRIBUTORS.md`'
-          delete-branch: true
-          committer: ${{ env.GIT_USER }} <${{ env.GIT_EMAIL }}>
-          author: ${{ env.GIT_USER }} <${{ env.GIT_EMAIL }}>
-          signoff: true
-          body: |
-            Updated `CONTRIBUTORS.md` via the CI workflow: [`contributors.yml`][workflow].
-
-            [workflow]: https://github.com/docker-mailserver/docker-mailserver/blob/master/.github/workflows/contributors.yml
-
-      # See https://github.com/marketplace/actions/set-commit-status for reference of the action.
-      #
-      # GH Actions are limited when it comes to actions triggering other actions. Hence,
-      # this whole workflow will not trigger a `pull_request` event without a PAT. The lint
-      # workflow, which is required due to branch protection, is not important for this type
-      # of PR, so we skip it and pretend it was successful.
-      - name: 'Set Status for Linting Actions to Success (Skipped)'
-        uses: myrotvorets/set-commit-status-action@v2.0.0
-        continue-on-error: true
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          # Skipped workflows are still assigned a "success" status:
-          status: success
-          # This should be the correct commit SHA on ${{ env.BRANCH_NAME }}:
-          sha: ${{ steps.create-pr.outputs.pull-request-head-sha }}
-          # Name of status check to add/update:
-          context: lint
-          # Optional message/note we can inline to the right of the context name in the UI:
-          description: Lint skipped. Not relevant.
+          readme_path: CONTRIBUTORS.md
+          collaborators: all
+          commit_message: 'docs: updated `CONTRIBUTORS.md`'
+          committer_username: github-actions[bot]
+          committer_email: 41898282+github-actions[bot]@users.noreply.github.com
+          pr_title_on_protected: 'docs: update `CONTRIBUTORS.md'
+          auto_detect_branch_protection: true

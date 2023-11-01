@@ -1,0 +1,2 @@
+submission/inet/smtpd_discard_ehlo_keywords=silent-discard,dsn
+submissions/inet/smtpd_discard_ehlo_keywords=silent-discard,dsn

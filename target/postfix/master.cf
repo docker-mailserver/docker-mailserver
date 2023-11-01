@@ -24,6 +24,7 @@ submission     inet  n       -       n       -       -       smtpd
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
   -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
   -o smtpd_sender_restrictions=$mua_sender_restrictions
+  -o smtpd_discard_ehlo_keywords=
   -o milter_macro_daemon_name=ORIGINATING
   -o cleanup_service_name=sender-cleanup
 
@@ -37,6 +38,7 @@ submissions    inet  n       -       n       -       -       smtpd
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
   -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
   -o smtpd_sender_restrictions=$mua_sender_restrictions
+  -o smtpd_discard_ehlo_keywords=
   -o milter_macro_daemon_name=ORIGINATING
   -o cleanup_service_name=sender-cleanup
 
