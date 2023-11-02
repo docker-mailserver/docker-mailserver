@@ -62,15 +62,15 @@ function _register_functions() {
       _register_setup_function '_setup_ldap'
       ;;
 
-    ( 'OAUTH2' )
-      _environment_variables_oauth2
-      _register_setup_function '_setup_oauth2'
-      ;;
-
     ( * )
       _dms_panic__invalid_value "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER"
       ;;
   esac
+
+  if [[ ${ENABLE_OAUTH2} -eq 1 ]]; then
+      _environment_variables_oauth2
+      _register_setup_function '_setup_oauth2'
+  fi
 
   if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]; then
     _environment_variables_saslauthd
