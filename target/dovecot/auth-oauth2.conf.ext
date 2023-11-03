@@ -5,8 +5,3 @@ passdb {
     mechanisms = xoauth2 oauthbearer
     args = /etc/dovecot/dovecot-oauth2.conf.ext
 }
-
-userdb {
-  driver = static
-  args = uid=docker gid=docker home=/var/mail/%d/%u/home/
-}
