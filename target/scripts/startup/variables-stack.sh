@@ -156,7 +156,7 @@ function _environment_variables_oauth2() {
 
   VARS[OAUTH2_CLIENT_ID]="${OAUTH2_CLIENT_ID:=}"
   VARS[OAUTH2_CLIENT_SECRET]="${OAUTH2_CLIENT_SECRET:=}"
-  VARS[OAUTH2_TOKENINFO_URL]="${OAUTH2_TOKENINFO_URL:=}"
+  VARS[OAUTH2_INTROSPECTION_URL]="${OAUTH2_INTROSPECTION_URL:=}"
 }
 
 # This function handles environment variables related to LDAP.
