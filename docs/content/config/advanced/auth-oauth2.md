@@ -4,7 +4,7 @@ title: 'Advanced | Basic OAuth2 Authentication'
 
 ## Introduction
 
-**Warning** - This is only a supplement to the existing account provisioners; FILE and LDAP. Accounts must still be created using the `setup` command or added to the LDAP directory respectively. Reasoning for this can be found in #3579. Future iterations on this feature may allow it to be a full account provisioner.
+**Warning** - This is only a supplement to the existing account provisioners; FILE and LDAP. Accounts must still be created using the `setup` command or added to the LDAP directory respectively. Reasoning for this can be found in #3480. Future iterations on this feature may allow it to be a full account provisioner.
 
 For now, this adds the ability for a 3rd party application such as Roundcube to authenticate with DMS (dovecot) using a token obtained from an OAuth2 provider instead of passing passwords around.
 
