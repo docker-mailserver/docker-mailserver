@@ -26,25 +26,23 @@ Each implementation of Lua-based authentication is custom. Therefore it is impos
 
 This scenario starts with [DMS being configured to use LDAP][docs::auth-ldap] for mailbox identification, user authorization and user authentication. In this scenario, [Nextcloud](https://nextcloud.com/) is also a service that uses the same LDAP server for user identification, authorization and authentication.
 
-The goal of this scenario is to have Dovecot not authenticate the user against LDAP, but against Nextcloud. Furthermore, the user should should only be able to authenticate using a randomly generated [Nextcloud application password](https://docs.nextcloud.com/server/latest/user_manual/en/session_management.html#managing-devices) and not the main password of the user account (stored in LDAP). The idea behind this is that a compromised mailbox password does not compromise the user's account entirely. To make this work, password reset through mail is disabled in Nextcloud.
+The goal of this scenario is to have Dovecot not authenticate the user against LDAP, but against Nextcloud using an [application password](https://docs.nextcloud.com/server/latest/user_manual/en/session_management.html#managing-devices). The idea behind this is that a compromised mailbox password does not compromise the user's account entirely. To make this work, Nextcloud is configured to [allow clients to only use application passwords for authentication](https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#token-auth-enforced) and to [not allow password reset through mail](https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#lost-password-link).
 
-If the application password is configured correctly, an adversary can only use it to access the user's mailbox (since it uses an application password that is compromised) and the user's CalDAV and CardDAV data on Nextcloud. File access through WebDAV can be disabled for the application password used to access mail. Having CalDAV and CardDAV compromised by the same password is a minor setback. If an adversary gets access to a Nextcloud application password through a device of the user, it is likely that the adversary also gets access to the user's calendars and contact lists anyway (locally or through the same account settings used by mail and Cal-/CardDAV synchronization). The user's stored files in Nextcloud, the LDAP account and any other services that rely on it would still be protected. A bonus is that a user is able to revoke and renew the mailbox password in Nextcloud for whatever reason, through a friendly user interface with all the security measures applies by the Nextcloud instance.
+If the application password is configured correctly, an adversary can only use it to access the user's mailbox, and the user's CalDAV and CardDAV data on Nextcloud. File access through WebDAV can be disabled for the application password used to access mail. Having CalDAV and CardDAV compromised by the same password is a minor setback. If an adversary gets access to a Nextcloud application password through a device of the user, it is likely that the adversary also gets access to the user's calendars and contact lists anyway (locally or through the same account settings used for mail and CalDAV/CardDAV synchronization). The user's stored files in Nextcloud, the LDAP account password and any other services that rely on it would still be protected. A bonus is that a user is able to revoke and renew the mailbox password in Nextcloud for whatever reason, through a friendly user interface with all the security measures with which the Nextcloud instance is configured.
 
-There is also a risk that a Nextcloud application password used for something else is compromised and is used to access the user's mailbox before it is revoked. Discussion of that risk falls outside of the scope of this scenario.
+A drawback of this method is that any (compromised) Nextcloud application password can be used to access the user's mailbox. This introduces a risk that a Nextcloud application password used for something else (e.g. WebDAV file access) is compromised and used to access the user's mailbox. Discussion of that risk falls outside of the scope of this scenario.
 
 To answer the questions asked earlier for this specific scenario:
 
 1. Do I want to use Lua to identify mailboxes and verify that users are are authorized to use mail services? **No. Provisioning is done through LDAP.**
-1. Do I want to use Lua to verify passwords that users authenticate with for IMAP/POP3/SMTP in their mail clients? **Yes. Password authentication is done through Lua.**
-1. If the answer is 'yes' to question 1 or 2: are there other methods that better facilitate my use case instead of custom scripts which rely on me being a developer and not just a user? **No. Only HTTP can be used to authenticate against Nextcloud, which is not supported by Dovecot or DMS.**
+1. Do I want to use Lua to verify passwords that users authenticate with for IMAP/POP3/SMTP in their mail clients? **Yes. Password authentication is done through Lua against Nextcloud.**
+1. If the answer is 'yes' to question 1 or 2: are there other methods that better facilitate my use case instead of custom scripts which rely on me being a developer and not just a user? **No. Only HTTP can be used to authenticate against Nextcloud, which is not supported natively by Dovecot or DMS.**
 
-While it is possible to extend what Nextcloud supports with [Nextcloud apps](https://apps.nextcloud.com/), there is currently a mismatch between what DMS supports and what Nextcloud applications support. This might change in the future. For now, Lua will be used to bridge the gap between DMS and Nextcloud for authentication only (Dovecot passdb), while LDAP will still be used to identify mailboxes and verify authorization (Dovecot userdb).
+While it is possible to extend the authentication methods which Nextcloud can facilitate with [Nextcloud apps](https://apps.nextcloud.com/), there is currently a mismatch between what DMS supports and what Nextcloud applications can provide. This might change in the future. For now, Lua will be used to bridge the gap between DMS and Nextcloud for authentication only (Dovecot passdb), while LDAP will still be used to identify mailboxes and verify authorization (Dovecot userdb).
 
 ## Modify Dovecot's configuration
 
-Add the following volume values to the relevant part of `compose.yaml`:
-
-???+ example
+???+ example "Add to DMS volumes in `compose.yaml`"
 
     ```yaml
         # All new volumes are marked :ro to configure them as read-only, since their contents are not changed from inside the container
@@ -57,25 +55,20 @@ Add the following volume values to the relevant part of `compose.yaml`:
           - ./docker-data/dms/config/dovecot/lua/:/etc/dovecot/lua/:ro
     ```
 
-Make the necessary changes on the filesystem:
+Create a directory for Lua scripts:
 ```bash
 mkdir -p ./docker-data/dms/config/dovecot/lua
-docker cp CONTAINER_NAME:/etc/dovecot/conf.d/auth-ldap.conf.ext ./docker-data/dms/config/dovecot/auth-ldap.conf.ext
 ```
 
-Edit configuration file `./docker-data/dms/config/dovecot/auth-ldap.conf.ext`. Comment out the passdb section. An excerpt of what that part would look like after you are done:
+Create configuration file `./docker-data/dms/config/dovecot/auth-ldap.conf.ext` for LDAP user provisioning:
 ```
-#passdb {
-#  driver = ldap
-#
-#  # Path for LDAP configuration file, see example-config/dovecot-ldap.conf.ext
-#  args = /etc/dovecot/dovecot-ldap.conf.ext
-#}
+userdb {
+  driver = ldap
+  args = /etc/dovecot/dovecot-ldap.conf.ext
+}
 ```
 
-Don't touch anything else in the file.
-
-Create configuration file `./docker-data/dms/config/dovecot/auth-lua-httpbasic.conf` with contents:
+Create configuration file `./docker-data/dms/config/dovecot/auth-lua-httpbasic.conf` for Lua user authentication:
 ```
 passdb {
   driver = lua
@@ -112,15 +105,7 @@ end
 function script_deinit()
 end
 
-function is_nextcloud_apppassword(password)
-  return string.find(password, "%w%w%w%w%w%-%w%w%w%w%w%-%w%w%w%w%w%-%w%w%w%w%w%-%w%w%w%w%w") ~= nil
-end
-
 function auth_passdb_lookup(req)
-  if not is_nextcloud_apppassword(req.password)
-  then
-    return dovecot.auth.PASSDB_RESULT_PASSWORD_MISMATCH, ""
-  end
   local auth_request = http_client:request {
     url = http_url;
     method = http_method;
@@ -149,14 +134,14 @@ end
 
 Replace the hostname in the URL to the actual hostname of Nextcloud.
 
-Dovecot [provides an HTTP client for use in Lua](https://doc.dovecot.org/admin_manual/lua/#dovecot.http.client). Aside of that, Lua by itself is pretty barebones. It chooses library compactness over included functionality. You can see that in the inefficiently typed regular expression in `is_nextcloud_apppassword()`, which is used because [Lua does not offer full support for regular expressions](https://www.lua.org/pil/20.2.html). You can also see Lua's limited functionality in that a separate library is referenced to add support for Base64 encoding, which is required for [HTTP basic access authentication](https://en.wikipedia.org/wiki/Basic_access_authentication). This library (also a Lua script) is not included. It must be downloaded and stored in the same directory:
+Dovecot [provides an HTTP client for use in Lua](https://doc.dovecot.org/admin_manual/lua/#dovecot.http.client). Aside of that, Lua by itself is pretty barebones. It chooses library compactness over included functionality. You can see that in that a separate library is referenced to add support for Base64 encoding, which is required for [HTTP basic access authentication](https://en.wikipedia.org/wiki/Basic_access_authentication). This library (also a Lua script) is not included. It must be downloaded and stored in the same directory:
 
 ```bash
 cd ./docker-data/dms/config/dovecot/lua
 curl -JLO https://raw.githubusercontent.com/iskolbin/lbase64/master/base64.lua
 ```
 
-Only use native (pure Lua) libraries as dependencies, such as `base64.lua` from the example. This ensures maximum compatibility. Performance is less of an issue since Lua scripts written for Dovecot probably won't be long or complex, and there won't be a lot of data processing by Lua itself.
+Only use native (pure Lua) libraries as dependencies if possible, such as `base64.lua` from the example. This ensures maximum compatibility. Performance is less of an issue since Lua scripts written for Dovecot probably won't be long or complex, and there won't be a lot of data processing by Lua itself.
 
 ## Debugging a Lua script
 
@@ -166,9 +151,7 @@ To see which Lua version is used by Dovecot if you plan to do something that is 
 docker exec CONTAINER_NAME strings /usr/lib/dovecot/libdovecot-lua.so|grep '^LUA_'
 ```
 
-While Dovecot logs the status of authentication attempts for any passdb backend, Dovecot will also log Lua scripting errors and messages sent to Dovecot's [Lua API log functions](https://doc.dovecot.org/admin_manual/lua/#dovecot.i_debug).
-
-The combined DMS log (including that of Dovecot) can be viewed using `docker logs CONTAINER_NAME`. If the log is too noisy (_due to other processes in the container also logging to it_), `docker exec CONTAINER_NAME cat /var/log/mail/mail.log` can be used to view the log of Dovecot and Postfix specifically.
+While Dovecot logs the status of authentication attempts for any passdb backend, Dovecot will also log Lua scripting errors and messages sent to Dovecot's [Lua API log functions](https://doc.dovecot.org/admin_manual/lua/#dovecot.i_debug). The combined DMS log (including that of Dovecot) can be viewed using `docker logs CONTAINER_NAME`. If the log is too noisy (_due to other processes in the container also logging to it_), `docker exec CONTAINER_NAME cat /var/log/mail/mail.log` can be used to view the log of Dovecot and Postfix specifically.
 
 If working with HTTP in Lua, setting `debug = true;` when initiating `dovecot.http.client` will create debug log messages for every HTTP request and response.
 
