@@ -190,7 +190,7 @@ spec:
           imagePullPolicy: IfNotPresent
 
           securityContext:
-            allowPrivilegeEscalation: false
+            allowPrivilegeEscalation: true # required for SUID/SGID to work
             readOnlyRootFilesystem: false
             runAsUser: 0
             runAsGroup: 0
