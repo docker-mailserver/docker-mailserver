@@ -29,7 +29,7 @@ These links may advise how the provider can unblock the port through additional 
 
 1. **Increase log verbosity**: Very helpful for troubleshooting problems during container startup. Set the environment variable [`LOG_LEVEL`][docs-environment-log-level] to `debug` or `trace`.
 2. **Use error logs as a search query**: Try [finding an _existing issue_][gh-issues] or _search engine result_ from any errors in your container log output. Often you'll find answers or more insights. If you still need to open an issue, sharing links from your search may help us assist you. The mail server log can be acquired by running `docker log <CONTAINER NAME>` (_or `docker logs -f <CONTAINER NAME>` if you want to follow the log_).
-3. **Inspect for the logs of the service that is failing**: We provide a dedicate parapgraph on this topic [further down below](#logs).
+3. **Inspect the logs of the service that is failing**: We provide a dedicated paragraph on this topic [further down below](#logs).
 4. **Understand the basics of mail servers**: Especially for beginners, make sure you read our [Introduction][docs-introduction] and [Usage][docs-usage] articles.
 5. **Search the whole FAQ**: Our [FAQ][docs-faq] contains answers for common problems. Make sure you go through the list.
 6. **Reduce the scope**: Ensure that you can run a basic setup of DMS first. Then incrementally restore parts of your original configuration until the problem is reproduced again. If you're new to DMS, it is common to find the cause is misunderstanding how to configure a minimal setup.
