@@ -23,6 +23,9 @@ function _setup_rspamd() {
     __rspamd__setup_check_authenticated
     _rspamd_handle_user_modules_adjustments   # must run last
 
+    # only checks, no setup from here
+    __rspamd__check_dkim_permissions
+
     __rspamd__log 'trace' '----------  Setup finished  ----------'
   else
     _log 'debug' 'Rspamd is disabled'
@@ -293,4 +296,33 @@ function __rspamd__setup_check_authenticated() {
       '/DMS::SED_TAG::1::START/{:a;N;/DMS::SED_TAG::1::END/!ba};/authenticated/d' \
       "${MODULE_FILE}"
   fi
+}
+# This function performs a simple check: go through DKIM configuration files, acquire all
+# private key file locations and check whether they exist and whether they can be
+# accesses by Rspamd.
+function __rspamd__check_dkim_permissions() {
+  local DKIM_CONF_FILES DKIM_KEY_FILES
+  [[ -f ${RSPAMD_LOCAL_D}/dkim_signing.conf ]] && DKIM_CONF_FILES+=("${RSPAMD_LOCAL_D}/dkim_signing.conf")
+  [[ -f ${RSPAMD_OVERRIDE_D}/dkim_signing.conf ]] && DKIM_CONF_FILES+=("${RSPAMD_OVERRIDE_D}/dkim_signing.conf")
+
+  # Here, we populate DKIM_KEY_FILES which we later iterate over. DKIM_KEY_FILES
+  # contains all keys files configured by the user.
+  local FILE
+  for FILE in "${DKIM_CONF_FILES[@]}"; do
+    readarray -t DKIM_KEY_FILES_TMP < <(grep -o -E 'path = .*' "${FILE}" | cut -d '=' -f 2 | tr -d ' ";')
+    DKIM_KEY_FILES+=("${DKIM_KEY_FILES_TMP[@]}")
+  done
+
+  for FILE in "${DKIM_KEY_FILES[@]}"; do
+    if [[ -f ${FILE} ]]; then
+      __rspamd__log 'trace' "Checking DKIM file '${FILE}' now"
+      if __do_as_rspamd_user cat "${FILE}" &>/dev/null; then
+        __rspamd__log 'trace' "DKIM file '${FILE}' permissions and ownership appear correct"
+      else
+        __rspamd__log 'warn' "Rspamd DKIM private key file '${FILE}' does not appear to have correct permissions/ownership for Rspamd to use it - please correct permissions/ownership"
+      fi
+    else
+      __rspamd__log 'warn' "Rspamd DKIM private key file '${FILE}' is configured for usage, but does not appear to exist"
+    fi
+  done
 }

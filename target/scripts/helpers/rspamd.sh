@@ -2,6 +2,13 @@
 
 # shellcheck disable=SC2034 # VAR appears unused.
 
+function __do_as_rspamd_user() {
+  local COMMAND=${1:?Command required when using __do_as_rspamd_user}
+  _log 'trace' "Running '${*}' as user '_rspamd' now"
+  shift 1
+  su -l '_rspamd' -s "$(command -v "${COMMAND}")" -- "${@}"
+}
+
 function _rspamd_get_envs() {
   readonly RSPAMD_LOCAL_D='/etc/rspamd/local.d'
   readonly RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
