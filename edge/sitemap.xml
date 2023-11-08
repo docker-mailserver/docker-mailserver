@@ -196,6 +196,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/auth-lua/</loc>
+         <lastmod>2023-11-08</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/forward-only-mailserver-with-ldap-authentication/</loc>
          <lastmod>2023-11-08</lastmod>
          <changefreq>daily</changefreq>
