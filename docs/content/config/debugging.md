@@ -45,13 +45,13 @@ To get a shell inside the container run: `docker exec -it <CONTAINER NAME> bash`
 
 #### Logs
 
-If you need more flexibility than `docker logs` offers, within the container
+If you need more flexibility than what the `docker logs` command offers, then the most useful locations to get relevant DMS logs within the container are:
 
-1. `/var/log/mail/mail.log`,
-2. `/var/log/mail/mail/<SERVICE>.log`, and
-3. `/var/log/supervisor/<SERVICE>.log`
+- `/var/log/mail/mail.log`,
+- `/var/log/mail/mail/<SERVICE>.log`
+- `/var/log/supervisor/<SERVICE>.log`
 
-are the most useful locations to get relevant DMS logs. You may use `nano` (a text editor), `less` (a file viewer) or `tail`/`cat` to inspect (or edit) their contents.
+You may use `nano` (a text editor) to edit files, while `less` (a file viewer) and `tail`/`cat` are useful tools to inspect the contents of logs.
 
 ## Compatibility
 
