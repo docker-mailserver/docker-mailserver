@@ -283,6 +283,12 @@ function __rspamd__setup_hfilter_group() {
   fi
 }
 
+# If 'RSPAMD_CHECK_AUTHENTICATED' is enabled, then content checks for all users, i.e.
+# also for authenticated users, are performed.
+#
+# The default that DMS ships does not check authenticated users. In case the checks are
+# enabled, this function will remove the part of the Rspamd configuration that disables
+# checks for authenticated users.
 function __rspamd__setup_check_authenticated() {
   local MODULE_FILE="${RSPAMD_LOCAL_D}/settings.conf"
   readonly MODULE_FILE
@@ -297,6 +303,7 @@ function __rspamd__setup_check_authenticated() {
       "${MODULE_FILE}"
   fi
 }
+
 # This function performs a simple check: go through DKIM configuration files, acquire all
 # private key file locations and check whether they exist and whether they can be
 # accesses by Rspamd.
