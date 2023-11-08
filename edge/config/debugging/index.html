@@ -873,6 +873,26 @@
     Debug a running container
   </a>
   
+    <nav class="md-nav" aria-label="Debug a running container">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    General
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    Logs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -1949,6 +1969,26 @@
     Debug a running container
   </a>
   
+    <nav class="md-nav" aria-label="Debug a running container">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    General
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    Logs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -2038,19 +2078,26 @@
 <ol>
 <li><strong>Increase log verbosity</strong>: Very helpful for troubleshooting problems during container startup. Set the environment variable <a href="../environment/#log_level"><code>LOG_LEVEL</code></a> to <code>debug</code> or <code>trace</code>.</li>
 <li><strong>Use error logs as a search query</strong>: Try <a href="https://github.com/docker-mailserver/docker-mailserver/issues">finding an <em>existing issue</em></a> or <em>search engine result</em> from any errors in your container log output. Often you'll find answers or more insights. If you still need to open an issue, sharing links from your search may help us assist you. The mail server log can be acquired by running <code>docker log &lt;CONTAINER NAME&gt;</code> (<em>or <code>docker logs -f &lt;CONTAINER NAME&gt;</code> if you want to follow the log</em>).</li>
+<li><strong>Inspect the logs of the service that is failing</strong>: We provide a dedicated paragraph on this topic <a href="#logs">further down below</a>.</li>
 <li><strong>Understand the basics of mail servers</strong>: Especially for beginners, make sure you read our <a href="../../introduction/">Introduction</a> and <a href="../../usage/">Usage</a> articles.</li>
 <li><strong>Search the whole FAQ</strong>: Our <a href="../../faq/">FAQ</a> contains answers for common problems. Make sure you go through the list.</li>
 <li><strong>Reduce the scope</strong>: Ensure that you can run a basic setup of DMS first. Then incrementally restore parts of your original configuration until the problem is reproduced again. If you're new to DMS, it is common to find the cause is misunderstanding how to configure a minimal setup.</li>
 </ol>
 <h3 id="debug-a-running-container"><a class="toclink" href="#debug-a-running-container">Debug a running container</a></h3>
-<p>To get a shell inside the container run: <code>docker exec -it &lt;CONTAINER NAME&gt; bash</code>.</p>
-<p>If you need more flexibility than <code>docker logs</code> offers, within the container <code>/var/log/mail/mail.log</code> and <code>/var/log/supervisor/</code> are the most useful locations to get relevant DMS logs. Use the <code>tail</code> or <code>cat</code> commands to view their contents.</p>
-<p>To install additional software:</p>
+<h4 id="general"><a class="toclink" href="#general">General</a></h4>
+<p>To get a shell inside the container run: <code>docker exec -it &lt;CONTAINER NAME&gt; bash</code>. To install additional software, run:</p>
 <ol>
 <li><code>apt-get update</code> to update repository metadata.</li>
-<li><code>apt-get install &lt;PACKAGE&gt;</code></li>
+<li><code>apt-get install &lt;PACKAGE&gt;</code> to install a package, e.g., <code>apt-get install neovim</code> if you want to use NeoVim instead of <code>nano</code> (which is shipped by default).</li>
 </ol>
-<p>For example a text editor you can use in the terminal: <code>apt-get install nano</code></p>
+<h4 id="logs"><a class="toclink" href="#logs">Logs</a></h4>
+<p>If you need more flexibility than what the <code>docker logs</code> command offers, then the most useful locations to get relevant DMS logs within the container are:</p>
+<ul>
+<li><code>/var/log/mail/mail.log</code></li>
+<li><code>/var/log/mail/mail/&lt;SERVICE&gt;.log</code></li>
+<li><code>/var/log/supervisor/&lt;SERVICE&gt;.log</code></li>
+</ul>
+<p>You may use <code>nano</code> (a text editor) to edit files, while <code>less</code> (a file viewer) and <code>tail</code>/<code>cat</code> are useful tools to inspect the contents of logs.</p>
 <h2 id="compatibility"><a class="toclink" href="#compatibility">Compatibility</a></h2>
 <p>It's possible that the issue you're experiencing is due to a compatibility conflict.</p>
 <p>This could be from outdated software, or running a system that isn't able to provide you newer software and kernels. You may want to verify if you can reproduce the issue on a system that is not affected by these concerns.</p>
