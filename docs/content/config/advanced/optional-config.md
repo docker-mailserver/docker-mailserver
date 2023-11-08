@@ -12,7 +12,7 @@ This is a list of all configuration files and directories which are optional or 
 - **sieve-pipe:** directory for sieve pipe scripts. (Docs: [Sieve][docs-sieve])
 - **opendkim:** DKIM directory. Auto-configurable via [`setup.sh config dkim`][docs-setupsh]. (Docs: [DKIM][docs-dkim])
 - **ssl:** SSL Certificate directory if `SSL_TYPE` is set to `self-signed` or `custom`. (Docs: [SSL][docs-ssl])
-- **Rspamd:** Override directory for custom settings when using Rspamd (Docs: [Rspamd][docs-rspamd-override-d])
+- **rspamd:** Override directory for custom settings when using Rspamd (Docs: [Rspamd][docs-rspamd-override-d])
 
 ## Files
 
