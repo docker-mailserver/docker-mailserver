@@ -105,8 +105,8 @@ function _setup_save_states() {
     # These two require the postdrop(103) group:
     chgrp -R postdrop "${STATEDIR}"/spool-postfix/{maildrop,public}
 
-    # These permissions rely on the `postdrop` binary (and alike) having proper SUID/SGID bits set.
-    # Ref: https://github.com/docker-mailserver/docker-mailserver/issues/3619
+    # These permissions rely on the `postdrop` binary having the SGID bit set.
+    # Ref: https://github.com/docker-mailserver/docker-mailserver/pull/3625
     chmod 730 "${STATEDIR}/spool-postfix/maildrop"
     chmod 710 "${STATEDIR}/spool-postfix/public"
   elif [[ ${ONE_DIR} -eq 1 ]]; then
