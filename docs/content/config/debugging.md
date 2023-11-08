@@ -47,7 +47,7 @@ To get a shell inside the container run: `docker exec -it <CONTAINER NAME> bash`
 
 If you need more flexibility than what the `docker logs` command offers, then the most useful locations to get relevant DMS logs within the container are:
 
-- `/var/log/mail/mail.log`,
+- `/var/log/mail/mail.log`
 - `/var/log/mail/mail/<SERVICE>.log`
 - `/var/log/supervisor/<SERVICE>.log`
 
