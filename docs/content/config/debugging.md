@@ -29,22 +29,29 @@ These links may advise how the provider can unblock the port through additional 
 
 1. **Increase log verbosity**: Very helpful for troubleshooting problems during container startup. Set the environment variable [`LOG_LEVEL`][docs-environment-log-level] to `debug` or `trace`.
 2. **Use error logs as a search query**: Try [finding an _existing issue_][gh-issues] or _search engine result_ from any errors in your container log output. Often you'll find answers or more insights. If you still need to open an issue, sharing links from your search may help us assist you. The mail server log can be acquired by running `docker log <CONTAINER NAME>` (_or `docker logs -f <CONTAINER NAME>` if you want to follow the log_).
-3. **Understand the basics of mail servers**: Especially for beginners, make sure you read our [Introduction][docs-introduction] and [Usage][docs-usage] articles.
-4. **Search the whole FAQ**: Our [FAQ][docs-faq] contains answers for common problems. Make sure you go through the list.
-5. **Reduce the scope**: Ensure that you can run a basic setup of DMS first. Then incrementally restore parts of your original configuration until the problem is reproduced again. If you're new to DMS, it is common to find the cause is misunderstanding how to configure a minimal setup.
+3. **Inspect the logs of the service that is failing**: We provide a dedicated paragraph on this topic [further down below](#logs).
+4. **Understand the basics of mail servers**: Especially for beginners, make sure you read our [Introduction][docs-introduction] and [Usage][docs-usage] articles.
+5. **Search the whole FAQ**: Our [FAQ][docs-faq] contains answers for common problems. Make sure you go through the list.
+6. **Reduce the scope**: Ensure that you can run a basic setup of DMS first. Then incrementally restore parts of your original configuration until the problem is reproduced again. If you're new to DMS, it is common to find the cause is misunderstanding how to configure a minimal setup.
 
 ### Debug a running container
 
-To get a shell inside the container run: `docker exec -it <CONTAINER NAME> bash`.
+#### General
 
-If you need more flexibility than `docker logs` offers, within the container `/var/log/mail/mail.log` and `/var/log/supervisor/` are the most useful locations to get relevant DMS logs. Use the `tail` or `cat` commands to view their contents.
-
-To install additional software:
+To get a shell inside the container run: `docker exec -it <CONTAINER NAME> bash`. To install additional software, run:
 
 1. `apt-get update` to update repository metadata.
-2. `apt-get install <PACKAGE>`
+2. `apt-get install <PACKAGE>` to install a package, e.g., `apt-get install neovim` if you want to use NeoVim instead of `nano` (which is shipped by default).
 
-For example a text editor you can use in the terminal: `apt-get install nano`
+#### Logs
+
+If you need more flexibility than what the `docker logs` command offers, then the most useful locations to get relevant DMS logs within the container are:
+
+- `/var/log/mail/mail.log`
+- `/var/log/mail/mail/<SERVICE>.log`
+- `/var/log/supervisor/<SERVICE>.log`
+
+You may use `nano` (a text editor) to edit files, while `less` (a file viewer) and `tail`/`cat` are useful tools to inspect the contents of logs.
 
 ## Compatibility
 
