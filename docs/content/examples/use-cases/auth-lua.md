@@ -1,5 +1,5 @@
 ---
-title: 'Advanced | Lua Authentication'
+title: 'Examples | Use Cases | Lua Authentication'
 ---
 
 ## Introduction
@@ -26,11 +26,11 @@ Each implementation of Lua-based authentication is custom. Therefore it is impos
 
 This scenario starts with [DMS being configured to use LDAP][docs::auth-ldap] for mailbox identification, user authorization and user authentication. In this scenario, [Nextcloud](https://nextcloud.com/) is also a service that uses the same LDAP server for user identification, authorization and authentication.
 
-The goal of this scenario is to have Dovecot not authenticate the user against LDAP, but against Nextcloud using an [application password](https://docs.nextcloud.com/server/latest/user_manual/en/session_management.html#managing-devices). The idea behind this is that a compromised mailbox password does not compromise the user's account entirely. To make this work, Nextcloud is configured to [allow clients to only use application passwords for authentication](https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#token-auth-enforced) and to [not allow password reset through mail](https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#lost-password-link).
+The goal of this scenario is to have Dovecot not authenticate the user against LDAP, but against Nextcloud using an [application password](https://docs.nextcloud.com/server/latest/user_manual/en/session_management.html#managing-devices). The idea behind this is that a compromised mailbox password does not compromise the user's account entirely. To make this work, Nextcloud is configured to [deny the use of account passwords by clients](https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#token-auth-enforced) and to [disable account password reset through mail verification](https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#lost-password-link).
 
-If the application password is configured correctly, an adversary can only use it to access the user's mailbox, and the user's CalDAV and CardDAV data on Nextcloud. File access through WebDAV can be disabled for the application password used to access mail. Having CalDAV and CardDAV compromised by the same password is a minor setback. If an adversary gets access to a Nextcloud application password through a device of the user, it is likely that the adversary also gets access to the user's calendars and contact lists anyway (locally or through the same account settings used for mail and CalDAV/CardDAV synchronization). The user's stored files in Nextcloud, the LDAP account password and any other services that rely on it would still be protected. A bonus is that a user is able to revoke and renew the mailbox password in Nextcloud for whatever reason, through a friendly user interface with all the security measures with which the Nextcloud instance is configured.
+If the application password is configured correctly, an adversary can only use it to access the user's mailbox on DMS, and CalDAV and CardDAV data on Nextcloud. File access through WebDAV can be disabled for the application password used to access mail. Having CalDAV and CardDAV compromised by the same password is a minor setback. If an adversary gets access to a Nextcloud application password through a device of the user, it is likely that the adversary also gets access to the user's calendars and contact lists anyway (locally or through the same account settings used for mail and CalDAV/CardDAV synchronization). The user's stored files in Nextcloud, the LDAP account password and any other services that rely on it would still be protected. A bonus is that a user is able to revoke and renew the mailbox password in Nextcloud for whatever reason, through a friendly user interface with all the security measures with which the Nextcloud instance is configured (e.g. verification of the current account password).
 
-A drawback of this method is that any (compromised) Nextcloud application password can be used to access the user's mailbox. This introduces a risk that a Nextcloud application password used for something else (e.g. WebDAV file access) is compromised and used to access the user's mailbox. Discussion of that risk falls outside of the scope of this scenario.
+A drawback of this method is that any (compromised) Nextcloud application password can be used to access the user's mailbox. This introduces a risk that a Nextcloud application password used for something else (e.g. WebDAV file access) is compromised and used to access the user's mailbox. Discussion of that risk and possible mitigations fall outside of the scope of this scenario.
 
 To answer the questions asked earlier for this specific scenario:
 
@@ -90,7 +90,7 @@ local http_status_failure = 401
 local http_header_forwarded_for = "X-Forwarded-For"
 
 package.path = package.path .. ";/etc/dovecot/lua/?.lua"
-require("base64")
+local base64 = require("base64")
 
 local http_client = dovecot.http.client {
   timeout = 1000;
@@ -110,7 +110,6 @@ function auth_passdb_lookup(req)
     url = http_url;
     method = http_method;
   }
-  local base64 = require("base64")
   auth_request:add_header("Authorization", "Basic " .. (base64.encode(req.user .. ":" .. req.password)))
   auth_request:add_header(http_header_forwarded_for, req.remote_ip)
   local auth_response = auth_request:submit()
@@ -157,7 +156,7 @@ If working with HTTP in Lua, setting `debug = true;` when initiating `dovecot.ht
 
 Note that Lua runs compiled bytecode, and that scripts will be compiled when they are initially started. Once compiled, the bytecode is cached and changes in the Lua script will not be processed automatically. Dovecot will reload its configuration and clear its cached Lua bytecode when running `docker exec CONTAINER_NAME dovecot reload`. A (changed) Lua script will be compiled to bytecode the next time it is executed after running the Dovecot reload command.
 
-[docs::auth-ldap]: ./auth-ldap.md
-[docs::dovecot-override-configuration]: ./override-defaults/dovecot.md#override-configuration
-[docs::dovecot-add-configuration]: ./override-defaults/dovecot.md#add-configuration
+[docs::auth-ldap]: ../../config/advanced/auth-ldap.md
+[docs::dovecot-override-configuration]: ../../config/advanced/override-defaults/dovecot.md#override-configuration
+[docs::dovecot-add-configuration]: ../../config/advanced/override-defaults/dovecot.md#add-configuration
 [docs::faq-alter-running-dms-instance-without-container-relaunch]: ../../faq.md#how-to-alter-a-running-dms-instance-without-relaunching-the-container
