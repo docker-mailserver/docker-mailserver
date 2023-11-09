@@ -6,10 +6,8 @@
 # in case you want to have correct permissions on newly created files or if
 # you want to check whether Rspamd can perform a specific action.
 function __do_as_rspamd_user() {
-  local COMMAND=${1:?Command required when using __do_as_rspamd_user}
   _log 'trace' "Running '${*}' as user '_rspamd'"
-  shift 1
-  su -l '_rspamd' -s "$(command -v "${COMMAND}")" -- "${@}"
+  su _rspamd -s /bin/bash -c "${*}"
 }
 
 # Calling this function brings common Rspamd-related environment variables
