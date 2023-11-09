@@ -7,14 +7,14 @@
 # you want to check whether Rspamd can perform a specific action.
 function __do_as_rspamd_user() {
   local COMMAND=${1:?Command required when using __do_as_rspamd_user}
-  _log 'trace' "Running '${*}' as user '_rspamd' now"
+  _log 'trace' "Running '${*}' as user '_rspamd'"
   shift 1
   su -l '_rspamd' -s "$(command -v "${COMMAND}")" -- "${@}"
 }
 
 # Calling this function brings common Rspamd-related environment variables
 # into the current context. The environment variables are `readonly`, i.e.
-# the cannot be modified. Use this function when you require common directory
+# they cannot be modified. Use this function when you require common directory
 # names, file names, etc.
 function _rspamd_get_envs() {
   readonly RSPAMD_LOCAL_D='/etc/rspamd/local.d'

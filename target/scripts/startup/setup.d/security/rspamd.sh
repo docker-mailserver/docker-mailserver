@@ -23,7 +23,7 @@ function _setup_rspamd() {
     __rspamd__setup_check_authenticated
     _rspamd_handle_user_modules_adjustments   # must run last
 
-    # only checks, no setup from here
+    # only performing checks, no further setup handled from here onwards
     __rspamd__check_dkim_permissions
 
     __rspamd__log 'trace' '----------  Setup finished  ----------'
@@ -304,9 +304,9 @@ function __rspamd__setup_check_authenticated() {
   fi
 }
 
-# This function performs a simple check: go through DKIM configuration files, acquire all
-# private key file locations and check whether they exist and whether they can be
-# accesses by Rspamd.
+# This function performs a simple check: go through DKIM configuration files, acquire
+# all private key file locations and check whether they exist and whether they can be
+# accessed by Rspamd.
 function __rspamd__check_dkim_permissions() {
   local DKIM_CONF_FILES DKIM_KEY_FILES
   [[ -f ${RSPAMD_LOCAL_D}/dkim_signing.conf ]] && DKIM_CONF_FILES+=("${RSPAMD_LOCAL_D}/dkim_signing.conf")
@@ -322,11 +322,11 @@ function __rspamd__check_dkim_permissions() {
 
   for FILE in "${DKIM_KEY_FILES[@]}"; do
     if [[ -f ${FILE} ]]; then
-      __rspamd__log 'trace' "Checking DKIM file '${FILE}' now"
+      __rspamd__log 'trace' "Checking DKIM file '${FILE}'"
       if __do_as_rspamd_user cat "${FILE}" &>/dev/null; then
         __rspamd__log 'trace' "DKIM file '${FILE}' permissions and ownership appear correct"
       else
-        __rspamd__log 'warn' "Rspamd DKIM private key file '${FILE}' does not appear to have correct permissions/ownership for Rspamd to use it - please correct permissions/ownership"
+        __rspamd__log 'warn' "Rspamd DKIM private key file '${FILE}' does not appear to have correct permissions/ownership for Rspamd to use it"
       fi
     else
       __rspamd__log 'warn' "Rspamd DKIM private key file '${FILE}' is configured for usage, but does not appear to exist"
