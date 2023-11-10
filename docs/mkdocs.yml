@@ -163,6 +163,7 @@ nav:
       - 'Forward-Only Mail-Server with LDAP': examples/use-cases/forward-only-mailserver-with-ldap-authentication.md
       - 'Customize IMAP Folders': examples/use-cases/imap-folders.md
       - 'iOS Mail Push Support': examples/use-cases/ios-mail-push-support.md
+      - 'Lua Authentication': examples/use-cases/auth-lua.md
   - 'FAQ' : faq.md
   - 'Contributing':
     - 'General Information': contributing/general.md

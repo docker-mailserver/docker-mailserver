@@ -16,10 +16,12 @@ All notable changes to this project will be documented in this file. The format 
 
     If necessary, DSNs for authenticated users can be disabled via the `postfix-master.cf` override with the following contents:
 
-    ```
+    ```cf
     submission/inet/smtpd_discard_ehlo_keywords=silent-discard,dsn
     submissions/inet/smtpd_discard_ehlo_keywords=silent-discard,dsn
     ```
+
+- using the old path for the Rspamd custom commands file (`/tmp/docker-mailserver/rspamd-modules.conf`), which was deprecated, will now prevent startup; use `/tmp/docker-mailserver/rspamd/custom-commands.conf` instead
 
 ### Added
 

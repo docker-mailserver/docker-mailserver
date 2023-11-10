@@ -21,6 +21,10 @@ source /etc/dms-settings
 # usage with DMS_HOSTNAME, which should remove the need to call this:
 _obtain_hostname_and_domainname
 
+# This is a helper to properly set all Rspamd-related environment variables
+# correctly and in one place.
+_rspamd_get_envs
+
 # verify checksum file exists; must be prepared by start-mailserver.sh
 if [[ ! -f ${CHKSUM_FILE} ]]; then
   _exit_with_error "'${CHKSUM_FILE}' is missing" 0
@@ -49,6 +53,7 @@ function _check_for_changes() {
     # Handle any changes
     _ssl_changes
     _postfix_dovecot_changes
+    _rspamd_changes
 
     _log_with_date 'debug' 'Reloading services due to detected changes'
 
@@ -172,6 +177,33 @@ function _ssl_changes() {
 
   # If monitored certificate files in /etc/letsencrypt/live have changed and no `acme.json` is in use,
   # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
+}
+
+function _rspamd_changes() {
+  # RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
+  if [[ ${CHANGED} =~ ${RSPAMD_DMS_D}/.* ]]; then
+
+    # "${RSPAMD_DMS_D}/override.d"
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]]; then
+      _log_with_date 'trace' 'Rspamd - Copying configuration overrides'
+      rm "${RSPAMD_OVERRIDE_D}"/*
+      cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
+    fi
+
+    # "${RSPAMD_DMS_D}/custom-commands.conf"
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]]; then
+      _log_with_date 'trace' 'Rspamd - Generating new configuration from custom commands'
+      _rspamd_handle_user_modules_adjustments
+    fi
+
+    # "${RSPAMD_DMS_D}/dkim"
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_DKIM_D} ]]; then
+      _log_with_date 'trace' 'Rspamd - DKIM files updated'
+    fi
+
+    _log_with_date 'debug' 'Rspamd configuration has changed - restarting service'
+    supervisorctl restart rspamd
+  fi
 }
 
 while true; do
