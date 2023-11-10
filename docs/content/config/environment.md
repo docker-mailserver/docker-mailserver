@@ -577,8 +577,10 @@ Note: activate this only if you are confident in your bayes database for identif
 
 ##### FETCHMAIL_PARALLEL
 
-  **0** => `fetchmail` runs with a single config file `/etc/fetchmailrc`
-  **1** => `/etc/fetchmailrc` is split per poll entry. For every poll entry a separate fetchmail instance is started  to allow having multiple imap idle configurations defined.
+- **0** => `fetchmail` runs with a single config file `/etc/fetchmailrc`
+- 1 => `/etc/fetchmailrc` is split per poll entry. For every poll entry a separate fetchmail instance is started to [allow having multiple imap idle connections per server][fetchmail-imap-workaround] (_when poll entries reference the same IMAP server_).
+
+[fetchmail-imap-workaround]: https://otremba.net/wiki/Fetchmail_(Debian)#Immediate_Download_via_IMAP_IDLE
 
 Note: The defaults of your fetchmailrc file need to be at the top of the file. Otherwise it won't be added correctly to all separate `fetchmail` instances.
 #### Getmail
