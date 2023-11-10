@@ -4437,8 +4437,10 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <li><strong>300</strong> =&gt; <code>fetchmail</code> The number of seconds for the interval</li>
 </ul>
 <h5 id="fetchmail_parallel"><a class="toclink" href="#fetchmail_parallel">FETCHMAIL_PARALLEL</a></h5>
-<p><strong>0</strong> =&gt; <code>fetchmail</code> runs with a single config file <code>/etc/fetchmailrc</code>
-  <strong>1</strong> =&gt; <code>/etc/fetchmailrc</code> is split per poll entry. For every poll entry a separate fetchmail instance is started  to allow having multiple imap idle configurations defined.</p>
+<ul>
+<li><strong>0</strong> =&gt; <code>fetchmail</code> runs with a single config file <code>/etc/fetchmailrc</code></li>
+<li>1 =&gt; <code>/etc/fetchmailrc</code> is split per poll entry. For every poll entry a separate fetchmail instance is started to <a href="https://otremba.net/wiki/Fetchmail_(Debian)#Immediate_Download_via_IMAP_IDLE">allow having multiple imap idle connections per server</a> (<em>when poll entries reference the same IMAP server</em>).</li>
+</ul>
 <p>Note: The defaults of your fetchmailrc file need to be at the top of the file. Otherwise it won't be added correctly to all separate <code>fetchmail</code> instances.</p>
 <h4 id="getmail"><a class="toclink" href="#getmail">Getmail</a></h4>
 <h5 id="enable_getmail"><a class="toclink" href="#enable_getmail">ENABLE_GETMAIL</a></h5>
