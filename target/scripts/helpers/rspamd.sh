@@ -2,6 +2,18 @@
 
 # shellcheck disable=SC2034 # VAR appears unused.
 
+# Perform a specific command as the Rspamd user (`_rspamd`). This is useful
+# in case you want to have correct permissions on newly created files or if
+# you want to check whether Rspamd can perform a specific action.
+function __do_as_rspamd_user() {
+  _log 'trace' "Running '${*}' as user '_rspamd'"
+  su _rspamd -s /bin/bash -c "${*}"
+}
+
+# Calling this function brings common Rspamd-related environment variables
+# into the current context. The environment variables are `readonly`, i.e.
+# they cannot be modified. Use this function when you require common directory
+# names, file names, etc.
 function _rspamd_get_envs() {
   readonly RSPAMD_LOCAL_D='/etc/rspamd/local.d'
   readonly RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
