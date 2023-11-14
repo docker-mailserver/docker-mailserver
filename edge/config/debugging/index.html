@@ -2113,8 +2113,7 @@
 <h4 id="logs"><a class="toclink" href="#logs">Logs</a></h4>
 <p>If you need more flexibility than what the <code>docker logs</code> command offers, then the most useful locations to get relevant DMS logs within the container are:</p>
 <ul>
-<li><code>/var/log/mail/mail.log</code></li>
-<li><code>/var/log/mail/mail/&lt;SERVICE&gt;.log</code></li>
+<li><code>/var/log/mail/&lt;SERVICE&gt;.log</code></li>
 <li><code>/var/log/supervisor/&lt;SERVICE&gt;.log</code></li>
 </ul>
 <p>You may use <code>nano</code> (a text editor) to edit files, while <code>less</code> (a file viewer) and <code>tail</code>/<code>cat</code> are useful tools to inspect the contents of logs.</p>
