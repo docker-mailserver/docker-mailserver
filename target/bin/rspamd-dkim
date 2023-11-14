@@ -62,13 +62,6 @@ ${ORANGE}EXIT STATUS${RESET}
 "
 }
 
-function __do_as_rspamd_user() {
-  local COMMAND=${1:?Command required when using __do_as_rspamd_user}
-  _log 'trace' "Running '${*}' as user '_rspamd' now"
-  shift 1
-  su -l '_rspamd' -s "$(command -v "${COMMAND}")" -- "${@}"
-}
-
 function _parse_arguments() {
   FORCE=0
   KEYTYPE='rsa'
