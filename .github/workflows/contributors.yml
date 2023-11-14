@@ -25,8 +25,9 @@ jobs:
         with:
           readme_path: CONTRIBUTORS.md
           collaborators: all
+          use_username: true
           commit_message: 'docs: updated `CONTRIBUTORS.md`'
           committer_username: github-actions[bot]
           committer_email: 41898282+github-actions[bot]@users.noreply.github.com
-          pr_title_on_protected: 'docs: update `CONTRIBUTORS.md'
+          pr_title_on_protected: 'docs: update `CONTRIBUTORS.md`'
           auto_detect_branch_protection: true
