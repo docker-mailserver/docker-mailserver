@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Set up MTA-STS
 
 function _setup_mta_sts() {
   _log 'trace' 'Adding MTA-STS lookup to the Postfix TLS policy map'
