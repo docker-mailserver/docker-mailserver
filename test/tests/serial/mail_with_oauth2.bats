@@ -20,7 +20,7 @@ function setup_file() {
     --hostname "${FQDN_OAUTH2}" \
     --network "${DMS_TEST_NETWORK}" \
     --user "$(id -u):$(id -g)" \
-    --volume "${REPOSITORY_ROOT}/test/test-files/auth/oauth2/provider.py:/app/provider.py" \
+    --volume "${REPOSITORY_ROOT}/test/config/oauth2/:/app/" \
     --expose 80 \
     docker.io/library/python:latest \
     python /app/provider.py
@@ -77,6 +77,5 @@ function teardown() {
 
 @test "oauth2: imap connect and authentication works" {
   _run_in_container_bash 'nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-oauth2-auth.txt'
-  sleep 120
   assert_success
 }

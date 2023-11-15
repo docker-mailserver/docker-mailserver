@@ -9,38 +9,37 @@ print("XOAUTH2 string: " + str(xoauth2))
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
-	def do_GET(self):
-		auth = self.headers.get("Authorization")
-		if auth is None:
-			self.send_response(401)
-			self.end_headers()
-			return
-		if len(auth.split()) != 2:
-			self.send_response(401)
-			self.end_headers()
-			return
-		auth = auth.split()[1]
-		if auth == token:
-			self.send_response(200)
-			self.send_header('Content-Type', 'application/json')
-			self.end_headers()
-			self.wfile.write(json.dumps({
-				"email": "user1@localhost.localdomain",
-				"email_verified": True,
-				"sub": "82c1c334dcc6e311ae4aaebfe946c5e858f055aff1ce5a37aa7cc91aab17e35c"
-			}).encode("utf-8"))
-		else:
-			self.send_response(401)
-		self.end_headers()
-
+    def do_GET(self):
+        auth = self.headers.get("Authorization")
+        if auth is None:
+            self.send_response(401)
+            self.end_headers()
+            return
+        if len(auth.split()) != 2:
+            self.send_response(401)
+            self.end_headers()
+            return
+        auth = auth.split()[1]
+        if auth == token:
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "email": "user1@localhost.localdomain",
+                "email_verified": True,
+                "sub": "82c1c334dcc6e311ae4aaebfe946c5e858f055aff1ce5a37aa7cc91aab17e35c"
+            }).encode("utf-8"))
+        else:
+            self.send_response(401)
+        self.end_headers()
 
 server = HTTPServer(('', 80), HTTPRequestHandler)
 print("Starting server", flush=True)
 
 try:
-	server.serve_forever()
+    server.serve_forever()
 except KeyboardInterrupt:
-	print()
-	print("Received keyboard interrupt")
+    print()
+    print("Received keyboard interrupt")
 finally:
-	print("Exiting")
+    print("Exiting")
