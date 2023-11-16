@@ -40,6 +40,22 @@ clean: ALWAYS_RUN
 # --- Tests  ------------------------------------
 # -----------------------------------------------
 
+run-local-test: ALWAYS_RUN
+	docker run --rm -it \
+		--env OVERRIDE_HOSTNAME=mail.example.test \
+		--env LOG_LEVEL=trace \
+		--env POSTFIX_INET_PROTOCOLS=ipv4 \
+		--env DOVECOT_INET_PROTOCOLS=ipv4 \
+		--env ENABLE_RSPAMD=1 \
+		--env ENABLE_AMAVIS=0 \
+		--env ENABLE_CLAMAV=0 \
+		--env ENABLE_FAIL2BAN=0 \
+		--env ENABLE_OPENDMARC=0 \
+		--env ENABLE_OPENDKIM=0 \
+		--env ENABLE_POLICYD_SPF=0 \
+		--env TZ=Europe/Berlin \
+		mailserver-testing:ci
+
 tests: ALWAYS_RUN
 # See https://github.com/docker-mailserver/docker-mailserver/pull/2857#issuecomment-1312724303
 # on why `generate-accounts` is run before each set (TODO/FIXME)

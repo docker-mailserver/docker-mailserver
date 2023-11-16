@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# shellcheck disable=SC2291 # Quote repeated spaces to avoid them collapsing into one.
+# shellcheck disable=SC2291 # Quote repeated SPACE to avoid them collapsing into one.
 # shellcheck disable=SC2034 # VAR appears unused.
 
 # Color variables for global usage
@@ -27,7 +27,6 @@ RESET=$(echo -ne   '\e[0m')
 # ### DMS Logging Functionality
 #
 # This function provides the logging for scripts used by DMS.
-# It adheres to the convention for log levels.
 # Valid values (in order of increasing verbosity) are: `error`,
 # `warn`, `info`, `debug` and `trace`. The default log level
 # is `info`.
@@ -41,20 +40,19 @@ RESET=$(echo -ne   '\e[0m')
 #
 # If the first argument is not set or invalid, an error
 # message is logged. Likewise when the second argument
-# is missing. Both failures will return with exit code '1'.
+# is missing. Both failures will result in exit code '1'.
 function _log() {
-  if [[ -z ${1+set} ]]; then
+  if [[ ! -v 1 ]]; then
     _log 'error' "Call to '_log' is missing a valid log level"
     return 1
   fi
 
-  if [[ -z ${2+set} ]]; then
+  if [[ ! -v 2 ]]; then
     _log 'error' "Call to '_log' is missing a message to log"
     return 1
   fi
 
-  local LEVEL_AS_INT
-  local MESSAGE="${RESET}["
+  local LEVEL_AS_INT LEVEL_STRING_WITH_COLOR SPACE MESSAGE
 
   case "$(_get_log_level_or_default)" in
     ( 'trace' ) LEVEL_AS_INT=5 ;;
@@ -67,27 +65,28 @@ function _log() {
   case "${1}" in
     ( 'trace' )
       [[ ${LEVEL_AS_INT} -ge 5 ]] || return 0
-      MESSAGE+="  ${CYAN}TRACE  "
+      LEVEL_STRING_WITH_COLOR+="${CYAN}TRACE"
       ;;
 
     ( 'debug' )
       [[ ${LEVEL_AS_INT} -ge 4 ]] || return 0
-      MESSAGE+="  ${PURPLE}DEBUG  "
+      LEVEL_STRING_WITH_COLOR+="${PURPLE}DEBUG"
       ;;
 
     ( 'info' )
       [[ ${LEVEL_AS_INT} -ge 3 ]] || return 0
-      MESSAGE+="   ${BLUE}INF   "
+      LEVEL_STRING_WITH_COLOR+="${BLUE}INFO "
       ;;
 
     ( 'warn' )
       [[ ${LEVEL_AS_INT} -ge 2 ]] || return 0
-      MESSAGE+=" ${LYELLOW}WARNING "
+      LEVEL_STRING_WITH_COLOR+="${LYELLOW}WARN "
       ;;
 
     ( 'error' )
       [[ ${LEVEL_AS_INT} -ge 1 ]] || return 0
-      MESSAGE+="  ${LRED}ERROR  " ;;
+      LEVEL_STRING_WITH_COLOR+="${LRED}ERROR"
+      ;;
 
     ( * )
       _log 'error' "Call to '_log' with invalid log level argument '${1}'"
@@ -95,7 +94,8 @@ function _log() {
       ;;
   esac
 
-  MESSAGE+="${RESET}]  ${2}"
+  LEVEL_STRING_WITH_COLOR+="${RESET}"
+  MESSAGE="$(date +'%Y-%m-%dT%H:%M:%S%:z')  ${LEVEL_STRING_WITH_COLOR}  ${2}"
 
   if [[ ${1} =~ ^(warn|error)$ ]]; then
     echo -e "${MESSAGE}" >&2
@@ -109,7 +109,7 @@ function _log() {
 # variables file. If this does not yield a value either,
 # use the default log level.
 function _get_log_level_or_default() {
-  if [[ -n ${LOG_LEVEL+set} ]]; then
+  if [[ -v LOG_LEVEL ]]; then
     echo "${LOG_LEVEL}"
   elif [[ -e /etc/dms-settings ]] && grep -q -E "^LOG_LEVEL='[a-z]+'" /etc/dms-settings; then
     grep '^LOG_LEVEL=' /etc/dms-settings | cut -d "'" -f 2
