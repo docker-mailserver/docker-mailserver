@@ -2,16 +2,23 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v12.1.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.0.0...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [v13.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.0)
 
 ### Breaking
 
 - The environment variable `ENABLE_LDAP=1` has been changed to `ACCOUNT_PROVISIONER=LDAP`.
+- using the old path for the Rspamd custom commands file (`/tmp/docker-mailserver/rspamd-modules.conf`), which was deprecated, will now prevent startup; use `/tmp/docker-mailserver/rspamd/custom-commands.conf` instead
+- rename "smtps" to "submissions" in Posfix `main.cf` ([#3235](https://github.com/docker-mailserver/docker-mailserver/pull/3235))
+- make Dovecot home directory distinct from mail directory ([#3335](https://github.com/docker-mailserver/docker-mailserver/pull/3335))
+- adapt `ENABLE_LDAP=1` to `ACCOUNT_PROVISIONER=LDAP` ([#3507](https://github.com/docker-mailserver/docker-mailserver/pull/3507))
+- permit DSN (Delivery Status Notification) in Postfix only on authenticated ports (465 + 587) ([#3572](https://github.com/docker-mailserver/docker-mailserver/pull/3572))
 - Postfix now defaults to supporting DSNs (_[Delivery Status Notifications](https://github.com/docker-mailserver/docker-mailserver/pull/3572#issuecomment-1751880574)_) only for authenticated users. This is a security measure to reduce spammer abuse of your DMS instance as a backscatter source.
   - If you need to modify this change, please let us know by opening an issue / discussion.
-  - You can [opt-out (_enable DSNs_) via the `postfix-main.cf` override support](https://docker-mailserver.github.io/docker-mailserver/v12.1/config/advanced/override-defaults/postfix/) using the contents: `smtpd_discard_ehlo_keywords =`.
+  - You can [opt out (_enable DSNs_) via the `postfix-main.cf` override support](https://docker-mailserver.github.io/docker-mailserver/v12.1/config/advanced/override-defaults/postfix/) using the contents: `smtpd_discard_ehlo_keywords =`.
   - Likewise for authenticated users, the submission(s) ports (465 + 587) are configured internally via `master.cf` to keep DSNs enabled (_since authentication protects from abuse_).
 
     If necessary, DSNs for authenticated users can be disabled via the `postfix-master.cf` override with the following contents:
@@ -21,11 +28,87 @@ All notable changes to this project will be documented in this file. The format 
     submissions/inet/smtpd_discard_ehlo_keywords=silent-discard,dsn
     ```
 
-- using the old path for the Rspamd custom commands file (`/tmp/docker-mailserver/rspamd-modules.conf`), which was deprecated, will now prevent startup; use `/tmp/docker-mailserver/rspamd/custom-commands.conf` instead
-
 ### Added
 
-- New environment variable `MARK_SPAM_AS_READ`. When set to `1`, marks incoming junk as "read" to avoid unwanted notification of junk as new mail ([#3489](https://github.com/docker-mailserver/docker-mailserver/pull/3489))
+- new environment variable `MARK_SPAM_AS_READ`. When set to `1`, marks incoming junk as "read" to avoid unwanted notification of junk as new mail ([#3489](https://github.com/docker-mailserver/docker-mailserver/pull/3489))
+- added note advising caution changing `mydestination` in Postfix's `main.cf` ([#3316](https://github.com/docker-mailserver/docker-mailserver/pull/3316))
+- added checks to `CLAMAV_MESSAGE_SIZE_LIMIT` usage, improving its reliability ([#3332](https://github.com/docker-mailserver/docker-mailserver/pull/3332))
+- add a warning for the internal message size limit of ClamAV ([#3341](https://github.com/docker-mailserver/docker-mailserver/pull/3341))
+- added `getmail` as an alternative to `fetchmail` ([#2803](https://github.com/docker-mailserver/docker-mailserver/pull/2803))
+- when `SPAM_TO_INBOX=1`, add info about `SA_KILL` ([#3360](https://github.com/docker-mailserver/docker-mailserver/pull/3360))
+- added syntax check to Bash linters ([#3369](https://github.com/docker-mailserver/docker-mailserver/pull/3369))
+- new in our documentation
+  - add note about DMS FQDN ([#3372](https://github.com/docker-mailserver/docker-mailserver/pull/3372))
+  - add compatibility section to debugging page ([#3404](https://github.com/docker-mailserver/docker-mailserver/pull/3404))
+  - added new paragraphs to about Rspamd ([#3318](https://github.com/docker-mailserver/docker-mailserver/pull/3318), [#3325](https://github.com/docker-mailserver/docker-mailserver/pull/3325), [#3329](https://github.com/docker-mailserver/docker-mailserver/pull/3329))
+  - IPv6 config examples with content tabs ([#3436](https://github.com/docker-mailserver/docker-mailserver/pull/3436))
+  - adding tool to testing links ([#3445](https://github.com/docker-mailserver/docker-mailserver/pull/3445))****
+  - documentation for iOS mail push support ([#3513](https://github.com/docker-mailserver/docker-mailserver/pull/3513))
+  - include `passthrough=true` on implicit ports for Traefik example ([#3568](https://github.com/docker-mailserver/docker-mailserver/pull/3568))
+  - add an example for an alias with multiple recipients ([#3600](https://github.com/docker-mailserver/docker-mailserver/pull/3600))
+- added `fail2ban` sub-command `status <JAIL>` ([#3455](https://github.com/docker-mailserver/docker-mailserver/pull/3455))
+- added option to disable all checks for authentication users in Rspamd ([#3440](https://github.com/docker-mailserver/docker-mailserver/pull/3440))
+- allow marking spam as read via a sieve filter (`MARK_SPAM_AS_READ=1`) ([#3489](https://github.com/docker-mailserver/docker-mailserver/pull/3489))
+- add wrapper to update Postfix configuration safely ([#3484](https://github.com/docker-mailserver/docker-mailserver/pull/3484), [#3503](https://github.com/docker-mailserver/docker-mailserver/pull/3503))
+- allow changing the Dovecot vmail UID/GID via ENV ([#3550](https://github.com/docker-mailserver/docker-mailserver/pull/3550))
+- add debug group to `packages.sh` ([#3578](https://github.com/docker-mailserver/docker-mailserver/pull/3578))
+- add Dovecot Lua authentication guide to our documentation and added the required package ([#3579](https://github.com/docker-mailserver/docker-mailserver/pull/3579))
+
+### Updates
+
+- `Dockerfile` now aligns better with Compose v2 ([#3295](([#3295](https://github.com/docker-mailserver/docker-mailserver/pull/3295))))
+- improved GitHub issue templates ([#3317](https://github.com/docker-mailserver/docker-mailserver/pull/3317), [#3381](https://github.com/docker-mailserver/docker-mailserver/pull/3381), [#3502](https://github.com/docker-mailserver/docker-mailserver/pull/3502))
+- Rspamd
+  - adjust learning of ham ([#3334](https://github.com/docker-mailserver/docker-mailserver/pull/3334))
+  - adjust `antivirus.conf` ([#3331](https://github.com/docker-mailserver/docker-mailserver/pull/3331))
+  - `logrotate` setup + Rspamd log path + tests log helper fallback path ([#3576](https://github.com/docker-mailserver/docker-mailserver/pull/3576))
+  - more resilient setup ([#3578](https://github.com/docker-mailserver/docker-mailserver/pull/3578))
+  - change DKIM default config location ([#3597](https://github.com/docker-mailserver/docker-mailserver/pull/3597))
+  - remove the linking of the `override.d` directory and just use `cp`; integration into the changedetector service, added a `--force` option for the Rspamd DKIM management; provided a dedicated helper script for common ENV variables ([#3599](https://github.com/docker-mailserver/docker-mailserver/pull/3599))
+  - add check for DKIM private key files' permissions ([#3627](https://github.com/docker-mailserver/docker-mailserver/pull/3627))
+- changed internal script style ([#3361](https://github.com/docker-mailserver/docker-mailserver/pull/3361), [#3364](https://github.com/docker-mailserver/docker-mailserver/pull/3364), [#3365](https://github.com/docker-mailserver/docker-mailserver/pull/3365), [#3366](https://github.com/docker-mailserver/docker-mailserver/pull/3366), [#3368](https://github.com/docker-mailserver/docker-mailserver/pull/3368), [#3464](https://github.com/docker-mailserver/docker-mailserver/pull/3464))
+- bumped versions of miscellaneous software (also shoutout to @dependabot) ([#3371](https://github.com/docker-mailserver/docker-mailserver/pull/3371), [#3584](https://github.com/docker-mailserver/docker-mailserver/pull/3584), [#3504](https://github.com/docker-mailserver/docker-mailserver/pull/3504), [#3516](https://github.com/docker-mailserver/docker-mailserver/pull/3516))
+- updated log instructions for Dovecot Sieve ([#3370](https://github.com/docker-mailserver/docker-mailserver/pull/3370))
+- concerning our documentation
+  - restored missing edit button ([#3338](https://github.com/docker-mailserver/docker-mailserver/pull/3338))
+  - rewrite IPv6 page ([#3244](https://github.com/docker-mailserver/docker-mailserver/pull/3244))
+  - drop mention of port 25 support for authenticated submission ([#3496](https://github.com/docker-mailserver/docker-mailserver/pull/3496), [#3435](https://github.com/docker-mailserver/docker-mailserver/pull/3435))
+  - fix IPv6 example for Compose ([#3531](https://github.com/docker-mailserver/docker-mailserver/pull/3531))
+  - revise `update-and-cleanup.md` ([#3539](https://github.com/docker-mailserver/docker-mailserver/pull/3539))
+  - revise `watchtower` page ([#3583](https://github.com/docker-mailserver/docker-mailserver/pull/3583))
+  - fix path to `rspamd.log` ([#3585](https://github.com/docker-mailserver/docker-mailserver/pull/3585))
+  - improve docs about how to work with logs ([#3626](https://github.com/docker-mailserver/docker-mailserver/pull/3626))
+  - update Rspamd directory name ([#3629](https://github.com/docker-mailserver/docker-mailserver/pull/3629))
+  - clarify default for ENV `FETCHMAIL_PARALLEL` ([#3603](https://github.com/docker-mailserver/docker-mailserver/pull/3603))
+  - fix spelling & remove dedicated AllContributors section ([#3638](https://github.com/docker-mailserver/docker-mailserver/pull/3638))
+  - correct path for logs in docs ([#3640](https://github.com/docker-mailserver/docker-mailserver/pull/3640))
+- tests
+  - refactor LDAP tests to current conventions ([#3483](https://github.com/docker-mailserver/docker-mailserver/pull/3483))
+  - change OpenLDAP image to `bitnami/openldap` ([#3494](https://github.com/docker-mailserver/docker-mailserver/pull/3494))
+  - revise LDAP config + setup ([#3514](https://github.com/docker-mailserver/docker-mailserver/pull/3514))
+  - add tests for helper function `_add_to_or_update_postfix_main()` ([#3505](https://github.com/docker-mailserver/docker-mailserver/pull/3505))
+- clarify that the issue tracker is not for personal support ([#3498](https://github.com/docker-mailserver/docker-mailserver/pull/3498))
+- change `setup config dkim` default key size to `2048` (`open-dkim`) ([#3508](https://github.com/docker-mailserver/docker-mailserver/pull/3508))
+- LDAP config improvements ([#3522](https://github.com/docker-mailserver/docker-mailserver/pull/3522))
+- ensure files are committed with `eol=lf` via `.gitattributes` ([#3527](https://github.com/docker-mailserver/docker-mailserver/pull/3527))
+- drop special bits from Postfix `maildrop/` and `public/` directory permissions ([#3625](https://github.com/docker-mailserver/docker-mailserver/pull/3625))
+
+### Fixed
+
+- miscellaneous spelling and wording improvements ([#3324](https://github.com/docker-mailserver/docker-mailserver/pull/3324), [#3330](https://github.com/docker-mailserver/docker-mailserver/pull/3330), [#3337](https://github.com/docker-mailserver/docker-mailserver/pull/3337), [#3339](https://github.com/docker-mailserver/docker-mailserver/pull/3339), [#3344](https://github.com/docker-mailserver/docker-mailserver/pull/3344), [#3367](https://github.com/docker-mailserver/docker-mailserver/pull/3367), [#3411](https://github.com/docker-mailserver/docker-mailserver/pull/3411), [#3443](https://github.com/docker-mailserver/docker-mailserver/pull/3443))
+- fix scheduled build permissions ([#3345](https://github.com/docker-mailserver/docker-mailserver/pull/3345))
+- DB now properly filters user and alias entries ([#3359](https://github.com/docker-mailserver/docker-mailserver/pull/3359))
+- fix ShellCheck linting for BATS tests ([#3347](https://github.com/docker-mailserver/docker-mailserver/pull/3347))
+- compile Dovecot `fts_xapian` from source to match Dovecot ABI ([#3373](https://github.com/docker-mailserver/docker-mailserver/pull/3373))
+- do not register `_setup_spam_to_junk()` when `SMTP_ONLY=1` ([#3385](https://github.com/docker-mailserver/docker-mailserver/pull/3385))
+- fixed issue with concatenating `$dmarc_milter` and `$dkim_milter` in `main.cf` ([#3380](https://github.com/docker-mailserver/docker-mailserver/pull/3380))
+- fixed Rspamd DKIM signing for inbound emails ([#3439](https://github.com/docker-mailserver/docker-mailserver/pull/3439), [#3453](https://github.com/docker-mailserver/docker-mailserver/pull/3453))
+- improvements to LDIF test data ([#3506](https://github.com/docker-mailserver/docker-mailserver/pull/3506))
+- tests
+  - run `pgrep` within the actual container ([#3553](https://github.com/docker-mailserver/docker-mailserver/pull/3553))
+  - `lmtp_ip.bats` improve partial failure output ([#3552](https://github.com/docker-mailserver/docker-mailserver/pull/3552))
+  - normalize for `.gitattributes` + improve `eclint` coverage ([#3566](https://github.com/docker-mailserver/docker-mailserver/pull/3566))
+- Open-DKIM key generation was broken when Rspamd was also enabled ([#3535](https://github.com/docker-mailserver/docker-mailserver/pull/3535))
 
 ## [v12.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v12.1.0)
 
@@ -38,7 +121,7 @@ All notable changes to this project will be documented in this file. The format 
   - add option to re-enable `reject_unknown_client_hostname` after #3248 ([#3255](https://github.com/docker-mailserver/docker-mailserver/pull/3255))
   - add DKIM helper script ([#3286](https://github.com/docker-mailserver/docker-mailserver/pull/3286))
 - make `policyd-spf` configurable ([#3246](https://github.com/docker-mailserver/docker-mailserver/pull/3246))
-- add 'log' command to setup for Fail2Ban ([#3299](https://github.com/docker-mailserver/docker-mailserver/pull/3299))
+- add 'log' command to set up for Fail2Ban ([#3299](https://github.com/docker-mailserver/docker-mailserver/pull/3299))
 - `setup` command now expects accounts and aliases to be mutually exclusive ([#3270](https://github.com/docker-mailserver/docker-mailserver/pull/3270))
 
 ### Updated
