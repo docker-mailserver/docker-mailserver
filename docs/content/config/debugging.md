@@ -73,6 +73,7 @@ This could be from outdated software, or running a system that isn't able to pro
 
 ### System
 
+- **macOS:** DMS has limited support for macOS. Often an issue encountered is due to permissions related to the `volumes` config in `compose.yaml`. You may have luck [trying `gRPC FUSE`][gh-macos-support] as the file sharing implementation; [`VirtioFS` is the successor][docker-macos-virtiofs] but presently appears incompatible with DMS.
 - **Kernel:** Some systems provide [kernels with modifications (_replacing defaults and backporting patches_)][network::kernels-modified] to support running legacy software or kernels, complicating compatibility. This can be commonly experienced with products like NAS.
 - **CGroups v2:** Hosts running older kernels (prior to 5.2) and systemd (prior to v244) are not likely to leverage cgroup v2, or have not defaulted to the cgroup v2 `unified` hierarchy. Not meeting this baseline may influence the behaviour of your DMS container, even with the latest Docker Engine installed.
 - **Container runtime:** Docker and Podman for example have subtle differences. DMS docs are primarily focused on Docker, but we try to document known issues where relevant.
@@ -85,13 +86,16 @@ This could be from outdated software, or running a system that isn't able to pro
 [network::kernels-modified]: https://github.com/docker-mailserver/docker-mailserver/pull/2662#issuecomment-1168435970
 [network::kernel-nftables]: https://unix.stackexchange.com/questions/596493/can-nftables-and-iptables-ip6tables-rules-be-applied-at-the-same-time-if-so-wh/596497#596497
 
-[docs-faq]: ../faq.md
 [docs-environment-log-level]: ./environment.md#log_level
+[docs-faq]: ../faq.md
 [docs-ipv6]: ./advanced/ipv6.md
 [docs-introduction]: ../introduction.md
+[docs-rootless-portdriver]: ./security/fail2ban.md#running-inside-a-rootless-container
 [docs-usage]: ../usage.md
+
 [gh-issues]: https://github.com/docker-mailserver/docker-mailserver/issues
+[gh-macos-support]: https://github.com/docker-mailserver/docker-mailserver/issues/3648#issuecomment-1822774080
 [gh-discuss-roundcube-fail2ban]: https://github.com/orgs/docker-mailserver/discussions/3273#discussioncomment-5654603
 
 [docker-rootless-interface]: https://github.com/moby/moby/issues/45742
-[docs-rootless-portdriver]: ./security/fail2ban.md#running-inside-a-rootless-container
+[docker-macos-virtiofs]: https://www.docker.com/blog/speed-boost-achievement-unlocked-on-docker-desktop-4-6-for-mac/
