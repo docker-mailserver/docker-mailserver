@@ -2139,6 +2139,7 @@
 </ul>
 <h3 id="system"><a class="toclink" href="#system">System</a></h3>
 <ul>
+<li><strong>macOS:</strong> DMS has limited support for macOS. Often an issue encountered is due to permissions related to the <code>volumes</code> config in <code>compose.yaml</code>. You may have luck <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3648#issuecomment-1822774080">trying <code>gRPC FUSE</code></a> as the file sharing implementation; <a href="https://www.docker.com/blog/speed-boost-achievement-unlocked-on-docker-desktop-4-6-for-mac/"><code>VirtioFS</code> is the successor</a> but presently appears incompatible with DMS.</li>
 <li><strong>Kernel:</strong> Some systems provide <a href="https://github.com/docker-mailserver/docker-mailserver/pull/2662#issuecomment-1168435970">kernels with modifications (<em>replacing defaults and backporting patches</em>)</a> to support running legacy software or kernels, complicating compatibility. This can be commonly experienced with products like NAS.</li>
 <li><strong>CGroups v2:</strong> Hosts running older kernels (prior to 5.2) and systemd (prior to v244) are not likely to leverage cgroup v2, or have not defaulted to the cgroup v2 <code>unified</code> hierarchy. Not meeting this baseline may influence the behaviour of your DMS container, even with the latest Docker Engine installed.</li>
 <li><strong>Container runtime:</strong> Docker and Podman for example have subtle differences. DMS docs are primarily focused on Docker, but we try to document known issues where relevant.</li>
