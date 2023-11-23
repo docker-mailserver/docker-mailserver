@@ -1948,8 +1948,8 @@ There are global and user specific filters which are filtering the incoming emai
 </ul>
 <p>Global filters are applied to EVERY incoming mail for EVERY email address.
 To specify a global Sieve filter provide a <code>docker-data/dms/config/before.dovecot.sieve</code> or a <code>docker-data/dms/config/after.dovecot.sieve</code> file with your filter rules.
-If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters(e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)</p>
-<p>To specify a user-defined Sieve filter place a <code>.dovecot.sieve</code> file into a virtual user's mail folder e.g. <code>/var/mail/example.com/user1/.dovecot.sieve</code>. If this file exists dovecot will apply the filtering rules.</p>
+If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters (e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)</p>
+<p>To specify a user-defined Sieve filter place a <code>.dovecot.sieve</code> file into a virtual user's mail folder (e.g. <code>/var/mail/example.com/user1/home/.dovecot.sieve</code>). If this file exists dovecot will apply the filtering rules.</p>
 <p>It's even possible to install a user provided Sieve filter at startup during users setup: simply include a Sieve file in the <code>docker-data/dms/config/</code> path for each user login that needs a filter. The file name provided should be in the form <code>&lt;user_login&gt;.dovecot.sieve</code>, so for example for <code>user1@example.com</code> you should provide a Sieve file named <code>docker-data/dms/config/user1@example.com.dovecot.sieve</code>.</p>
 <p>An example of a sieve filter that moves mails to a folder <code>INBOX/spam</code> depending on the sender address:</p>
 <div class="admonition example">
