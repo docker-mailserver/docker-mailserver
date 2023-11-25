@@ -186,6 +186,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/crowdsec/</loc>
+         <lastmod>2023-11-25</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/docker-build/</loc>
          <lastmod>2023-11-25</lastmod>
          <changefreq>daily</changefreq>
