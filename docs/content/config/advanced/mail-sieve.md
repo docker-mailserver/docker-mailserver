@@ -11,9 +11,9 @@ There are global and user specific filters which are filtering the incoming emai
 
 Global filters are applied to EVERY incoming mail for EVERY email address.
 To specify a global Sieve filter provide a `docker-data/dms/config/before.dovecot.sieve` or a `docker-data/dms/config/after.dovecot.sieve` file with your filter rules.
-If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters(e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)
+If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters (e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)
 
-To specify a user-defined Sieve filter place a `.dovecot.sieve` file into a virtual user's mail folder e.g. `/var/mail/example.com/user1/.dovecot.sieve`. If this file exists dovecot will apply the filtering rules.
+To specify a user-defined Sieve filter place a `.dovecot.sieve` file into a virtual user's mail folder (e.g. `/var/mail/example.com/user1/home/.dovecot.sieve`). If this file exists dovecot will apply the filtering rules.
 
 It's even possible to install a user provided Sieve filter at startup during users setup: simply include a Sieve file in the `docker-data/dms/config/` path for each user login that needs a filter. The file name provided should be in the form `<user_login>.dovecot.sieve`, so for example for `user1@example.com` you should provide a Sieve file named `docker-data/dms/config/user1@example.com.dovecot.sieve`.
 
