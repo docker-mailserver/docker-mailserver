@@ -17,11 +17,14 @@ SHELLCHECK_VERSION='0.9.0'
 source "${REPOSITORY_ROOT}/target/scripts/helpers/log.sh"
 
 function _eclint() {
+  # `/check` is used instead of `/ci` as the mount path due to:
+  # https://github.com/editorconfig-checker/editorconfig-checker/issues/268#issuecomment-1826200253
+  # `.ecrc.json` continues to explicitly ignores the `.git/` path to avoid any potential confusion
   if docker run --rm --tty \
-    --volume "${REPOSITORY_ROOT}:/ci:ro" \
-    --workdir "/ci" \
+    --volume "${REPOSITORY_ROOT}:/check:ro" \
+    --workdir "/check" \
     --name dms-test_eclint \
-    "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec -config "/ci/test/linting/.ecrc.json"
+    "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec -config "/check/test/linting/.ecrc.json"
   then
     _log 'info' 'ECLint succeeded'
   else
