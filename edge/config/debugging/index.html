@@ -2085,7 +2085,25 @@
 <ul>
 <li>Check that all published DMS ports are actually open and not blocked by your ISP / hosting provider.</li>
 <li>SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself.</li>
+<li>Ensure that you have correctly started DMS. Many problems related to configuration are due to this.</li>
 </ul>
+<div class="admonition danger">
+<p class="admonition-title">Correctly starting DMS</p>
+<p>Use the <a href="https://docs.docker.com/compose/reference/up/"><code>--force-recreate</code></a> option to avoid configuration mishaps: <code>docker compose up --force-recreate</code></p>
+<p>Alternatively, always use <code>docker compose down</code> to stop DMS. <strong>Do not</strong> rely on <code>CTRL + C</code>, <code>docker compose stop</code>, or <code>docker compose restart</code>.</p>
+<hr />
+<p>DMS setup scripts are run when a container starts, but may fail to work properly if you do the following:</p>
+<ul>
+<li>Stopping a container with commands like: <code>docker stop</code> or <code>docker compose up</code> stopped via <code>CTRL + C</code> instead of <code>docker compose down</code>.</li>
+<li>Restarting a container.</li>
+</ul>
+<p>Volumes persist data across container instances, however the same container instance will keep internal changes not stored in a volume until the container is removed.</p>
+<p>Due to this, DMS setup scripts may modify configuration it has already modified in the past.</p>
+<ul>
+<li>This is brittle as some changes are naive by assuming they are applied to the original configs from the image.</li>
+<li>Volumes in <code>compose.yaml</code> are expected to persist any important data. Thus it should be safe to throwaway the container created each time, avoiding this config problem.</li>
+</ul>
+</div>
 <h3 id="mail-sent-from-dms-does-not-arrive-at-destination"><a class="toclink" href="#mail-sent-from-dms-does-not-arrive-at-destination">Mail sent from DMS does not arrive at destination</a></h3>
 <p>Some service providers block outbound traffic on port 25. Common hosting providers known to have this issue:</p>
 <ul>
