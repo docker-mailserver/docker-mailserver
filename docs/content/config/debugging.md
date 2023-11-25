@@ -14,6 +14,27 @@ This page contains valuable information when it comes to resolving issues you en
 
 - Check that all published DMS ports are actually open and not blocked by your ISP / hosting provider.
 - SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself.
+- Ensure that you have correctly started DMS. Many problems related to configuration are due to this.
+
+!!! danger "Correctly starting DMS"
+
+    Use the [`--force-recreate`][docker-docs::force-recreate] option to avoid configuration mishaps: `docker compose up --force-recreate`
+
+    Alternatively, always use `docker compose down` to stop DMS. **Do not** rely on `CTRL + C`, `docker compose stop`, or `docker compose restart`.
+
+    ---
+
+    DMS setup scripts are run when a container starts, but may fail to work properly if you do the following:
+
+    - Stopping a container with commands like: `docker stop` or `docker compose up` stopped via `CTRL + C` instead of `docker compose down`.
+    - Restarting a container.
+
+    Volumes persist data across container instances, however the same container instance will keep internal changes not stored in a volume until the container is removed.
+
+    Due to this, DMS setup scripts may modify configuration it has already modified in the past.
+
+    - This is brittle as some changes are naive by assuming they are applied to the original configs from the image.
+    - Volumes in `compose.yaml` are expected to persist any important data. Thus it should be safe to throwaway the container created each time, avoiding this config problem.
 
 ### Mail sent from DMS does not arrive at destination
 
@@ -99,3 +120,4 @@ This could be from outdated software, or running a system that isn't able to pro
 
 [docker-rootless-interface]: https://github.com/moby/moby/issues/45742
 [docker-macos-virtiofs]: https://www.docker.com/blog/speed-boost-achievement-unlocked-on-docker-desktop-4-6-for-mac/
+[docker-docs::force-recreate]: https://docs.docker.com/compose/reference/up/
