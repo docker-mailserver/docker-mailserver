@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+- fixe check update mail loop when update is availlable
+
+
 ## [v13.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.0)
 
 ### Breaking
