@@ -40,7 +40,7 @@ EOF
       _log_with_date 'info' "Update available [ ${VERSION} --> ${LATEST} ]"
 
       # only notify once
-      echo "${MAIL}" | mail -s "Mailserver update available! [ ${VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}" && exit 0
+      echo "${MAIL}" | mail -s "Mailserver update available! [ ${VERSION} --> ${LATEST} ]" "${POSTMASTER_ADDRESS}"
     else
       _log_with_date 'info' 'No update available'
     fi
