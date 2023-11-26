@@ -26,3 +26,4 @@ Fixes #
 - [ ] I have made corresponding changes to the documentation (README.md or the documentation under `docs/`)
 - [ ] If necessary I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
+- [ ] **I have added information about changes made in this PR to `CHANGELOG.md`**
