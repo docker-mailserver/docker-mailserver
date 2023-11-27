@@ -205,6 +205,11 @@ function _install_getmail() {
   apt-get "${QUIET}" autoremove
 }
 
+function _install_utils() {
+  _log 'debug' 'Installing utils sourced from Github'
+  curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq && chmod +x /usr/bin/yq
+}
+
 function _remove_data_after_package_installations() {
   _log 'debug' 'Deleting sensitive files (secrets)'
   rm /etc/postsrsd.secret
@@ -228,5 +233,6 @@ _install_dovecot
 _install_rspamd
 _install_fail2ban
 _install_getmail
+_install_utils
 _remove_data_after_package_installations
 _post_installation_steps

@@ -4,7 +4,7 @@
 source /usr/local/bin/helpers/log.sh
 
 VERSION="${DMS_VERSION#v}"
-VERSION_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION'
+VERSION_URL='https://github.com/docker-mailserver/docker-mailserver/releases/latest'
 CHANGELOG_URL='https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md'
 
 # check for correct syntax
@@ -17,10 +17,10 @@ fi
 
 while true; do
   # get remote version information
-  LATEST=$(curl -Lsf "${VERSION_URL}")
+  LATEST=$(curl -sfL -H 'accept: application/json' "${VERSION_URL}" | yq .tag_name)
 
   # did we get a valid response?
-  if [[ ${LATEST} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  if [[ ${LATEST} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     _log_with_date 'debug' 'Remote version information fetched'
 
     # compare versions
