@@ -17,10 +17,11 @@ fi
 
 while true; do
   # get remote version information
-  LATEST=$(curl -sfL -H 'accept: application/json' "${VERSION_URL}" | yq .tag_name)
+  # JSON response provides a field for the release tag, the `v` prefix is removed with `[1:]`
+  LATEST=$(curl -sfL -H 'accept: application/json' "${VERSION_URL}" | jaq -r '.tag_name[1:]')
 
   # did we get a valid response?
-  if [[ ${LATEST} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  if [[ ${LATEST} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     _log_with_date 'debug' 'Remote version information fetched'
 
     # compare versions

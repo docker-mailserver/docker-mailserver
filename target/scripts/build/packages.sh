@@ -207,7 +207,7 @@ function _install_getmail() {
 
 function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
-  curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/bin/yq && chmod +x /usr/bin/yq
+  curl -sL https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-x86_64-unknown-linux-musl -o /usr/bin/jaq && chmod +x /usr/bin/jaq
 }
 
 function _remove_data_after_package_installations() {
