@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+## [v13.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.1)
+
+### Fixed
+
+- This patch release fixes two bugs that Rspamd users encounter on `v13.0.0` - Big thanks to the those that helped to identify these issues!
+  1. The check for correct permission on the private key when signing e-mails with DKIM was flawed. The result was that a false warning was emitted.
+  2. When `RSPAMD_CHECK_AUTHENTICATED=0`, DKIM signing for outbound e-mail was disabled, which is undesirable.
+
 ## [v13.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.0)
 
 ### Breaking
@@ -78,7 +86,7 @@ All notable changes to this project will be documented in this file. The format 
   - `logrotate` setup + Rspamd log path + tests log helper fallback path ([#3576](https://github.com/docker-mailserver/docker-mailserver/pull/3576))
   - Setup during container startup is now more resilient ([#3578](https://github.com/docker-mailserver/docker-mailserver/pull/3578))
   - Changed DKIM default config location ([#3597](https://github.com/docker-mailserver/docker-mailserver/pull/3597))
-  - Removed the symlink for the `override.d/` directory in favor of using `cp`, integrated into the changedetector service, , added a `--force` option for the Rspamd DKIM management, and provided a dedicated helper script for common ENV variables ([#3599](https://github.com/docker-mailserver/docker-mailserver/pull/3599))
+  - Removed the symlink for the `override.d/` directory in favor of using `cp`, integrated into the changedetector service, added a `--force` option for the Rspamd DKIM management, and provided a dedicated helper script for common ENV variables ([#3599](https://github.com/docker-mailserver/docker-mailserver/pull/3599))
   - Required permissions are now verified for DKIM private key files ([#3627](https://github.com/docker-mailserver/docker-mailserver/pull/3627))
 - **Documentation:**
   - Documentation aligned to Compose v2 conventions, `docker-compose` command changed to `docker compose`, `docker-compose.yaml` to `compose.yaml` ([#3295](https://github.com/docker-mailserver/docker-mailserver/pull/3295))
