@@ -3,7 +3,7 @@
 # shellcheck source=./helpers/log.sh
 source /usr/local/bin/helpers/log.sh
 
-VERSION="${DMS_VERSION#v}"
+VERSION="${DMS_RELEASE#v}"
 VERSION_URL='https://github.com/docker-mailserver/docker-mailserver/releases/latest'
 CHANGELOG_URL='https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md'
 
