@@ -66,18 +66,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 'Acquire the image version'
-        id: get-version
-        shell: bash
-        run: echo "version=$(<VERSION)" >>"${GITHUB_OUTPUT}"
-
       - name: 'Build and publish images'
         uses: docker/build-push-action@v5.1.0
         with:
           context: .
           build-args: |
+            DMS_RELEASE=${{ github.ref_type == 'tag' && github.ref_name || 'edge' }}
             VCS_REVISION=${{ github.sha }}
-            VCS_VERSION=${{ steps.get-version.outputs.version }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.prep.outputs.tags }}
