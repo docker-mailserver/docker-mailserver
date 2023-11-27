@@ -8,11 +8,15 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [v13.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.1)
 
+This patch release fixes two bugs that Rspamd users encounter on `v13.0.0`. Big thanks to the those that helped to identify these issues!
+
 ### Fixed
 
-- This patch release fixes two bugs that Rspamd users encounter on `v13.0.0` - Big thanks to the those that helped to identify these issues!
-  1. The check for correct permission on the private key when signing e-mails with DKIM was flawed. The result was that a false warning was emitted.
-  2. When `RSPAMD_CHECK_AUTHENTICATED=0`, DKIM signing for outbound e-mail was disabled, which is undesirable.
+- **Rspamd:**
+  - The check for correct permission on the private key when signing e-mails with DKIM was flawed. The result was that a false warning was emitted ([#3669](https://github.com/docker-mailserver/docker-mailserver/pull/3669))
+  - When [`RSPAMD_CHECK_AUTHENTICATED=0`][docs::env-rspamd-check-auth], DKIM signing for outbound e-mail was disabled, which is undesirable ([#3669](https://github.com/docker-mailserver/docker-mailserver/pull/3669))
+
+[docs::env-rspamd-check-auth]: https://docker-mailserver.github.io/docker-mailserver/v13.0/config/environment/#rspamd_check_authenticated
 
 ## [v13.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.0)
 
