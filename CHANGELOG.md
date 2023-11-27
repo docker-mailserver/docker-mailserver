@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Added
+
+
+
+### Updates
+
+
+
+### Fixed
+
+- **Internal:**
+  - The update check service now queries the latest GH release for a version tag instead of a `VERSION` file from the repo.
+
 ## [v13.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.0)
 
 ### Breaking
