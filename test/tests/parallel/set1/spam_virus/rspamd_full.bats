@@ -307,5 +307,5 @@ function teardown_file() { _default_teardown ; }
   _run_in_container grep -E -A 6 'authenticated \{' "${MODULE_FILE}"
   assert_success
   assert_output --partial 'authenticated = yes;'
-  assert_output --partial 'groups_enabled = [];'
+  assert_output --partial 'groups_enabled = [dkim];'
 }
