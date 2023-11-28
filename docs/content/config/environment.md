@@ -366,6 +366,10 @@ The purpose of this setting is to opt-out of starting an internal Redis instance
 
 This settings controls whether checks should be performed on emails coming from authenticated users (i.e. most likely outgoing emails). The default value is `0` in order to align better with SpamAssassin. **We recommend** reading through [the Rspamd documentation on scanning outbound emails][rspamd-scanning-outbound] though to decide for yourself whether you need and want this feature.
 
+!!! note "Not all checks and actions are disabled"
+
+    DKIM signing of e-mails will still happen.
+
 - **0** => No checks will be performed for authenticated users
 - 1 => All default checks will be performed for authenticated users
 

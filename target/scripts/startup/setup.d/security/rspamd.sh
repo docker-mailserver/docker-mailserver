@@ -325,7 +325,7 @@ function __rspamd__check_dkim_permissions() {
       __rspamd__log 'trace' "Checking DKIM file '${FILE}'"
       # See https://serverfault.com/a/829314 for an explanation on `-exec false {} +`
       # We additionally resolve symbolic links to check the permissions of the actual files
-      if find "$(realpath -eL "${FILE}")" -user _rspamd -or -group _rspamd -or -perm -o=r -exec false {} +; then
+      if find "$(realpath -eL "${FILE}")" \( -user _rspamd -or -group _rspamd -or -perm -o=r \) -exec false {} +; then
         __rspamd__log 'warn' "Rspamd DKIM private key file '${FILE}' does not appear to have correct permissions/ownership for Rspamd to use it"
       else
         __rspamd__log 'trace' "DKIM file '${FILE}' permissions and ownership appear correct"
