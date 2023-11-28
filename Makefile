@@ -18,11 +18,7 @@ BATS_PARALLEL_JOBS     ?= 2
 all: lint build generate-accounts tests clean
 
 build: ALWAYS_RUN
-	@ DOCKER_BUILDKIT=1 docker build \
-		--tag $(IMAGE_NAME) \
-		--build-arg VCS_VERSION=$(shell git rev-parse --short HEAD) \
-		--build-arg VCS_REVISION=$(shell cat VERSION) \
-		.
+	@ docker build --tag $(IMAGE_NAME) .
 
 generate-accounts: ALWAYS_RUN
 	@ cp test/config/templates/postfix-accounts.cf test/config/postfix-accounts.cf
