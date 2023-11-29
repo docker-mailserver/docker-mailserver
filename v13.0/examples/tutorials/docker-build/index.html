@@ -1559,22 +1559,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#version" class="md-nav__link">
-    Version
+  <a href="#minimum-supported-version" class="md-nav__link">
+    Minimum supported version
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#environment" class="md-nav__link">
-    Environment
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#build-arguments" class="md-nav__link">
-    Build Arguments
+  <a href="#build-arguments-optional" class="md-nav__link">
+    Build Arguments (Optional)
   </a>
   
 </li>
@@ -1965,22 +1958,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#version" class="md-nav__link">
-    Version
+  <a href="#minimum-supported-version" class="md-nav__link">
+    Minimum supported version
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#environment" class="md-nav__link">
-    Environment
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#build-arguments" class="md-nav__link">
-    Build Arguments
+  <a href="#build-arguments-optional" class="md-nav__link">
+    Build Arguments (Optional)
   </a>
   
 </li>
@@ -2032,23 +2018,32 @@
 <h3 id="submodules"><a class="toclink" href="#submodules">Submodules</a></h3>
 <p>You'll need to retrieve the git submodules prior to building your own Docker image. From within your copy of the git repo run the following to retrieve the submodules and build the Docker image:</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
-docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>&lt;YOUR<span class="w"> </span>CUSTOM<span class="w"> </span>IMAGE<span class="w"> </span>NAME&gt;<span class="w"> </span>.
+docker<span class="w"> </span>build<span class="w"> </span>--tag<span class="w"> </span>&lt;YOUR<span class="w"> </span>CUSTOM<span class="w"> </span>IMAGE<span class="w"> </span>NAME&gt;<span class="w"> </span>.
 </code></pre></div>
 <p>Or, you can clone and retrieve the submodules in one command:</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/docker-mailserver/docker-mailserver
 </code></pre></div>
 <h3 id="about-docker"><a class="toclink" href="#about-docker">About Docker</a></h3>
-<h4 id="version"><a class="toclink" href="#version">Version</a></h4>
-<p>We make use of build-features that require a recent version of Docker. Depending on your distribution, please have a look at <a href="https://docs.docker.com/engine/install/">the official installation documentation for Docker</a> to get the latest version. Otherwise, you may encounter issues, for example with the <code>--link</code> flag for a <a href="https://docs.docker.com/engine/reference/builder/#copy"><code class="highlight"><span class="k">COPY</span></code></a> command.</p>
-<h4 id="environment"><a class="toclink" href="#environment">Environment</a></h4>
-<p>If you are not using <code>make</code> to build the image, note that you will need to provide <code>DOCKER_BUILDKIT=1</code> to the <code>docker build</code> command for the build to succeed.</p>
-<h4 id="build-arguments"><a class="toclink" href="#build-arguments">Build Arguments</a></h4>
-<p>The <code>Dockerfile</code> takes additional, so-called build arguments. These are</p>
-<ol>
-<li><code>VCS_VERSION</code>: the image version (default = edge)</li>
-<li><code>VCS_REVISION</code>: the image revision (default = unknown)</li>
-</ol>
-<p>When using <code>make</code> to build the image, these are filled with proper values. You can build the image without supplying these arguments just fine though.</p>
+<h4 id="minimum-supported-version"><a class="toclink" href="#minimum-supported-version">Minimum supported version</a></h4>
+<p>We make use of build features that require a recent version of Docker. v23.0 or newer is advised, but earlier releases may work.</p>
+<ul>
+<li>To get the latest version for your distribution, please have a look at <a href="https://docs.docker.com/engine/install/">the official installation documentation for Docker</a>.</li>
+<li>If you are using a version of Docker prior to v23.0, you will need to enable BuildKit via the ENV <a href="https://docs.docker.com/build/buildkit/#getting-started"><code>DOCKER_BUILDKIT=1</code></a>.</li>
+</ul>
+<h4 id="build-arguments-optional"><a class="toclink" href="#build-arguments-optional">Build Arguments (Optional)</a></h4>
+<p>The <code>Dockerfile</code> includes several build <a href="https://docs.docker.com/engine/reference/builder/#using-arg-variables"><code>ARG</code></a> instructions that can be configured:</p>
+<ul>
+<li><code>DOVECOT_COMMUNITY_REPO</code>: Install Dovecot from the community repo instead of from Debian (default = 1) </li>
+<li><code>DMS_RELEASE</code>: The image version (default = edge)</li>
+<li><code>VCS_REVISION</code>: The git commit hash used for the build (default = unknown)</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul>
+<li><code>DMS_RELEASE</code> (<em>when not <code>edge</code></em>) will be used to check for updates from our GH releases page at runtime due to the default feature <a href="https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#enable_update_check"><code>ENABLE_UPDATE_CHECK=1</code></a>.</li>
+<li>Both <code>DMS_RELEASE</code> and <code>VCS_REVISION</code> are also used with <code>opencontainers</code> metadata <a href="https://docs.docker.com/engine/reference/builder/#label"><code>LABEL</code></a> instructions.</li>
+</ul>
+</div>
 
 
 

@@ -4284,6 +4284,10 @@ expand_keys = true;
 </ul>
 <h5 id="rspamd_check_authenticated"><a class="toclink" href="#rspamd_check_authenticated">RSPAMD_CHECK_AUTHENTICATED</a></h5>
 <p>This settings controls whether checks should be performed on emails coming from authenticated users (i.e. most likely outgoing emails). The default value is <code>0</code> in order to align better with SpamAssassin. <strong>We recommend</strong> reading through <a href="https://rspamd.com/doc/tutorials/scanning_outbound.html">the Rspamd documentation on scanning outbound emails</a> though to decide for yourself whether you need and want this feature.</p>
+<div class="admonition note">
+<p class="admonition-title">Not all checks and actions are disabled</p>
+<p>DKIM signing of e-mails will still happen.</p>
+</div>
 <ul>
 <li><strong>0</strong> =&gt; No checks will be performed for authenticated users</li>
 <li>1 =&gt; All default checks will be performed for authenticated users</li>
