@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [v13.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.1)
 
-This patch release fixes two bugs that Rspamd users encountered with the `v13.0.0` release. Big thanks to the those that helped to identify these issues! ❤️ 
+This patch release fixes two bugs that Rspamd users encountered with the `v13.0.0` release. Big thanks to the those that helped to identify these issues! ❤️
 
 ### Fixed
 
