@@ -153,7 +153,7 @@ function _register_functions() {
 _early_supervisor_setup
 _early_variables_setup
 
-_log 'info' "Welcome to docker-mailserver $(</VERSION)"
+_log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
 
 _register_functions
 _check

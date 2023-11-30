@@ -6,14 +6,20 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Fixed
+
+- **Internal**:
+  - The container startup welcome log message now references `DMS_RELEASE` ([#3676](https://github.com/docker-mailserver/docker-mailserver/pull/3676))
+  - `VERSION` was incremented for prior releases to be notified of the v13.0.1 patch release ([#3676](https://github.com/docker-mailserver/docker-mailserver/pull/3676))
+
 ## [v13.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.1)
 
-This patch release fixes two bugs that Rspamd users encounter on `v13.0.0`. Big thanks to the those that helped to identify these issues!
+This patch release fixes two bugs that Rspamd users encountered with the `v13.0.0` release. Big thanks to the those that helped to identify these issues! ❤️
 
 ### Fixed
 
 - **Internal:**
-  - The update check service now queries the latest GH release for a version tag instead of a `VERSION` file from the repo.
+  - The update check service now queries the latest GH release for a version tag (_instead of from a `VERSION` file at the GH repo_). This should provide more reliable update notifications ([#3666](https://github.com/docker-mailserver/docker-mailserver/pull/3666))
 - **Rspamd:**
   - The check for correct permission on the private key when signing e-mails with DKIM was flawed. The result was that a false warning was emitted ([#3669](https://github.com/docker-mailserver/docker-mailserver/pull/3669))
   - When [`RSPAMD_CHECK_AUTHENTICATED=0`][docs::env-rspamd-check-auth], DKIM signing for outbound e-mail was disabled, which is undesirable ([#3669](https://github.com/docker-mailserver/docker-mailserver/pull/3669)). **Make sure to check the documentation of [`RSPAMD_CHECK_AUTHENTICATED`][docs::env-rspamd-check-auth]**!
