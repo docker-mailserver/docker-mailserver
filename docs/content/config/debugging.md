@@ -46,6 +46,15 @@ Some service providers block outbound traffic on port 25. Common hosting provide
 
 These links may advise how the provider can unblock the port through additional services offered, or via a support ticket request.
 
+### Mail sent to DMS does not get delivered to user
+
+Common logs related to this are:
+
+- `warning: do not list domain domain.fr in BOTH mydestination and virtual_mailbox_domains`
+- `Recipient address rejected: User unknown in local recipient table`
+
+If your logs look like this, you likely have [assigned the same FQDN to the DMS `hostname` and your mail accounts][gh-issues::dms-fqdn-misconfigured] which is not supported by default. You can either adjust your DMS `hostname` or follow [this FAQ advice][docs::faq-bare-domain]
+
 ## Steps for Debugging DMS
 
 1. **Increase log verbosity**: Very helpful for troubleshooting problems during container startup. Set the environment variable [`LOG_LEVEL`][docs-environment-log-level] to `debug` or `trace`.
@@ -109,12 +118,14 @@ This could be from outdated software, or running a system that isn't able to pro
 
 [docs-environment-log-level]: ./environment.md#log_level
 [docs-faq]: ../faq.md
+[docs::faq-bare-domain]: ../faq.md#can-i-use-a-nakedbare-domain-ie-no-hostname
 [docs-ipv6]: ./advanced/ipv6.md
 [docs-introduction]: ../introduction.md
 [docs-rootless-portdriver]: ./security/fail2ban.md#running-inside-a-rootless-container
 [docs-usage]: ../usage.md
 
 [gh-issues]: https://github.com/docker-mailserver/docker-mailserver/issues
+[gh-issues::dms-fqdn-misconfigured]: https://github.com/docker-mailserver/docker-mailserver/issues/3679#issuecomment-1837609043
 [gh-macos-support]: https://github.com/docker-mailserver/docker-mailserver/issues/3648#issuecomment-1822774080
 [gh-discuss-roundcube-fail2ban]: https://github.com/orgs/docker-mailserver/discussions/3273#discussioncomment-5654603
 
