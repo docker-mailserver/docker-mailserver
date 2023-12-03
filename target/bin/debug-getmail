@@ -15,5 +15,5 @@ else
 fi
 
 for FILE in /etc/getmailrc.d/getmailrc*; do
-  /usr/local/bin/getmail --getmaildir "${GETMAILDIR}" --rcfile "${FILE}" --dump | tail -n +7
+  getmail --getmaildir "${GETMAILDIR}" --rcfile "${FILE}" --dump | tail -n +7
 done
