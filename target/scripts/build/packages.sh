@@ -50,7 +50,7 @@ function _install_utils() {
 function _install_postfix() {
   _log 'debug' 'Installing Postfix'
 
-  _log 'warn' 'Applying workaround for Postfix bug (see https://github.com//issues/2023#issuecomment-855326403)'
+  _log 'warn' 'Applying workaround for Postfix bug (see https://github.com/docker-mailserver/docker-mailserver/issues/2023#issuecomment-855326403)'
 
   # Debians postfix package has a post-install script that expects a valid FQDN hostname to work:
   mv /bin/hostname /bin/hostname.bak
@@ -66,12 +66,19 @@ function _install_postfix() {
 function _install_packages() {
   _log 'debug' 'Installing all packages now'
 
-  ANTI_VIRUS_SPAM_PACKAGES=(
-    amavisd-new clamav clamav-daemon
-    pyzor razor spamassassin
+  local ANTI_VIRUS_SPAM_PACKAGES=(
+    clamav clamav-daemon
+    # spamassassin is used only with amavisd-new and pyzor/razor
+    # are used by spamassasin
+    amavisd-new spamassassin pyzor razor
+    # the following packages are all for Fail2Ban
+    fail2ban python3-pyinotify python3-dnspython
+    # redis-server belongs to rspamd
+    rspamd redis-server
   )
 
-  CODECS_PACKAGES=(
+  # predominatly for Amavis support
+  local CODECS_PACKAGES=(
     altermime arj bzip2
     cabextract cpio file
     gzip lhasa liblz4-tool
@@ -80,24 +87,31 @@ function _install_packages() {
     unrar-free unzip xz-utils
   )
 
-  MISCELLANEOUS_PACKAGES=(
-    apt-transport-https binutils bsd-mailx
-    ca-certificates curl dbconfig-no-thanks
-    dumb-init gnupg iproute2 libdate-manip-perl
-    libldap-common libmail-spf-perl
-    libnet-dns-perl locales logwatch
-    netcat-openbsd nftables rsyslog
-    supervisor uuid whois
+  local MISCELLANEOUS_PACKAGES=(
+    binutils bsd-mailx
+    dbconfig-no-thanks dumb-init iproute2
+    libdate-manip-perl libldap-common libmail-spf-perl libnet-dns-perl
+    locales logwatch netcat-openbsd
+    nftables # primarily for Fail2Ban
+    rsyslog supervisor
+    uuid # used for file-locking
+    whois
   )
 
-  POSTFIX_PACKAGES=(
+  local POSTFIX_PACKAGES=(
     pflogsumm postgrey postfix-ldap
     postfix-pcre postfix-policyd-spf-python postsrsd
   )
 
-  MAIL_PROGRAMS_PACKAGES=(
-    fetchmail opendkim opendkim-tools
+  local MAIL_PROGRAMS_PACKAGES=(
+    opendkim opendkim-tools
     opendmarc libsasl2-modules sasl2-bin
+  )
+
+  # these packages are contributed by the community and not part
+  # of DMS' core set of package
+  local COMMUNITY_PACKAGES=(
+    fetchmail getmail6
   )
 
   # `bind9-dnsutils` provides the `dig` command
@@ -112,7 +126,8 @@ function _install_packages() {
     "${MISCELLANEOUS_PACKAGES[@]}" \
     "${POSTFIX_PACKAGES[@]}" \
     "${MAIL_PROGRAMS_PACKAGES[@]}" \
-    "${DEBUG_PACKAGES[@]}"
+    "${DEBUG_PACKAGES[@]}" \
+    "${COMMUNITY_PACKAGES[@]}"
 }
 
 function _install_dovecot() {
@@ -155,6 +170,10 @@ function _post_installation_steps() {
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
 
+  _log 'debug' 'Patching Fail2ban to enable network bans'
+  # Enable network bans
+  # https://github.com/docker-mailserver/docker-mailserver/issues/2669
+  sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
 }
 
 _pre_installation_steps
