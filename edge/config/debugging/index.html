@@ -855,6 +855,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#mail-sent-to-dms-does-not-get-delivered-to-user" class="md-nav__link">
+    Mail sent to DMS does not get delivered to user
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1991,6 +1998,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#mail-sent-to-dms-does-not-get-delivered-to-user" class="md-nav__link">
+    Mail sent to DMS does not get delivered to user
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2132,6 +2146,13 @@
 <li><a href="https://www.vultr.com/docs/what-ports-are-blocked/">Vultr</a></li>
 </ul>
 <p>These links may advise how the provider can unblock the port through additional services offered, or via a support ticket request.</p>
+<h3 id="mail-sent-to-dms-does-not-get-delivered-to-user"><a class="toclink" href="#mail-sent-to-dms-does-not-get-delivered-to-user">Mail sent to DMS does not get delivered to user</a></h3>
+<p>Common logs related to this are:</p>
+<ul>
+<li><code>warning: do not list domain domain.fr in BOTH mydestination and virtual_mailbox_domains</code></li>
+<li><code>Recipient address rejected: User unknown in local recipient table</code></li>
+</ul>
+<p>If your logs look like this, you likely have <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3679#issuecomment-1837609043">assigned the same FQDN to the DMS <code>hostname</code> and your mail accounts</a> which is not supported by default. You can either adjust your DMS <code>hostname</code> or follow <a href="../../faq/#can-i-use-a-nakedbare-domain-ie-no-hostname">this FAQ advice</a></p>
 <h2 id="steps-for-debugging-dms"><a class="toclink" href="#steps-for-debugging-dms">Steps for Debugging DMS</a></h2>
 <ol>
 <li><strong>Increase log verbosity</strong>: Very helpful for troubleshooting problems during container startup. Set the environment variable <a href="../environment/#log_level"><code>LOG_LEVEL</code></a> to <code>debug</code> or <code>trace</code>.</li>
