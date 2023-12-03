@@ -91,20 +91,22 @@ function _register_functions() {
   _register_setup_function '_setup_dovecot_hostname'
 
   _register_setup_function '_setup_postfix_early'
-  _register_setup_function '_setup_fetchmail'
-  _register_setup_function '_setup_fetchmail_parallel'
 
-  # needs to come after _setup_postfix_early
+  # Dependent upon _setup_postfix_early first calling _create_aliases
+  # Due to conditional check for /etc/postfix/regexp
   _register_setup_function '_setup_spoof_protection'
 
-  _register_setup_function '_setup_getmail'
+  _register_setup_function '_setup_postfix_late'
 
   if [[ ${ENABLE_SRS} -eq 1  ]]; then
     _register_setup_function '_setup_SRS'
     _register_start_daemon '_start_daemon_postsrsd'
   fi
 
-  _register_setup_function '_setup_postfix_late'
+  _register_setup_function '_setup_fetchmail'
+  _register_setup_function '_setup_fetchmail_parallel'
+  _register_setup_function '_setup_getmail'
+
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
