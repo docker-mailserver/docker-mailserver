@@ -32,6 +32,22 @@ clean: ALWAYS_RUN
 	-@ while read -r LINE; do [[ $${LINE} =~ test/.+ ]] && FILES+=("/mnt$${LINE#test}"); done < .gitignore ; \
 		docker run --rm -v "$(REPOSITORY_ROOT)/test/:/mnt" alpine ash -c "rm -rf $${FILES[@]}"
 
+run-local-instance: ALWAYS_RUN
+	bash -c 'sleep 8 ; ./setup.sh email add postmaster@example.test 123' &
+	docker run --rm --interactive --tty --name dms-test_example \
+		--env OVERRIDE_HOSTNAME=mail.example.test \
+		--env POSTFIX_INET_PROTOCOLS=ipv4 \
+		--env DOVECOT_INET_PROTOCOLS=ipv4 \
+		--env ENABLE_CLAMAV=0 \
+		--env ENABLE_AMAVIS=0 \
+		--env ENABLE_RSPAMD=0 \
+		--env ENABLE_OPENDKIM=0 \
+		--env ENABLE_OPENDMARC=0 \
+		--env ENABLE_POLICYD_SPF=0 \
+		--env ENABLE_SPAMASSASSIN=0 \
+		--env LOG_LEVEL=trace \
+		$(IMAGE_NAME)
+
 # -----------------------------------------------
 # --- Tests  ------------------------------------
 # -----------------------------------------------
