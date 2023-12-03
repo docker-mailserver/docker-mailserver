@@ -2128,6 +2128,10 @@
 <p>This likewise delays the reporting of test-case failures. When troubleshooting parallel set tests, you may prefer to run specific tests you're working on serially (<em>as demonstrated in the example below</em>).</p>
 <p>When writing tests, ensure that parallel set tests still pass when run in parallel. You need to account for other tests running in parallel that may interfere with your own tests logic.</p>
 </div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You may use <code>make run-local-instance</code> to run a version of the image built locally to test and edit your changes in a running DMS instance.</p>
+</div>
 <h3 id="an-example"><a class="toclink" href="#an-example">An Example</a></h3>
 <p>In this example, you've made a change to the Rspamd feature support (<em>or adjusted it's tests</em>). First verify no regressions have been introduced by running it's specific test file:</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>make<span class="w"> </span>clean<span class="w"> </span>generate-accounts<span class="w"> </span>test/rspamd
