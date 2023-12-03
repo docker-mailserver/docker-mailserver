@@ -27,6 +27,11 @@ function _pre_installation_steps() {
   apt-get "${QUIET}" upgrade
 }
 
+function _install_utils() {
+  _log 'debug' 'Installing utils sourced from Github'
+  curl -sL https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-x86_64-unknown-linux-musl -o /usr/bin/jaq && chmod +x /usr/bin/jaq
+}
+
 function _install_postfix() {
   _log 'debug' 'Installing Postfix'
 
@@ -127,31 +132,19 @@ function _install_dovecot() {
   apt-get "${QUIET}" --no-install-recommends install libxapian30
 }
 
-function _install_utils() {
-  _log 'debug' 'Installing utils sourced from Github'
-  curl -sL https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-x86_64-unknown-linux-musl -o /usr/bin/jaq && chmod +x /usr/bin/jaq
-}
-
-function _remove_data_after_package_installations() {
-  _log 'debug' 'Deleting sensitive files (secrets)'
-  rm /etc/postsrsd.secret
-
-  _log 'debug' 'Deleting default logwatch cronjob'
-  rm /etc/cron.daily/00logwatch
-}
-
 function _post_installation_steps() {
   _log 'debug' 'Running post-installation steps (cleanup)'
+  _log 'debug' 'Deleting default logwatch cronjob'
+  rm /etc/cron.daily/00logwatch
+  _log 'trace' 'Removing leftovers from APT'
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
 
-  _log 'info' 'Finished installing packages'
 }
 
 _pre_installation_steps
+_install_utils
 _install_postfix
 _install_packages
 _install_dovecot
-_install_utils
-_remove_data_after_package_installations
 _post_installation_steps
