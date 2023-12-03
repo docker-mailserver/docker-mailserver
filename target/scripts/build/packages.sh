@@ -21,7 +21,15 @@ function _pre_installation_steps() {
   apt-get "${QUIET}" update
 
   _log 'trace' 'Installing packages that are needed early'
-  apt-get "${QUIET}" install --no-install-recommends apt-utils 2>/dev/null
+  # add packages usually required by apt to
+  # - not log unnecessary warnings
+  # - be able to add PPAs early (e.g., Rspamd)
+  local EARLY_PACKAGES=(
+    apt-utils # avoid useless warnings
+    apt-transport-https ca-certificates curl gnupg # required for adding PPAs
+    systemd-standalone-sysusers # avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953)
+  )
+  apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
 
   _log 'trace' 'Upgrading packages'
   apt-get "${QUIET}" upgrade
