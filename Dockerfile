@@ -247,8 +247,9 @@ RUN <<EOF
   sedfile -i -e 's/^\(POLICYHELPER=\).*/\1/' /usr/sbin/invoke-rc.d
   # prevent syslog warning about imklog permissions
   sedfile -i -e 's/^module(load=\"imklog\")/#module(load=\"imklog\")/' /etc/rsyslog.conf
-  # prevent email when /sbin/init or init system is not existing
-  sedfile -i -e 's|invoke-rc.d rsyslog rotate > /dev/null|/usr/bin/supervisorctl signal hup rsyslog >/dev/null|g' /usr/lib/rsyslog/rsyslog-rotate
+  # this change is for our alternative process manager rather than part of
+  # a fix related to the change preceding it.
+  echo -e '\n/usr/bin/supervisorctl signal hup rsyslog >/dev/null' >>/usr/lib/rsyslog/rsyslog-rotate
 EOF
 
 # -----------------------------------------------
