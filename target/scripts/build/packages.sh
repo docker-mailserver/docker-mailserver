@@ -1,9 +1,12 @@
 #!/bin/bash
 
-# -eE :: exit on error (do this in functions as well)
-# -u  :: show (and exit) when using unset variables
+# -eE         :: exit on error (do this in functions as well)
+# -u          :: show (and exit) when using unset variables
 # -o pipefail :: exit on error in pipes
 set -eE -u -o pipefail
+
+# shellcheck source=/dev/null
+source /etc/os-release
 
 # shellcheck source=../helpers/log.sh
 source /usr/local/bin/helpers/log.sh
@@ -93,10 +96,7 @@ function _install_packages() {
 }
 
 function _install_dovecot() {
-  declare -a DOVECOT_PACKAGES
-
-  # Dovecot packages for officially supported features.
-  DOVECOT_PACKAGES=(
+  local DOVECOT_PACKAGES=(
     dovecot-core dovecot-imapd
     dovecot-ldap dovecot-lmtpd dovecot-managesieved
     dovecot-pop3d dovecot-sieve dovecot-solr
@@ -111,7 +111,7 @@ function _install_dovecot() {
     _log 'trace' 'Using Dovecot community repository'
     curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
     gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
-    echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/bullseye bullseye main" > /etc/apt/sources.list.d/dovecot.list
+    echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/${VERSION_CODENAME} ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/dovecot.list
 
     _log 'trace' 'Updating Dovecot package signatures'
     apt-get "${QUIET}" update
