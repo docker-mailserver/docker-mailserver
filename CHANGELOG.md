@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Breaking
 
+- updated packages: for an overview, [we have a review comment on the PR that introduces Debian 12](https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1694563615)
 - Postfix
   - `postscreen_dnsbl_whitelist_threshold` was renamed to `postscreen_dnsbl_allowlist_threshold`: this may affect users that monitor logs affected by this change (<https://www.postfix.org/COMPATIBILITY_README.html#respectful_logging>) ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
   - `compatibility_level` was raised from `2` to `3.6` ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
