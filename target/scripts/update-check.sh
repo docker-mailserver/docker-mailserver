@@ -3,8 +3,8 @@
 # shellcheck source=./helpers/log.sh
 source /usr/local/bin/helpers/log.sh
 
-VERSION=$(</VERSION)
-VERSION_URL='https://raw.githubusercontent.com/docker-mailserver/docker-mailserver/master/VERSION'
+VERSION="${DMS_RELEASE#v}"
+VERSION_URL='https://github.com/docker-mailserver/docker-mailserver/releases/latest'
 CHANGELOG_URL='https://github.com/docker-mailserver/docker-mailserver/blob/master/CHANGELOG.md'
 
 # check for correct syntax
@@ -17,7 +17,8 @@ fi
 
 while true; do
   # get remote version information
-  LATEST=$(curl -Lsf "${VERSION_URL}")
+  # JSON response provides a field for the release tag, the `v` prefix is removed with `[1:]`
+  LATEST=$(curl -sfL -H 'accept: application/json' "${VERSION_URL}" | jaq -r '.tag_name[1:]')
 
   # did we get a valid response?
   if [[ ${LATEST} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then

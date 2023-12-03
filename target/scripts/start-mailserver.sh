@@ -120,7 +120,7 @@ function _register_functions() {
 
   [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
 
-  [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
+  [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && [[ ${DMS_RELEASE} != 'edge' ]] && _register_start_daemon '_start_daemon_update_check'
 
   # The order here matters: Since Rspamd is using Redis, Redis should be started before Rspamd.
   [[ ${ENABLE_RSPAMD_REDIS}     -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_redis'
@@ -153,7 +153,7 @@ function _register_functions() {
 _early_supervisor_setup
 _early_variables_setup
 
-_log 'info' "Welcome to docker-mailserver $(</VERSION)"
+_log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
 
 _register_functions
 _check
