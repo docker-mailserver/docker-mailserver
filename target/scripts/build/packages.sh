@@ -127,69 +127,6 @@ function _install_dovecot() {
   apt-get "${QUIET}" --no-install-recommends install libxapian30
 }
 
-function _install_rspamd() {
-  _log 'trace' 'Adding Rspamd package signatures'
-  local DEB_FILE='/etc/apt/sources.list.d/rspamd.list'
-
-  curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
-  local URL='[signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main'
-  echo "deb ${URL}" >"${DEB_FILE}"
-
-  _log 'debug' 'Installing Rspamd'
-  apt-get "${QUIET}" update
-  apt-get "${QUIET}" --no-install-recommends install 'rspamd' 'redis-server'
-}
-
-function _install_fail2ban() {
-  local FAIL2BAN_DEB_URL='https://github.com/fail2ban/fail2ban/releases/download/1.0.2/fail2ban_1.0.2-1.upstream1_all.deb'
-  local FAIL2BAN_DEB_ASC_URL="${FAIL2BAN_DEB_URL}.asc"
-  local FAIL2BAN_GPG_FINGERPRINT='8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C'
-  local FAIL2BAN_GPG_PUBLIC_KEY_ID='0x683BF1BEBD0A882C'
-  local FAIL2BAN_GPG_PUBLIC_KEY_SERVER='hkps://keyserver.ubuntu.com'
-
-  _log 'debug' 'Installing Fail2ban'
-  apt-get "${QUIET}" --no-install-recommends install python3-pyinotify python3-dnspython
-
-  gpg --keyserver "${FAIL2BAN_GPG_PUBLIC_KEY_SERVER}" --recv-keys "${FAIL2BAN_GPG_PUBLIC_KEY_ID}" 2>&1
-
-  curl -Lkso fail2ban.deb "${FAIL2BAN_DEB_URL}"
-  curl -Lkso fail2ban.deb.asc "${FAIL2BAN_DEB_ASC_URL}"
-
-  FINGERPRINT=$(LANG=C gpg --verify fail2ban.deb.asc fail2ban.deb |& sed -n 's#Primary key fingerprint: \(.*\)#\1#p')
-
-  if [[ -z ${FINGERPRINT} ]]; then
-    echo 'ERROR: Invalid GPG signature!' >&2
-    exit 1
-  fi
-
-  if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then
-    echo "ERROR: Wrong GPG fingerprint!" >&2
-    exit 1
-  fi
-
-  dpkg -i fail2ban.deb 2>&1
-  rm fail2ban.deb fail2ban.deb.asc
-
-  _log 'debug' 'Patching Fail2ban to enable network bans'
-  # Enable network bans
-  # https://github.com/docker-mailserver/docker-mailserver/issues/2669
-  sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
-}
-
-# Presently the getmail6 package is v6.14, which is too old.
-# v6.18 contains fixes for Google and Microsoft OAuth support.
-# using pip to install getmail.
-# TODO This can be removed when the base image is updated to Debian 12 (Bookworm)
-function _install_getmail() {
-  _log 'debug' 'Installing getmail6'
-  apt-get "${QUIET}" --no-install-recommends install python3-pip
-  pip3 install --no-cache-dir 'getmail6~=6.18.12'
-  ln -s /usr/local/bin/getmail /usr/bin/getmail
-  ln -s /usr/local/bin/getmail-gmail-xoauth-tokens /usr/bin/getmail-gmail-xoauth-tokens
-  apt-get "${QUIET}" purge python3-pip
-  apt-get "${QUIET}" autoremove
-}
-
 function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
   curl -sL https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-x86_64-unknown-linux-musl -o /usr/bin/jaq && chmod +x /usr/bin/jaq
@@ -215,9 +152,6 @@ _pre_installation_steps
 _install_postfix
 _install_packages
 _install_dovecot
-_install_rspamd
-_install_fail2ban
-_install_getmail
 _install_utils
 _remove_data_after_package_installations
 _post_installation_steps
