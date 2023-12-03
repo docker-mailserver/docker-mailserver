@@ -22,6 +22,9 @@ All notable changes to this project will be documented in this file. The format 
   - updated note about Rspamd on ARM64 lacking behind in version
 - **Internal:**
   - Postfix configures `virtual_mailbox_maps` and `virtual_transport` during startup instead of using defaults (configured for Dovecot) via our `main.cf` ([#3681](https://github.com/docker-mailserver/docker-mailserver/pull/3681))
+  - `packages.sh` now uses `/etc/os-release` to determine the release name of Debian
+  - removed custom installations of Fail2Ban, getmail6 and Rspamd
+  - use official Rspamd PPA on AMD64; no PPA is used on ARM64
 
 ### Fixed
 

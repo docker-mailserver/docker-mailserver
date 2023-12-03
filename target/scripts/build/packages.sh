@@ -31,6 +31,13 @@ function _pre_installation_steps() {
   )
   apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
 
+  _log 'trace' 'Adding Rspamd PPA'
+  curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
+  echo "deb [signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" >/etc/apt/sources.list.d/rspamd.list
+
+  _log 'trace' 'Updating package index after adding PPAs'
+  apt-get "${QUIET}" update
+
   _log 'trace' 'Upgrading packages'
   apt-get "${QUIET}" upgrade
 }
