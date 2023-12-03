@@ -30,8 +30,6 @@ COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
 RUN /bin/bash /build/packages.sh && rm -r /build
 
-
-
 # -----------------------------------------------
 # --- Compile deb packages ----------------------
 # -----------------------------------------------
@@ -122,7 +120,8 @@ COPY \
 
 # hadolint ignore=SC2016
 RUN <<EOF
-  sedfile -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
+  # ref: https://github.com/docker-mailserver/docker-mailserver/pull/3403#discussion_r1306282387
+  echo 'CRON=1' >/etc/default/spamassassin
   sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
   mkdir /etc/spamassassin/kam/
   curl -sSfLo /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key https://mcgrail.com/downloads/kam.sa-channels.mcgrail.com.key
@@ -181,7 +180,6 @@ RUN <<EOF
   ln -sf /var/log/mail/fail2ban.log /var/log/fail2ban.log
   # disable sshd jail
   rm /etc/fail2ban/jail.d/defaults-debian.conf
-  mkdir /var/run/fail2ban
 EOF
 
 COPY target/opendkim/opendkim.conf /etc/opendkim.conf

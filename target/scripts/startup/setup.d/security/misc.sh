@@ -79,11 +79,6 @@ function __setup__security__spamassassin() {
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
-    # fix cron.daily for spamassassin
-    sed -i \
-      's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' \
-      /etc/cron.daily/spamassassin
-
     if [[ ${SA_SPAM_SUBJECT} == 'undef' ]]; then
       # shellcheck disable=SC2016
       sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = undef;|g' /etc/amavis/conf.d/20-debian_defaults

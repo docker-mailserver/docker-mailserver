@@ -29,8 +29,12 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "SA - Amavis integration should not be active" {
-  _run_in_container_bash "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
+  # Wait until Amavis has finished initializing:
+  run _repeat_in_container_until_success_or_timeout 20 "${CONTAINER_NAME}" grep 'Deleting db files  in /var/lib/amavis/db' /var/log/mail/mail.log
   assert_success
+  # Amavis module for SA should not be loaded (`SpamControl: scanner SpamAssassin, module Amavis::SpamControl::SpamAssassin`):
+  _run_in_container grep 'scanner SpamAssassin' /var/log/mail/mail.log
+  assert_failure
 }
 
 @test "SA - should not have been called" {
