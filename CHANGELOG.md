@@ -8,7 +8,13 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
-- command (`run-local-instance`) to test a version of DMS that was built locally to test changes
+- **Tests:**
+  - You can now use `make run-local-instance` to run a DMS image that was built locally to test changes ([#3663](https://github.com/docker-mailserver/docker-mailserver/pull/3663))
+
+### Updates
+
+- **Documentation:**
+  - Raise awareness in the troubleshooting page for a common misconfiguration when deviating from our advice by using a bare domain ([#3680](https://github.com/docker-mailserver/docker-mailserver/pull/3680))
 
 ### Fixed
 
