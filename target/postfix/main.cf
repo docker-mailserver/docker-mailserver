@@ -75,7 +75,7 @@ postscreen_dnsbl_sites =
     list.dnswl.org=127.0.[0..255].1*-3
     list.dnswl.org=127.0.[0..255].[2..3]*-4
 postscreen_dnsbl_threshold = 3
-postscreen_dnsbl_whitelist_threshold = -1
+postscreen_dnsbl_allowlist_threshold = -1
 postscreen_greet_action = enforce
 postscreen_bare_newline_action = enforce
 
@@ -110,7 +110,4 @@ smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
 # http://www.postfix.org/COMPATIBILITY_README.html
 # If backwards-compaitibilty log messages appear, fix them by explicitly adding
 # the legacy or new default value (alternatively raise the compatibility_level)
-#
-# TODO: The next compatibility_level is 3.6, when Postfix 3.6 is available consider
-# bumping this value after taking the compaitibilty changes into account.
-compatibility_level = 2
+compatibility_level = 3.6

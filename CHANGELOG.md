@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Breaking
+
+- Postfix
+  - `postscreen_dnsbl_whitelist_threshold` was renamed to `postscreen_dnsbl_allowlist_threshold`: this may affect users that monitor logs affected by this change (<https://www.postfix.org/COMPATIBILITY_README.html#respectful_logging>) ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
+  - `compatibility_level` was raised from `2` to `3.6` ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
+    - Usage in logging regarding white / black listing has been replaced with allow / deny listing. This may affect monitoring / analysis of logs output from Postfix that expect to match the prior terminology used.
+    - smtpd_relay_restrictions (relay policy) is now evaluated aftersmtpd_recipient_restrictions (spam policy). Previously it was evaluated before smtpd_recipient_restrictions. Mail to be relayed via DMS must now pass through the spam policy first.
+    - TLS fingerprint policy has changed default from MD5 to SHA256 (DMS does not modify this Postfix parameter).
+
 ### Added
 
 - **Dovecot:**
