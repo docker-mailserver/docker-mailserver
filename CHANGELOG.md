@@ -6,8 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+The most noteworthy change of this release is the update of the container's base image from Debian 11 ("Bullseye") to Debian 12 ("Bookworm"). This update alone involves breaking changes and requires a careful update!
+
 ### Breaking
 
+- **updated base image to Debian 12**
 - updated packages: for an overview, [we have a review comment on the PR that introduces Debian 12](https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1694563615)
 - Postfix
   - `postscreen_dnsbl_whitelist_threshold` was renamed to `postscreen_dnsbl_allowlist_threshold`: this may affect users that monitor logs affected by this change (<https://www.postfix.org/COMPATIBILITY_README.html#respectful_logging>) ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
