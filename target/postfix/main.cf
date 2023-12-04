@@ -88,10 +88,10 @@ smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain = $mydomain
 broken_sasl_auth_clients = yes
 
-# Mail directory
-virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
+# Postfix lookup tables for verifying valid users and managed mail domains:
+# Populated during startup in: scripts/helpers/postfix.sh
 virtual_mailbox_domains = /etc/postfix/vhost
-virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
+# Populated during startup in: scripts/helpers/aliases.sh
 virtual_alias_maps = texthash:/etc/postfix/virtual
 
 # Milters used by DKIM
