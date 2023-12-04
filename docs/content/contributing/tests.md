@@ -78,6 +78,10 @@ We use `make` to run commands.
 
     When writing tests, ensure that parallel set tests still pass when run in parallel. You need to account for other tests running in parallel that may interfere with your own tests logic.
 
+!!! tip
+
+    You may use `make run-local-instance` to run a version of the image built locally to test and edit your changes in a running DMS instance.
+
 ### An Example
 
 In this example, you've made a change to the Rspamd feature support (_or adjusted it's tests_). First verify no regressions have been introduced by running it's specific test file:

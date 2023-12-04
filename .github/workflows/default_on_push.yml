@@ -11,7 +11,6 @@ on:
       - .gitmodules
       - Dockerfile
       - setup.sh
-      - VERSION # also update :edge when a release happens
     tags:
       - '*.*.*'
 
