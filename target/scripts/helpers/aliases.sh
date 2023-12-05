@@ -23,6 +23,7 @@ function _handle_postfix_virtual_config() {
   fi
 }
 
+# TODO: Investigate why this file is always created, nothing seems to append only the cp below?
 function _handle_postfix_regexp_config() {
   : >/etc/postfix/regexp
 
