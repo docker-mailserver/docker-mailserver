@@ -6,13 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
-- **Internal:**
-  - Add warning, when update-check is enabled, but no stable release image is used ([#3684](https://github.com/docker-mailserver/docker-mailserver/pull/3684))
-
 ### Added
 
 - **Tests:**
   - You can now use `make run-local-instance` to run a DMS image that was built locally to test changes ([#3663](https://github.com/docker-mailserver/docker-mailserver/pull/3663))
+- Log a warning when update-check is enabled, but no stable release image is used ([#3684](https://github.com/docker-mailserver/docker-mailserver/pull/3684))
 
 ### Updates
 
