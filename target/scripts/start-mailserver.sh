@@ -122,7 +122,13 @@ function _register_functions() {
 
   [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
 
-  [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]] && [[ ${DMS_RELEASE} != 'edge' ]] && _register_start_daemon '_start_daemon_update_check'
+  if [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]]; then
+    if [[ ${DMS_RELEASE} != 'edge' ]]; then
+      _register_start_daemon '_start_daemon_update_check'
+    else
+      _log 'warn' "ENABLE_UPDATE_CHECK=1 is configured, but image is not a stable release. Update-Check is disabled."
+    fi
+  fi
 
   # The order here matters: Since Rspamd is using Redis, Redis should be started before Rspamd.
   [[ ${ENABLE_RSPAMD_REDIS}     -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_redis'
