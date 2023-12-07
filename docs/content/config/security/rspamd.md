@@ -8,10 +8,6 @@ Rspamd is a ["fast, free and open-source spam filtering system"][rspamd-homepage
 
 If you want to have a look at the default configuration files for Rspamd that DMS packs, navigate to [`target/rspamd/` inside the repository][dms-default-configuration]. Please consult the [section "The Default Configuration"](#the-default-configuration) section down below for a written overview.
 
-!!! note "AMD64 vs ARM64"
-
-    We are currently doing a best-effort installation of Rspamd for ARM64 (from the Debian backports repository for Debian 11). The current version difference as of 23rd Apr 2023: AMD64 is at version 3.5 | ARM64 is at version 3.4.
-
 [rspamd-homepage]: https://rspamd.com/
 [dms-default-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd
 

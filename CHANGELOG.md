@@ -24,6 +24,8 @@ All notable changes to this project will be documented in this file. The format 
 - **Internal**:
   - The container startup welcome log message now references `DMS_RELEASE` ([#3676](https://github.com/docker-mailserver/docker-mailserver/pull/3676))
   - `VERSION` was incremented for prior releases to be notified of the v13.0.1 patch release ([#3676](https://github.com/docker-mailserver/docker-mailserver/pull/3676))
+- **Rspamd:**
+  - Switch to official arm64 packages to avoid segfaults ([#3686](https://github.com/docker-mailserver/docker-mailserver/pull/3686))
 
 ## [v13.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.1)
 
