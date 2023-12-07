@@ -27,7 +27,7 @@ while true; do
     # compare versions
     if dpkg --compare-versions "${VERSION}" lt "${LATEST}"; then
       # send mail notification to postmaster
-      read -r -d '' MAIL << EOF
+      read -r -d '#' MAIL << EOF
 Hello ${POSTMASTER_ADDRESS}!
 
 There is a docker-mailserver update available on your host: $(hostname -f)
@@ -35,7 +35,7 @@ There is a docker-mailserver update available on your host: $(hostname -f)
 Current version: ${VERSION}
 Latest  version: ${LATEST}
 
-Changelog: ${CHANGELOG_URL}
+Changelog: ${CHANGELOG_URL}#END
 EOF
 
       _log_with_date 'info' "Update available [ ${VERSION} --> ${LATEST} ]"
