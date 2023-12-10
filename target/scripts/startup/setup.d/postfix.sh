@@ -79,7 +79,9 @@ EOF
     # /etc/postfix/vmailbox is created by: scripts/helpers/accounts.sh:_create_accounts()
     # This file config is for Postfix to verify a mail account exists before accepting
     # mail arriving and delivering it to Dovecot over LMTP.
-    postconf 'virtual_mailbox_maps = texthash:/etc/postfix/vmailbox'
+    if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]]; then
+      postconf 'virtual_mailbox_maps = texthash:/etc/postfix/vmailbox'
+    fi
     postconf 'virtual_transport = lmtp:unix:/var/run/dovecot/lmtp'
   fi
 
