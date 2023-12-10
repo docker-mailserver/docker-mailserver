@@ -1439,6 +1439,13 @@ Thanks goes to these wonderful people ✨
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/p3dda">
+            <img src="https://avatars.githubusercontent.com/u/2871413?v=4" width="100;" alt="p3dda"/>
+            <br />
+            <sub><b>p3dda</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/peter-hartmann">
             <img src="https://avatars.githubusercontent.com/u/20216585?v=4" width="100;" alt="peter-hartmann"/>
             <br />
@@ -1458,15 +1465,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>remoe</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/romansey">
             <img src="https://avatars.githubusercontent.com/u/1835713?v=4" width="100;" alt="romansey"/>
             <br />
             <sub><b>romansey</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/MightySCollins">
             <img src="https://avatars.githubusercontent.com/u/8594759?v=4" width="100;" alt="MightySCollins"/>
@@ -1501,15 +1508,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>3ap</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/shyim">
             <img src="https://avatars.githubusercontent.com/u/6224096?v=4" width="100;" alt="shyim"/>
             <br />
             <sub><b>shyim</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/sjmudd">
             <img src="https://avatars.githubusercontent.com/u/116250?v=4" width="100;" alt="sjmudd"/>
@@ -1544,15 +1551,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>5ven</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/syl20bnr">
             <img src="https://avatars.githubusercontent.com/u/1243537?v=4" width="100;" alt="syl20bnr"/>
             <br />
             <sub><b>syl20bnr</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/sylvaindumont">
             <img src="https://avatars.githubusercontent.com/u/5496488?v=4" width="100;" alt="sylvaindumont"/>
@@ -1587,15 +1594,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>tweibert</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/torus">
             <img src="https://avatars.githubusercontent.com/u/65044?v=4" width="100;" alt="torus"/>
             <br />
             <sub><b>torus</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/VictorKoenders">
             <img src="https://avatars.githubusercontent.com/u/2743142?v=4" width="100;" alt="VictorKoenders"/>
@@ -1630,15 +1637,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>vilisas</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/42wim">
             <img src="https://avatars.githubusercontent.com/u/1810977?v=4" width="100;" alt="42wim"/>
             <br />
             <sub><b>42wim</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/ShiriNmi1520">
             <img src="https://avatars.githubusercontent.com/u/33322926?v=4" width="100;" alt="ShiriNmi1520"/>
@@ -1673,15 +1680,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>awb99</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/brainkiller">
             <img src="https://avatars.githubusercontent.com/u/1619562?v=4" width="100;" alt="brainkiller"/>
             <br />
             <sub><b>brainkiller</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/cternes">
             <img src="https://avatars.githubusercontent.com/u/928198?v=4" width="100;" alt="cternes"/>
@@ -1716,15 +1723,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>ghnp5</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/helmutundarnold">
             <img src="https://avatars.githubusercontent.com/u/12536684?v=4" width="100;" alt="helmutundarnold"/>
             <br />
             <sub><b>helmutundarnold</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/hnws">
             <img src="https://avatars.githubusercontent.com/u/668137?v=4" width="100;" alt="hnws"/>
@@ -1759,15 +1766,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>jjtt</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/paralax">
             <img src="https://avatars.githubusercontent.com/u/5619153?v=4" width="100;" alt="paralax"/>
             <br />
             <sub><b>paralax</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/jpduyx">
             <img src="https://avatars.githubusercontent.com/u/25197089?v=4" width="100;" alt="jpduyx"/>
@@ -1802,15 +1809,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>matrixes</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/mchamplain">
             <img src="https://avatars.githubusercontent.com/u/759989?v=4" width="100;" alt="mchamplain"/>
             <br />
             <sub><b>mchamplain</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/millerjason">
             <img src="https://avatars.githubusercontent.com/u/7610974?v=4" width="100;" alt="millerjason"/>
@@ -1845,15 +1852,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>olaf-mandel</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/ontheair81">
             <img src="https://avatars.githubusercontent.com/u/6220584?v=4" width="100;" alt="ontheair81"/>
             <br />
             <sub><b>ontheair81</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/pravynandas">
             <img src="https://avatars.githubusercontent.com/u/4099637?v=4" width="100;" alt="pravynandas"/>
@@ -1888,15 +1895,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>rriski</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/schnippl0r">
             <img src="https://avatars.githubusercontent.com/u/58435847?v=4" width="100;" alt="schnippl0r"/>
             <br />
             <sub><b>schnippl0r</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/smargold476">
             <img src="https://avatars.githubusercontent.com/u/105579587?v=4" width="100;" alt="smargold476"/>
@@ -1931,15 +1938,15 @@ Thanks goes to these wonderful people ✨
             <br />
             <sub><b>tamueller</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/vivacarvajalito">
             <img src="https://avatars.githubusercontent.com/u/1446654?v=4" width="100;" alt="vivacarvajalito"/>
             <br />
             <sub><b>vivacarvajalito</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/wligtenberg">
             <img src="https://avatars.githubusercontent.com/u/1241175?v=4" width="100;" alt="wligtenberg"/>
