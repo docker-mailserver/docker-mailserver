@@ -6,12 +6,10 @@ function _setup_dovecot() {
   cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
   # disable pop3 (it will be eventually enabled later in the script, if requested)
   mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
+  # disable imap (it will be eventually enabled later in the script, if requested)
+  mv /etc/dovecot/protocols.d/imapd.protocol /etc/dovecot/protocols.d/imapd.protocol.disab
   mv /etc/dovecot/protocols.d/managesieved.protocol /etc/dovecot/protocols.d/managesieved.protocol.disab
-  sed -i -e 's|#ssl = yes|ssl = yes|g' /etc/dovecot/conf.d/10-master.conf
-  sed -i -e 's|#port = 993|port = 993|g' /etc/dovecot/conf.d/10-master.conf
-  sed -i -e 's|#port = 995|port = 995|g' /etc/dovecot/conf.d/10-master.conf
-  sed -i -e 's|#ssl = yes|ssl = required|g' /etc/dovecot/conf.d/10-ssl.conf
-  sed -i 's|^postmaster_address = .*$|postmaster_address = '"${POSTMASTER_ADDRESS}"'|g' /etc/dovecot/conf.d/15-lda.conf
+    sed -i 's|^postmaster_address = .*$|postmaster_address = '"${POSTMASTER_ADDRESS}"'|g' /etc/dovecot/conf.d/15-lda.conf
 
   if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf; then
     printf '\n%s\n' 'stats_writer_socket_path=' >>/etc/dovecot/dovecot.conf
@@ -37,9 +35,21 @@ function _setup_dovecot() {
 
   esac
 
+  if [[ ${ENABLE_POP3} -eq 1 || ${ENABLE_IMAP} -eq 1 ]]; then
+    sed -i -e 's|#ssl = yes|ssl = yes|g' /etc/dovecot/conf.d/10-master.conf
+    sed -i -e 's|#ssl = yes|ssl = required|g' /etc/dovecot/conf.d/10-ssl.conf
+  fi
+
   if [[ ${ENABLE_POP3} -eq 1 ]]; then
     _log 'debug' 'Enabling POP3 services'
     mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
+    sed -i -e 's|#port = 995|port = 995|g' /etc/dovecot/conf.d/10-master.conf
+  fi
+
+  if [[ ${ENABLE_IMAP} -eq 1 ]]; then
+    _log 'debug' 'Enabling IMAP services'
+    mv /etc/dovecot/protocols.d/imapd.protocol.disab /etc/dovecot/protocols.d/imapd.protocol
+    sed -i -e 's|#port = 993|port = 993|g' /etc/dovecot/conf.d/10-master.conf
   fi
 
   [[ -f /tmp/docker-mailserver/dovecot.cf ]] && cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
