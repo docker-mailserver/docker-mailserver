@@ -156,6 +156,10 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
         use_esld = true;
         check_pubkey = true; # you want to use this in the beginning
 
+        selector = "mail";
+        path = "/tmp/docker-mailserver/opendkim/keys/$domain/$selector.private"; # this will automatically match keys for domains
+
+        # domain specific configurations can be provided below:
         domain {
             example.com {
                 path = "/tmp/docker-mailserver/rspamd/dkim/mail.private";
