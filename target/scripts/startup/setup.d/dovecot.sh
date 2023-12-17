@@ -36,20 +36,20 @@ function _setup_dovecot() {
   esac
 
   if [[ ${ENABLE_POP3} -eq 1 || ${ENABLE_IMAP} -eq 1 ]]; then
-    sed -i -e 's|#ssl = yes|ssl = yes|g' /etc/dovecot/conf.d/10-master.conf
-    sed -i -e 's|#ssl = yes|ssl = required|g' /etc/dovecot/conf.d/10-ssl.conf
+    sedfile -i -e 's|#ssl = yes|ssl = yes|g' /etc/dovecot/conf.d/10-master.conf
+    sedfile -i -e 's|#ssl = yes|ssl = required|g' /etc/dovecot/conf.d/10-ssl.conf
   fi
 
   if [[ ${ENABLE_POP3} -eq 1 ]]; then
     _log 'debug' 'Enabling POP3 services'
     mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
-    sed -i -e 's|#port = 995|port = 995|g' /etc/dovecot/conf.d/10-master.conf
+    sedfile -i -e 's|#port = 995|port = 995|g' /etc/dovecot/conf.d/10-master.conf
   fi
 
   if [[ ${ENABLE_IMAP} -eq 1 ]]; then
     _log 'debug' 'Enabling IMAP services'
     mv /etc/dovecot/protocols.d/imapd.protocol.disab /etc/dovecot/protocols.d/imapd.protocol
-    sed -i -e 's|#port = 993|port = 993|g' /etc/dovecot/conf.d/10-master.conf
+    sedfile -i -e 's|#port = 993|port = 993|g' /etc/dovecot/conf.d/10-master.conf
   fi
 
   [[ -f /tmp/docker-mailserver/dovecot.cf ]] && cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
