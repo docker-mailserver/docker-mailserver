@@ -9,7 +9,7 @@ function _setup_dovecot() {
   # disable imap (it will be eventually enabled later in the script, if requested)
   mv /etc/dovecot/protocols.d/imapd.protocol /etc/dovecot/protocols.d/imapd.protocol.disab
   mv /etc/dovecot/protocols.d/managesieved.protocol /etc/dovecot/protocols.d/managesieved.protocol.disab
-    sed -i 's|^postmaster_address = .*$|postmaster_address = '"${POSTMASTER_ADDRESS}"'|g' /etc/dovecot/conf.d/15-lda.conf
+    sedfile -i 's|^postmaster_address = .*$|postmaster_address = '"${POSTMASTER_ADDRESS}"'|g' /etc/dovecot/conf.d/15-lda.conf
 
   if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf; then
     printf '\n%s\n' 'stats_writer_socket_path=' >>/etc/dovecot/dovecot.conf
@@ -99,23 +99,23 @@ function _setup_dovecot_quota() {
     # disable dovecot quota in docevot confs
     if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]; then
       mv /etc/dovecot/conf.d/90-quota.conf /etc/dovecot/conf.d/90-quota.conf.disab
-      sed -i \
+      sedfile -i \
         "s|mail_plugins = \$mail_plugins quota|mail_plugins = \$mail_plugins|g" \
         /etc/dovecot/conf.d/10-mail.conf
-      sed -i \
+      sedfile -i \
         "s|mail_plugins = \$mail_plugins imap_quota|mail_plugins = \$mail_plugins|g" \
         /etc/dovecot/conf.d/20-imap.conf
     fi
 
     # disable quota policy check in postfix
-    sed -i "s|check_policy_service inet:localhost:65265||g" /etc/postfix/main.cf
+    sedfile -i "s|check_policy_service inet:localhost:65265||g" /etc/postfix/main.cf
   else
     if [[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]; then
       mv /etc/dovecot/conf.d/90-quota.conf.disab /etc/dovecot/conf.d/90-quota.conf
-      sed -i \
+      sedfile -i \
         "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins quota|g" \
         /etc/dovecot/conf.d/10-mail.conf
-      sed -i \
+      sedfile -i \
         "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins imap_quota|g" \
         /etc/dovecot/conf.d/20-imap.conf
     fi
@@ -123,11 +123,11 @@ function _setup_dovecot_quota() {
     local MESSAGE_SIZE_LIMIT_MB=$((POSTFIX_MESSAGE_SIZE_LIMIT / 1000000))
     local MAILBOX_LIMIT_MB=$((POSTFIX_MAILBOX_SIZE_LIMIT / 1000000))
 
-    sed -i \
+    sedfile -i \
       "s|quota_max_mail_size =.*|quota_max_mail_size = ${MESSAGE_SIZE_LIMIT_MB}$([[ ${MESSAGE_SIZE_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
       /etc/dovecot/conf.d/90-quota.conf
 
-    sed -i \
+    sedfile -i \
       "s|quota_rule = \*:storage=.*|quota_rule = *:storage=${MAILBOX_LIMIT_MB}$([[ ${MAILBOX_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
       /etc/dovecot/conf.d/90-quota.conf
 
@@ -137,7 +137,7 @@ function _setup_dovecot_quota() {
     fi
 
     # enable quota policy check in postfix
-    sed -i -E \
+    sedfile -i -E \
       "s|(reject_unknown_recipient_domain)|\1, check_policy_service inet:localhost:65265|g" \
       /etc/postfix/main.cf
   fi
@@ -198,5 +198,5 @@ function _setup_dovecot_dhparam() {
 
 function _setup_dovecot_hostname() {
   _log 'debug' 'Applying hostname to Dovecot'
-  sed -i "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" /etc/dovecot/conf.d/15-lda.conf
+  sedfile -i "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" /etc/dovecot/conf.d/15-lda.conf
 }
