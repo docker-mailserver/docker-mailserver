@@ -225,12 +225,9 @@ function teardown_file() { _default_teardown ; }
   sleep 10
 
   # send some big emails
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
-  assert_success
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
-  assert_success
-  _run_in_container_bash "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/quota-exceeded.txt"
-  assert_success
+  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
+  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
+  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
   # check for quota warn message existence
   run _repeat_until_success_or_timeout 20 _exec_in_container grep -R 'Subject: quota warning' /var/mail/otherdomain.tld/quotauser/new/
   assert_success
