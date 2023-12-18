@@ -8,17 +8,29 @@ This project is Open Source. That means that you can contribute on enhancements,
 
 !!! attention
 
-    **Before opening an issue**, read the [`README`][github-file-readme] carefully, study the [documentation][docs], the Postfix/Dovecot documentation and your search engine you trust. The issue tracker is not meant to be used for unrelated questions! 
+    **Before opening an issue**, read the [`README`][github-file-readme] carefully, study the docs for your version (maybe [latest][docs-latest]), the Postfix/Dovecot documentation and your search engine you trust. The issue tracker is not meant to be used for unrelated questions!
 
-When opening an issue, please provide details use case to let the community reproduce your problem. Please start `docker-mailserver` with the environment variable `LOG_LEVEL` set to `debug` or `trace` and paste the output into the issue.
+When opening an issue, please provide details use case to let the community reproduce your problem. Please start DMS with the environment variable `LOG_LEVEL` set to `debug` or `trace` and paste the output into the issue.
 
 !!! attention
 
-    **Use the issue templates** to provide the necessary information. Issues which do not use these templates are not worked on and closed. 
+    **Use the issue templates** to provide the necessary information. Issues which do not use these templates are not worked on and closed.
 
 By raising issues, I agree to these terms and I understand, that the rules set for the issue tracker will help both maintainers as well as everyone to find a solution.
 
 Maintainers take the time to improve on this project and help by solving issues together. It is therefore expected from others to make an effort and **comply with the rules**.
+
+### Filing a Bug Report
+
+Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts!
+
+Maintainers and moderators are volunteers. We greatly appreciate reports that take the time to provide detailed information via the template, enabling us to help you in the best and quickest way. Ignoring the template provided may seem easier, but discourages receiving any support (_via assignment of the label `meta/no template - no support`_).
+
+Markdown formatting can be used in almost all text fields (_unless stated otherwise in the description_).
+
+Be as precise as possible, and if in doubt, it's best to add more information that too few.
+
+When an option is marked with "not officially supported" / "unsupported", then support is dependent on availability from specific maintainers.
 
 ## Pull Requests
 
@@ -39,7 +51,7 @@ The development workflow is the following:
 
 Pull requests are automatically tested against the CI and will be reviewed when tests pass. When your changes are validated, your branch is merged. CI builds the new `:edge` image immediately and your changes will be includes in the next version release.
 
-[docs]: https://docker-mailserver.github.io/docker-mailserver/edge
+[docs-latest]: https://docker-mailserver.github.io/docker-mailserver/latest
 [github-file-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
 [docs-environment]: ../config/environment.md
 [docs-general-tests]: ./general.md#tests

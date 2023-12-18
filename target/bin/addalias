@@ -3,8 +3,7 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function _main
-{
+function _main() {
   _require_n_parameters_or_print_usage 2 "${@}"
 
   local MAIL_ALIAS="${1}"
@@ -14,8 +13,7 @@ function _main
     || _exit_with_error "'${MAIL_ALIAS}' is already an alias for recipient: '${RECIPIENT}'"
 }
 
-function __usage
-{
+function __usage() {
   printf '%s' "${PURPLE}addalias${RED}(${YELLOW}8${RED})
 
 ${ORANGE}USAGE${RESET}
@@ -34,6 +32,9 @@ ${ORANGE}DESCRIPTION${RESET}
 ${ORANGE}EXAMPLES${RESET}
     ${LWHITE}./setup.sh alias add alias@example.com recipient@example.com${RESET}
         Add the alias 'alias@example.com' for the mail account 'recipient@example.com'.
+
+    ${LWHITE}./setup.sh alias add alias@example.com 'recipient@example.com, another-recipient@example.com'${RESET}
+        Multiple recipients are separated by comma.
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided

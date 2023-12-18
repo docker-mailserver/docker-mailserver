@@ -4,18 +4,16 @@ title: Environment Variables
 
 !!! info
 
-    Values in **bold** are the default values. If an option doesn't work as documented here, check if you are running the latest image. The current `master` branch corresponds to the image `mailserver/docker-mailserver:edge`.
+    Values in **bold** are the default values. If an option doesn't work as documented here, check if you are running the latest image. The current `master` branch corresponds to the image `ghcr.io/docker-mailserver/docker-mailserver:edge`.
 
 #### General
 
 ##### OVERRIDE_HOSTNAME
 
-- **empty** => uses the `hostname` command to get canonical hostname for `docker-mailserver` to use.
-- => Specify a fully-qualified domainname to serve mail for. This is used for many of the config features so if you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will take priority over `docker run` options: `--hostname` and `--domainname`, or `docker-compose.yml` config equivalents: `hostname:` and `domainname:`.
+If you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will have priority over `docker run --hostname`, or the equivalent `hostname:` field in `compose.yaml`.
 
-##### DMS_DEBUG
-
-**This environment variable was removed in `v11.0.0`!** Use `LOG_LEVEL` instead.
+- **empty** => Uses the `hostname -f` command to get canonical hostname for DMS to use.
+- => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.
 
 ##### LOG_LEVEL
 
@@ -35,6 +33,18 @@ Here you can adjust the [log-level for Supervisor](http://supervisord.org/loggin
 
 The log-level will show everything in its class and above.
 
+##### DMS_VMAIL_UID
+
+Default: 5000
+
+The User ID assigned to the static vmail user for `/var/mail` (_Mail storage managed by Dovecot_).
+
+##### DMS_VMAIL_GID
+
+Default: 5000
+
+The Group ID assigned to the static vmail group for `/var/mail` (_Mail storage managed by Dovecot_).
+
 ##### ONE_DIR
 
 - 0 => state in default directories.
@@ -51,7 +61,7 @@ User provisioning via OIDC is planned for the future, see [this tracking issue](
 - OIDC => use OIDC authentication (**not yet implemented**)
 - FILE => use local files (this is used as the default)
 
-A second container for the ldap service is necessary (e.g. [docker-openldap](https://github.com/osixia/docker-openldap))
+A second container for the ldap service is necessary (e.g. [`bitnami/openldap`](https://hub.docker.com/r/bitnami/openldap/)).
 
 ##### PERMIT_DOCKER
 
@@ -68,23 +78,6 @@ Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_pro
 ##### TZ
 
 Set the timezone. If this variable is unset, the container runtime will try to detect the time using `/etc/localtime`, which you can alternatively mount into the container. The value of this variable must follow the pattern `AREA/ZONE`, i.e. of you want to use Germany's time zone, use `Europe/Berlin`. You can lookup all available timezones [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
-
-##### ENABLE_RSPAMD
-
-Enable or disable Rspamd.
-
-!!! warning "Current State"
-
-    Rspamd-support is under active development. Be aware that breaking changes can happen at any time.
-
-    Currently, rspamd is integrated into Postfix as a milter. However, there is no official DKIM/DMARC support for rspamd in DMS as of now (WIP). To get more information, see [the detailed documentation page for Rspamd][docs-rspamd].
-
-!!! warning "Rspamd and DNS Block Lists"
-
-    When you use Rspamd, you might want to use the [RBL module](https://rspamd.com/doc/modules/rbl.html). If you do, make sure your DNS resolver is set up correctly (i.e. it should be a non-public recursive resolver). Otherwise, you [might not be able](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365) to make use of the block lists.
-
-- **0** => disabled
-- 1 => enabled
 
 ##### ENABLE_AMAVIS
 
@@ -104,10 +97,13 @@ Amavis content filter (used for ClamAV & SpamAssassin)
 
 ##### ENABLE_DNSBL
 
-This enables the [zen.spamhaus.org](https://www.spamhaus.org/zen/) DNS block list in postfix
-and various [lists](https://github.com/docker-mailserver/docker-mailserver/blob/f7465a50888eef909dbfc01aff4202b9c7d8bc00/target/postfix/main.cf#L58-L66) in postscreen.
+This enables DNS block lists in _Postscreen_. If you want to know which lists we are using, have a look at [the default `main.cf` for Postfix we provide](https://github.com/docker-mailserver/docker-mailserver/blob/master/target/postfix/main.cf) and search for `postscreen_dnsbl_sites`.
 
-Note: Emails will be rejected, if they don't pass the block list checks!
+!!! danger "A Warning On DNS Block Lists"
+
+    Make sure your DNS queries are properly resolved, i.e. you will most likely not want to use a public DNS resolver as these queries do not return meaningful results. We try our best to only evaluate proper return codes - this is not a guarantee that all codes are handled fine though.
+
+    **Note that emails will be rejected if they don't pass the block list checks!**
 
 - **0** => DNS block lists are disabled
 - 1     => DNS block lists are enabled
@@ -126,10 +122,22 @@ Enables the OpenDMARC service.
 - **1** => Enabled
 - 0 => Disabled
 
+##### ENABLE_POLICYD_SPF
+
+Enabled `policyd-spf` in Postfix's configuration. You will likely want to set this to `0` in case you're using Rspamd ([`ENABLE_RSPAMD=1`](#enable_rspamd)).
+
+- 0 => Disabled
+- **1** => Enabled
+
 ##### ENABLE_POP3
 
-- **empty** => POP3 service disabled
+- **0** => POP3 service disabled
 - 1 => Enables POP3 service
+
+##### ENABLE_IMAP
+
+- 0 => Disabled
+- **1** => Enabled
 
 ##### ENABLE_CLAMAV
 
@@ -141,7 +149,7 @@ Enables the OpenDMARC service.
 - **0** => fail2ban service disabled
 - 1 => Enables fail2ban service
 
-If you enable Fail2Ban, don't forget to add the following lines to your `docker-compose.yml`:
+If you enable Fail2Ban, don't forget to add the following lines to your `compose.yaml`:
 
 ``` BASH
 cap_add:
@@ -187,12 +195,12 @@ Please read [the SSL page in the documentation][docs-tls] for more information.
 
 Configures the handling of creating mails with forged sender addresses.
 
-- **empty** => Mail address spoofing allowed. Any logged in user may create email messages with a forged sender address. See also [Wikipedia](https://en.wikipedia.org/wiki/Email_spoofing)(not recommended, but default for backwards compatibility reasons)
-- 1 => (recommended) Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
+- **0** => (not recommended) Mail address spoofing allowed. Any logged in user may create email messages with a [forged sender address](https://en.wikipedia.org/wiki/Email_spoofing).
+- 1 => Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
 
 ##### ENABLE_SRS
 
-Enables the Sender Rewriting Scheme. SRS is needed if `docker-mailserver` acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
+Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
 
 - **0** => Disabled
 - 1 => Enabled
@@ -231,7 +239,7 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 - **1** => Dovecot quota is enabled
 - 0 => Dovecot quota is disabled
 
-See [mailbox quota][docs-accounts].
+See [mailbox quota][docs-accounts-quota].
 
 ##### POSTFIX_MESSAGE_SIZE_LIMIT
 
@@ -283,6 +291,13 @@ Customize the update check interval. Number + Suffix. Suffix must be 's' for sec
 
 This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to [Dovecot Documentation](https://wiki2.dovecot.org/MailboxFormat).
 
+##### POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME
+
+If enabled, employs `reject_unknown_client_hostname` to sender restrictions in Postfix's configuration.
+
+- **0** => Disabled
+- 1 => Enabled
+
 ##### POSTFIX_INET_PROTOCOLS
 
 - **all** => Listen on all interfaces.
@@ -298,6 +313,117 @@ Note: More details at <http://www.postfix.org/postconf.5.html#inet_protocols>
 - ipv6 => Listen only on IPv6 interfaces.
 
 Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
+
+##### MOVE_SPAM_TO_JUNK
+
+When enabled, e-mails marked with the
+
+1. `X-Spam: Yes` header added by Rspamd
+2. `X-Spam-Flag: YES` header added by SpamAssassin (requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox))
+
+will be automatically moved to the Junk folder (with the help of a Sieve script).
+
+- 0 => Spam messages will be delivered in the mailbox.
+- **1** => Spam messages will be delivered in the `Junk` folder.
+
+##### MARK_SPAM_AS_READ
+
+Enable to treat received spam as "read" (_avoids notification to MUA client of new mail_).
+
+Mail is received as spam when it has been marked with either header:
+
+1. `X-Spam: Yes` (_by Rspamd_)
+2. `X-Spam-Flag: YES` (_by SpamAssassin - requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox)_)
+
+- **0** => disabled
+- 1 => Spam messages will be marked as read
+
+#### Rspamd
+
+##### ENABLE_RSPAMD
+
+Enable or disable [Rspamd][docs-rspamd].
+
+- **0** => disabled
+- 1 => enabled
+
+##### ENABLE_RSPAMD_REDIS
+
+Explicit control over running a Redis instance within the container. By default, this value will match what is set for [`ENABLE_RSPAMD`](#enable_rspamd).
+
+The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.
+
+??? note "Configuring Rspamd for an external Redis instance"
+
+    You will need to [provide configuration][rspamd-redis-config] at `/etc/rspamd/local.d/redis.conf` similar to:
+
+    ```
+    servers = "redis.example.test:6379";
+    expand_keys = true;
+    ```
+
+[rspamd-redis-config]: https://rspamd.com/doc/configuration/redis.html
+
+- 0 => Disabled
+- 1 => Enabled
+
+##### RSPAMD_CHECK_AUTHENTICATED
+
+This settings controls whether checks should be performed on emails coming from authenticated users (i.e. most likely outgoing emails). The default value is `0` in order to align better with SpamAssassin. **We recommend** reading through [the Rspamd documentation on scanning outbound emails][rspamd-scanning-outbound] though to decide for yourself whether you need and want this feature.
+
+!!! note "Not all checks and actions are disabled"
+
+    DKIM signing of e-mails will still happen.
+
+- **0** => No checks will be performed for authenticated users
+- 1 => All default checks will be performed for authenticated users
+
+[rspamd-scanning-outbound]: https://rspamd.com/doc/tutorials/scanning_outbound.html
+
+##### RSPAMD_GREYLISTING
+
+Controls whether the [Rspamd Greylisting module][rspamd-greylisting-module] is enabled. This module can further assist in avoiding spam emails by [greylisting] e-mails with a certain spam score.
+
+- **0** => Disabled
+- 1 => Enabled
+
+[rspamd-greylisting-module]: https://rspamd.com/doc/modules/greylisting.html
+[greylisting]: https://en.wikipedia.org/wiki/Greylisting_(email)
+
+##### RSPAMD_LEARN
+
+When enabled,
+
+1. the "[autolearning][rspamd-autolearn]" feature is turned on;
+2. the Bayes classifier will be trained (with the help of Sieve scripts) when moving mails
+    1. from anywhere to the `Junk` folder (learning this email as spam);
+    2. from the `Junk` folder into the `INBOX` (learning this email as ham).
+
+!!! warning "Attention"
+
+    As of now, the spam learning database is global (i.e. available to all users). If one user deliberately trains it with malicious data, then it will ruin your detection rate.
+
+    This feature is suitably only for users who can tell ham from spam and users that can be trusted.
+
+[rspamd-autolearn]: https://rspamd.com/doc/configuration/statistic.html#autolearning
+
+- **0** => Disabled
+- 1 => Enabled
+
+##### RSPAMD_HFILTER
+
+Can be used to enable or disable the [Hfilter group module][rspamd-docs-hfilter-group-module]. This is used by DMS to adjust the `HFILTER_HOSTNAME_UNKNOWN` symbol, increasing its default weight to act similar to Postfix's `reject_unknown_client_hostname`, without the need to outright reject a message.
+
+- 0 => Disabled
+- **1** => Enabled
+
+[rspamd-docs-hfilter-group-module]: https://www.rspamd.com/doc/modules/hfilter.html
+
+##### RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE
+
+Can be used to control the score when the [`HFILTER_HOSTNAME_UNKNOWN` symbol](#rspamd_hfilter) applies. A higher score is more punishing. Setting it to 15 (the default score for rejecting an e-mail) is equivalent to rejecting the email when the check fails.
+
+Default: 6 (which corresponds to the `add_header` action)
 
 #### Reports
 
@@ -376,7 +502,7 @@ Changes the interval in which log files are rotated.
 
     The entire log output for the container is still available via `docker logs mailserver` (or your respective container name). If you want to configure external log rotation for that container output as well, : [Docker Logging Drivers](https://docs.docker.com/config/containers/logging/configure/).
 
-    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker-compose down && docker-compose up -d`). To keep the logs, mount a volume (to `/var/log/mail/`).
+    By default, the logs are lost when the container is destroyed (eg: re-creating via `docker compose down && docker compose up -d`). To keep the logs, mount a volume (to `/var/log/mail/`).
 
 !!! note
 
@@ -401,14 +527,6 @@ Changes the interval in which log files are rotated.
 - **0** => KAM disabled
 - 1 => KAM enabled
 
-##### MOVE_SPAM_TO_JUNK
-
-Spam messages can be moved in the Junk folder.
-Note: this setting needs `SPAMASSASSIN_SPAM_TO_INBOX=1`
-
-- 0 => Spam messages will be delivered in the mailbox.
-- **1** => Spam messages will be delivered in the `Junk` folder.
-
 ##### SA_TAG
 
 - **2.0** => add spam info headers if at, or above that level
@@ -423,11 +541,11 @@ Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
 
 ##### SA_KILL
 
-- **6.31** => triggers spam evasive actions
+- **10.0** => triggers spam evasive actions
 
 !!! note "This SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`"
 
-    By default, `docker-mailserver` is configured to quarantine spam emails.
+    By default, DMS is configured to quarantine spam emails.
 
     If emails are quarantined, they are compressed and stored in a location dependent on the `ONE_DIR` setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. `100.0`.
 
@@ -468,16 +586,28 @@ Note: activate this only if you are confident in your bayes database for identif
 
 ##### FETCHMAIL_PARALLEL
 
-  **0** => `fetchmail` runs with a single config file `/etc/fetchmailrc`
-  **1** => `/etc/fetchmailrc` is split per poll entry. For every poll entry a separate fetchmail instance is started  to allow having multiple imap idle configurations defined.
+- **0** => `fetchmail` runs with a single config file `/etc/fetchmailrc`
+- 1 => `/etc/fetchmailrc` is split per poll entry. For every poll entry a separate fetchmail instance is started to [allow having multiple imap idle connections per server][fetchmail-imap-workaround] (_when poll entries reference the same IMAP server_).
+
+[fetchmail-imap-workaround]: https://otremba.net/wiki/Fetchmail_(Debian)#Immediate_Download_via_IMAP_IDLE
 
 Note: The defaults of your fetchmailrc file need to be at the top of the file. Otherwise it won't be added correctly to all separate `fetchmail` instances.
+#### Getmail
+
+##### ENABLE_GETMAIL
+
+Enable or disable `getmail`.
+
+- **0** => Disabled
+- 1 => Enabled
+
+##### GETMAIL_POLL
+
+- **5** => `getmail` The number of minutes for the interval. Min: 1; Max: 30; Default: 5.
 
 #### LDAP
 
-##### ENABLE_LDAP
 
-Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 
 ##### LDAP_START_TLS
 
@@ -487,8 +617,8 @@ Deprecated. See [`ACCOUNT_PROVISIONER`](#account_provisioner).
 ##### LDAP_SERVER_HOST
 
 - **empty** => mail.example.com
-- => Specify the dns-name/ip-address where the ldap-server is listening, or an URI like `ldaps://mail.example.com`
-- NOTE: If you going to use `docker-mailserver` in combination with `docker-compose.yml` you can set the service name here
+- => Specify the `<dns-name>` / `<ip-address>` where the LDAP server is reachable via a URI like: `ldaps://mail.example.com`.
+- Note: You must include the desired URI scheme (`ldap://`, `ldaps://`, `ldapi://`).
 
 ##### LDAP_SEARCH_BASE
 
@@ -557,14 +687,13 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 ##### DOVECOT_DNPASS
 
 - **empty** => same as `LDAP_BIND_PW`
-- => Password for LDAP dn sepecifified in `DOVECOT_DN`.
+- => Password for LDAP dn specified in `DOVECOT_DN`.
 
 ##### DOVECOT_URIS
 
 - **empty** => same as `LDAP_SERVER_HOST`
-- => Specify a space separated list of LDAP uris.
-- Note: If the protocol is missing, `ldap://` will be used.
-- Note: This deprecates `DOVECOT_HOSTS` (as it didn't allow to use LDAPS), which is currently still supported for backwards compatibility.
+- => Specify a space separated list of LDAP URIs.
+- Note: You must include the desired URI scheme (`ldap://`, `ldaps://`, `ldapi://`).
 
 ##### DOVECOT_LDAP_VERSION
 
@@ -657,7 +786,7 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 ##### SASLAUTHD_LDAP_SERVER
 
 - **empty** => same as `LDAP_SERVER_HOST`
-- Note: since version 10.0.0, you can specify a protocol here (like ldaps://); this deprecates SASLAUTHD_LDAP_SSL.
+- Note: You must include the desired URI scheme (`ldap://`, `ldaps://`, `ldapi://`).
 
 ##### SASLAUTHD_LDAP_START_TLS
 
@@ -794,4 +923,4 @@ you to replace both instead of just the envelope sender.
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates
 [docs-tls-selfsigned]: ./security/ssl.md#self-signed-certificates
-[docs-accounts]: ./user-management/accounts.md#notes
+[docs-accounts-quota]: ./user-management.md#quotas

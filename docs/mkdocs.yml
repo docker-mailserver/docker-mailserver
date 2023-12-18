@@ -35,6 +35,8 @@ theme:
     - navigation.top
     - navigation.expand
     - navigation.instant
+    - content.action.edit
+    - content.action.view
     - content.code.annotate
   palette:
     # Light mode
@@ -78,6 +80,8 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.magiclink
   - pymdownx.inlinehilite
   - pymdownx.tilde
@@ -100,6 +104,8 @@ markdown_extensions:
           lang: shell-session
         - name: fetchmailrc
           lang: txt
+        - name: getmailrc
+          lang: txt
         - name: caddyfile
           lang: txt
 
@@ -111,16 +117,12 @@ markdown_extensions:
 nav:
   - 'Home': index.md
   - 'Introduction': introduction.md
+  - 'Usage': usage.md
   - 'Configuration':
-    - 'Your Best Friend setup.sh': config/setup.sh.md
     - 'Environment Variables': config/environment.md
-    - 'User Management':
-      - 'Accounts': config/user-management/accounts.md
-      - 'Aliases': config/user-management/aliases.md
+    - 'User Management': config/user-management.md
     - 'Best Practices':
-      - 'DKIM': config/best-practices/dkim.md
-      - 'DMARC': config/best-practices/dmarc.md
-      - 'SPF': config/best-practices/spf.md
+      - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
       - 'Auto-discovery': config/best-practices/autodiscover.md
     - 'Security':
       - 'Understanding the Ports': config/security/understanding-the-ports.md
@@ -128,9 +130,9 @@ nav:
       - 'Fail2Ban': config/security/fail2ban.md
       - 'Mail Encryption' : config/security/mail_crypt.md
       - 'Rspamd' : config/security/rspamd.md
-    - 'Troubleshooting':
-      - 'Debugging': config/troubleshooting/debugging.md
+    - 'Debugging': config/debugging.md
     - 'Mail Delivery with POP3': config/pop3.md
+    - 'About setup.sh': config/setup.sh.md
     - 'Advanced Configuration':
         - 'Optional Configuration': config/advanced/optional-config.md
         - 'Maintenance':
@@ -142,6 +144,7 @@ nav:
         - 'LDAP Authentication': config/advanced/auth-ldap.md
         - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
         - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md
+        - 'Email Gathering with Getmail': config/advanced/mail-getmail.md
         - 'Email Forwarding':
           - 'Relay Hosts': config/advanced/mail-forwarding/relay-hosts.md
           - 'AWS SES': config/advanced/mail-forwarding/aws-ses.md
@@ -154,11 +157,14 @@ nav:
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
       - 'Mailserver behind Proxy': examples/tutorials/mailserver-behind-proxy.md
+      - 'Crowdsec': examples/tutorials/crowdsec.md
       - 'Building your own Docker image': examples/tutorials/docker-build.md
       - 'Blog Posts': examples/tutorials/blog-posts.md
     - 'Use Cases':
       - 'Forward-Only Mail-Server with LDAP': examples/use-cases/forward-only-mailserver-with-ldap-authentication.md
       - 'Customize IMAP Folders': examples/use-cases/imap-folders.md
+      - 'iOS Mail Push Support': examples/use-cases/ios-mail-push-support.md
+      - 'Lua Authentication': examples/use-cases/auth-lua.md
   - 'FAQ' : faq.md
   - 'Contributing':
     - 'General Information': contributing/general.md

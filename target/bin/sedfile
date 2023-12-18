@@ -19,16 +19,14 @@ function __usage { echo "Usage: ${0} -i <replace/delete operation> <file>" ; }
 HASHTOOL='sha1sum'
 SKIP_ERROR=0
 
-if [[ ${#} -lt 3 ]]
-then
+if [[ ${#} -lt 3 ]]; then
   _log 'error' 'At least three parameters must be given'
   __usage
   exit 1
 fi >&2
 
 [[ -f /CONTAINER_START ]] && SKIP_ERROR=1 # hide error if container was restarted
-if [[ ${1} == '--strict' ]]               # show error every time
-then
+if [[ ${1} == '--strict' ]]; then         # show error every time
   SKIP_ERROR=0
   shift
 fi
@@ -41,8 +39,7 @@ sed "${@}"
 NEW=$(${HASHTOOL} "${FILE}")
 
 # fail if file was not modified
-if [[ ${OLD} == "${NEW}" ]] && [[ ${SKIP_ERROR} -eq 0 ]]
-then
+if [[ ${OLD} == "${NEW}" ]] && [[ ${SKIP_ERROR} -eq 0 ]]; then
   _log 'error' "No difference after call to 'sed' in 'sedfile' (sed ${*})" >&2
   exit 1
 fi

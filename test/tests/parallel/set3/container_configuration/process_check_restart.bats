@@ -72,16 +72,14 @@ ENV_PROCESS_LIST=(
   # Required for Postfix (when launched by wrapper script which is slow to start)
   _wait_for_smtp_port_in_container
 
-  for PROCESS in "${CORE_PROCESS_LIST[@]}"
-  do
+  for PROCESS in "${CORE_PROCESS_LIST[@]}"; do
     run _check_if_process_is_running "${PROCESS}"
     assert_success
     assert_output --partial "${PROCESS}"
     refute_output --partial "is not running"
   done
 
-  for PROCESS in "${ENV_PROCESS_LIST[@]}" clamd
-  do
+  for PROCESS in "${ENV_PROCESS_LIST[@]}" clamd; do
     run _check_if_process_is_running "${PROCESS}"
     assert_failure
     assert_output --partial "'${PROCESS}' is not running"
@@ -116,16 +114,15 @@ ENV_PROCESS_LIST=(
     "${ENV_PROCESS_LIST[@]}"
   )
 
-  for PROCESS in "${ENABLED_PROCESS_LIST[@]}"
-  do
+  for PROCESS in "${ENABLED_PROCESS_LIST[@]}"; do
     _should_restart_when_killed "${PROCESS}"
   done
 
   # By this point the fetchmail processes have been verified to exist and restart,
   # For FETCHMAIL_PARALLEL=1 coverage, match full commandline for COUNTER values:
-  pgrep --full 'fetchmail-1.rc'
+  _run_in_container pgrep --full 'fetchmail-1.rc'
   assert_success
-  pgrep --full 'fetchmail-2.rc'
+  _run_in_container pgrep --full 'fetchmail-2.rc'
   assert_success
 
   _should_stop_cleanly
@@ -179,13 +176,12 @@ function _should_restart_when_killed() {
 function _check_if_process_is_running() {
   local PROCESS=${1}
   local MIN_SECS_RUNNING
-  [[ -n ${2} ]] && MIN_SECS_RUNNING="--older ${2}"
+  [[ -n ${2:-} ]] && MIN_SECS_RUNNING=('--older' "${2}")
 
-  local IS_RUNNING=$(docker exec "${CONTAINER_NAME}" pgrep --list-full ${MIN_SECS_RUNNING} "${PROCESS}")
+  local IS_RUNNING=$(docker exec "${CONTAINER_NAME}" pgrep --list-full "${MIN_SECS_RUNNING[@]}" "${PROCESS}")
 
   # When no matches are found, nothing is returned. Provide something we can assert on (helpful for debugging):
-  if [[ ! ${IS_RUNNING} =~ "${PROCESS}" ]]
-  then
+  if [[ ! ${IS_RUNNING} =~ ${PROCESS} ]]; then
     echo "'${PROCESS}' is not running"
     return 1
   fi
@@ -197,7 +193,7 @@ function _check_if_process_is_running() {
 # The process manager (supervisord) should perform a graceful shutdown:
 # NOTE: Time limit should never be below these configured values:
 # - supervisor-app.conf:stopwaitsecs
-# - docker-compose.yml:stop_grace_period
+# - compose.yaml:stop_grace_period
 function _should_stop_cleanly() {
   run docker stop -t 60 "${CONTAINER_NAME}"
   assert_success

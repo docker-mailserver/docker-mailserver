@@ -9,6 +9,9 @@ readme_directory = no
 # myhostname =
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
+# Take the following concerns into consideration if adjusting `mydestination`:
+# https://github.com/docker-mailserver/docker-mailserver/pull/3264#pullrequestreview-1396816109
+# https://github.com/docker-mailserver/docker-mailserver/pull/3264#issuecomment-1518993555
 mydestination = $myhostname, localhost.$mydomain, localhost
 relayhost =
 mynetworks = 127.0.0.0/8 [::1]/128 [fe80::]/64
@@ -48,10 +51,16 @@ smtpd_helo_required = yes
 smtpd_delay_reject = yes
 smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname, permit
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, check_policy_service unix:private/policyd-spf, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain, reject_rbl_client zen.spamhaus.org=127.0.0.[2..11]
+smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
-smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain, reject_unknown_client_hostname
+smtpd_sender_restrictions = $dms_smtpd_sender_restrictions
+smtpd_discard_ehlo_keywords = silent-discard, dsn
 disable_vrfy_command = yes
+
+# Custom defined parameters for DMS:
+dms_smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
+# Submission ports 587 and 465 support for SPOOF_PROTECTION=1
+mua_sender_restrictions = reject_authenticated_sender_login_mismatch, $dms_smtpd_sender_restrictions
 
 # Postscreen settings to drop zombies/open relays/spam early
 postscreen_dnsbl_action = enforce
@@ -71,33 +80,25 @@ postscreen_greet_action = enforce
 postscreen_bare_newline_action = enforce
 
 # SASL
-smtpd_sasl_auth_enable = yes
-smtpd_sasl_path = /var/spool/postfix/private/auth
+smtpd_sasl_auth_enable = no
+smtpd_sasl_path = /dev/shm/sasl-auth.sock
 smtpd_sasl_type = dovecot
 
 smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain = $mydomain
 broken_sasl_auth_clients = yes
 
-# Mail directory
-virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
+# Postfix lookup tables for verifying valid users and managed mail domains:
+# Populated during startup in: scripts/helpers/postfix.sh
 virtual_mailbox_domains = /etc/postfix/vhost
-virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
+# Populated during startup in: scripts/helpers/aliases.sh
 virtual_alias_maps = texthash:/etc/postfix/virtual
-
-# Additional option for filtering
-content_filter = smtp-amavis:[127.0.0.1]:10024
 
 # Milters used by DKIM
 milter_protocol = 6
 milter_default_action = accept
-dkim_milter = inet:localhost:8891
-dmarc_milter = inet:localhost:8893
 smtpd_milters =
 non_smtpd_milters =
-
-# SPF policy settings
-policyd-spf_time_limit = 3600
 
 # Header checks for content inspection on receiving
 header_checks = pcre:/etc/postfix/maps/header_checks.pcre

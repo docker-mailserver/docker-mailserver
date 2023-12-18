@@ -1,0 +1,7 @@
+#! /bin/bash
+
+for FILE in /etc/getmailrc.d/getmailrc*; do
+  if ! pgrep -f "${FILE}$" &>/dev/null; then
+    /usr/local/bin/getmail --getmaildir /var/lib/getmail --rcfile "${FILE}"
+  fi
+done

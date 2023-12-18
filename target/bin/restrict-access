@@ -3,64 +3,63 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-MODE="${1}"
-USER="${3}"
+COMMAND=${1:-}
+DIRECTION=${2:-}
+DIRECTION=${DIRECTION,,} # make lowercase
+USER=${3:-}
 
-function __usage { echo "Usage: ${0} <add|del|list> <send|receive> [<email@domain.com>]" ; }
+function __usage { _log 'info' "Usage: ${0} <add|del|list> <send|receive> [<email@domain.com>]" ; }
 
-[[ -z ${MODE} ]] && _exit_with_error 'Missing parameters: <add|del|list> <send|receive> [<email@domain.com>]'
+if [[ ${DIRECTION} =~ ^(send|receive)$ ]]; then
+  DATABASE="/tmp/docker-mailserver/postfix-${DIRECTION}-access.cf"
+else
+  __usage
+  _exit_with_error "Unknown or missing second parameter '${DIRECTION}' - specify 'send' or 'receive'"
+fi
 
-case "${2}" in
-  ( 'send' )
-    DATABASE="/tmp/docker-mailserver/postfix-send-access.cf"
-    ;;
-
-  ( 'receive' )
-    DATABASE="/tmp/docker-mailserver/postfix-receive-access.cf"
-    ;;
-
-  ( * )
-    __usage
-    _exit_with_error "Missing parameters: specify 'send' or 'receive'"
-    ;;
-
-esac
-
-if [[ -z ${USER} ]] && [[ ${MODE} != list ]]
-then
-  read -r -p 'User(user@domain.com): ' USER
-  echo
+if [[ -z ${USER} ]] && [[ ${COMMAND} != list ]]; then
+  read -r -p 'Provide a username: ' USER
   [[ -z ${USER} ]] && _exit_with_error 'User must not be empty'
 fi
 
-case "${MODE}" in
+case "${COMMAND}" in
+
   ( 'add' )
-    grep -qi "^$(_escape "${USER}")" "${DATABASE}" 2>/dev/null && _exit_with_error "User '${USER}' already denied to ${2} mails"
-
-    if [[ ! -f ${DATABASE} ]]
-    then
-      # shellcheck disable=SC2015
-      [[ ${DATABASE} = *"send"* ]] && \
-          sed -i 's|smtpd_sender_restrictions =|smtpd_sender_restrictions = check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf \
-        || sed -i 's|smtpd_recipient_restrictions =|smtpd_recipient_restrictions = check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|' /etc/postfix/main.cf
-
-      _reload_postfix
+    if [[ -f ${DATABASE} ]] && grep -q -F "${USER}" "${DATABASE}"; then
+      _exit_with_error "User '${USER}' already denied to ${DIRECTION} mails"
     fi
 
     echo -e "${USER} \t\t REJECT" >>"${DATABASE}"
+
+    if [[ ${DIRECTION} == 'send' ]]; then
+      CHECK='check_sender_access'
+      POSTFIX_OPTION='smtpd_sender_restrictions'
+    else
+      CHECK='check_recipient_access'
+      POSTFIX_OPTION='smtpd_recipient_restrictions'
+    fi
+
+    # only adjust Postfix's `main.cf` if we haven't adjusted it before
+    STRING_TO_BE_ADDED="${CHECK} texthash:/tmp/docker-mailserver/postfix-${DIRECTION}-access.cf"
+    if ! grep -q "${STRING_TO_BE_ADDED}" /etc/postfix/main.cf; then
+      sed -i -E "s|^(${POSTFIX_OPTION} =)(.*)|\1 ${STRING_TO_BE_ADDED},\2|" /etc/postfix/main.cf
+      _reload_postfix
+    fi
     ;;
 
   ( 'del' )
-    sed -ie "/^$(_escape "${USER}")/d" "${DATABASE}" 2>/dev/null || _exit_with_error "User '${USER}' not found."
+    if ! sed -i "/^$(_escape "${USER}").*/d" "${DATABASE}" 2>/dev/null; then
+      _exit_with_error "User '${USER}' not found"
+    fi
     ;;
 
   ( 'list' )
-    grep "REJECT" "${DATABASE}" 2>/dev/null || _log 'info' "Everyone is allowed to ${2} mails"
+    grep "REJECT" "${DATABASE}" 2>/dev/null || _log 'info' "Everyone is allowed to ${DIRECTION} mails"
     ;;
 
   ( * )
     __usage
-    _exit_with_error "Missing mode: specify 'add', 'del' or 'list'"
+    _exit_with_error "Unknown or missing command '${COMMAND}' - specify 'add', 'del' or 'list'"
     ;;
 
 esac

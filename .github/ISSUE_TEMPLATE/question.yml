@@ -1,0 +1,30 @@
+name: Other
+description: Miscellaneous questions and reports for the project (not support)
+title: 'other: '
+labels:
+  - meta/help wanted
+
+body:
+  - type: dropdown
+    id: subject
+    attributes:
+      label: Subject
+      options:
+        - I would like to contribute to the project
+        - I would like to configure a not documented mail server use case
+        - I would like some feedback concerning a use case
+        - Something else that requires developers attention
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    validations:
+      required: true
+    attributes:
+      label: Description
+      value: |
+        <!---
+        Please do not use this form to bypass doing a proper bug report.
+        The issue tracker is for anything relevant to the project itself, not individual support queries.
+        If you don't want to fill out a bug report, please ask support questions at our community discussions page: https://github.com/orgs/docker-mailserver/discussions
+        -->

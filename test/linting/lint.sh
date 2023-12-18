@@ -9,20 +9,22 @@ shopt -s inherit_errexit
 
 REPOSITORY_ROOT=$(realpath "$(dirname "$(readlink -f "${0}")")"/../../)
 LOG_LEVEL=${LOG_LEVEL:-debug}
-HADOLINT_VERSION='2.9.2'
-ECLINT_VERSION='2.4.0'
+HADOLINT_VERSION='2.12.0'
+ECLINT_VERSION='2.7.2'
 SHELLCHECK_VERSION='0.9.0'
 
 # shellcheck source=./../../target/scripts/helpers/log.sh
 source "${REPOSITORY_ROOT}/target/scripts/helpers/log.sh"
 
-function _eclint
-{
+function _eclint() {
+  # `/check` is used instead of `/ci` as the mount path due to:
+  # https://github.com/editorconfig-checker/editorconfig-checker/issues/268#issuecomment-1826200253
+  # `.ecrc.json` continues to explicitly ignores the `.git/` path to avoid any potential confusion
   if docker run --rm --tty \
-    --volume "${REPOSITORY_ROOT}:/ci:ro" \
-    --workdir "/ci" \
+    --volume "${REPOSITORY_ROOT}:/check:ro" \
+    --workdir "/check" \
     --name dms-test_eclint \
-    "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec -config "/ci/test/linting/.ecrc.json"
+    "mstruebing/editorconfig-checker:${ECLINT_VERSION}" ec -config "/check/test/linting/.ecrc.json"
   then
     _log 'info' 'ECLint succeeded'
   else
@@ -31,13 +33,12 @@ function _eclint
   fi
 }
 
-function _hadolint
-{
+function _hadolint() {
   if docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
     --name dms-test_hadolint \
-    "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yaml" Dockerfile
+    "hadolint/hadolint:v${HADOLINT_VERSION}-alpine" hadolint --config "/ci/test/linting/.hadolint.yml" Dockerfile
   then
     _log 'info' 'Hadolint succeeded'
   else
@@ -46,22 +47,42 @@ function _hadolint
   fi
 }
 
-function _shellcheck
-{
-  # File paths for shellcheck:
-  F_SH=$(find . -type f -iname '*.sh' \
+# Create three arrays (F_SH, F_BIN, F_BATS) containing our BASH scripts
+function _getBashScripts() {
+  readarray -d '' F_SH < <(find . -type f -iname '*.sh' \
     -not -path './test/bats/*' \
-    -not -path './test/test_helper/*'
+    -not -path './test/test_helper/*' \
+    -not -path './.git/*' \
+    -print0 \
   )
-  # shellcheck disable=SC2248
-  F_BIN=$(find 'target/bin' -type f -not -name '*.py')
-  F_BATS=$(find 'test' -maxdepth 1 -type f -iname '*.bats')
 
+  # shellcheck disable=SC2248
+  readarray -d '' F_BIN < <(find 'target/bin' -type f -not -name '*.py' -print0)
+  readarray -d '' F_BATS < <(find 'test/tests/' -type f -iname '*.bats' -print0)
+}
+
+# Check BASH files for correct syntax
+function _bashcheck() {
+  local ERROR=0 SCRIPT
+  # .bats files are excluded from the test below: Due to their custom syntax ( @test ), .bats files are not standard bash
+  for SCRIPT in "${F_SH[@]}" "${F_BIN[@]}"; do
+    bash -n "${SCRIPT}" || ERROR=1
+  done
+
+  if [[ ${ERROR} -eq 0 ]]; then
+    _log 'info' 'BASH syntax check succeeded'
+  else
+    _log 'error' 'BASH syntax check failed'
+    return 1
+  fi
+}
+
+function _shellcheck() {
   # This command is a bit easier to grok as multi-line.
   # There is a `.shellcheckrc` file, but it's only supports half of the options below, thus kept as CLI:
   # `SCRIPTDIR` is a special value that represents the path of the script being linted,
   # all sourced scripts share the same SCRIPTDIR source-path of the original script being linted.
-  CMD_SHELLCHECK=(shellcheck
+  local CMD_SHELLCHECK=(shellcheck
     --external-sources
     --check-sourced
     --severity=style
@@ -73,7 +94,13 @@ function _shellcheck
     --exclude=SC2311
     --exclude=SC2312
     --source-path=SCRIPTDIR
-    "${F_SH} ${F_BIN} ${F_BATS}"
+  )
+
+  local BATS_EXTRA_ARGS=(
+    --exclude=SC2030
+    --exclude=SC2031
+    --exclude=SC2034
+    --exclude=SC2155
   )
 
   # The linter can reference additional source-path values declared in scripts,
@@ -86,12 +113,22 @@ function _shellcheck
   # Otherwise it only applies to the line below it. You can declare multiple source-paths, they don't override the previous.
   # `source=relative/path/to/file.sh` will check the source value in each source-path as well.
   # shellcheck disable=SC2068
-  if docker run --rm --tty \
+  local ERROR=0
+
+  docker run --rm --tty \
     --volume "${REPOSITORY_ROOT}:/ci:ro" \
     --workdir "/ci" \
     --name dms-test_shellcheck \
-    "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" ${CMD_SHELLCHECK[@]}
-  then
+    "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" "${CMD_SHELLCHECK[@]}" "${F_SH[@]}" "${F_BIN[@]}" || ERROR=1
+
+  docker run --rm --tty \
+    --volume "${REPOSITORY_ROOT}:/ci:ro" \
+    --workdir "/ci" \
+    --name dms-test_shellcheck \
+    "koalaman/shellcheck-alpine:v${SHELLCHECK_VERSION}" "${CMD_SHELLCHECK[@]}" \
+    "${BATS_EXTRA_ARGS[@]}" "${F_BATS[@]}" || ERROR=1
+
+  if [[ ${ERROR} -eq 0 ]]; then
     _log 'info' 'ShellCheck succeeded'
   else
     _log 'error' 'ShellCheck failed'
@@ -99,12 +136,12 @@ function _shellcheck
   fi
 }
 
-function _main
-{
+function _main() {
   case "${1:-}" in
-    ( 'eclint'     ) _eclint     ;;
-    ( 'hadolint'   ) _hadolint   ;;
-    ( 'shellcheck' ) _shellcheck ;;
+    ( 'eclint'     ) _eclint                      ;;
+    ( 'hadolint'   ) _hadolint                    ;;
+    ( 'bashcheck'  ) _getBashScripts; _bashcheck  ;;
+    ( 'shellcheck' ) _getBashScripts; _shellcheck ;;
     ( * )
       _log 'error' "'${1:-}' is not a command nor an option"
       return 3

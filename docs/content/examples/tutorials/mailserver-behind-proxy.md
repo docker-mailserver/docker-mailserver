@@ -1,8 +1,8 @@
 ---
-title: 'Tutorials | Mail-Server behind a Proxy'
+title: 'Tutorials | Mail Server behind a Proxy'
 ---
 
-## Using `docker-mailserver` behind a Proxy
+## Using DMS behind a Proxy
 
 ### Information
 
@@ -30,7 +30,6 @@ Feel free to add your configuration if you achieved the same goal using differen
     Truncated configuration of traefik itself:
 
     ```yaml
-    version: '3.8'
     services:
       reverse-proxy:
         image: docker.io/traefik:latest # v2.5
@@ -54,16 +53,14 @@ Feel free to add your configuration if you achieved the same goal using differen
     [...]
     ```
 
-    Truncated list of necessary labels on the `docker-mailserver` container:
+    Truncated list of necessary labels on the DMS container:
 
     ```yaml
-    version: '3.8'
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
-        hostname: mail
-        domainname: example.com
+        hostname: mail.example.com
         restart: always
         networks:
           - proxy
@@ -75,14 +72,15 @@ Feel free to add your configuration if you achieved the same goal using differen
           - "traefik.tcp.services.smtp.loadbalancer.server.port=25"
           - "traefik.tcp.services.smtp.loadbalancer.proxyProtocol.version=1"
           - "traefik.tcp.routers.smtp-ssl.rule=HostSNI(`*`)"
-          - "traefik.tcp.routers.smtp-ssl.tls=false"
           - "traefik.tcp.routers.smtp-ssl.entrypoints=smtp-ssl"
+          - "traefik.tcp.routers.smtp-ssl.tls.passthrough=true"
           - "traefik.tcp.routers.smtp-ssl.service=smtp-ssl"
           - "traefik.tcp.services.smtp-ssl.loadbalancer.server.port=465"
           - "traefik.tcp.services.smtp-ssl.loadbalancer.proxyProtocol.version=1"
           - "traefik.tcp.routers.imap-ssl.rule=HostSNI(`*`)"
           - "traefik.tcp.routers.imap-ssl.entrypoints=imap-ssl"
           - "traefik.tcp.routers.imap-ssl.service=imap-ssl"
+          - "traefik.tcp.routers.imap-ssl.tls.passthrough=true"
           - "traefik.tcp.services.imap-ssl.loadbalancer.server.port=10993"
           - "traefik.tcp.services.imap-ssl.loadbalancer.proxyProtocol.version=2"
           - "traefik.tcp.routers.sieve.rule=HostSNI(`*`)"
@@ -108,7 +106,7 @@ and to `docker-data/dms/config/postfix-master.cf`:
 
 ```cf
 submission/inet/smtpd_upstream_proxy_protocol=haproxy
-smtps/inet/smtpd_upstream_proxy_protocol=haproxy
+submissions/inet/smtpd_upstream_proxy_protocol=haproxy
 ```
 
 Changes for `dovecot` can be applied by adding the following content to `docker-data/dms/config/dovecot.cf`:

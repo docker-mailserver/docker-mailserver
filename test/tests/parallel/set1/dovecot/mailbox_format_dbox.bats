@@ -26,15 +26,14 @@ function teardown() { _default_teardown ; }
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _send_email 'existing-user1'
+  _send_email 'email-templates/existing-user1'
   _wait_for_empty_mail_queue_in_container
 
   # Mail received should be stored as `u.1` (one file per message)
-  local MAILBOX_STORAGE='/var/mail/localhost.localdomain/user1/mailboxes/INBOX/dbox-Mails'
-  _count_files_in_directory_in_container "${MAILBOX_STORAGE}" 3
-  assert_output --partial "${MAILBOX_STORAGE}/dovecot.index.log"
-  assert_output --partial "${MAILBOX_STORAGE}/u.1"
-  assert_output --partial "${MAILBOX_STORAGE}/dovecot.index.cache"
+  _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/mailboxes/INBOX/dbox-Mails' 3
+  assert_line 'dovecot.index.log'
+  assert_line 'u.1'
+  assert_line 'dovecot.index.cache'
 }
 
 @test "(ENV DOVECOT_MAILBOX_FORMAT=mdbox) should store received mail at expected location" {
@@ -48,12 +47,11 @@ function teardown() { _default_teardown ; }
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _send_email 'existing-user1'
+  _send_email 'email-templates/existing-user1'
   _wait_for_empty_mail_queue_in_container
 
   # Mail received should be stored in `m.1` (1 or more messages)
-  local MAILBOX_STORAGE='/var/mail/localhost.localdomain/user1/storage'
-  _count_files_in_directory_in_container "${MAILBOX_STORAGE}" 2
-  assert_output --partial "${MAILBOX_STORAGE}/dovecot.map.index.log"
-  assert_output --partial "${MAILBOX_STORAGE}/m.1"
+  _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/storage' 2
+  assert_line 'dovecot.map.index.log'
+  assert_line 'm.1'
 }

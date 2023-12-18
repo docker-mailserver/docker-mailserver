@@ -3,7 +3,7 @@ title: 'Security | mail_crypt (email/storage encryption)'
 ---
 
 !!! info
- 
+
     The Mail crypt plugin is used to secure email messages stored in a Dovecot system. Messages are encrypted before written to storage and decrypted after reading. Both operations are transparent to the user.
 
     In case of unauthorized access to the storage backend, the messages will, without access to the decryption keys, be unreadable to the offending party.
@@ -30,26 +30,26 @@ Official Dovecot documentation: https://doc.dovecot.org/configuration_manual/mai
     }
     ```
 
-2. Shutdown your mailserver (`docker-compose down`)
+2. Shutdown your mailserver (`docker compose down`)
 
 3. You then need to [generate your global EC key](https://doc.dovecot.org/configuration_manual/mail_crypt_plugin/#ec-key). We named them `/certs/ecprivkey.pem` and `/certs/ecpubkey.pem` in step #1.
 
-4. The EC key needs to be available in the container. I prefer to mount a /certs directory into the container: 
+4. The EC key needs to be available in the container. I prefer to mount a /certs directory into the container:
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         volumes:
         . . .
           - ./certs/:/certs
         . . .
     ```
 
-5. While you're editing the `docker-compose.yml`, add the configuration file:
+5. While you're editing the `compose.yaml`, add the configuration file:
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         volumes:
         . . .
           - ./config/dovecot/10-custom.conf:/etc/dovecot/conf.d/10-custom.conf

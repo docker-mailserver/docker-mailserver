@@ -3,28 +3,28 @@
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-function __usage { echo "Usage: ./setup.sh fail2ban [<ban|unban> <IP>]" ; }
+function __usage() {
+  echo "Usage: ./setup.sh fail2ban [<ban|unban> <IP>]"
+  echo "       ./setup.sh fail2ban log"
+  echo "       ./setup.sh fail2ban status"
+}
 
 fail2ban-client ping &>/dev/null || _exit_with_error "Fail2ban not running"
 
 unset JAILS
 declare -a JAILS
 
-for LIST in $(fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,/ /g')
-do
+for LIST in $(fail2ban-client status | grep "Jail list" | cut -f2- | sed 's/,/ /g'); do
   JAILS+=("${LIST}")
 done
 
-if [[ -z ${1} ]]
-then
+if [[ -z ${1} ]]; then
   IPS_BANNED=0
 
-  for JAIL in "${JAILS[@]}"
-  do
+  for JAIL in "${JAILS[@]}"; do
     BANNED_IPS=$(fail2ban-client status "${JAIL}" | grep -oP '(?<=Banned IP list:\s).+')
 
-    if [[ -n ${BANNED_IPS} ]]
-    then
+    if [[ -n ${BANNED_IPS} ]]; then
       echo "Banned in ${JAIL}: ${BANNED_IPS}"
       IPS_BANNED=1
     fi
@@ -39,11 +39,9 @@ else
 
     ( 'ban' )
       shift
-      if [[ -n ${1} ]]
-      then
+      if [[ -n ${1} ]]; then
         RESULT=$(fail2ban-client set custom banip "${@}")
-        if [[ ${RESULT} -gt 0 ]]
-        then
+        if [[ ${RESULT} -gt 0 ]]; then
           echo "Banned custom IP: ${RESULT}"
         else
           _log 'error' "Banning '${*}' failed. Already banned?"
@@ -57,11 +55,9 @@ else
 
     ( 'unban' )
       shift
-      if [[ -n ${1} ]]
-      then
+      if [[ -n ${1} ]]; then
 
-        for JAIL in "${JAILS[@]}"
-        do
+        for JAIL in "${JAILS[@]}"; do
           RESULT=$(fail2ban-client set "${JAIL}" unbanip "${@}" 2>&1)
 
           [[ ${RESULT} != *"is not banned"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo "Unbanned IP from ${JAIL}: ${RESULT}"
@@ -71,6 +67,16 @@ else
         _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban' to get a list of banned IP addresses"
         exit 0
       fi
+      ;;
+
+    ( 'log' )
+      cat /var/log/mail/fail2ban.log
+      ;;
+
+    ( 'status' )
+      for JAIL in "${JAILS[@]}"; do
+        printf '%s\n\n' "$(fail2ban-client status "${JAIL}" 2>&1)"
+      done
       ;;
 
     ( * )

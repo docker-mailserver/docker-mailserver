@@ -25,7 +25,7 @@ function setup_file() {
 
   # Pull `testssl.sh` image in advance to avoid it interfering with the `run` captured output.
   # Only interferes (potential test failure) with `assert_output` not `assert_success`?
-  docker pull drwetter/testssl.sh:3.1dev
+  docker pull drwetter/testssl.sh:3.2
 
   # Only used in `_should_support_expected_cipherlists()` to set a storage location for `testssl.sh` JSON output:
   # `${BATS_TMPDIR}` maps to `/tmp`: https://bats-core.readthedocs.io/en/v1.8.2/writing-tests.html#special-variables
@@ -76,8 +76,7 @@ function _configure_and_run_dms_container() {
   local ALT_KEY_TYPE=$3 # Optional parameter
 
   export TEST_VARIANT="${TLS_LEVEL}-${KEY_TYPE}"
-  if [[ -n ${ALT_KEY_TYPE} ]]
-  then
+  if [[ -n ${ALT_KEY_TYPE} ]]; then
     TEST_VARIANT+="-${ALT_KEY_TYPE}"
   fi
 
@@ -98,8 +97,7 @@ function _configure_and_run_dms_container() {
     --env SSL_KEY_PATH="/config/ssl/with_ca/ecdsa/key.${KEY_TYPE}.pem"
   )
 
-  if [[ -n ${ALT_KEY_TYPE} ]]
-  then
+  if [[ -n ${ALT_KEY_TYPE} ]]; then
     CUSTOM_SETUP_ARGUMENTS+=(
       --env SSL_ALT_CERT_PATH="/config/ssl/with_ca/ecdsa/cert.${ALT_KEY_TYPE}.pem"
       --env SSL_ALT_KEY_PATH="/config/ssl/with_ca/ecdsa/key.${ALT_KEY_TYPE}.pem"
@@ -168,7 +166,7 @@ function _collect_cipherlists() {
     --volume "${TLS_CONFIG_VOLUME}" \
     --volume "${RESULTS_PATH}:/output" \
     --workdir "/output" \
-    drwetter/testssl.sh:3.1dev "${TESTSSL_CMD[@]}"
+    drwetter/testssl.sh:3.2 "${TESTSSL_CMD[@]}"
 
   assert_success
 }
@@ -199,8 +197,7 @@ function compare_cipherlist() {
 function get_cipherlist() {
   local TLS_VERSION=$1
 
-  if [[ ${TLS_VERSION} == "TLSv1_3" ]]
-  then
+  if [[ ${TLS_VERSION} == "TLSv1_3" ]]; then
     # TLS v1.3 cipher suites are not user defineable and not unique to the available certificate(s).
     # They do not support server enforced order either.
     echo '"TLS_AES_256_GCM_SHA384 TLS_CHACHA20_POLY1305_SHA256 TLS_AES_128_GCM_SHA256"'

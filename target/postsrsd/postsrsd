@@ -36,6 +36,3 @@ SRS_REVERSE_PORT=10002
 # This is highly recommended as postsrsd handles untrusted input.
 #
 RUN_AS=postsrsd
-
-# Jail daemon in chroot environment
-CHROOT=/var/lib/postsrsd

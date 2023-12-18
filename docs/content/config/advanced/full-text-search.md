@@ -6,7 +6,7 @@ title: 'Advanced | Full-Text Search'
 
 Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content. Dovecot supports a variety of community supported [FTS indexing backends](https://doc.dovecot.org/configuration_manual/fts/).
 
-`docker-mailserver` comes pre-installed with two plugins that can be enabled with a dovecot config file.
+DMS comes pre-installed with two plugins that can be enabled with a dovecot config file.
 
 Please be aware that indexing consumes memory and takes up additional disk space.
 
@@ -55,16 +55,14 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
     adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments
 
-2. Update `docker-compose.yml` to load the previously created dovecot plugin config file:
+2. Update `compose.yaml` to load the previously created dovecot plugin config file:
 
     ```yaml
-      version: '3.8'
       services:
         mailserver:
-          image: docker.io/mailserver/docker-mailserver:latest
+          image: ghcr.io/docker-mailserver/docker-mailserver:latest
           container_name: mailserver
-          hostname: mail
-          domainname: example.com
+          hostname: mail.example.com
           env_file: mailserver.env
           ports:
             - "25:25"    # SMTP  (explicit TLS => STARTTLS)
@@ -88,29 +86,29 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 3. Recreate containers:
 
     ```
-    docker-compose down
-    docker-compose up -d
+    docker compose down
+    docker compose up -d
     ```
 
 4. Initialize indexing on all users for all mail:
 
     ```
-    docker-compose exec mailserver doveadm index -A -q \*
+    docker compose exec mailserver doveadm index -A -q \*
     ```
 
 5. Run the following command in a daily cron job:
 
     ```
-    docker-compose exec mailserver doveadm fts optimize -A
+    docker compose exec mailserver doveadm fts optimize -A
     ```
-    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within `docker-mailserver` to avoid potential errors if the mail-server is not running:
+    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within DMS to avoid potential errors if the mail server is not running:
 
 ??? example
 
     Create a _system_ cron file:
 
     ```sh
-    # in the docker-compose.yml root directory
+    # in the compose.yaml root directory
     mkdir -p ./docker-data/dms/cron # if you didn't have this folder before
     touch ./docker-data/dms/cron/fts_xapian
     chown root:root ./docker-data/dms/cron/fts_xapian
@@ -129,12 +127,12 @@ While indexing is memory intensive, you can configure the plugin to limit the am
     0  4 * * * root  doveadm fts optimize -A
     ```
 
-    Then with `docker-compose.yml`:
+    Then with `compose.yaml`:
 
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         volumes:
           - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
     ```
@@ -144,13 +142,13 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
 The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in conjunction with [Apache Solr](https://lucene.apache.org/solr/) running in a separate container. This is quite straightforward to setup using the following instructions.
 
-Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email. 
+Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email.
 
 However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](https://solr.apache.org/guide/7_0/query-settings-in-solrconfig.html), it may require a bit of testing to get it right.
 
 #### Setup
 
-1. `docker-compose.yml`:
+1. `compose.yaml`:
 
     ```yaml
       solr:
@@ -162,7 +160,7 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
       mailserver:
         depends_on:
           - solr
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         ...
         volumes:
           ...
@@ -182,9 +180,9 @@ However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](h
     }
     ```
 
-3. Recreate containers: `docker-compose down ; docker-compose up -d`
+3. Recreate containers: `docker compose down ; docker compose up -d`
 
-4. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker-compose exec mailserver doveadm fts rescan -A`
+4. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker compose exec mailserver doveadm fts rescan -A`
 
 #### Further Discussion
 

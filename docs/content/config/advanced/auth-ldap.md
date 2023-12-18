@@ -4,7 +4,7 @@ title: 'Advanced | LDAP Authentication'
 
 ## Introduction
 
-Getting started with ldap and `docker-mailserver` we need to take 3 parts in account:
+Getting started with ldap and DMS we need to take 3 parts in account:
 
 - `postfix` for incoming & outgoing email
 - `dovecot` for accessing mailboxes
@@ -34,7 +34,6 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
     A really simple `LDAP_QUERY_FILTER` configuration, using only the _user filter_ and allowing only `admin@*` to spoof any sender addresses.
 
     ```yaml
-    - ENABLE_LDAP=1 # with the :edge tag, use ACCOUNT_PROVISIONER
     - LDAP_START_TLS=yes
     - ACCOUNT_PROVISIONER=LDAP
     - LDAP_SERVER_HOST=ldap.example.org
@@ -191,7 +190,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
         hostname: mail.example.com
 
@@ -215,7 +214,6 @@ The changes on the configurations necessary to work with Active Directory (**onl
           - ENABLE_POSTGREY=1
 
           # >>> Postfix LDAP Integration
-          - ENABLE_LDAP=1 # with the :edge tag, use ACCOUNT_PROVISIONER
           - ACCOUNT_PROVISIONER=LDAP
           - LDAP_SERVER_HOST=ldap.example.org
           - LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org
@@ -253,7 +251,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
     ```yaml
     services:
       mailserver:
-        image: docker.io/mailserver/docker-mailserver:latest
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
         container_name: mailserver
         hostname: mail.example.com
 
@@ -284,7 +282,6 @@ The changes on the configurations necessary to work with Active Directory (**onl
           # <<< SASL Authentication
 
           # >>> Postfix Ldap Integration
-          - ENABLE_LDAP=1 # with the :edge tag, use ACCOUNT_PROVISIONER
           - ACCOUNT_PROVISIONER=LDAP
           - LDAP_SERVER_HOST=<yourLdapContainer/yourLdapServer>
           - LDAP_SEARCH_BASE=dc=mydomain,dc=loc

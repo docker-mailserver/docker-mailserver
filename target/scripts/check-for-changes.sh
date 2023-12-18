@@ -21,21 +21,20 @@ source /etc/dms-settings
 # usage with DMS_HOSTNAME, which should remove the need to call this:
 _obtain_hostname_and_domainname
 
+# This is a helper to properly set all Rspamd-related environment variables
+# correctly and in one place.
+_rspamd_get_envs
+
 # verify checksum file exists; must be prepared by start-mailserver.sh
-if [[ ! -f ${CHKSUM_FILE} ]]
-then
+if [[ ! -f ${CHKSUM_FILE} ]]; then
   _exit_with_error "'${CHKSUM_FILE}' is missing" 0
 fi
 
 _log_with_date 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
 
-# Change detection delayed during startup to avoid conflicting writes
-sleep 10
-
 _log_with_date 'debug' "Changedetector is ready"
 
-function _check_for_changes
-{
+function _check_for_changes() {
   # get chksum and check it, no need to lock config yet
   _monitored_files_checksums >"${CHKSUM_FILE}.new"
   cmp --silent -- "${CHKSUM_FILE}" "${CHKSUM_FILE}.new"
@@ -44,8 +43,7 @@ function _check_for_changes
   # 0 – files are identical
   # 1 – files differ
   # 2 – inaccessible or missing argument
-  if [[ ${?} -eq 1 ]]
-  then
+  if [[ ${?} -eq 1 ]]; then
     _log_with_date 'info' 'Change detected'
     _create_lock # Shared config safety lock
 
@@ -55,6 +53,7 @@ function _check_for_changes
     # Handle any changes
     _ssl_changes
     _postfix_dovecot_changes
+    _rspamd_changes
 
     _log_with_date 'debug' 'Reloading services due to detected changes'
 
@@ -64,14 +63,13 @@ function _check_for_changes
 
     _remove_lock
     _log_with_date 'debug' 'Completed handling of detected change'
-  fi
 
-  # mark changes as applied
-  mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
+    # mark changes as applied
+    mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
+  fi
 }
 
-function _get_changed_files
-{
+function _get_changed_files() {
   local CHKSUM_CURRENT=${1}
   local CHKSUM_NEW=${2}
 
@@ -86,10 +84,8 @@ function _get_changed_files
   grep -Fxvf "${CHKSUM_CURRENT}" "${CHKSUM_NEW}" | sed -r 's/^\S+[[:space:]]+//'
 }
 
-function _reload_amavis
-{
-  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]]
-  then
+function _reload_amavis() {
+  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]]; then
     # /etc/postfix/vhost was updated, amavis must refresh it's config by
     # reading this file again in case of new domains, otherwise they will be ignored.
     amavisd-new reload
@@ -98,8 +94,7 @@ function _reload_amavis
 
 # Also note that changes are performed in place and are not atomic
 # We should fix that and write to temporary files, stop, swap and start
-function _postfix_dovecot_changes
-{
+function _postfix_dovecot_changes() {
   local DMS_DIR=/tmp/docker-mailserver
 
   # Regenerate accounts via `helpers/accounts.sh`:
@@ -147,16 +142,14 @@ function _postfix_dovecot_changes
   _chown_var_mail_if_necessary
 }
 
-function _ssl_changes
-{
+function _ssl_changes() {
   local REGEX_NEVER_MATCH='(?\!)'
 
   # _setup_ssl is required for:
   # manual - copy to internal DMS_TLS_PATH (/etc/dms/tls) that Postfix and Dovecot are configured to use.
   # acme.json - presently uses /etc/letsencrypt/live/<FQDN> instead of DMS_TLS_PATH,
   # path may change requiring Postfix/Dovecot config update.
-  if [[ ${SSL_TYPE} == 'manual' ]]
-  then
+  if [[ ${SSL_TYPE} == 'manual' ]]; then
     # only run the SSL setup again if certificates have really changed.
     if [[ ${CHANGED} =~ ${SSL_CERT_PATH:-${REGEX_NEVER_MATCH}} ]]     \
     || [[ ${CHANGED} =~ ${SSL_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]      \
@@ -169,8 +162,7 @@ function _ssl_changes
   # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
   # When a change is detected it's assumed to be a possible cert renewal that needs to be
   # extracted for `docker-mailserver` services to adjust to.
-  elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]
-  then
+  elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]; then
     _log_with_date 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
     _setup_ssl
 
@@ -187,8 +179,34 @@ function _ssl_changes
   # They presently have no special handling other than to trigger a change that will restart Postfix/Dovecot.
 }
 
-while true
-do
+function _rspamd_changes() {
+  # RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
+  if [[ ${CHANGED} =~ ${RSPAMD_DMS_D}/.* ]]; then
+
+    # "${RSPAMD_DMS_D}/override.d"
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]]; then
+      _log_with_date 'trace' 'Rspamd - Copying configuration overrides'
+      rm "${RSPAMD_OVERRIDE_D}"/*
+      cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
+    fi
+
+    # "${RSPAMD_DMS_D}/custom-commands.conf"
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]]; then
+      _log_with_date 'trace' 'Rspamd - Generating new configuration from custom commands'
+      _rspamd_handle_user_modules_adjustments
+    fi
+
+    # "${RSPAMD_DMS_D}/dkim"
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_DKIM_D} ]]; then
+      _log_with_date 'trace' 'Rspamd - DKIM files updated'
+    fi
+
+    _log_with_date 'debug' 'Rspamd configuration has changed - restarting service'
+    supervisorctl restart rspamd
+  fi
+}
+
+while true; do
   _check_for_changes
   sleep 2
 done
