@@ -131,8 +131,13 @@ Enabled `policyd-spf` in Postfix's configuration. You will likely want to set th
 
 ##### ENABLE_POP3
 
-- **empty** => POP3 service disabled
+- **0** => POP3 service disabled
 - 1 => Enables POP3 service
+
+##### ENABLE_IMAP
+
+- 0 => Disabled
+- **1** => Enabled
 
 ##### ENABLE_CLAMAV
 
