@@ -277,8 +277,6 @@ RUN <<EOF
   update-locale
 EOF
 
-COPY VERSION /
-
 COPY \
   target/bin/* \
   target/scripts/*.sh \
