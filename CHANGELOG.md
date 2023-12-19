@@ -30,6 +30,8 @@ All notable changes to this project will be documented in this file. The format 
   - Update-check: fix 'read' exit status ([#3688](https://github.com/docker-mailserver/docker-mailserver/pull/3688))
 - **Rspamd:**
   - Switch to official arm64 packages to avoid segfaults ([#3686](https://github.com/docker-mailserver/docker-mailserver/pull/3686))
+- **CI / Automation:**
+  - The lint workflow can now be manually triggered by maintainers ([#3714]https://github.com/docker-mailserver/docker-mailserver/pull/3714)
 
 ## [v13.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.1)
 
