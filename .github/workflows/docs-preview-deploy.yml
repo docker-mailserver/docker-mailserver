@@ -25,7 +25,7 @@ jobs:
 
       # The official Github Action for downloading artifacts does not support multi-workflow
       - name: 'Download build artifact'
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           run_id: ${{ github.event.workflow_run.id }}
