@@ -106,9 +106,6 @@ function _setup_dovecot_quota() {
         "s|mail_plugins = \$mail_plugins imap_quota|mail_plugins = \$mail_plugins|g" \
         /etc/dovecot/conf.d/20-imap.conf
     fi
-
-    # disable quota policy check in postfix
-    sedfile -i "s|check_policy_service inet:localhost:65265||g" /etc/postfix/main.cf
   else
     if [[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]; then
       mv /etc/dovecot/conf.d/90-quota.conf.disab /etc/dovecot/conf.d/90-quota.conf
