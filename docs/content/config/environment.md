@@ -228,9 +228,9 @@ Provide any valid URI. Examples:
 - `lmtps:inet:<host>:<port>` (secure lmtp with starttls)
 - `lmtp:<kopano-host>:2003` (use kopano as mailstore)
 
-##### POSTFIX\_MAILBOX\_SIZE\_LIMIT
+##### POSTFIX_MAILBOX_SIZE_LIMIT
 
-Set the mailbox size limit for all users. If set to zero, the size will be unlimited (default).
+Set the mailbox size limit for all users. If set to zero, the size will be unlimited (default). Size is in bytes.
 
 - **empty** => 0 (no limit)
 
@@ -241,9 +241,9 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 
 See [mailbox quota][docs-accounts-quota].
 
-##### POSTFIX\_MESSAGE\_SIZE\_LIMIT
+##### POSTFIX_MESSAGE_SIZE_LIMIT
 
-Set the message size limit for all users. If set to zero, the size will be unlimited (not recommended!)
+Set the message size limit for all users. If set to zero, the size will be unlimited (not recommended!). Size is in bytes.
 
 - **empty** => 10240000 (~10 MB)
 

@@ -59,10 +59,14 @@ function _quota_request_if_missing() {
   fi
 }
 
+
+# Dovecot docs incorrectly refer to these units with names for SI types (base 10),
+# But then mentions they're actually treated as IEC type (base 2):
+# https://doc.dovecot.org/settings/types/#size
 function _quota_unit_is_valid() {
   if ! grep -qE "^([0-9]+(B|k|M|G|T)|0)\$" <<< "${QUOTA}"; then
     __usage
-    _exit_with_error 'Invalid quota format. e.g. 302M (B (byte), k (kilobyte), M (megabyte), G (gigabyte) or T (terabyte))'
+    _exit_with_error 'Invalid quota format. e.g. 302M (B (byte), k (kibibyte), M (mebibyte), G (gibibyte) or T (tebibyte))'
   fi
 }
 
