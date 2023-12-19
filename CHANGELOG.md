@@ -27,10 +27,13 @@ All notable changes to this project will be documented in this file. The format 
 - **Internal**:
   - The container startup welcome log message now references `DMS_RELEASE` ([#3676](https://github.com/docker-mailserver/docker-mailserver/pull/3676))
   - `VERSION` was incremented for prior releases to be notified of the v13.0.1 patch release ([#3676](https://github.com/docker-mailserver/docker-mailserver/pull/3676))
+  - `VERSION` is no longer included in the image ([#3711](https://github.com/docker-mailserver/docker-mailserver/pull/3711))
   - Update-check: fix 'read' exit status ([#3688](https://github.com/docker-mailserver/docker-mailserver/pull/3688))
   - Fix error, when ENABLE_QUOTAS=0 was set ([#3715](https://github.com/docker-mailserver/docker-mailserver/pull/3715))
 - **Rspamd:**
   - Switch to official arm64 packages to avoid segfaults ([#3686](https://github.com/docker-mailserver/docker-mailserver/pull/3686))
+- **CI / Automation:**
+  - The lint workflow can now be manually triggered by maintainers ([#3714]https://github.com/docker-mailserver/docker-mailserver/pull/3714)
 
 ## [v13.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.0.1)
 
