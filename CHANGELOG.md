@@ -29,6 +29,7 @@ All notable changes to this project will be documented in this file. The format 
   - `VERSION` was incremented for prior releases to be notified of the v13.0.1 patch release ([#3676](https://github.com/docker-mailserver/docker-mailserver/pull/3676))
   - `VERSION` is no longer included in the image ([#3711](https://github.com/docker-mailserver/docker-mailserver/pull/3711))
   - Update-check: fix 'read' exit status ([#3688](https://github.com/docker-mailserver/docker-mailserver/pull/3688))
+  - `ENABLE_QUOTAS=0` no longer tries to remove non-existent config ([#3715](https://github.com/docker-mailserver/docker-mailserver/pull/3715))
 - **Rspamd:**
   - Switch to official arm64 packages to avoid segfaults ([#3686](https://github.com/docker-mailserver/docker-mailserver/pull/3686))
 - **CI / Automation:**
