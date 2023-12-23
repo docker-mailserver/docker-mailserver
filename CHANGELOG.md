@@ -18,7 +18,8 @@ All notable changes to this project will be documented in this file. The format 
 ### Updates
 
 - **Documentation:**
-  - Raise awareness in the troubleshooting page for a common misconfiguration when deviating from our advice by using a bare domain ([#3680](https://github.com/docker-mailserver/docker-mailserver/pull/3680))
+  - Debugging - Raise awareness in the troubleshooting page for a common misconfiguration when deviating from our advice by using a bare domain ([#3680](https://github.com/docker-mailserver/docker-mailserver/pull/3680))
+  - Debugging - Raise awareness of temporary downtime during certificate renewal that can cause a failure to deliver local mail ([#3718](https://github.com/docker-mailserver/docker-mailserver/pull/3718))
 - **Internal:**
   - Postfix configures `virtual_mailbox_maps` and `virtual_transport` during startup instead of using defaults (configured for Dovecot) via our `main.cf` ([#3681](https://github.com/docker-mailserver/docker-mailserver/pull/3681))
 
