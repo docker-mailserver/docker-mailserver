@@ -42,7 +42,6 @@ The most noteworthy change of this release is the update of the container's base
     - The script now uses `/etc/os-release` to determine the release name of Debian
     - Removed custom installations of Fail2Ban, getmail6 and Rspamd
     - Updated packages lists and added comments for maintainability
-    - Use official Rspamd PPA on AMD64; no PPA is used on ARM64
 
 ### Fixed
 
