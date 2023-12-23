@@ -10,15 +10,18 @@ The most noteworthy change of this release is the update of the container's base
 
 ### Breaking
 
-- **updated base image to Debian 12**
-- changed the default of `DOVECOT_COMMUNITY_REPO` to `0` (disabled) - the Dovecot community repo will (for now) not be the default when building the DMS
-- updated packages: for an overview, [we have a review comment on the PR that introduces Debian 12](https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1694563615)
-- Postfix
-  - `postscreen_dnsbl_whitelist_threshold` was renamed to `postscreen_dnsbl_allowlist_threshold`: this may affect users that monitor logs affected by this change (<https://www.postfix.org/COMPATIBILITY_README.html#respectful_logging>) ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
+- **Updated base image to Debian 12**
+- Changed the default of `DOVECOT_COMMUNITY_REPO` to `0` (disabled) - the Dovecot community repo will (for now) not be the default when building the DMS.
+- Updated packages. For an overview, [we have a review comment on the PR that introduces Debian 12](https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1694563615)
+  - Notable major version bump: `openssl 3`, `clamav 1`, `spamassassin 4`, `redis-server 7`.
+  - Notable minor version bump: `postfix 3.5.18 => 3.7.6`
+- **Postfix:**
   - `compatibility_level` was raised from `2` to `3.6` ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
-    - Usage in logging regarding white / black listing has been replaced with allow / deny listing. This may affect monitoring / analysis of logs output from Postfix that expect to match the prior terminology used.
-    - smtpd_relay_restrictions (relay policy) is now evaluated aftersmtpd_recipient_restrictions (spam policy). Previously it was evaluated before smtpd_recipient_restrictions. Mail to be relayed via DMS must now pass through the spam policy first.
-    - TLS fingerprint policy has changed default from MD5 to SHA256 (DMS does not modify this Postfix parameter).
+    - Postfix has deprecated the usage of `whitelist` / `blacklist` in config parameters and logging in favor of `allowlist` / `denylist` and similar variations. ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403/files#r1306356328))
+      - This [may affect monitoring / analysis of logs output from Postfix](https://www.postfix.org/COMPATIBILITY_README.html#respectful_logging) that expects to match patterns on the prior terminology used.
+      - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
+    - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
+    - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
 
 ### Added
 
@@ -33,14 +36,13 @@ The most noteworthy change of this release is the update of the container's base
 
 - **Documentation:**
   - Raise awareness in the troubleshooting page for a common misconfiguration when deviating from our advice by using a bare domain ([#3680](https://github.com/docker-mailserver/docker-mailserver/pull/3680))
-  - updated note about Rspamd on ARM64 lacking behind in version
 - **Internal:**
   - Postfix configures `virtual_mailbox_maps` and `virtual_transport` during startup instead of using defaults (configured for Dovecot) via our `main.cf` ([#3681](https://github.com/docker-mailserver/docker-mailserver/pull/3681))
-  - updates to `packages.sh`
-    - the script now uses `/etc/os-release` to determine the release name of Debian
-    - removed custom installations of Fail2Ban, getmail6 and Rspamd
-    - updated packages lists and added comments for maintainability
-    - use official Rspamd PPA on AMD64; no PPA is used on ARM64
+  - Updates to `packages.sh`:
+    - The script now uses `/etc/os-release` to determine the release name of Debian
+    - Removed custom installations of Fail2Ban, getmail6 and Rspamd
+    - Updated packages lists and added comments for maintainability
+    - Use official Rspamd PPA on AMD64; no PPA is used on ARM64
 
 ### Fixed
 
