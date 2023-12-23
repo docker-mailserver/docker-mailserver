@@ -4,16 +4,23 @@ title: 'Advanced | Basic OAuth2 Authentication'
 
 ## Introduction
 
-**Warning** - This is only a supplement to the existing account provisioners; FILE and LDAP. Accounts must still be created using the `setup` command or added to the LDAP directory respectively. Reasoning for this can be found in [#3480](https://github.com/docker-mailserver/docker-mailserver/pull/3480). Future iterations on this feature may allow it to be a full account provisioner.
+!!! warning "This is only a supplement to the existing account provisioners"
 
-For now, this adds the ability for a 3rd party application such as Roundcube to authenticate with DMS (dovecot) using a token obtained from an OAuth2 provider instead of passing passwords around.
+    Accounts must still be managed via the configured [`ACCOUNT_PROVISIONER`][env::account-provisioner] (FILE or LDAP).
+
+    Reasoning for this can be found in [#3480][gh-pr::oauth2]. Future iterations on this feature may allow it to become a full account provisioner.
+
+[gh-pr::oauth2]: https://github.com/docker-mailserver/docker-mailserver/pull/3480
+[env::account-provisioner]: ../environment.md#account_provisioner
+
+The present OAuth2 support provides the capability for 3rd-party applications such as Roundcube to authenticate with DMS (dovecot) by using a token obtained from an OAuth2 provider, instead of passing passwords around.
 
 ## Example (Authentik & Roundcube)
 
 ???+ example "Authentik"
     1. Create a new OAuth2 provider
     2. Note the client id and client secret
-    3. Set the allowed redirect url to `https://roundcube.domain.com/index.php/login/oauth` (obviously changing your domain as needed)
+    3. Set the allowed redirect url to the equivalent of `https://roundcube.example.com/index.php/login/oauth` for your RoundCube instance.
 
 ???+ example "Docker Mailserver `mailserver.env`"
     ```env
@@ -35,7 +42,7 @@ For now, this adds the ability for a 3rd party application such as Roundcube to 
 
     # empty => https://oauth2.domain.com/userinfo/
     # Specify the user info endpoint URL of the oauth2 provider
-    OAUTH2_INTROSPECTION_URL=https://authentik.domain.com/application/o/userinfo/
+    OAUTH2_INTROSPECTION_URL=https://authentik.example.com/application/o/userinfo/
     ```
 
 ???+ example "Roundcube `oauth2.inc.php` ([documentation](https://github.com/roundcube/roundcubemail/wiki/Configuration))"
@@ -44,9 +51,9 @@ For now, this adds the ability for a 3rd party application such as Roundcube to 
     $config['oauth_provider_name'] = 'Authentik';
     $config['oauth_client_id'] = '<insert client id here>';
     $config['oauth_client_secret'] = '<insert client secret here>';
-    $config['oauth_auth_uri'] = 'https://authentik.domain.com/application/o/authorize/';
-    $config['oauth_token_uri'] = 'https://authentik.domain.com/application/o/token/';
-    $config['oauth_identity_uri'] = 'https://authentik.domain.com/application/o/userinfo/';
+    $config['oauth_auth_uri'] = 'https://authentik.example.com/application/o/authorize/';
+    $config['oauth_token_uri'] = 'https://authentik.example.com/application/o/token/';
+    $config['oauth_identity_uri'] = 'https://authentik.example.com/application/o/userinfo/';
 
     // Optional: disable SSL certificate check on HTTP requests to OAuth server
     // See http://docs.guzzlephp.org/en/stable/request-options.html#verify for possible values
