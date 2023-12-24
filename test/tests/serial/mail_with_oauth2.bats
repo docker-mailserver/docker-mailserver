@@ -9,7 +9,7 @@ function setup_file() {
   export DMS_TEST_NETWORK='test-network-oauth2'
   export DMS_DOMAIN='example.test'
   export FQDN_MAIL="mail.${DMS_DOMAIN}"
-  export FQDN_OAUTH2="provider.${DMS_DOMAIN}"
+  export FQDN_OAUTH2="oauth2.${DMS_DOMAIN}"
 
   # Link the test containers to separate network:
   # NOTE: If the network already exists, test will fail to start.
@@ -35,7 +35,7 @@ function setup_file() {
     --env ENABLE_OAUTH2=1
     --env OAUTH2_CLIENT_ID=mailserver
     --env OAUTH2_CLIENT_SECRET=ah_yes___secret
-    --env OAUTH2_INTROSPECTION_URL=http://provider.example.test/
+    --env OAUTH2_INTROSPECTION_URL=http://oauth2.example.test/
   )
 
   local ENV_SUPPORT=(
@@ -64,16 +64,6 @@ function teardown_file() {
   docker network rm "${DMS_TEST_NETWORK}"
 }
 
-# Could optionally call `_default_teardown` in test-cases that have specific containers.
-# This will otherwise handle it implicitly which is helpful when the test-case hits a failure,
-# As failure will bail early missing teardown, which then prevents network cleanup. This way is safer:
-function teardown() {
-  if [[ ${CONTAINER_NAME} != "${CONTAINER1_NAME}" ]] \
-  && [[ ${CONTAINER_NAME} != "${CONTAINER2_NAME}" ]]
-  then
-    _default_teardown
-  fi
-}
 
 @test "oauth2: imap connect and authentication works" {
   _run_in_container_bash 'nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-oauth2-auth.txt'

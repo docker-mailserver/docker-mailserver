@@ -40,7 +40,7 @@ The present OAuth2 support provides the capability for 3rd-party applications su
     # Specify the OAuth2 client secret
     OAUTH2_CLIENT_SECRET=<insert client secret here>
 
-    # empty => https://oauth2.domain.com/userinfo/
+    # empty => https://oauth2.example.com/userinfo/
     # Specify the user info endpoint URL of the oauth2 provider
     OAUTH2_INTROSPECTION_URL=https://authentik.example.com/application/o/userinfo/
     ```
@@ -55,8 +55,8 @@ The present OAuth2 support provides the capability for 3rd-party applications su
     $config['oauth_token_uri'] = 'https://authentik.example.com/application/o/token/';
     $config['oauth_identity_uri'] = 'https://authentik.example.com/application/o/userinfo/';
 
-    // Optional: disable SSL certificate check on HTTP requests to OAuth server
-    // See http://docs.guzzlephp.org/en/stable/request-options.html#verify for possible values
+    // Optional: disable SSL certificate check on HTTP requests to OAuth server. For possible values, see:
+    // http://docs.guzzlephp.org/en/stable/request-options.html#verify
     $config['oauth_verify_peer'] = false;
 
     $config['oauth_scope'] = 'email openid profile';
