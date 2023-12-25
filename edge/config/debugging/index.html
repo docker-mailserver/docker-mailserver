@@ -2153,6 +2153,7 @@
 <li><code>Recipient address rejected: User unknown in local recipient table</code></li>
 </ul>
 <p>If your logs look like this, you likely have <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3679#issuecomment-1837609043">assigned the same FQDN to the DMS <code>hostname</code> and your mail accounts</a> which is not supported by default. You can either adjust your DMS <code>hostname</code> or follow <a href="../../faq/#can-i-use-a-nakedbare-domain-ie-no-hostname">this FAQ advice</a></p>
+<p>It is also possible that <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3679#issuecomment-1848083358">DMS services are temporarily unavailable</a> when configuration changes are detected, producing the 2nd error. Certificate updates may be a less obvious trigger.</p>
 <h2 id="steps-for-debugging-dms"><a class="toclink" href="#steps-for-debugging-dms">Steps for Debugging DMS</a></h2>
 <ol>
 <li><strong>Increase log verbosity</strong>: Very helpful for troubleshooting problems during container startup. Set the environment variable <a href="../environment/#log_level"><code>LOG_LEVEL</code></a> to <code>debug</code> or <code>trace</code>.</li>
