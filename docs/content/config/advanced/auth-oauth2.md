@@ -17,51 +17,62 @@ The present OAuth2 support provides the capability for 3rd-party applications su
 
 ## Example (Authentik & Roundcube)
 
-???+ example "Authentik"
-    1. Create a new OAuth2 provider
-    2. Note the client id and client secret
-    3. Set the allowed redirect url to the equivalent of `https://roundcube.example.com/index.php/login/oauth` for your RoundCube instance.
+This example assumes you have:
 
-???+ example "Docker Mailserver `mailserver.env`"
-    ```env
-    # -----------------------------------------------
-    # --- OAUTH2 Section ----------------------------
-    # -----------------------------------------------
+- A working DMS server set up
+- An Authentik server set up ([documentation](https://goauthentik.io/docs/installation/))
+- A Roundcube server set up (either [docker](https://hub.docker.com/r/roundcube/roundcubemail/) or [bare metal](https://github.com/roundcube/roundcubemail/wiki/Installation))
 
-    # empty => OAUTH2 authentication is disabled
-    # 1 => OAUTH2 authentication is enabled
-    ENABLE_OAUTH2=1
+!!! example "Setup Instructions"
 
-    # empty => verySecretId
-    # Specify the OAuth2 client ID
-    OAUTH2_CLIENT_ID=<insert client id here>
+    === "1. Authentik"
+        1. Create a new OAuth2 provider
+        2. Note the client id and client secret
+        3. Set the allowed redirect url to the equivalent of `https://roundcube.example.com/index.php/login/oauth` for your RoundCube instance.
 
-    # empty => verySecretSecret
-    # Specify the OAuth2 client secret
-    OAUTH2_CLIENT_SECRET=<insert client secret here>
+    === "2. Docker Mailserver"
+        Edit the following values in `mailserver.env`:
+        ```env
+        # -----------------------------------------------
+        # --- OAUTH2 Section ----------------------------
+        # -----------------------------------------------
 
-    # empty => https://oauth2.example.com/userinfo/
-    # Specify the user info endpoint URL of the oauth2 provider
-    OAUTH2_INTROSPECTION_URL=https://authentik.example.com/application/o/userinfo/
-    ```
+        # empty => OAUTH2 authentication is disabled
+        # 1 => OAUTH2 authentication is enabled
+        ENABLE_OAUTH2=1
 
-???+ example "Roundcube `oauth2.inc.php` ([documentation](https://github.com/roundcube/roundcubemail/wiki/Configuration))"
-    ```php
-    $config['oauth_provider'] = 'generic';
-    $config['oauth_provider_name'] = 'Authentik';
-    $config['oauth_client_id'] = '<insert client id here>';
-    $config['oauth_client_secret'] = '<insert client secret here>';
-    $config['oauth_auth_uri'] = 'https://authentik.example.com/application/o/authorize/';
-    $config['oauth_token_uri'] = 'https://authentik.example.com/application/o/token/';
-    $config['oauth_identity_uri'] = 'https://authentik.example.com/application/o/userinfo/';
+        # empty => verySecretId
+        # Specify the OAuth2 client ID
+        OAUTH2_CLIENT_ID=<insert client id here>
 
-    // Optional: disable SSL certificate check on HTTP requests to OAuth server. For possible values, see:
-    // http://docs.guzzlephp.org/en/stable/request-options.html#verify
-    $config['oauth_verify_peer'] = false;
+        # empty => verySecretSecret
+        # Specify the OAuth2 client secret
+        OAUTH2_CLIENT_SECRET=<insert client secret here>
 
-    $config['oauth_scope'] = 'email openid profile';
-    $config['oauth_identity_fields'] = ['email'];
+        # empty => https://oauth2.example.com/userinfo/
+        # Specify the user info endpoint URL of the oauth2 provider
+        OAUTH2_INTROSPECTION_URL=https://authentik.example.com/application/o/userinfo/
+        ```
 
-    // Boolean: automatically redirect to OAuth login when opening Roundcube without a valid session
-    $config['oauth_login_redirect'] = false;
-    ```
+    === "3. Roundcube"
+        Add the following to `oauth2.inc.php` ([documentation](https://github.com/roundcube/roundcubemail/wiki/Configuration)):
+
+        ```php
+        $config['oauth_provider'] = 'generic';
+        $config['oauth_provider_name'] = 'Authentik';
+        $config['oauth_client_id'] = '<insert client id here>';
+        $config['oauth_client_secret'] = '<insert client secret here>';
+        $config['oauth_auth_uri'] = 'https://authentik.example.com/application/o/authorize/';
+        $config['oauth_token_uri'] = 'https://authentik.example.com/application/o/token/';
+        $config['oauth_identity_uri'] = 'https://authentik.example.com/application/o/userinfo/';
+
+        // Optional: disable SSL certificate check on HTTP requests to OAuth server. For possible values, see:
+        // http://docs.guzzlephp.org/en/stable/request-options.html#verify
+        $config['oauth_verify_peer'] = false;
+
+        $config['oauth_scope'] = 'email openid profile';
+        $config['oauth_identity_fields'] = ['email'];
+
+        // Boolean: automatically redirect to OAuth login when opening Roundcube without a valid session
+        $config['oauth_login_redirect'] = false;
+        ```
