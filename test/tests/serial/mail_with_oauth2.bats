@@ -19,9 +19,7 @@ function setup_file() {
   docker run --rm -d --name "${CONTAINER2_NAME}" \
     --hostname "${FQDN_OAUTH2}" \
     --network "${DMS_TEST_NETWORK}" \
-    --user "$(id -u):$(id -g)" \
     --volume "${REPOSITORY_ROOT}/test/config/oauth2/:/app/" \
-    --expose 80 \
     docker.io/library/python:latest \
     python /app/provider.py
 
@@ -31,6 +29,7 @@ function setup_file() {
   # Setup DMS container
   #
 
+  # Add OAUTH2 configuration so that Dovecot can reach out to our mock provider (CONTAINER2)
   local ENV_OAUTH2_CONFIG=(
     --env ENABLE_OAUTH2=1
     --env OAUTH2_CLIENT_ID=mailserver
@@ -38,14 +37,9 @@ function setup_file() {
     --env OAUTH2_INTROSPECTION_URL=http://oauth2.example.test/
   )
 
-  local ENV_SUPPORT=(
-    --env PERMIT_DOCKER=container
-  )
-
   export CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     "${ENV_OAUTH2_CONFIG[@]}"
-    "${ENV_SUPPORT[@]}"
 
     --hostname "${FQDN_MAIL}"
     --network "${DMS_TEST_NETWORK}"
