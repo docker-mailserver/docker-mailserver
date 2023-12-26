@@ -2,9 +2,14 @@ import json
 import base64
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+# OAuth2.0 Bearer token (paste into https://jwt.io/ to check it's contents).
+# You should never need to edit this unless you REALLY need to change the issuer.
 token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vcHJvdmlkZXIuZXhhbXBsZS50ZXN0OjgwMDAvIiwic3ViIjoiODJjMWMzMzRkY2M2ZTMxMWFlNGFhZWJmZTk0NmM1ZTg1OGYwNTVhZmYxY2U1YTM3YWE3Y2M5MWFhYjE3ZTM1YyIsImF1ZCI6Im1haWxzZXJ2ZXIiLCJ1aWQiOiI4OU4zR0NuN1M1Y090WkZNRTVBeVhNbmxURFdVcnEzRmd4YWlyWWhFIn0.zuCytArbphhJn9XT_y9cBdGqDCNo68tBrtOwPIsuKNyF340SaOuZa0xarZofygytdDpLtYr56QlPTKImi-n1ZWrHkRZkwrQi5jQ-j_n2hEAL0vUToLbDnXYfc5q2w7z7X0aoCmiK8-fV7Kx4CVTM7riBgpElf6F3wNAIcX6R1ijUh6ISCL0XYsdogf8WUNZipXY-O4R7YHXdOENuOp3G48hWhxuUh9PsUqE5yxDwLsOVzCTqg9S5gxPQzF2eCN9J0I2XiIlLKvLQPIZ2Y_K7iYvVwjpNdgb4xhm9wuKoIVinYkF_6CwIzAawBWIDJAbix1IslkUPQMGbupTDtOgTiQ"
 
+# This is the string the user-facing client (e.g. Roundcube) should send via IMAP to Dovecot.
+# We include the user and the above token separated by '\1' chars as per the XOAUTH2 spec.
 xoauth2 = base64.b64encode(f"user=user1@localhost.localdomain\1auth=Bearer {token}\1\1".encode("utf-8"))
+# If changing the user above, use the new output from the below line with the contents of the AUTHENTICATE command in test/test-files/auth/imap-oauth2-auth.txt
 print("XOAUTH2 string: " + str(xoauth2))
 
 
