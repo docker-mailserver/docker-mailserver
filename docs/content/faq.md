@@ -21,9 +21,9 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 Then, run the following commands:
 
 ``` BASH
-docker compose pull
-docker compose down
-docker compose up -d
+docker-compose pull
+docker-compose down
+docker-compose up -d
 ```
 
 You should see the new version number on startup, for example: `[   INF   ]  Welcome to docker-mailserver 11.3.1`. And you're done! Don't forget to have a look at the remaining functions of the `setup.sh` script with `./setup.sh help`.
