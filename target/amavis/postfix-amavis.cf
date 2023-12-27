@@ -23,7 +23,6 @@ smtp-amavis     unix    -       -       n       -       2       smtp
   -o smtpd_helo_restrictions=
   -o smtpd_sender_restrictions=
   -o smtpd_recipient_restrictions=permit_mynetworks,reject
-  -o smtpd_data_restrictions=reject_unauth_pipelining
   -o smtpd_end_of_data_restrictions=
   -o mynetworks=127.0.0.0/8
   -o smtpd_error_sleep_time=0
