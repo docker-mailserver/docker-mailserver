@@ -55,6 +55,8 @@ Common logs related to this are:
 
 If your logs look like this, you likely have [assigned the same FQDN to the DMS `hostname` and your mail accounts][gh-issues::dms-fqdn-misconfigured] which is not supported by default. You can either adjust your DMS `hostname` or follow [this FAQ advice][docs::faq-bare-domain]
 
+It is also possible that [DMS services are temporarily unavailable][gh-issues::dms-services-unavailable] when configuration changes are detected, producing the 2nd error. Certificate updates may be a less obvious trigger.
+
 ## Steps for Debugging DMS
 
 1. **Increase log verbosity**: Very helpful for troubleshooting problems during container startup. Set the environment variable [`LOG_LEVEL`][docs-environment-log-level] to `debug` or `trace`.
@@ -126,6 +128,7 @@ This could be from outdated software, or running a system that isn't able to pro
 
 [gh-issues]: https://github.com/docker-mailserver/docker-mailserver/issues
 [gh-issues::dms-fqdn-misconfigured]: https://github.com/docker-mailserver/docker-mailserver/issues/3679#issuecomment-1837609043
+[gh-issues::dms-services-unavailable]: https://github.com/docker-mailserver/docker-mailserver/issues/3679#issuecomment-1848083358
 [gh-macos-support]: https://github.com/docker-mailserver/docker-mailserver/issues/3648#issuecomment-1822774080
 [gh-discuss-roundcube-fail2ban]: https://github.com/orgs/docker-mailserver/discussions/3273#discussioncomment-5654603
 
