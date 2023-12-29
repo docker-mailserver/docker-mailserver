@@ -123,7 +123,7 @@ function _should_have_log_entry() {
   # Allow some extra time for logs to update to avoids a false-positive failure:
   _run_until_success_or_timeout 10 _exec_in_container grep \
     "${ACTION}, ${REASON}," \
-    /var/log/mail/mail.log
+    /var/log/supervisor/postgrey.log
 
   # Log entry matched should be for the expected triplet:
   assert_output --partial "${TRIPLET}"
