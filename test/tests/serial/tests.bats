@@ -288,13 +288,15 @@ EOF
 @test "spoofing: rejects sender forging" {
   # rejection of spoofed sender
   _wait_for_smtp_port_in_container_to_respond
-  _run_in_container_bash "openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt"
+
+  _send_email --port 465 -tlsc --auth LOGIN --auth-user added@localhost.localdomain --auth-password mypassword --helo mail --from user2@localhost.localdomain 'auth/added-smtp-auth-spoofed'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "spoofing: accepts sending as alias" {
-  _run_in_container_bash "openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed-alias.txt | grep 'End data with'"
+  _send_email --port 465 -tlsc --auth LOGIN --auth-user user1@localhost.localdomain --auth-password mypassword --helo mail --from alias1@localhost.localdomain 'auth/added-smtp-auth-spoofed-alias'
   assert_success
+  assert_output --partial 'End data with'
 }
 
 #

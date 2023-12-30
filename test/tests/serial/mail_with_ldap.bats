@@ -327,12 +327,12 @@ function teardown() {
 @test "spoofing (with LDAP): rejects sender forging" {
   _wait_for_smtp_port_in_container_to_respond dms-test_ldap
 
-  _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed.txt'
+  _send_email --port 465 -tlsc --auth LOGIN --auth-user some.user@localhost.localdomain --auth-password secret --helo mail --from ldap@localhost.localdomain 'auth/ldap-smtp-auth-spoofed'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "spoofing (with LDAP): accepts sending as alias" {
-  _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed-alias.txt'
+  _send_email --port 465 -tlsc --auth LOGIN --auth-user some.user@localhost.localdomain --auth-password secret --helo mail --from postmaster@localhost.localdomain --to some.user@localhost.localdomain 'auth/ldap-smtp-auth-spoofed-alias'
   assert_output --partial 'End data with'
 }
 
@@ -341,18 +341,21 @@ function teardown() {
   # Template used has invalid AUTH: https://github.com/docker-mailserver/docker-mailserver/pull/3006#discussion_r1073321432
   skip 'TODO: This test seems to have been broken from the start (?)'
 
-  _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed-sender-with-filter-exception.txt'
+  _send_email --port 465 -tlsc --auth LOGIN --auth-user some.user.email@localhost.localdomain --auth-password secret --helo mail --from randomspoofedaddress@localhost.localdomain --to some.user@localhost.localdomain 'auth/ldap-smtp-auth-spoofed-sender-with-filter-exception'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "saslauthd: ldap smtp authentication" {
+  # do not use _send_email here
   # Requires ENV `PERMIT_DOCKER=container`
-  _send_email 'auth/sasl-ldap-smtp-auth' '-w 5 0.0.0.0 25'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt' '-w 5 0.0.0.0 25'
   assert_output --partial 'Error: authentication not enabled'
 
+  # do not use _send_email here
   _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
   assert_output --partial 'Authentication successful'
 
+  # do not use _send_email here
   _run_in_container_bash 'openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
   assert_output --partial 'Authentication successful'
 }

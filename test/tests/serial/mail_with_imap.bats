@@ -30,13 +30,13 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test '(SASLauthd) RIMAP SMTP authentication works' {
-  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 25'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-login.txt' '-w 5 0.0.0.0 25'
   assert_output --partial 'Error: authentication not enabled'
 
-  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 465'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-login.txt' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 
-  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 587'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-login.txt' '-w 5 0.0.0.0 587'
   assert_output --partial 'Authentication successful'
 }
 
