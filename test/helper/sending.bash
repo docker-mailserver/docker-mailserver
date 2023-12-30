@@ -8,11 +8,14 @@
 # ! ATTENTION: This file requires helper functions from `common.sh`!
 
 # Sends a mail from localhost (127.0.0.1) to a container. To send
-# a custom email, create a file at `test/test-files/<TEST FILE>`,
+# a custom email, create a file at `test/files/<TEST FILE>`,
 # and provide `<TEST FILE>` as an argument to this function.
 #
-# @param ${1} = template file (path) name
-# @param ${2} = parameters for `nc` [OPTIONAL] (default: `0.0.0.0 25`)
+# @param ${1} = template file (path) name without .txt suffix
+#               and without path prefix before the emails directory
+# @param ${2} = config file path name without .cfg suffix
+#               and without path prefix before the emails directory
+#               [OPTIONAL] (default: ${1})
 #
 # ## Attention
 #
@@ -23,17 +26,32 @@
 # send the email but it will not make sure the mail queue is empty after the mail
 # has been sent.
 function _send_email() {
-  local TEMPLATE_FILE=${1:?Must provide name of template file}
-  local NC_PARAMETERS=${2:-0.0.0.0 25}
+  [[ -v CONTAINER_NAME ]] || return 1
 
-  assert_not_equal "${NC_PARAMETERS}" ''
-  assert_not_equal "${CONTAINER_NAME:-}" ''
+  local HELO='mail.external.tld'
+  local FROM='example-user@example.test'
+  local TO='user1@localhost.localdomain'
+  local SERVER='0.0.0.0'
+  local PORT=25
+  local MORE_SWAKS_OPTIONS=()
 
-  _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${TEMPLATE_FILE}.txt"
-  assert_success
+  while [[ ${#} -gt 1 ]]; do
+    case "${1}" in
+      ( '--helo' )   HELO=${2:?--helo given but no argument}     ; shift 2 ;;
+      ( '--from' )   FROM=${2:?--from given but no argument}     ; shift 2 ;;
+      ( '--to' )     TO=${2:?--to given but no argument}         ; shift 2 ;;
+      ( '--server' ) SERVER=${2:?--server given but no argument} ; shift 2 ;;
+      ( '--port' )   PORT=${2:?--port given but no argument}     ; shift 2 ;;
+      ( * )          MORE_SWAKS_OPTIONS+=("${1}")                ; shift 1 ;;
+    esac
+  done
+
+  local TEMPLATE_FILE="/tmp/docker-mailserver-test/emails/${1:?Must provide name of template file}.txt"
+
+  _run_in_container_bash "swaks --server ${SERVER} --port ${PORT} --helo ${HELO} --from ${FROM} --to ${TO} ${MORE_SWAKS_OPTIONS[*]} --data - < ${TEMPLATE_FILE}"
 }
 
-# Like `_send_mail` with two major differences:
+# Like `_send_email` with two major differences:
 #
 # 1. this function waits for the mail to be processed; there is no asynchronicity
 #    because filtering the logs in a synchronous way is easier and safer!
@@ -42,8 +60,8 @@ function _send_email() {
 # No. 2 is especially useful in case you send more than one email in a single
 # test file and need to assert certain log entries for each mail individually.
 #
-# @param ${1} = template file (path) name
-# @param ${2} = parameters for `nc` [OPTIONAL] (default: `0.0.0.0 25`)
+# @param ${1} = template file (path) name without .txt suffix
+# @param ${2} = config file path name without .cfg suffix [OPTIONAL] (default: ${1})
 #
 # ## Attention
 #
@@ -57,17 +75,13 @@ function _send_email() {
 # chosen. Sending more than one mail at any given point in time with this function
 # is UNDEFINED BEHAVIOR!
 function _send_email_and_get_id() {
-  local TEMPLATE_FILE=${1:?Must provide name of template file}
-  local NC_PARAMETERS=${2:-0.0.0.0 25}
+  [[ -v CONTAINER_NAME ]] || return 1
+
+  _wait_for_empty_mail_queue_in_container
+  _send_email "${@}"
+  _wait_for_empty_mail_queue_in_container
+
   local MAIL_ID
-
-  assert_not_equal "${NC_PARAMETERS}" ''
-  assert_not_equal "${CONTAINER_NAME:-}" ''
-
-  _wait_for_empty_mail_queue_in_container
-  _send_email "${TEMPLATE_FILE}"
-  _wait_for_empty_mail_queue_in_container
-
   # The unique ID Postfix (and other services) use may be different in length
   # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
   # range to safely capture it.
