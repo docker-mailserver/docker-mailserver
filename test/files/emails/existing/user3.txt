@@ -1,7 +1,3 @@
-HELO mail.external.tld
-MAIL FROM: user@external.tld
-RCPT TO: user3@localhost.localdomain
-DATA
 From: Docker Mail Server <dockermailserver@external.tld>
 To: Existing Local User <user1@localhost.localdomain>
 Date: Sat, 22 May 2010 07:43:33 -0400
