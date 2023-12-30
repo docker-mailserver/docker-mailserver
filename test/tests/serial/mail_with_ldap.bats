@@ -391,7 +391,7 @@ function _should_successfully_deliver_mail_to() {
   local SENDER_ADDRESS='user@external.tld'
   local RECIPIENT_ADDRESS=${1:?Recipient address is required}
   local MAIL_STORAGE_RECIPIENT=${2:?Recipient storage location is required}
-  local MAIL_TEMPLATE='/tmp/docker-mailserver-test/email-templates/test-email.txt'
+  local MAIL_TEMPLATE='/tmp/docker-mailserver-test/emails/test-email.txt'
 
   _run_in_container_bash "sendmail -f ${SENDER_ADDRESS} ${RECIPIENT_ADDRESS} < ${MAIL_TEMPLATE}"
   _wait_for_empty_mail_queue_in_container

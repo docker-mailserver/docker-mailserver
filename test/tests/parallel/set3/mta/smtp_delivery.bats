@@ -63,34 +63,34 @@ function setup_file() {
 
   # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
-  # _send_email 'email-templates/amavis-virus'
+  # _send_email 'amavis-virus'
 
   # Required for 'delivers mail to existing alias':
-  _send_email 'email-templates/existing-alias-external'
+  _send_email --from user@external.tld --to alias1@localhost.localdomain 'existing/alias-external'
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _send_email 'email-templates/existing-alias-recipient-delimiter'
+  _send_email --from user@external.tld --to alias1~test@localhost.localdomain 'existing/alias-recipient-delimiter'
   # Required for 'delivers mail to existing catchall':
-  _send_email 'email-templates/existing-catchall-local'
+  _send_email --from user@external.tld --to wildcard@localdomain2.com 'existing/catchall-local'
   # Required for 'delivers mail to regexp alias':
-  _send_email 'email-templates/existing-regexp-alias-local'
+  _send_email --from user@external.tld --to test123@localhost.localdomain 'existing/regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _send_email 'email-templates/non-existing-user'
+  _send_email --from user@external.tld --to nouser@localhost.localdomain 'non-existing-user'
   # Required for 'redirects mail to external aliases':
-  _send_email 'email-templates/existing-regexp-alias-external'
-  _send_email 'email-templates/existing-alias-local'
+  _send_email --from user@external.tld --to bounce-always@localhost.localdomain 'existing/regexp-alias-external'
+  _send_email --from user@external.tld --to alias2@localhost.localdomain 'existing/alias-local'
   # Required for 'rejects spam':
-  _send_email 'email-templates/amavis-spam'
+  _send_email 'amavis/spam'
 
   # Required for 'delivers mail to existing account':
-  _send_email 'email-templates/existing-user1'
-  _send_email 'email-templates/existing-user2'
-  _send_email 'email-templates/existing-user3'
-  _send_email 'email-templates/existing-added'
-  _send_email 'email-templates/existing-user-and-cc-local-alias'
-  _send_email 'email-templates/sieve-spam-folder'
-  _send_email 'email-templates/sieve-pipe'
-  _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
+  _send_email 'existing/user1'
+  _send_email --from user@external.tld --to user2@otherdomain.tld 'existing/user2'
+  _send_email --from user@external.tld --to user3@localhost.localdomain 'existing/user3'
+  _send_email --from user@external.tld --to added@localhost.localdomain 'existing/added'
+  _send_email --from user@external.tld --to user1@localhost.localdomain 'existing/user-and-cc-local-alias'
+  _send_email --from user@external.tld 'sieve/spam-folder'
+  _send_email --from user@external.tld --to user2@otherdomain.tld 'sieve/pipe'
+  _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
 }
 
 @test "should succeed at emptying mail queue" {
@@ -103,43 +103,43 @@ function setup_file() {
 }
 
 @test "should successfully authenticate with good password (plain)" {
-  _send_email 'auth/smtp-auth-plain' '-w 5 0.0.0.0 465'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-plain.txt' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (plain)" {
-  _send_email 'auth/smtp-auth-plain-wrong' '-w 20 0.0.0.0 465'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
 @test "should successfully authenticate with good password (login)" {
-  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 465'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-login.txt' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (login)" {
-  _send_email 'auth/smtp-auth-login-wrong' '-w 20 0.0.0.0 465'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (plain)" {
-  _send_email 'auth/added-smtp-auth-plain' '-w 5 0.0.0.0 465'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
-  _send_email 'auth/added-smtp-auth-plain-wrong' '-w 20 0.0.0.0 465'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (login)" {
-  _send_email 'auth/added-smtp-auth-login' '-w 5 0.0.0.0 465'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt' '-w 5 0.0.0.0 465'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (login)" {
-  _send_email 'auth/added-smtp-auth-login-wrong' '-w 20 0.0.0.0 465'
+  _nc_wrapper '/tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
@@ -236,12 +236,12 @@ function setup_file() {
 @test "rejects spam" {
   _run_in_container grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log
   assert_success
-  assert_output --partial '<spam@external.tld> -> <user1@localhost.localdomain>'
+  assert_output --partial '<example-user@example.test> -> <user1@localhost.localdomain>'
   _should_output_number_of_lines 1
 
   # Amavis log line with SPAMASSASSIN_SPAM_TO_INBOX=0 + grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}' /var/log/mail/mail.log:
   # Amavis log line with SPAMASSASSIN_SPAM_TO_INBOX=1 + grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log:
-  # <spam@external.tld> -> <user1@localhost.localdomain>
+  # <example-user@example.test> -> <user1@localhost.localdomain>
   # Amavis log line with ENABLE_SRS=1 changes the domain-part to match in a log:
   # <SRS0=g+ca=5C=external.tld=spam@example.test> -> <user1@localhost.localdomain>
   # assert_output --partial 'external.tld=spam@example.test> -> <user1@localhost.localdomain>'
@@ -258,7 +258,7 @@ function setup_file() {
 # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
 # Better disable SMTPUTF8 support entirely if we can't handle it correctly
 @test "not advertising smtputf8" {
-  _send_email 'email-templates/smtp-ehlo'
+  _send_email 'smtp-ehlo'
   refute_output --partial 'SMTPUTF8'
 }
 
