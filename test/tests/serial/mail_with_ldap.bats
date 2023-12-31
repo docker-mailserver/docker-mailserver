@@ -348,7 +348,7 @@ function teardown() {
 @test "saslauthd: ldap smtp authentication" {
   # do not use _send_email here
   # Requires ENV `PERMIT_DOCKER=container`
-  _nc_wrapper '/tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt' '-w 5 0.0.0.0 25'
+  _nc_wrapper 'auth/sasl-ldap-smtp-auth.txt' '-w 5 0.0.0.0 25'
   assert_output --partial 'Error: authentication not enabled'
 
   # do not use _send_email here

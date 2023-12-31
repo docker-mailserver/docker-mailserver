@@ -12,10 +12,7 @@
 # and provide `<TEST FILE>` as an argument to this function.
 #
 # @param ${1} = template file (path) name without .txt suffix
-#               and without path prefix before the emails directory
-# @param ${2} = config file path name without .cfg suffix
-#               and without path prefix before the emails directory
-#               [OPTIONAL] (default: ${1})
+# @param ...  = options that `swaks` accepts
 #
 # ## Attention
 #
@@ -29,7 +26,7 @@ function _send_email() {
   [[ -v CONTAINER_NAME ]] || return 1
 
   local HELO='mail.external.tld'
-  local FROM='example-user@example.test'
+  local FROM='user@external.tld'
   local TO='user1@localhost.localdomain'
   local SERVER='0.0.0.0'
   local PORT=25

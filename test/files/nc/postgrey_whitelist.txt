@@ -6,3 +6,4 @@ client_name=whitelist.tld
 helo_name=whitelist.tld
 sender=test@whitelist.tld
 recipient=user1@localhost.localdomain
+

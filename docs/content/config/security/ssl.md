@@ -880,7 +880,7 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [docs-faq-baredomain]: ../../faq.md#can-i-use-a-nakedbare-domain-ie-no-hostname
 
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml
-[github-file::tls-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/3b8059f2daca80d967635e04d8d81e9abb755a4d/test/files/ssl/example.test/README.md
+[github-file::tls-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/3b8059f2daca80d967635e04d8d81e9abb755a4d/test/test-files/ssl/example.test/README.md
 [hanscees-renewcerts]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-renew-certs
 
 [traefik::github]: https://github.com/containous/traefik

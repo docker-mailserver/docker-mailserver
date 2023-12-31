@@ -256,7 +256,7 @@ function teardown_file() { _default_teardown ; }
 
   # Move an email to the "Junk" folder from "INBOX"; the first email we
   # sent should pass fine, hence we can now move it.
-  _nc_wrapper '/tmp/docker-mailserver-test/nc/rspamd_imap_move_to_junk.txt' '0.0.0.0 143'
+  _nc_wrapper 'nc/rspamd_imap_move_to_junk.txt' '0.0.0.0 143'
   sleep 1 # wait for the transaction to finish
 
   _run_in_container cat /var/log/mail/mail.log
@@ -270,7 +270,7 @@ function teardown_file() { _default_teardown ; }
   # Move an email to the "INBOX" folder from "Junk"; there should be two mails
   # in the "Junk" folder, since the second email we sent during setup should
   # have landed in the Junk folder already.
-  _nc_wrapper '/tmp/docker-mailserver-test/nc/rspamd_imap_move_to_inbox.txt' '0.0.0.0 143'
+  _nc_wrapper 'nc/rspamd_imap_move_to_inbox.txt' '0.0.0.0 143'
   sleep 1 # wait for the transaction to finish
 
   _run_in_container cat /var/log/mail/mail.log

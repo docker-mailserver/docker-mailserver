@@ -85,7 +85,7 @@ function teardown_file() { _default_teardown ; }
 #   - It'd also cause the earlier greylist test to fail.
 # - TODO: Actually confirm whitelist feature works correctly as these test cases are using a workaround:
 @test "should whitelist sender 'user@whitelist.tld'" {
-  _nc_wrapper '/tmp/docker-mailserver-test/nc/postgrey_whitelist.txt' '-w 0 0.0.0.0 10023'
+  _nc_wrapper 'nc/postgrey_whitelist.txt' '-w 0 0.0.0.0 10023'
 
   _should_have_log_entry \
     'action=pass' \
@@ -94,7 +94,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "should whitelist recipient 'user2@otherdomain.tld'" {
-  _nc_wrapper '/tmp/docker-mailserver-test/nc/postgrey_whitelist_recipients.txt' '-w 0 0.0.0.0 10023'
+  _nc_wrapper 'nc/postgrey_whitelist_recipients.txt' '-w 0 0.0.0.0 10023'
 
   _should_have_log_entry \
     'action=pass' \

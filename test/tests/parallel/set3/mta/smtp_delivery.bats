@@ -66,30 +66,30 @@ function setup_file() {
   # _send_email 'amavis-virus'
 
   # Required for 'delivers mail to existing alias':
-  _send_email --from user@external.tld --to alias1@localhost.localdomain 'existing/alias-external'
+  _send_email --to alias1@localhost.localdomain 'existing/alias-external'
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _send_email --from user@external.tld --to alias1~test@localhost.localdomain 'existing/alias-recipient-delimiter'
+  _send_email --to alias1~test@localhost.localdomain 'existing/alias-recipient-delimiter'
   # Required for 'delivers mail to existing catchall':
-  _send_email --from user@external.tld --to wildcard@localdomain2.com 'existing/catchall-local'
+  _send_email --to wildcard@localdomain2.com 'existing/catchall-local'
   # Required for 'delivers mail to regexp alias':
-  _send_email --from user@external.tld --to test123@localhost.localdomain 'existing/regexp-alias-local'
+  _send_email --to test123@localhost.localdomain 'existing/regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _send_email --from user@external.tld --to nouser@localhost.localdomain 'non-existing-user'
+  _send_email --to nouser@localhost.localdomain 'non-existing-user'
   # Required for 'redirects mail to external aliases':
-  _send_email --from user@external.tld --to bounce-always@localhost.localdomain 'existing/regexp-alias-external'
-  _send_email --from user@external.tld --to alias2@localhost.localdomain 'existing/alias-local'
+  _send_email --to bounce-always@localhost.localdomain 'existing/regexp-alias-external'
+  _send_email --to alias2@localhost.localdomain 'existing/alias-local'
   # Required for 'rejects spam':
   _send_email 'amavis/spam'
 
   # Required for 'delivers mail to existing account':
   _send_email 'existing/user1'
-  _send_email --from user@external.tld --to user2@otherdomain.tld 'existing/user2'
-  _send_email --from user@external.tld --to user3@localhost.localdomain 'existing/user3'
-  _send_email --from user@external.tld --to added@localhost.localdomain 'existing/added'
-  _send_email --from user@external.tld --to user1@localhost.localdomain 'existing/user-and-cc-local-alias'
-  _send_email --from user@external.tld 'sieve/spam-folder'
-  _send_email --from user@external.tld --to user2@otherdomain.tld 'sieve/pipe'
+  _send_email --to user2@otherdomain.tld 'existing/user2'
+  _send_email --to user3@localhost.localdomain 'existing/user3'
+  _send_email --to added@localhost.localdomain 'existing/added'
+  _send_email --to user1@localhost.localdomain 'existing/user-and-cc-local-alias'
+  _send_email 'sieve/spam-folder'
+  _send_email --to user2@otherdomain.tld 'sieve/pipe'
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
 }
 
@@ -103,43 +103,43 @@ function setup_file() {
 }
 
 @test "should successfully authenticate with good password (plain)" {
-  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-plain.txt' '-w 5 0.0.0.0 465'
+  _nc_wrapper 'auth/smtp-auth-plain.txt' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (plain)" {
-  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-plain-wrong.txt' '-w 20 0.0.0.0 465'
+  _nc_wrapper 'auth/smtp-auth-plain-wrong.txt' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
 @test "should successfully authenticate with good password (login)" {
-  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-login.txt' '-w 5 0.0.0.0 465'
+  _nc_wrapper 'auth/smtp-auth-login.txt' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 }
 
 @test "should fail to authenticate with wrong password (login)" {
-  _nc_wrapper '/tmp/docker-mailserver-test/auth/smtp-auth-login-wrong.txt' '-w 20 0.0.0.0 465'
+  _nc_wrapper 'auth/smtp-auth-login-wrong.txt' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (plain)" {
-  _nc_wrapper '/tmp/docker-mailserver-test/auth/added-smtp-auth-plain.txt' '-w 5 0.0.0.0 465'
+  _nc_wrapper 'auth/added-smtp-auth-plain.txt' '-w 5 0.0.0.0 465'
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
-  _nc_wrapper '/tmp/docker-mailserver-test/auth/added-smtp-auth-plain-wrong.txt' '-w 20 0.0.0.0 465'
+  _nc_wrapper 'auth/added-smtp-auth-plain-wrong.txt' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (login)" {
-  _nc_wrapper '/tmp/docker-mailserver-test/auth/added-smtp-auth-login.txt' '-w 5 0.0.0.0 465'
+  _nc_wrapper 'auth/added-smtp-auth-login.txt' '-w 5 0.0.0.0 465'
   assert_success
   assert_output --partial 'Authentication successful'
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (login)" {
-  _nc_wrapper '/tmp/docker-mailserver-test/auth/added-smtp-auth-login-wrong.txt' '-w 20 0.0.0.0 465'
+  _nc_wrapper 'auth/added-smtp-auth-login-wrong.txt' '-w 20 0.0.0.0 465'
   assert_output --partial 'authentication failed'
 }
 
