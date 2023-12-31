@@ -236,12 +236,12 @@ function setup_file() {
 @test "rejects spam" {
   _run_in_container grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log
   assert_success
-  assert_output --partial '<example-user@example.test> -> <user1@localhost.localdomain>'
+  assert_output --partial '<user@external.tld> -> <user1@localhost.localdomain>'
   _should_output_number_of_lines 1
 
   # Amavis log line with SPAMASSASSIN_SPAM_TO_INBOX=0 + grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}' /var/log/mail/mail.log:
   # Amavis log line with SPAMASSASSIN_SPAM_TO_INBOX=1 + grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log:
-  # <example-user@example.test> -> <user1@localhost.localdomain>
+  # <user@external.tld> -> <user1@localhost.localdomain>
   # Amavis log line with ENABLE_SRS=1 changes the domain-part to match in a log:
   # <SRS0=g+ca=5C=external.tld=spam@example.test> -> <user1@localhost.localdomain>
   # assert_output --partial 'external.tld=spam@example.test> -> <user1@localhost.localdomain>'

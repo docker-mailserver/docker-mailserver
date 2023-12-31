@@ -30,7 +30,7 @@ function setup_file() {
   assert_success
 
   # Set default implicit container fallback for helpers:
-  CONTAINER_NAME=${CONTAINER_NAME}
+  CONTAINER_NAME=${CONTAINER1_NAME}
 }
 
 function teardown_file() {
@@ -45,8 +45,9 @@ function teardown_file() {
   # Expected postscreen log entry:
   assert_output --partial 'Protocol error'
 
-  _service_log_should_contain_string 'mail' 'COMMAND PIPELINING'
-  _service_log_should_contain_string 'mail' 'DATA without valid RCPT'
+  _run_in_container cat /var/log/mail.log
+  assert_output --partial 'COMMAND PIPELINING'
+  assert_output --partial 'DATA without valid RCPT'
 }
 
 @test "should successfully pass postscreen and get postfix greeting message (respecting postscreen_greet_wait time)" {
@@ -59,5 +60,6 @@ function teardown_file() {
   # _print_mail_log_for_id "${MAIL_ID}"
   # assert_output --partial "stored mail into mailbox 'INBOX'"
 
-  _service_log_should_contain_string 'mail' 'PASS NEW'
+  _run_in_container cat /var/log/mail.log
+  assert_output --partial 'PASS NEW'
 }

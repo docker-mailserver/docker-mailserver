@@ -45,6 +45,8 @@ function _send_email() {
 
   local TEMPLATE_FILE="/tmp/docker-mailserver-test/emails/${1:?Must provide name of template file}.txt"
 
+  echo "CONTAINER: ${CONTAINER_NAME} | COMMAND: swaks --server ${SERVER} --port ${PORT} --helo ${HELO} --from ${FROM} --to ${TO} ${MORE_SWAKS_OPTIONS[*]} --data - < ${TEMPLATE_FILE}" >/tmp/log
+
   _run_in_container_bash "swaks --server ${SERVER} --port ${PORT} --helo ${HELO} --from ${FROM} --to ${TO} ${MORE_SWAKS_OPTIONS[*]} --data - < ${TEMPLATE_FILE}"
 }
 

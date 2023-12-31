@@ -54,6 +54,6 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'rejects virus' {
-  _run_in_container_bash "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep '<example-user@example.test> -> <user1@localhost.localdomain>'"
+  _run_in_container_bash "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep '<user@external.tld> -> <user1@localhost.localdomain>'"
   assert_success
 }
