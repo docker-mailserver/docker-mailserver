@@ -72,3 +72,4 @@ function teardown_file() { _default_teardown ; }
   _run_in_container grep -i 'connect to 127.0.0.1:10023: Connection refused' /var/log/mail/mail.log
   assert_failure
 }
+
