@@ -54,11 +54,11 @@ The Group ID assigned to the static vmail group for `/var/mail` (_Mail storage m
 
 Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (_Postfix and Dovecot_).
 
-User provisioning via OIDC is planned for the future, see [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713).
+User provisioning via OAUTH2 is planned for the future, see [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713). OAuth2.0 for machine-to-machine authentication (e.g. Roundcube login) has been implemented (see OAUTH2 section below).
 
 - **empty** => use FILE
 - LDAP => use LDAP authentication
-- OIDC => use OIDC authentication (**not yet implemented**)
+- OAUTH2 => use OAUTH2 authentication (**not yet implemented**)
 - FILE => use local files (this is used as the default)
 
 A second container for the ldap service is necessary (e.g. [`bitnami/openldap`](https://hub.docker.com/r/bitnami/openldap/)).
@@ -605,9 +605,28 @@ Enable or disable `getmail`.
 
 - **5** => `getmail` The number of minutes for the interval. Min: 1; Max: 30; Default: 5.
 
+
+#### OAUTH2
+
+##### ENABLE_OAUTH2
+
+- **empty** => OAUTH2 authentication is disabled
+- 1 => OAUTH2 authentication is enabled
+
+##### OAUTH2_CLIENT_ID
+- **empty** => verySecretId
+- => Specify the OAuth2 client ID
+
+##### OAUTH2_CLIENT_SECRET
+- **empty** => verySecretSecret
+- => Specify the OAuth2 client secret
+
+##### OAUTH2_INTROSPECTION_URL
+- **empty** => https://oauth2.example.com/userinfo/
+- => Specify the user info endpoint URL of the oauth2 provider. The trailing slash is MANDATORY (at least for Authentik)
+
+
 #### LDAP
-
-
 
 ##### LDAP_START_TLS
 
