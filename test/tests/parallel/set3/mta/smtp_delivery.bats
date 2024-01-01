@@ -63,7 +63,7 @@ function setup_file() {
 
   # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
-  # _send_email 'amavis-virus'
+  # _send_email --from 'virus@external.tld' 'amavis/virus'
 
   # Required for 'delivers mail to existing alias':
   _send_email --to alias1@localhost.localdomain 'existing/alias-external'
@@ -80,7 +80,7 @@ function setup_file() {
   _send_email --to bounce-always@localhost.localdomain 'existing/regexp-alias-external'
   _send_email --to alias2@localhost.localdomain 'existing/alias-local'
   # Required for 'rejects spam':
-  _send_email 'amavis/spam'
+  _send_email --from 'spam@external.tld' 'amavis/spam'
 
   # Required for 'delivers mail to existing account':
   _send_email 'existing/user1'
@@ -236,12 +236,12 @@ function setup_file() {
 @test "rejects spam" {
   _run_in_container grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log
   assert_success
-  assert_output --partial '<user@external.tld> -> <user1@localhost.localdomain>'
+  assert_output --partial '<spam@external.tld> -> <user1@localhost.localdomain>'
   _should_output_number_of_lines 1
 
   # Amavis log line with SPAMASSASSIN_SPAM_TO_INBOX=0 + grep 'Passed SPAM {RelayedTaggedInbound,Quarantined}' /var/log/mail/mail.log:
   # Amavis log line with SPAMASSASSIN_SPAM_TO_INBOX=1 + grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log:
-  # <user@external.tld> -> <user1@localhost.localdomain>
+  # <spam@external.tld> -> <user1@localhost.localdomain>
   # Amavis log line with ENABLE_SRS=1 changes the domain-part to match in a log:
   # <SRS0=g+ca=5C=external.tld=spam@example.test> -> <user1@localhost.localdomain>
   # assert_output --partial 'external.tld=spam@example.test> -> <user1@localhost.localdomain>'
@@ -258,7 +258,14 @@ function setup_file() {
 # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
 # Better disable SMTPUTF8 support entirely if we can't handle it correctly
 @test "not advertising smtputf8" {
-  _send_email 'smtp-ehlo'
+  # Query supported extensions; SMTPUTF8 should not be available.
+  # - This query requires a EHLO greeting to the destination server.
+  # - HELO is treated as EHLO when protocol is ESMTP.
+  swaks \
+    --helo mail.external.tld \
+    --protocol ESMTP \
+    --server mail.example.test \
+    --quit-after FIRST-HELO
   refute_output --partial 'SMTPUTF8'
 }
 

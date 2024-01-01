@@ -25,7 +25,7 @@ function setup_file() {
 
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
-  _send_email 'amavis/virus'
+  _send_email --from 'virus@external.tld' 'amavis/virus'
   assert_success
   _wait_for_empty_mail_queue_in_container
 }
@@ -54,6 +54,6 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'rejects virus' {
-  _run_in_container_bash "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep '<user@external.tld> -> <user1@localhost.localdomain>'"
+  _run_in_container_bash "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep '<virus@external.tld> -> <user1@localhost.localdomain>'"
   assert_success
 }

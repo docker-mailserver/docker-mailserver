@@ -32,7 +32,15 @@ function teardown_file() { _default_teardown ; }
   assert_success
 
   # it looks as if someone tries to send mail to another domain outside of DMS
-  _send_email 'smtp-only'
+  _send_email \
+    --helo mail.origin.test \
+    --protocol SSMTPA \
+    --server mail.origin.test \
+    --from user@origin.test \
+    --to user@destination.test \
+    --auth-user user@origin.test \
+    --auth-password secret \
+    'smtp-only'
   _wait_for_empty_mail_queue_in_container
 
   # this seemingly succeeds, but looking at the logs, it doesn't
