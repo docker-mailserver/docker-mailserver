@@ -31,15 +31,29 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test '(SASLauthd) RIMAP SMTP authentication works' {
-  _nc_wrapper 'auth/smtp-auth-login.txt' '-w 5 0.0.0.0 25'
-  assert_output --partial 'Error: authentication not enabled'
+  _send_email \
+    --auth LOGIN \
+    --auth-user user1@localhost.localdomain \
+    --auth-password mypassword \
+    --quit-after AUTH
   assert_failure
+  assert_output --partial 'Host did not advertise authentication'
 
-  _nc_wrapper 'auth/smtp-auth-login.txt' '-w 5 0.0.0.0 465'
+  _send_email \
+    --port 465 \
+    --auth LOGIN \
+    --auth-user user1@localhost.localdomain \
+    --auth-password mypassword \
+    --quit-after AUTH
   assert_success
   assert_output --partial 'Authentication successful'
 
-  _nc_wrapper 'auth/smtp-auth-login.txt' '-w 5 0.0.0.0 587'
+  _send_email \
+    --port 587 \
+    --auth LOGIN \
+    --auth-user user1@localhost.localdomain \
+    --auth-password mypassword \
+    --quit-after AUTH
   assert_success
   assert_output --partial 'Authentication successful'
 }

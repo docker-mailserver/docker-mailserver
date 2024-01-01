@@ -101,6 +101,19 @@ function setup_file() {
   assert_success
 }
 
+function _unsuccessful() {
+  _send_email --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword
+  assert_failure
+  assert_output --partial 'authentication failed'
+  assert_output --partial 'No authentication type succeeded'
+}
+
+function _successful() {
+  _send_email --port 465 --auth "${1}" --auth-user "${2}" --auth-password mypassword --quit-after AUTH
+  assert_success
+  assert_output --partial 'Authentication successful'
+}
+
 @test "should succeed at emptying mail queue" {
   # Try catch errors preventing emptying the queue ahead of waiting:
   _run_in_container mailq
@@ -111,44 +124,35 @@ function setup_file() {
 }
 
 @test "should successfully authenticate with good password (plain)" {
-  _nc_wrapper 'auth/smtp-auth-plain.txt' '-w 5 0.0.0.0 465'
-  assert_output --partial 'Authentication successful'
+  _successful PLAIN user1@localhost.localdomain
 }
 
 @test "should fail to authenticate with wrong password (plain)" {
-  _nc_wrapper 'auth/smtp-auth-plain-wrong.txt' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful PLAIN user1@localhost.localdomain
 }
 
 @test "should successfully authenticate with good password (login)" {
-  _nc_wrapper 'auth/smtp-auth-login.txt' '-w 5 0.0.0.0 465'
-  assert_output --partial 'Authentication successful'
+  _successful LOGIN user1@localhost.localdomain
 }
 
 @test "should fail to authenticate with wrong password (login)" {
-  _nc_wrapper 'auth/smtp-auth-login-wrong.txt' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful LOGIN user1@localhost.localdomain
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (plain)" {
-  _nc_wrapper 'auth/added-smtp-auth-plain.txt' '-w 5 0.0.0.0 465'
-  assert_output --partial 'Authentication successful'
+  _successful PLAIN added@localhost.localdomain
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
-  _nc_wrapper 'auth/added-smtp-auth-plain-wrong.txt' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful PLAIN added@localhost.localdomain
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (login)" {
-  _nc_wrapper 'auth/added-smtp-auth-login.txt' '-w 5 0.0.0.0 465'
-  assert_success
-  assert_output --partial 'Authentication successful'
+  _successful LOGIN added@localhost.localdomain
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (login)" {
-  _nc_wrapper 'auth/added-smtp-auth-login-wrong.txt' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful LOGIN added@localhost.localdomain
 }
 
 # TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
