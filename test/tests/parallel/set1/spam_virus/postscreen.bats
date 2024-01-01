@@ -41,7 +41,7 @@ function teardown_file() {
 # A legitimate mail client should speak SMTP by waiting it's turn,
 # Use `nc` to send all SMTP commands at once instead (misbehaving client that should be rejected)
 @test 'should fail send when talking out of turn' {
-  CONTAINER_NAME=${CONTAINER2_NAME} _nc_wrapper 'emails/nc_raw/postscreen.txt' "${CONTAINER1_IP} 25"
+  CONTAINER_NAME=${CONTAINER2_NAME} _nc_wrapper 'emails/nc_raw/postscreen' "${CONTAINER1_IP} 25"
   # Expected postscreen log entry:
   assert_output --partial 'Protocol error'
 

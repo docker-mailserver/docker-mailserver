@@ -480,7 +480,7 @@ function _nc_wrapper() {
 
   [[ -v CONTAINER_NAME ]] || return 1
 
-  _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${FILE}"
+  _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${FILE}.txt"
 }
 
 # ? << Miscellaneous helper functions
