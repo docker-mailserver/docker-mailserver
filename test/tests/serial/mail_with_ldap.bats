@@ -365,19 +365,29 @@ function teardown() {
 }
 
 @test "saslauthd: ldap smtp authentication" {
-  # do not use _send_email here
-  # Requires ENV `PERMIT_DOCKER=container`
-  _nc_wrapper 'auth/sasl-ldap-smtp-auth.txt' '-w 5 0.0.0.0 25'
-  assert_output --partial 'Error: authentication not enabled'
+  _send_email \
+    --auth LOGIN \
+    --auth-user some.user@localhost.localdomain \
+    --auth-password wrongpassword \
+    --quit-after AUTH
   assert_failure
+  assert_output --partial 'Host did not advertise authentication'
 
-  # do not use _send_email here
-  _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
+  _send_email \
+    --port 465 -tlsc \
+    --auth LOGIN \
+    --auth-user some.user@localhost.localdomain \
+    --auth-password secret \
+    --quit-after AUTH
   assert_success
   assert_output --partial 'Authentication successful'
 
-  # do not use _send_email here
-  _run_in_container_bash 'openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
+  _send_email \
+    --port 587 -tls \
+    --auth LOGIN \
+    --auth-user some.user@localhost.localdomain \
+    --auth-password secret \
+    --quit-after AUTH
   assert_success
   assert_output --partial 'Authentication successful'
 }
