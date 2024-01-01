@@ -262,7 +262,7 @@ function setup_file() {
   # - This query requires a EHLO greeting to the destination server.
   # - HELO is treated as EHLO when protocol is ESMTP.
   swaks \
-    --helo mail.external.tld \
+    --ehlo mail.external.tld \
     --protocol ESMTP \
     --server mail.example.test \
     --quit-after FIRST-HELO

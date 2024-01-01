@@ -27,7 +27,7 @@
 function _send_email() {
   [[ -v CONTAINER_NAME ]] || return 1
 
-  local HELO='mail.external.tld'
+  local EHLO='mail.external.tld'
   local FROM='user@external.tld'
   local TO='user1@localhost.localdomain'
   local SERVER='0.0.0.0'
@@ -37,7 +37,7 @@ function _send_email() {
 
   while [[ ${#} -gt 0 ]]; do
     case "${1}" in
-      ( '--helo' )   HELO=${2:?--helo given but no argument}     ; shift 2 ;;
+      ( '--ehlo' )   EHLO=${2:?--ehlo given but no argument}     ; shift 2 ;;
       ( '--from' )   FROM=${2:?--from given but no argument}     ; shift 2 ;;
       ( '--to' )     TO=${2:?--to given but no argument}         ; shift 2 ;;
       ( '--server' ) SERVER=${2:?--server given but no argument} ; shift 2 ;;

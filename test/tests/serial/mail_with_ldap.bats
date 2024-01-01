@@ -331,7 +331,7 @@ function teardown() {
     --port 465 -tlsc --auth LOGIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
-    --helo mail \
+    --ehlo mail \
     --from ldap@localhost.localdomain \
     --data 'auth/ldap-smtp-auth-spoofed'
   assert_output --partial 'Sender address rejected: not owned by user'
@@ -342,7 +342,7 @@ function teardown() {
     --port 465 -tlsc --auth LOGIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
-    --helo mail \
+    --ehlo mail \
     --from postmaster@localhost.localdomain \
     --to some.user@localhost.localdomain \
     --data 'auth/ldap-smtp-auth-spoofed-alias'
@@ -358,7 +358,7 @@ function teardown() {
     --port 465 -tlsc --auth LOGIN \
     --auth-user some.user.email@localhost.localdomain \
     --auth-password secret \
-    --helo mail \
+    --ehlo mail \
     --from randomspoofedaddress@localhost.localdomain \
     --to some.user@localhost.localdomain \
     --data 'auth/ldap-smtp-auth-spoofed-sender-with-filter-exception'

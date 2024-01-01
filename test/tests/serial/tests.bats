@@ -295,7 +295,7 @@ EOF
     --port 465 -tlsc --auth LOGIN \
     --auth-user added@localhost.localdomain \
     --auth-password mypassword \
-    --helo mail \
+    --ehlo mail \
     --from user2@localhost.localdomain \
     --data 'auth/added-smtp-auth-spoofed'
   assert_output --partial 'Sender address rejected: not owned by user'
@@ -311,7 +311,7 @@ EOF
     --port 465 -tlsc --auth LOGIN \
     --auth-user user1@localhost.localdomain \
     --auth-password mypassword \
-    --helo mail \
+    --ehlo mail \
     --from alias1@localhost.localdomain \
     --data 'auth/added-smtp-auth-spoofed-alias'
   assert_success

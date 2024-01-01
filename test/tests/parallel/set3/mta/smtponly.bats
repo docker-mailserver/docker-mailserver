@@ -33,7 +33,7 @@ function teardown_file() { _default_teardown ; }
 
   # it looks as if someone tries to send mail to another domain outside of DMS
   _send_email \
-    --helo mail.origin.test \
+    --ehlo mail.origin.test \
     --protocol SSMTPA \
     --server mail.origin.test \
     --from user@origin.test \
