@@ -25,10 +25,12 @@ function teardown_file() { _default_teardown ; }
 
 @test 'authentication works' {
   _send_email 'auth/pop3-auth' '-w 1 0.0.0.0 110'
+  assert_success
 }
 
 @test 'added user authentication works' {
   _send_email 'auth/added-pop3-auth' '-w 1 0.0.0.0 110'
+  assert_success
 }
 
 @test '/var/log/mail/mail.log is error-free' {

@@ -370,13 +370,16 @@ function teardown() {
   # Requires ENV `PERMIT_DOCKER=container`
   _nc_wrapper 'auth/sasl-ldap-smtp-auth.txt' '-w 5 0.0.0.0 25'
   assert_output --partial 'Error: authentication not enabled'
+  assert_failure
 
   # do not use _send_email here
   _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
+  assert_success
   assert_output --partial 'Authentication successful'
 
   # do not use _send_email here
   _run_in_container_bash 'openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
+  assert_success
   assert_output --partial 'Authentication successful'
 }
 

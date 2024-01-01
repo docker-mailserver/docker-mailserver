@@ -84,13 +84,21 @@ function setup_file() {
 
   # Required for 'delivers mail to existing account':
   _send_email --data 'existing/user1'
+  assert_success
   _send_email --to user2@otherdomain.tld --data 'existing/user2'
+  assert_success
   _send_email --to user3@localhost.localdomain --data 'existing/user3'
+  assert_success
   _send_email --to added@localhost.localdomain --data 'existing/added'
+  assert_success
   _send_email --to user1@localhost.localdomain --data 'existing/user-and-cc-local-alias'
+  assert_success
   _send_email --data 'sieve/spam-folder'
+  assert_success
   _send_email --to user2@otherdomain.tld --data 'sieve/pipe'
+  assert_success
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
+  assert_success
 }
 
 @test "should succeed at emptying mail queue" {
