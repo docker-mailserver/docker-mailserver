@@ -11,8 +11,10 @@
 # a custom email, create a file at `test/files/<TEST FILE>`,
 # and provide `<TEST FILE>` as an argument to this function.
 #
-# @param ${1} = template file (path) name without .txt suffix
-# @param ...  = options that `swaks` accepts
+# Parameters include all options that one can supply to `swaks`
+# itself. What differs is the parameter `--data`: this functions
+# takes a file path without prefixes or the need to handle STDIN.
+#
 #
 # ## Attention
 #
@@ -30,24 +32,29 @@ function _send_email() {
   local TO='user1@localhost.localdomain'
   local SERVER='0.0.0.0'
   local PORT=25
-  local MORE_SWAKS_OPTIONS=()
+  local ADDITIONAL_SWAKS_OPTIONS=()
+  local FINAL_SWAKS_OPTIONS=()
 
-  while [[ ${#} -gt 1 ]]; do
+  while [[ ${#} -gt 0 ]]; do
     case "${1}" in
       ( '--helo' )   HELO=${2:?--helo given but no argument}     ; shift 2 ;;
       ( '--from' )   FROM=${2:?--from given but no argument}     ; shift 2 ;;
       ( '--to' )     TO=${2:?--to given but no argument}         ; shift 2 ;;
       ( '--server' ) SERVER=${2:?--server given but no argument} ; shift 2 ;;
       ( '--port' )   PORT=${2:?--port given but no argument}     ; shift 2 ;;
-      ( * )          MORE_SWAKS_OPTIONS+=("${1}")                ; shift 1 ;;
+      ( '--data' )
+        local TEMPLATE_FILE="/tmp/docker-mailserver-test/emails/${2:?--data given but no argument provided}.txt"
+        FINAL_SWAKS_OPTIONS+=('--data')
+        FINAL_SWAKS_OPTIONS+=('-')
+        FINAL_SWAKS_OPTIONS+=('<')
+        FINAL_SWAKS_OPTIONS+=("${TEMPLATE_FILE}")
+        shift 2
+        ;;
+      ( * ) ADDITIONAL_SWAKS_OPTIONS+=("${1}") ; shift 1 ;;
     esac
   done
 
-  local TEMPLATE_FILE="/tmp/docker-mailserver-test/emails/${1:?Must provide name of template file}.txt"
-
-  echo "CONTAINER: ${CONTAINER_NAME} | COMMAND: swaks --server ${SERVER} --port ${PORT} --helo ${HELO} --from ${FROM} --to ${TO} ${MORE_SWAKS_OPTIONS[*]} --data - < ${TEMPLATE_FILE}" >/tmp/log
-
-  _run_in_container_bash "swaks --server ${SERVER} --port ${PORT} --helo ${HELO} --from ${FROM} --to ${TO} ${MORE_SWAKS_OPTIONS[*]} --data - < ${TEMPLATE_FILE}"
+  _run_in_container_bash "swaks --server ${SERVER} --port ${PORT} --ehlo ${EHLO} --from ${FROM} --to ${TO} ${ADDITIONAL_SWAKS_OPTIONS[*]} ${FINAL_SWAKS_OPTIONS[*]}"
 }
 
 # Like `_send_email` with two major differences:

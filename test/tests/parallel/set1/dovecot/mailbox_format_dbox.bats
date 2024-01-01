@@ -26,7 +26,7 @@ function teardown() { _default_teardown ; }
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _send_email 'existing/user1'
+  _send_email --data 'existing/user1'
   assert_success
   _wait_for_empty_mail_queue_in_container
 
@@ -48,7 +48,7 @@ function teardown() { _default_teardown ; }
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _send_email 'existing/user1'
+  _send_email --data 'existing/user1'
   assert_success
   _wait_for_empty_mail_queue_in_container
 

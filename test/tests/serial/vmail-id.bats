@@ -20,7 +20,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test 'should successfully deliver mail' {
-  _send_email 'existing/user1'
+  _send_email --data 'existing/user1'
   _wait_for_empty_mail_queue_in_container
 
   # Should be successfully sent (received) by Postfix:
@@ -72,4 +72,3 @@ function teardown_file() { _default_teardown ; }
   _run_in_container grep -i 'connect to 127.0.0.1:10023: Connection refused' /var/log/mail/mail.log
   assert_failure
 }
-

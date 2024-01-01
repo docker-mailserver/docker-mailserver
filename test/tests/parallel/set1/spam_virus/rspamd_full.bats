@@ -45,10 +45,10 @@ function setup_file() {
 
   # We will send 3 emails: the first one should pass just fine; the second one should
   # be rejected due to spam; the third one should be rejected due to a virus.
-  export MAIL_ID1=$(_send_email_and_get_id --from 'rspamd-pass@example.test' 'rspamd/pass')
-  export MAIL_ID2=$(_send_email_and_get_id --from 'rspamd-spam@example.test' 'rspamd/spam')
-  export MAIL_ID3=$(_send_email_and_get_id --from 'rspamd-virus@example.test' 'rspamd/virus')
-  export MAIL_ID4=$(_send_email_and_get_id --from 'rspamd-spam-header@example.test' 'rspamd/spam-header')
+  export MAIL_ID1=$(_send_email_and_get_id --from 'rspamd-pass@example.test' --data 'rspamd/pass')
+  export MAIL_ID2=$(_send_email_and_get_id --from 'rspamd-spam@example.test' --data 'rspamd/spam')
+  export MAIL_ID3=$(_send_email_and_get_id --from 'rspamd-virus@example.test' --data 'rspamd/virus')
+  export MAIL_ID4=$(_send_email_and_get_id --from 'rspamd-spam-header@example.test' --data 'rspamd/spam-header')
 
   for ID in MAIL_ID{1,2,3,4}; do
     [[ -n ${!ID} ]] || { echo "${ID} is empty - aborting!" ; return 1 ; }

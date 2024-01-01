@@ -52,11 +52,11 @@ function teardown_file() {
 
 @test "should successfully pass postscreen and get postfix greeting message (respecting postscreen_greet_wait time)" {
   # Send from mail client container (CONTAINER2_NAME) to DMS server container (CONTAINER1_NAME):
-  CONTAINER_NAME=${CONTAINER2_NAME} _send_email --server "${CONTAINER1_IP}" 'postscreen'
+  CONTAINER_NAME=${CONTAINER2_NAME} _send_email --server "${CONTAINER1_IP}" --data 'postscreen'
   assert_success
 
     # TODO: Implement support for separate client and server containers:
-  # local MAIL_ID=$(_send_email_and_get_id 'postscreen')
+  # local MAIL_ID=$(_send_email_and_get_id --data 'postscreen')
   # _print_mail_log_for_id "${MAIL_ID}"
   # assert_output --partial "stored mail into mailbox 'INBOX'"
 

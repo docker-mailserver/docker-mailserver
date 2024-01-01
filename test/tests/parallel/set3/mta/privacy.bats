@@ -29,7 +29,7 @@ function teardown_file() { _default_teardown ; }
     --port 587 -tls --auth LOGIN \
     --auth-user user1@localhost.localdomain \
     --auth-password mypassword \
-    'privacy'
+    --data 'privacy'
   assert_success
 
   _run_until_success_or_timeout 120 _exec_in_container_bash '[[ -d /var/mail/localhost.localdomain/user1/new ]]'

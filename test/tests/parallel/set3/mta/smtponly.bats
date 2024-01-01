@@ -40,7 +40,7 @@ function teardown_file() { _default_teardown ; }
     --to user@destination.test \
     --auth-user user@origin.test \
     --auth-password secret \
-    'smtp-only'
+    --data 'smtp-only'
   _wait_for_empty_mail_queue_in_container
 
   # this seemingly succeeds, but looking at the logs, it doesn't
