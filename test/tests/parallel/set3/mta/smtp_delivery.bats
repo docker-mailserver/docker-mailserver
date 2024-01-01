@@ -273,7 +273,7 @@ function _successful() {
   # Query supported extensions; SMTPUTF8 should not be available.
   # - This query requires a EHLO greeting to the destination server.
   # - HELO is treated as EHLO when protocol is ESMTP.
-  swaks \
+  _send_email \
     --ehlo mail.external.tld \
     --protocol ESMTP \
     --server mail.example.test \

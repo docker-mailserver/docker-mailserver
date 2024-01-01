@@ -15,7 +15,6 @@
 # itself. What differs is the parameter `--data`: this functions
 # takes a file path without prefixes or the need to handle STDIN.
 #
-#
 # ## Attention
 #
 # This function assumes `CONTAINER_NAME` to be properly set (to the container
@@ -66,8 +65,7 @@ function _send_email() {
 # No. 2 is especially useful in case you send more than one email in a single
 # test file and need to assert certain log entries for each mail individually.
 #
-# @param ${1} = template file (path) name without .txt suffix
-# @param ${2} = config file path name without .cfg suffix [OPTIONAL] (default: ${1})
+# This function takes the same arguments as `_send_mail`.
 #
 # ## Attention
 #

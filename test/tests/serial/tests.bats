@@ -80,12 +80,12 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "imap: authentication works" {
-  _send_email 'auth/imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/imap-auth' '-w 1 0.0.0.0 143'
   assert_success
 }
 
 @test "imap: added user authentication works" {
-  _send_email 'auth/added-imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/added-imap-auth' '-w 1 0.0.0.0 143'
   assert_success
 }
 

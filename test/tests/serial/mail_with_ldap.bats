@@ -122,7 +122,6 @@ function setup_file() {
 
   # Extra ENV needed to support specific test-cases:
   local ENV_SUPPORT=(
-    --env PERMIT_DOCKER=container # Required for attempting SMTP auth on port 25 via nc
     # Required for openssl commands to be successul:
     # NOTE: snakeoil cert is created (for `docker-mailserver.invalid`) via Debian post-install script for Postfix package.
     # TODO: Use proper TLS cert
@@ -249,7 +248,7 @@ function teardown() {
 
 # dovecot
 @test "dovecot: ldap imap connection and authentication works" {
-  _run_in_container_bash 'nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-ldap-auth.txt'
+  _nc_wrapper 'auth/imap-ldap-auth' '-w 1 0.0.0.0 143'
   assert_success
 }
 
