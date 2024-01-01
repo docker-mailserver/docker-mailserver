@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Added
+
+  - **Basic OAuth2.0** 🎉
+    - You can now authenticate via apps like Roundcube using OAuth2.0 (LDAP/FILE provider still required)
+
 ## [v13.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.1.0)
 
 ### Added
