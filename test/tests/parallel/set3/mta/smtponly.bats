@@ -38,9 +38,10 @@ function teardown_file() { _default_teardown ; }
     --server mail.origin.test \
     --from user@origin.test \
     --to user@destination.test \
+    --auth PLAIN \
     --auth-user user@origin.test \
-    --auth-password secret \
-    --data 'smtp-only'
+    --auth-password secret
+  assert_success
   _wait_for_empty_mail_queue_in_container
 
   # this seemingly succeeds, but looking at the logs, it doesn't

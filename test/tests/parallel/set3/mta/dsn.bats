@@ -47,6 +47,8 @@ function teardown_file() {
 @test "should always send a DSN when requested" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
 
+  # TODO replace with _send_email as soon as it supports DSN
+  # TODO ref: https://github.com/jetmore/swaks/issues/41
   _nc_wrapper 'emails/nc_raw/dsn/unauthenticated'
   _nc_wrapper 'emails/nc_raw/dsn/authenticated' '0.0.0.0 465'
   _nc_wrapper 'emails/nc_raw/dsn/authenticated' '0.0.0.0 587'
