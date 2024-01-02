@@ -73,14 +73,17 @@ function teardown_file() {
 @test "ban ip on multiple failed login" {
   CONTAINER1_IP=$(_get_container_ip "${CONTAINER1_NAME}")
   # Trigger a ban by failing to login twice:
-  CONTAINER_NAME=${CONTAINER2_NAME} _send_email --server "${CONTAINER1_IP}" --ehlo mail --port 465 --auth LOGIN --auth-user user1@localhost.localdomain --auth-password wrongpassword
-  assert_failure
-  assert_output --partial 'authentication failed'
-  assert_output --partial 'No authentication type succeeded'
-  CONTAINER_NAME=${CONTAINER2_NAME} _send_email --server "${CONTAINER1_IP}" --ehlo mail --port 465 --auth LOGIN --auth-user user1@localhost.localdomain --auth-password wrongpassword
-  assert_failure
-  assert_output --partial 'authentication failed'
-  assert_output --partial 'No authentication type succeeded'
+  for _ in {1..2}; do
+    CONTAINER_NAME=${CONTAINER2_NAME} _send_email \
+      --server "${CONTAINER1_IP}" \
+      --port 465 \
+      --auth PLAIN \
+      --auth-user user1@localhost.localdomain \
+      --auth-password wrongpassword
+    assert_failure
+    assert_output --partial 'authentication failed'
+    assert_output --partial 'No authentication type succeeded'
+  done
 
   # Checking that CONTAINER2_IP is banned in "${CONTAINER1_NAME}"
   CONTAINER2_IP=$(_get_container_ip "${CONTAINER2_NAME}")
