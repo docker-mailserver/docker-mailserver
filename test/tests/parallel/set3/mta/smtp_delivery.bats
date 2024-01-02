@@ -85,9 +85,9 @@ function setup_file() {
   # Required for 'delivers mail to existing account':
   _send_email --data 'existing/user1'
   assert_success
-  _send_email --to user2@otherdomain.tld --data 'existing/user2'
+  _send_email --to user2@otherdomain.tld
   assert_success
-  _send_email --to user3@localhost.localdomain --data 'existing/user3'
+  _send_email --to user3@localhost.localdomain
   assert_success
   _send_email --to added@localhost.localdomain --data 'existing/added'
   assert_success
