@@ -60,6 +60,8 @@ function teardown_file() {
 
 
 @test "oauth2: imap connect and authentication works" {
+  _run_in_container_bash 'nc -vz 0.0.0.0 143'
+  _run_in_container_bash 'sleep 5'
   _run_in_container_bash 'nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-oauth2-auth.txt'
-  assert_success
+  assert_output --partial 'Examine completed'
 }
