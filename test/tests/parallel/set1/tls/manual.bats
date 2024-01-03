@@ -20,7 +20,7 @@ function setup_file() {
   export TEST_DOMAIN='example.test'
 
   local CUSTOM_SETUP_ARGUMENTS=(
-    --volume "${PWD}/test/test-files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/:/config/ssl/:ro"
+    --volume "${PWD}/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/:/config/ssl/:ro"
     --env LOG_LEVEL='trace'
     --env SSL_TYPE='manual'
     --env TLS_LEVEL='modern'
@@ -108,10 +108,10 @@ function teardown_file() { _default_teardown ; }
 
 @test "manual cert changes are picked up by check-for-changes" {
   printf '%s' 'someThingsChangedHere' \
-    >>"$(pwd)/test/test-files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
+    >>"$(pwd)/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
 
   run timeout 15 docker exec "${CONTAINER_NAME}" bash -c "tail -F /var/log/supervisor/changedetector.log | sed '/Manual certificates have changed/ q'"
   assert_success
 
-  sed -i '/someThingsChangedHere/d' "$(pwd)/test/test-files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
+  sed -i '/someThingsChangedHere/d' "$(pwd)/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
 }

@@ -17,7 +17,7 @@ function setup_file() {
 
   # Contains various certs for testing TLS support (read-only):
   export TLS_CONFIG_VOLUME
-  TLS_CONFIG_VOLUME="${PWD}/test/test-files/ssl/${TEST_DOMAIN}/:/config/ssl/:ro"
+  TLS_CONFIG_VOLUME="${PWD}/test/files/ssl/${TEST_DOMAIN}/:/config/ssl/:ro"
 
   # Used for connecting testssl and DMS containers via network name `TEST_DOMAIN`:
   # NOTE: If the network already exists, the test will fail to start

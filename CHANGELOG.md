@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Updates
+
+- The test suite now uses `swaks` instead of `nc`, which has multiple benefits ([#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732)):
+  - `swaks` handles pipelining correctly, hence we can now use `reject_unauth_pipelining` in Postfix's configuration.
+  - `swaks` provides better CLI options that make many files superflous.
+  - `swaks` can also replace `openssl s_client` and handles authentication on submission ports better.
+
+## [v13.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.1.0)
+
 ### Added
 
 - **Dovecot:**
@@ -22,6 +31,8 @@ All notable changes to this project will be documented in this file. The format 
   - Debugging - Raise awareness of temporary downtime during certificate renewal that can cause a failure to deliver local mail ([#3718](https://github.com/docker-mailserver/docker-mailserver/pull/3718))
 - **Internal:**
   - Postfix configures `virtual_mailbox_maps` and `virtual_transport` during startup instead of using defaults (configured for Dovecot) via our `main.cf` ([#3681](https://github.com/docker-mailserver/docker-mailserver/pull/3681))
+- **Rspamd:**
+  - Upgraded to version `3.7.5`. This was previously inconsistent between our AMD64 (`3.5`) and ARM64 (`3.4`) images ([#3686](https://github.com/docker-mailserver/docker-mailserver/pull/3686))
 
 ### Fixed
 
@@ -31,6 +42,7 @@ All notable changes to this project will be documented in this file. The format 
   - `VERSION` is no longer included in the image ([#3711](https://github.com/docker-mailserver/docker-mailserver/pull/3711))
   - Update-check: fix 'read' exit status ([#3688](https://github.com/docker-mailserver/docker-mailserver/pull/3688))
   - `ENABLE_QUOTAS=0` no longer tries to remove non-existent config ([#3715](https://github.com/docker-mailserver/docker-mailserver/pull/3715))
+  - The `postgrey` service now writes logs to the supervisor directory like all other services. Previously this was `/var/log/mail/mail.log` ([#3724](https://github.com/docker-mailserver/docker-mailserver/pull/3724))
 - **Rspamd:**
   - Switch to official arm64 packages to avoid segfaults ([#3686](https://github.com/docker-mailserver/docker-mailserver/pull/3686))
 - **CI / Automation:**

@@ -80,7 +80,7 @@ function _install_packages() {
   # `bind9-dnsutils` provides the `dig` command
   # `iputils-ping` provides the `ping` command
   DEBUG_PACKAGES=(
-    bind9-dnsutils iputils-ping less nano
+    bind9-dnsutils iputils-ping less nano swaks
   )
 
   apt-get "${QUIET}" --no-install-recommends install \

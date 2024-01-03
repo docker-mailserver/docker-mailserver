@@ -80,11 +80,13 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "imap: authentication works" {
-  _send_email 'auth/imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/imap-auth' '-w 1 0.0.0.0 143'
+  assert_success
 }
 
 @test "imap: added user authentication works" {
-  _send_email 'auth/added-imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/added-imap-auth' '-w 1 0.0.0.0 143'
+  assert_success
 }
 
 #
@@ -288,13 +290,34 @@ EOF
 @test "spoofing: rejects sender forging" {
   # rejection of spoofed sender
   _wait_for_smtp_port_in_container_to_respond
-  _run_in_container_bash "openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt"
+
+  # An authenticated user cannot use an envelope sender (MAIL FROM)
+  # address they do not own according to `main.cf:smtpd_sender_login_maps` lookup
+  _send_email \
+    --port 465 -tlsc --auth LOGIN \
+    --auth-user added@localhost.localdomain \
+    --auth-password mypassword \
+    --ehlo mail \
+    --from user2@localhost.localdomain \
+    --data 'auth/added-smtp-auth-spoofed'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "spoofing: accepts sending as alias" {
-  _run_in_container_bash "openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed-alias.txt | grep 'End data with'"
+  # An authenticated account should be able to send mail from an alias,
+  # Verifies `main.cf:smtpd_sender_login_maps` includes /etc/postfix/virtual
+  # The envelope sender address (MAIL FROM) is the lookup key
+  # to each table. Address is authorized when a result that maps to
+  # the DMS account is returned.
+  _send_email \
+    --port 465 -tlsc --auth LOGIN \
+    --auth-user user1@localhost.localdomain \
+    --auth-password mypassword \
+    --ehlo mail \
+    --from alias1@localhost.localdomain \
+    --data 'auth/added-smtp-auth-spoofed-alias'
   assert_success
+  assert_output --partial 'End data with'
 }
 
 #
