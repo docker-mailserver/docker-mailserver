@@ -55,7 +55,7 @@ smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, rej
 smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
 smtpd_sender_restrictions = $dms_smtpd_sender_restrictions
 smtpd_discard_ehlo_keywords = silent-discard, dsn
-smtpd_data_restrictions = reject_unauth_pipelining
+smtpd_data_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_pipelining
 disable_vrfy_command = yes
 
 # Security - Prevent SMTP Smuggling attack
