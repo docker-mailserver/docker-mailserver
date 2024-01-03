@@ -272,12 +272,11 @@ function _successful() {
 @test "not advertising smtputf8" {
   # Query supported extensions; SMTPUTF8 should not be available.
   # - This query requires a EHLO greeting to the destination server.
-  # - HELO is treated as EHLO when protocol is ESMTP.
   _send_email \
     --ehlo mail.external.tld \
     --protocol ESMTP \
     --server mail.example.test \
-    --quit-after FIRST-HELO
+    --quit-after FIRST-EHLO
   refute_output --partial 'SMTPUTF8'
 }
 

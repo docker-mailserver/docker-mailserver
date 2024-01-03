@@ -12,8 +12,8 @@
 # and provide `<TEST FILE>` as an argument to this function.
 #
 # Parameters include all options that one can supply to `swaks`
-# itself. What differs is the parameter `--data`: this functions
-# takes a file path without prefixes or the need to handle STDIN.
+# itself. The `--data` parameter expects a relative path from `emails/`
+# where the contents will be implicitly provided to `swaks` via STDIN.
 #
 # ## Attention
 #
@@ -26,12 +26,15 @@
 function _send_email() {
   [[ -v CONTAINER_NAME ]] || return 1
 
+  # Parameter defaults common to our testing needs:
   local EHLO='mail.external.tld'
   local FROM='user@external.tld'
   local TO='user1@localhost.localdomain'
   local SERVER='0.0.0.0'
   local PORT=25
+  # Extra options for `swaks` that aren't covered by the default options above:
   local ADDITIONAL_SWAKS_OPTIONS=()
+  # Specifically for handling `--data` option below:
   local FINAL_SWAKS_OPTIONS=()
 
   while [[ ${#} -gt 0 ]]; do

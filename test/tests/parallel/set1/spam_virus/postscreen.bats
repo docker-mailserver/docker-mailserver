@@ -38,8 +38,11 @@ function teardown_file() {
 }
 
 # `POSTSCREEN_ACTION=enforce` (DMS default) should reject delivery with a 550 SMTP reply
-# A legitimate mail client should speak SMTP by waiting it's turn,
-# Use `nc` to send all SMTP commands at once instead (misbehaving client that should be rejected)
+# A legitimate mail client should speak SMTP by waiting it's turn, which postscreen defaults enforce (only on port 25)
+# https://www.postfix.org/postconf.5.html#postscreen_greet_wait
+#
+# Use `nc` to send all SMTP commands at once instead (emulate a misbehaving client that should be rejected)
+# NOTE: Postscreen only runs on port 25, avoid implicit ports in test methods
 @test 'should fail send when talking out of turn' {
   CONTAINER_NAME=${CONTAINER2_NAME} _nc_wrapper 'emails/nc_raw/postscreen' "${CONTAINER1_IP} 25"
   # Expected postscreen log entry:
@@ -51,13 +54,15 @@ function teardown_file() {
 }
 
 @test "should successfully pass postscreen and get postfix greeting message (respecting postscreen_greet_wait time)" {
-  # Send from mail client container (CONTAINER2_NAME) to DMS server container (CONTAINER1_NAME):
-  CONTAINER_NAME=${CONTAINER2_NAME} _send_email --server "${CONTAINER1_IP}" --data 'postscreen'
-  # TODO add when proper resolution of domain names is possible
+  # Configure `send_email()` to send from the mail client container (CONTAINER2_NAME) via ENV override,
+  # mail is sent to the DMS server container (CONTAINER1_NAME) via `--server` parameter:
+  CONTAINER_NAME=${CONTAINER2_NAME} _send_email --server "${CONTAINER1_IP}" --port 25 --data 'postscreen'
+  # NOTE: Cannot assert_success due to sender address not being resolvable.
+  # TODO: Uncomment when proper resolution of domain names is possible:
   # assert_success
 
-    # TODO: Implement support for separate client and server containers:
-  # local MAIL_ID=$(_send_email_and_get_id --data 'postscreen')
+  # TODO: Prefer this approach when `_send_email_and_get_id()` can support separate client and server containers:
+  # local MAIL_ID=$(_send_email_and_get_id --port 25 --data 'postscreen')
   # _print_mail_log_for_id "${MAIL_ID}"
   # assert_output --partial "stored mail into mailbox 'INBOX'"
 

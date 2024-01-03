@@ -8,10 +8,10 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Updates
 
-- the test suite now uses `swaks` instead of `nc`, which has multiple benefits
-  - `swaks` handles pipelining correctly, hence we can now use `reject_unauth_pipelining` in Postfix's configuration
-  - `swaks` provides better CLI options that make many files superflous
-  - `swaks` can also replace `openssl s_client` and handles authentication on submission ports better
+- The test suite now uses `swaks` instead of `nc`, which has multiple benefits ([#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732)):
+  - `swaks` handles pipelining correctly, hence we can now use `reject_unauth_pipelining` in Postfix's configuration.
+  - `swaks` provides better CLI options that make many files superflous.
+  - `swaks` can also replace `openssl s_client` and handles authentication on submission ports better.
 
 ## [v13.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.1.0)
 

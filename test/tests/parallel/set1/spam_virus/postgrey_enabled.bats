@@ -51,7 +51,7 @@ function teardown_file() { _default_teardown ; }
   _reload_postfix
 
   # Send test mail (it should fail to deliver):
-  _send_email --from 'user@external.tld' --data 'postgrey'
+  _send_email --from 'user@external.tld' --port 25 --data 'postgrey'
   assert_failure
   assert_output --partial 'Recipient address rejected: Delayed by Postgrey'
 
@@ -67,7 +67,7 @@ function teardown_file() { _default_teardown ; }
   # Wait until `$POSTGREY_DELAY` seconds pass before trying again:
   sleep 3
   # Retry delivering test mail (it should be trusted this time):
-  _send_email --from 'user@external.tld' --data 'postgrey'
+  _send_email --from 'user@external.tld' --port 25 --data 'postgrey'
   assert_success
 
   # Confirm postgrey permitted delivery (triplet is now trusted):
@@ -78,6 +78,8 @@ function teardown_file() { _default_teardown ; }
 }
 
 # NOTE: These two whitelist tests use `files/nc/` instead of `files/emails`.
+# `nc` option `-w 0` terminates the connection after sending the template, it does not wait for a response.
+# This is required for port 10023, otherwise the connection never drops.
 # - This allows to bypass the SMTP protocol on port 25, and send data directly to Postgrey instead.
 # - Appears to be a workaround due to `client_name=localhost` when sent from Postfix.
 # - Could send over port 25 if whitelisting `localhost`,
