@@ -171,7 +171,7 @@ BATS_TEST_NAME_PREFIX='test helper functions:'
   # enable ClamAV to make message delivery slower, so we can detect it
   CONTAINER_NAME=$(docker run -d --rm \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e ENABLE_CLAMAV=1 \
     -h mail.my-domain.com \
     -t "${NAME}")
@@ -186,7 +186,7 @@ BATS_TEST_NAME_PREFIX='test helper functions:'
   [[ ${SECONDS} -lt 5 ]]
 
   # fill the queue with a message
-  docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+  docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/emails/amavis-virus.txt"
 
   # that should still be stuck in the queue
   ! TEST_TIMEOUT_IN_SECONDS=0 wait_for_empty_mail_queue_in_container "${CONTAINER_NAME}"
@@ -203,7 +203,7 @@ BATS_TEST_NAME_PREFIX='test helper functions:'
   # enable ClamAV to make message delivery slower, so we can detect it
   CONTAINER_NAME=$(docker run -d --rm \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e ENABLE_CLAMAV=1 \
     -h mail.my-domain.com \
     -t "${NAME}")
@@ -213,7 +213,7 @@ BATS_TEST_NAME_PREFIX='test helper functions:'
   wait_for_smtp_port_in_container "${CONTAINER_NAME}" || docker logs "${CONTAINER_NAME}"
 
   # fill the queue with a message
-  docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/email-templates/amavis-virus.txt"
+  docker exec "${CONTAINER_NAME}" /bin/sh -c "nc 0.0.0.0 25 < /tmp/docker-mailserver-test/emails/amavis-virus.txt"
 
   # give it some time to clear the queue
   SECONDS=0

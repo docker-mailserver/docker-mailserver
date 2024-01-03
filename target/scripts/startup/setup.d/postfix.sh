@@ -30,18 +30,25 @@ mech_list: plain login
 EOF
   fi
 
+  # User has explicitly requested to disable SASL auth:
+  # TODO: Additive config by feature would be better. Should only enable SASL auth
+  # on submission(s) services in master.cf when SASLAuthd or Dovecot is enabled.
   if [[ ${ENABLE_SASLAUTHD} -eq 0 ]] && [[ ${SMTP_ONLY} -eq 1 ]]; then
+    # Default for services (eg: Port 25); NOTE: This has since become the default:
     sed -i -E \
       's|^smtpd_sasl_auth_enable =.*|smtpd_sasl_auth_enable = no|g' \
       /etc/postfix/main.cf
+    # Submission services that are explicitly enabled by default:
     sed -i -E \
       's|^  -o smtpd_sasl_auth_enable=.*|  -o smtpd_sasl_auth_enable=no|g' \
       /etc/postfix/master.cf
   fi
 
+  # scripts/helpers/aliases.sh:_create_aliases()
   __postfix__log 'trace' 'Setting up aliases'
   _create_aliases
 
+  # scripts/helpers/postfix.sh:_create_postfix_vhost()
   __postfix__log 'trace' 'Setting up Postfix vhost'
   _create_postfix_vhost
 
@@ -63,6 +70,25 @@ EOF
       's|^(dms_smtpd_sender_restrictions = .*)|\1, reject_unknown_client_hostname|' \
       /etc/postfix/main.cf
   fi
+
+  # Dovecot feature integration
+  # TODO: Alias SMTP_ONLY=0 to DOVECOT_ENABLED=1?
+  if [[ ${SMTP_ONLY} -ne 1 ]]; then
+    __postfix__log 'trace' 'Configuring Postfix with Dovecot integration'
+
+    # /etc/postfix/vmailbox is created by: scripts/helpers/accounts.sh:_create_accounts()
+    # This file config is for Postfix to verify a mail account exists before accepting
+    # mail arriving and delivering it to Dovecot over LMTP.
+    if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]]; then
+      postconf 'virtual_mailbox_maps = texthash:/etc/postfix/vmailbox'
+    fi
+    postconf 'virtual_transport = lmtp:unix:/var/run/dovecot/lmtp'
+  fi
+
+  if [[ -n ${POSTFIX_DAGENT} ]]; then
+    __postfix__log 'trace' "Changing virtual transport to '${POSTFIX_DAGENT}'"
+    postconf "virtual_transport = ${POSTFIX_DAGENT}"
+  fi
 }
 
 function _setup_postfix_late() {
@@ -79,12 +105,6 @@ function _setup_postfix_late() {
 
   __postfix__log 'trace' 'Configuring relay host'
   _setup_relayhost
-
-  if [[ -n ${POSTFIX_DAGENT} ]]; then
-    __postfix__log 'trace' "Changing virtual transport to '${POSTFIX_DAGENT}'"
-    # Default value in main.cf should be 'lmtp:unix:/var/run/dovecot/lmtp'
-    postconf "virtual_transport = ${POSTFIX_DAGENT}"
-  fi
 
   __postfix__setup_override_configuration
 }

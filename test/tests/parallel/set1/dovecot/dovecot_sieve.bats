@@ -26,9 +26,11 @@ function setup_file() {
   _wait_for_smtp_port_in_container
 
   # Single mail sent from 'spam@spam.com' that is handled by User (relocate) and Global (copy) sieves for user1:
-  _send_email 'email-templates/sieve-spam-folder'
+  _send_email --data 'sieve/spam-folder'
+  assert_success
   # Mail for user2 triggers the sieve-pipe:
-  _send_email 'email-templates/sieve-pipe'
+  _send_email --to 'user2@otherdomain.tld' --data 'sieve/pipe'
+  assert_success
 
   _wait_for_empty_mail_queue_in_container
 }

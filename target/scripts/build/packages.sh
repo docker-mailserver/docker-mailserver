@@ -80,7 +80,7 @@ function _install_packages() {
   # `bind9-dnsutils` provides the `dig` command
   # `iputils-ping` provides the `ping` command
   DEBUG_PACKAGES=(
-    bind9-dnsutils iputils-ping less nano
+    bind9-dnsutils iputils-ping less nano swaks
   )
 
   apt-get "${QUIET}" --no-install-recommends install \
@@ -130,29 +130,14 @@ function _install_dovecot() {
 function _install_rspamd() {
   _log 'trace' 'Adding Rspamd package signatures'
   local DEB_FILE='/etc/apt/sources.list.d/rspamd.list'
-  local RSPAMD_PACKAGE_NAME
 
-  # We try getting the most recent version of Rspamd for aarch64 (from an official source, which
-  # is the backports repository). The version for aarch64 is 3.2; the most recent version for amd64
-  # that we get with the official PPA is 3.4.
-  #
-  # Not removing it later is fine as you have to explicitly opt into installing a backports package
-  # which is not something you could be doing by accident.
-  if [[ $(uname --machine) == 'aarch64' ]]; then
-    echo '# Official Rspamd PPA does not support aarch64, so we use the Bullseye backports' >"${DEB_FILE}"
-    echo 'deb [arch=arm64] http://deb.debian.org/debian bullseye-backports main' >>"${DEB_FILE}"
-    RSPAMD_PACKAGE_NAME='rspamd/bullseye-backports'
-  else
-    curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
-    local URL='[arch=amd64 signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main'
-    echo "deb ${URL}" >"${DEB_FILE}"
-    echo "deb-src ${URL}" >>"${DEB_FILE}"
-    RSPAMD_PACKAGE_NAME='rspamd'
-  fi
+  curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
+  local URL='[signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main'
+  echo "deb ${URL}" >"${DEB_FILE}"
 
   _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" update
-  apt-get "${QUIET}" --no-install-recommends install "${RSPAMD_PACKAGE_NAME}" 'redis-server'
+  apt-get "${QUIET}" --no-install-recommends install 'rspamd' 'redis-server'
 }
 
 function _install_fail2ban() {
@@ -205,6 +190,11 @@ function _install_getmail() {
   apt-get "${QUIET}" autoremove
 }
 
+function _install_utils() {
+  _log 'debug' 'Installing utils sourced from Github'
+  curl -sL https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-x86_64-unknown-linux-musl -o /usr/bin/jaq && chmod +x /usr/bin/jaq
+}
+
 function _remove_data_after_package_installations() {
   _log 'debug' 'Deleting sensitive files (secrets)'
   rm /etc/postsrsd.secret
@@ -228,5 +218,6 @@ _install_dovecot
 _install_rspamd
 _install_fail2ban
 _install_getmail
+_install_utils
 _remove_data_after_package_installations
 _post_installation_steps
