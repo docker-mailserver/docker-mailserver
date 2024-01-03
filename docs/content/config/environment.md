@@ -613,14 +613,6 @@ Enable or disable `getmail`.
 - **empty** => OAUTH2 authentication is disabled
 - 1 => OAUTH2 authentication is enabled
 
-##### OAUTH2_CLIENT_ID
-
-- => Specify the OAuth2 client ID
-
-##### OAUTH2_CLIENT_SECRET
-
-- => Specify the OAuth2 client secret
-
 ##### OAUTH2_INTROSPECTION_URL
 
 - => Specify the user info endpoint URL of the oauth2 provider. E.g. `https://oauth2.example.com/userinfo/`, where the trailing slash is MANDATORY (at least for Authentik)

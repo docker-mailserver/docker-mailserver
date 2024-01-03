@@ -32,8 +32,6 @@ function setup_file() {
   # Add OAUTH2 configuration so that Dovecot can reach out to our mock provider (CONTAINER2)
   local ENV_OAUTH2_CONFIG=(
     --env ENABLE_OAUTH2=1
-    --env OAUTH2_CLIENT_ID=mailserver
-    --env OAUTH2_CLIENT_SECRET=ah_yes___secret
     --env OAUTH2_INTROSPECTION_URL=http://oauth2.example.test/
   )
 

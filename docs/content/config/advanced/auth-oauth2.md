@@ -25,12 +25,7 @@ This example assumes you have:
 
 !!! example "Setup Instructions"
 
-    === "1. Authentik"
-        1. Create a new OAuth2 provider
-        2. Note the client id and client secret
-        3. Set the allowed redirect url to the equivalent of `https://roundcube.example.com/index.php/login/oauth` for your RoundCube instance.
-
-    === "2. Docker Mailserver"
+    === "1. Docker Mailserver"
         Edit the following values in `mailserver.env`:
         ```env
         # -----------------------------------------------
@@ -41,18 +36,14 @@ This example assumes you have:
         # 1 => OAUTH2 authentication is enabled
         ENABLE_OAUTH2=1
 
-        # empty => verySecretId
-        # Specify the OAuth2 client ID
-        OAUTH2_CLIENT_ID=<insert client id here>
-
-        # empty => verySecretSecret
-        # Specify the OAuth2 client secret
-        OAUTH2_CLIENT_SECRET=<insert client secret here>
-
-        # empty => https://oauth2.example.com/userinfo/
         # Specify the user info endpoint URL of the oauth2 provider
         OAUTH2_INTROSPECTION_URL=https://authentik.example.com/application/o/userinfo/
         ```
+
+    === "2. Authentik"
+        1. Create a new OAuth2 provider
+        2. Note the client id and client secret
+        3. Set the allowed redirect url to the equivalent of `https://roundcube.example.com/index.php/login/oauth` for your RoundCube instance.
 
     === "3. Roundcube"
         Add the following to `oauth2.inc.php` ([documentation](https://github.com/roundcube/roundcubemail/wiki/Configuration)):
