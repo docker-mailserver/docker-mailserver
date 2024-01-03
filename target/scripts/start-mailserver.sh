@@ -62,6 +62,10 @@ function _register_functions() {
       _register_setup_function '_setup_ldap'
       ;;
 
+    ( 'OIDC' )
+      _dms_panic__fail_init 'OIDC user account provisioning - it is not yet implemented'
+      ;;
+
     ( * )
       _dms_panic__invalid_value "'${ACCOUNT_PROVISIONER}' is not a valid value for ACCOUNT_PROVISIONER"
       ;;

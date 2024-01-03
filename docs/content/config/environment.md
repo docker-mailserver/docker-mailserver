@@ -615,18 +615,15 @@ Enable or disable `getmail`.
 
 ##### OAUTH2_CLIENT_ID
 
-- **empty** => verySecretId
 - => Specify the OAuth2 client ID
 
 ##### OAUTH2_CLIENT_SECRET
 
-- **empty** => verySecretSecret
 - => Specify the OAuth2 client secret
 
 ##### OAUTH2_INTROSPECTION_URL
 
-- **empty** => https://oauth2.example.com/userinfo/
-- => Specify the user info endpoint URL of the oauth2 provider. The trailing slash is MANDATORY (at least for Authentik)
+- => Specify the user info endpoint URL of the oauth2 provider. E.g. `https://oauth2.example.com/userinfo/`, where the trailing slash is MANDATORY (at least for Authentik)
 #### LDAP
 
 ##### LDAP_START_TLS
