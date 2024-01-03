@@ -54,7 +54,12 @@ The Group ID assigned to the static vmail group for `/var/mail` (_Mail storage m
 
 Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (_Postfix and Dovecot_).
 
-User provisioning via OAUTH2 is planned for the future, see [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713). OAuth2.0 for machine-to-machine authentication (e.g. Roundcube login) has been implemented (see OAUTH2 section below).
+!!! tip "OAuth2 Support"
+    Presently DMS supports OAuth2 only as an supplementary authentication method. 
+    - A third-party service must provide a valid token for the user which Dovecot validates with the authentication service provider. To enable this feature reference the [OAuth2 configuration example guide][docs::auth::oauth2-config-guide].
+    - User accounts must be provisioned to receive mail via one of the supported `ACCOUNT_PROVISIONER` providers.
+    - User provisioning via OAUTH2 is planned for the future, see [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713).
+[docs::auth::oauth2-config-guide]: ./advanced/auth-oauth2.md
 
 - **empty** => use FILE
 - LDAP => use LDAP authentication
