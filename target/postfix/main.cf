@@ -60,7 +60,7 @@ disable_vrfy_command = yes
 # Security - Prevent SMTP Smuggling attack
 # https://www.postfix.org/smtp-smuggling.html#long
 smtpd_forbid_bare_newline = yes
-# It is possible to exclude clients on trusted networks from this restriction:
+# It is possible to exclude clients on trusted networks from this restriction (the upstream default is `$mynetwork`):
 # smtpd_forbid_bare_newline_exclusions = $mynetworks
 
 # Custom defined parameters for DMS:
