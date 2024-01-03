@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.0.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.1.0...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
@@ -23,6 +23,28 @@ The most noteworthy change of this release is the update of the container's base
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
 
+### Security
+
+DMS is now secured against the [recently published spoofing attack "SMTP Smuggling"](https://www.postfix.org/smtp-smuggling.html) that affected Postfix ([#3727](https://github.com/docker-mailserver/docker-mailserver/pull/3727)):
+- Postfix upgraded from `3.5.18` to `3.5.23` which provides the [long-term fix with `smtpd_forbid_bare_newline = yes`](https://www.postfix.org/smtp-smuggling.html#long)
+- If you are unable to upgrade to this release of DMS, you may follow [these instructions](https://github.com/docker-mailserver/docker-mailserver/issues/3719#issuecomment-1870865118) for applying the [short-term workaround](https://www.postfix.org/smtp-smuggling.html#short).
+- This change should not cause compatibility concerns for legitimate mail clients, however if you use software like `netcat` to send mail to DMS (_like our test-suite previously did_) it may now be rejected (_especially with the the short-term workaround `smtpd_data_restrictions = reject_unauth_pipelining`_).
+- **NOTE:** This Postfix update also includes the new parameter [`smtpd_forbid_bare_newline_exclusions`](https://www.postfix.org/postconf.5.html#smtpd_forbid_bare_newline_exclusions) which defaults to `$mynetworks` for excluding trusted mail clients excluded from the restriction.
+  - With our default `PERMIT_DOCKER=none` this is not a concern.
+  - Presently the Docker daemon config has `user-proxy: true` enabled by default.
+    - On a host that can be reached by IPv6, this will route to a DMS IPv4 only container implicitly through the Docker network bridge gateway which rewrites the source address.
+    - If your `PERMIT_DOCKER` setting allows that gateway IP, then it is part of `$mynetworks` and this attack would not be prevented from such connections.
+    - If this affects your deployment, refer to [our IPv6 docs](https://docker-mailserver.github.io/docker-mailserver/v13.2/config/advanced/ipv6/) for advice on handling IPv6 correctly in Docker. Alternatively [use our `postfix-main.cf`](https://docker-mailserver.github.io/docker-mailserver/v13.2/config/advanced/override-defaults/postfix/) to set `smtpd_forbid_bare_newline_exclusions=` as empty.
+
+### Updates
+
+- The test suite now uses `swaks` instead of `nc`, which has multiple benefits ([#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732)):
+  - `swaks` handles pipelining correctly, hence we can now use `reject_unauth_pipelining` in Postfix's configuration.
+  - `swaks` provides better CLI options that make many files superflous.
+  - `swaks` can also replace `openssl s_client` and handles authentication on submission ports better.
+
+## [v13.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.1.0)
+
 ### Added
 
 - **Dovecot:**
@@ -35,7 +57,8 @@ The most noteworthy change of this release is the update of the container's base
 ### Updates
 
 - **Documentation:**
-  - Raise awareness in the troubleshooting page for a common misconfiguration when deviating from our advice by using a bare domain ([#3680](https://github.com/docker-mailserver/docker-mailserver/pull/3680))
+  - Debugging - Raise awareness in the troubleshooting page for a common misconfiguration when deviating from our advice by using a bare domain ([#3680](https://github.com/docker-mailserver/docker-mailserver/pull/3680))
+  - Debugging - Raise awareness of temporary downtime during certificate renewal that can cause a failure to deliver local mail ([#3718](https://github.com/docker-mailserver/docker-mailserver/pull/3718))
 - **Internal:**
   - Postfix configures `virtual_mailbox_maps` and `virtual_transport` during startup instead of using defaults (configured for Dovecot) via our `main.cf` ([#3681](https://github.com/docker-mailserver/docker-mailserver/pull/3681))
   - Updates to `packages.sh`:
@@ -51,6 +74,7 @@ The most noteworthy change of this release is the update of the container's base
   - `VERSION` is no longer included in the image ([#3711](https://github.com/docker-mailserver/docker-mailserver/pull/3711))
   - Update-check: fix 'read' exit status ([#3688](https://github.com/docker-mailserver/docker-mailserver/pull/3688))
   - `ENABLE_QUOTAS=0` no longer tries to remove non-existent config ([#3715](https://github.com/docker-mailserver/docker-mailserver/pull/3715))
+  - The `postgrey` service now writes logs to the supervisor directory like all other services. Previously this was `/var/log/mail/mail.log` ([#3724](https://github.com/docker-mailserver/docker-mailserver/pull/3724))
 - **Rspamd:**
   - Switch to official arm64 packages to avoid segfaults ([#3686](https://github.com/docker-mailserver/docker-mailserver/pull/3686))
 - **CI / Automation:**

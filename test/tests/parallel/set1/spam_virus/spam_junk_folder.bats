@@ -95,7 +95,7 @@ function teardown() { _default_teardown ; }
 function _should_send_spam_message() {
   _wait_for_smtp_port_in_container
   _wait_for_tcp_port_in_container 10024 # port 10024 is for Amavis
-  _send_email 'email-templates/amavis-spam'
+  _send_email --from 'spam@external.tld' --data 'amavis/spam'
 }
 
 function _should_be_received_by_amavis() {

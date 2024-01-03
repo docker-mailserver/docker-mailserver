@@ -98,7 +98,7 @@ function _init_with_defaults() {
 
   # Common complimentary test files, read-only safe to share across containers:
   export TEST_FILES_CONTAINER_PATH='/tmp/docker-mailserver-test'
-  export TEST_FILES_VOLUME="${REPOSITORY_ROOT}/test/test-files:${TEST_FILES_CONTAINER_PATH}:ro"
+  export TEST_FILES_VOLUME="${REPOSITORY_ROOT}/test/files:${TEST_FILES_CONTAINER_PATH}:ro"
 
   # The config volume cannot be read-only as some data needs to be written at container startup
   #

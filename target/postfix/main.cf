@@ -57,6 +57,12 @@ smtpd_sender_restrictions = $dms_smtpd_sender_restrictions
 smtpd_discard_ehlo_keywords = silent-discard, dsn
 disable_vrfy_command = yes
 
+# Security - Prevent SMTP Smuggling attack
+# https://www.postfix.org/smtp-smuggling.html#long
+smtpd_forbid_bare_newline = yes
+# It is possible to exclude clients on trusted networks from this restriction (the upstream default is `$mynetwork`):
+# smtpd_forbid_bare_newline_exclusions = $mynetworks
+
 # Custom defined parameters for DMS:
 dms_smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
 # Submission ports 587 and 465 support for SPOOF_PROTECTION=1

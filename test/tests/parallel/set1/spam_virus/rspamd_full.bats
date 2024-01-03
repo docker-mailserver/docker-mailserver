@@ -45,10 +45,10 @@ function setup_file() {
 
   # We will send 3 emails: the first one should pass just fine; the second one should
   # be rejected due to spam; the third one should be rejected due to a virus.
-  export MAIL_ID1=$(_send_email_and_get_id 'email-templates/rspamd-pass')
-  export MAIL_ID2=$(_send_email_and_get_id 'email-templates/rspamd-spam')
-  export MAIL_ID3=$(_send_email_and_get_id 'email-templates/rspamd-virus')
-  export MAIL_ID4=$(_send_email_and_get_id 'email-templates/rspamd-spam-header')
+  export MAIL_ID1=$(_send_email_and_get_id --from 'rspamd-pass@example.test' --data 'rspamd/pass')
+  export MAIL_ID2=$(_send_email_and_get_id --from 'rspamd-spam@example.test' --data 'rspamd/spam')
+  export MAIL_ID3=$(_send_email_and_get_id --from 'rspamd-virus@example.test' --data 'rspamd/virus')
+  export MAIL_ID4=$(_send_email_and_get_id --from 'rspamd-spam-header@example.test' --data 'rspamd/spam-header')
 
   for ID in MAIL_ID{1,2,3,4}; do
     [[ -n ${!ID} ]] || { echo "${ID} is empty - aborting!" ; return 1 ; }
@@ -256,7 +256,7 @@ function teardown_file() { _default_teardown ; }
 
   # Move an email to the "Junk" folder from "INBOX"; the first email we
   # sent should pass fine, hence we can now move it.
-  _send_email 'nc_templates/rspamd_imap_move_to_junk' '0.0.0.0 143'
+  _nc_wrapper 'nc/rspamd_imap_move_to_junk' '0.0.0.0 143'
   sleep 1 # wait for the transaction to finish
 
   _run_in_container cat /var/log/mail/mail.log
@@ -270,7 +270,7 @@ function teardown_file() { _default_teardown ; }
   # Move an email to the "INBOX" folder from "Junk"; there should be two mails
   # in the "Junk" folder, since the second email we sent during setup should
   # have landed in the Junk folder already.
-  _send_email 'nc_templates/rspamd_imap_move_to_inbox' '0.0.0.0 143'
+  _nc_wrapper 'nc/rspamd_imap_move_to_inbox' '0.0.0.0 143'
   sleep 1 # wait for the transaction to finish
 
   _run_in_container cat /var/log/mail/mail.log
