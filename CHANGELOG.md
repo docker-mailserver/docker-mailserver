@@ -10,7 +10,8 @@ All notable changes to this project will be documented in this file. The format 
 
   - **Authentication with OIDC / OAuth 2.0** 🎉
     - DMS now supports authentication via OAuth2 (_`XOAUTH` or `OAUTHBEARER`_) from capable services (_like Roundcube_).
-    - This does not replace the need for an `ACCOUNT_PROVISIONER` (`FILE` / `LDAP`). Authentication (Dovecot PassDB) still requires an existing account (Dovecot UserDB) to be successful,.
+    - This does not replace the need for an `ACCOUNT_PROVISIONER` (`FILE` / `LDAP`), which is required for an account to receive or send mail.
+    - Successful authentication (_via Dovecot PassDB_) still requires an existing account (_lookup via Dovecot UserDB_).
 
 ## [v13.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.1.0)
 
