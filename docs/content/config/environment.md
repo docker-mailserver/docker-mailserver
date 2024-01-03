@@ -63,7 +63,7 @@ Configures the provisioning source of user accounts (including aliases) for user
 
 - **empty** => use FILE
 - LDAP => use LDAP authentication
-OIDC => use OIDC authentication (**not yet implemented**)
+- OIDC => use OIDC authentication (**not yet implemented**)
 - FILE => use local files (this is used as the default)
 
 A second container for the ldap service is necessary (e.g. [`bitnami/openldap`](https://hub.docker.com/r/bitnami/openldap/)).
