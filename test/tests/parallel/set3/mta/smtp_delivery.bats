@@ -63,34 +63,55 @@ function setup_file() {
 
   # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
-  # _send_email 'email-templates/amavis-virus'
+  # _send_email --from 'virus@external.tld' --data 'amavis/virus'
 
   # Required for 'delivers mail to existing alias':
-  _send_email 'email-templates/existing-alias-external'
+  _send_email --to alias1@localhost.localdomain --data 'existing/alias-external'
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _send_email 'email-templates/existing-alias-recipient-delimiter'
+  _send_email --to alias1~test@localhost.localdomain --data 'existing/alias-recipient-delimiter'
   # Required for 'delivers mail to existing catchall':
-  _send_email 'email-templates/existing-catchall-local'
+  _send_email --to wildcard@localdomain2.com --data 'existing/catchall-local'
   # Required for 'delivers mail to regexp alias':
-  _send_email 'email-templates/existing-regexp-alias-local'
+  _send_email --to test123@localhost.localdomain --data 'existing/regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _send_email 'email-templates/non-existing-user'
+  _send_email --to nouser@localhost.localdomain --data 'non-existing-user'
   # Required for 'redirects mail to external aliases':
-  _send_email 'email-templates/existing-regexp-alias-external'
-  _send_email 'email-templates/existing-alias-local'
+  _send_email --to bounce-always@localhost.localdomain --data 'existing/regexp-alias-external'
+  _send_email --to alias2@localhost.localdomain --data 'existing/alias-local'
   # Required for 'rejects spam':
-  _send_email 'email-templates/amavis-spam'
+  _send_email --from 'spam@external.tld' --data 'amavis/spam'
 
   # Required for 'delivers mail to existing account':
-  _send_email 'email-templates/existing-user1'
-  _send_email 'email-templates/existing-user2'
-  _send_email 'email-templates/existing-user3'
-  _send_email 'email-templates/existing-added'
-  _send_email 'email-templates/existing-user-and-cc-local-alias'
-  _send_email 'email-templates/sieve-spam-folder'
-  _send_email 'email-templates/sieve-pipe'
-  _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
+  _send_email --data 'existing/user1'
+  assert_success
+  _send_email --to user2@otherdomain.tld
+  assert_success
+  _send_email --to user3@localhost.localdomain
+  assert_success
+  _send_email --to added@localhost.localdomain --data 'existing/added'
+  assert_success
+  _send_email --to user1@localhost.localdomain --data 'existing/user-and-cc-local-alias'
+  assert_success
+  _send_email --data 'sieve/spam-folder'
+  assert_success
+  _send_email --to user2@otherdomain.tld --data 'sieve/pipe'
+  assert_success
+  _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
+  assert_success
+}
+
+function _unsuccessful() {
+  _send_email --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword
+  assert_failure
+  assert_output --partial 'authentication failed'
+  assert_output --partial 'No authentication type succeeded'
+}
+
+function _successful() {
+  _send_email --port 465 --auth "${1}" --auth-user "${2}" --auth-password mypassword --quit-after AUTH
+  assert_success
+  assert_output --partial 'Authentication successful'
 }
 
 @test "should succeed at emptying mail queue" {
@@ -103,44 +124,35 @@ function setup_file() {
 }
 
 @test "should successfully authenticate with good password (plain)" {
-  _send_email 'auth/smtp-auth-plain' '-w 5 0.0.0.0 465'
-  assert_output --partial 'Authentication successful'
+  _successful PLAIN user1@localhost.localdomain
 }
 
 @test "should fail to authenticate with wrong password (plain)" {
-  _send_email 'auth/smtp-auth-plain-wrong' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful PLAIN user1@localhost.localdomain
 }
 
 @test "should successfully authenticate with good password (login)" {
-  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 465'
-  assert_output --partial 'Authentication successful'
+  _successful LOGIN user1@localhost.localdomain
 }
 
 @test "should fail to authenticate with wrong password (login)" {
-  _send_email 'auth/smtp-auth-login-wrong' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful LOGIN user1@localhost.localdomain
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (plain)" {
-  _send_email 'auth/added-smtp-auth-plain' '-w 5 0.0.0.0 465'
-  assert_output --partial 'Authentication successful'
+  _successful PLAIN added@localhost.localdomain
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
-  _send_email 'auth/added-smtp-auth-plain-wrong' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful PLAIN added@localhost.localdomain
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (login)" {
-  _send_email 'auth/added-smtp-auth-login' '-w 5 0.0.0.0 465'
-  assert_success
-  assert_output --partial 'Authentication successful'
+  _successful LOGIN added@localhost.localdomain
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (login)" {
-  _send_email 'auth/added-smtp-auth-login-wrong' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful LOGIN added@localhost.localdomain
 }
 
 # TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
@@ -258,7 +270,13 @@ function setup_file() {
 # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
 # Better disable SMTPUTF8 support entirely if we can't handle it correctly
 @test "not advertising smtputf8" {
-  _send_email 'email-templates/smtp-ehlo'
+  # Query supported extensions; SMTPUTF8 should not be available.
+  # - This query requires a EHLO greeting to the destination server.
+  _send_email \
+    --ehlo mail.external.tld \
+    --protocol ESMTP \
+    --server mail.example.test \
+    --quit-after FIRST-EHLO
   refute_output --partial 'SMTPUTF8'
 }
 

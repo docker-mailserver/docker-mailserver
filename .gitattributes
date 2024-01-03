@@ -10,7 +10,7 @@
 *.yml               text
 ### Documentation (Project, Tests, Docs site)
 *.md                text
-### TLS certs (test/test-files/) + DHE params (target/shared/)
+### TLS certs (test/files/) + DHE params (target/shared/)
 *.pem               text
 *.pem.sha512sum     text
 
@@ -90,9 +90,9 @@ TrustedHosts        text
 whitelist_recipients text
 
 ## MISC
-### test/config/ + test/test-files/
+### test/config/ + test/files/
 *.txt               text
-### test/linting/ (.ecrc.json) + test/test-files/ (*.acme.json):
+### test/linting/ (.ecrc.json) + test/files/ (*.acme.json):
 *.json              text
 
 #################################################

@@ -122,7 +122,6 @@ function setup_file() {
 
   # Extra ENV needed to support specific test-cases:
   local ENV_SUPPORT=(
-    --env PERMIT_DOCKER=container # Required for attempting SMTP auth on port 25 via nc
     # Required for openssl commands to be successul:
     # NOTE: snakeoil cert is created (for `docker-mailserver.invalid`) via Debian post-install script for Postfix package.
     # TODO: Use proper TLS cert
@@ -249,7 +248,7 @@ function teardown() {
 
 # dovecot
 @test "dovecot: ldap imap connection and authentication works" {
-  _run_in_container_bash 'nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-ldap-auth.txt'
+  _nc_wrapper 'auth/imap-ldap-auth' '-w 1 0.0.0.0 143'
   assert_success
 }
 
@@ -327,12 +326,25 @@ function teardown() {
 @test "spoofing (with LDAP): rejects sender forging" {
   _wait_for_smtp_port_in_container_to_respond dms-test_ldap
 
-  _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed.txt'
+  _send_email \
+    --port 465 -tlsc --auth LOGIN \
+    --auth-user some.user@localhost.localdomain \
+    --auth-password secret \
+    --ehlo mail \
+    --from ldap@localhost.localdomain \
+    --data 'auth/ldap-smtp-auth-spoofed'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "spoofing (with LDAP): accepts sending as alias" {
-  _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed-alias.txt'
+  _send_email \
+    --port 465 -tlsc --auth LOGIN \
+    --auth-user some.user@localhost.localdomain \
+    --auth-password secret \
+    --ehlo mail \
+    --from postmaster@localhost.localdomain \
+    --to some.user@localhost.localdomain \
+    --data 'auth/ldap-smtp-auth-spoofed-alias'
   assert_output --partial 'End data with'
 }
 
@@ -341,19 +353,42 @@ function teardown() {
   # Template used has invalid AUTH: https://github.com/docker-mailserver/docker-mailserver/pull/3006#discussion_r1073321432
   skip 'TODO: This test seems to have been broken from the start (?)'
 
-  _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/ldap-smtp-auth-spoofed-sender-with-filter-exception.txt'
+  _send_email \
+    --port 465 -tlsc --auth LOGIN \
+    --auth-user some.user.email@localhost.localdomain \
+    --auth-password secret \
+    --ehlo mail \
+    --from randomspoofedaddress@localhost.localdomain \
+    --to some.user@localhost.localdomain \
+    --data 'auth/ldap-smtp-auth-spoofed-sender-with-filter-exception'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "saslauthd: ldap smtp authentication" {
-  # Requires ENV `PERMIT_DOCKER=container`
-  _send_email 'auth/sasl-ldap-smtp-auth' '-w 5 0.0.0.0 25'
-  assert_output --partial 'Error: authentication not enabled'
+  _send_email \
+    --auth LOGIN \
+    --auth-user some.user@localhost.localdomain \
+    --auth-password wrongpassword \
+    --quit-after AUTH
+  assert_failure
+  assert_output --partial 'Host did not advertise authentication'
 
-  _run_in_container_bash 'openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
+  _send_email \
+    --port 465 -tlsc \
+    --auth LOGIN \
+    --auth-user some.user@localhost.localdomain \
+    --auth-password secret \
+    --quit-after AUTH
+  assert_success
   assert_output --partial 'Authentication successful'
 
-  _run_in_container_bash 'openssl s_client -quiet -starttls smtp -connect 0.0.0.0:587 < /tmp/docker-mailserver-test/auth/sasl-ldap-smtp-auth.txt'
+  _send_email \
+    --port 587 -tls \
+    --auth LOGIN \
+    --auth-user some.user@localhost.localdomain \
+    --auth-password secret \
+    --quit-after AUTH
+  assert_success
   assert_output --partial 'Authentication successful'
 }
 
@@ -391,7 +426,7 @@ function _should_successfully_deliver_mail_to() {
   local SENDER_ADDRESS='user@external.tld'
   local RECIPIENT_ADDRESS=${1:?Recipient address is required}
   local MAIL_STORAGE_RECIPIENT=${2:?Recipient storage location is required}
-  local MAIL_TEMPLATE='/tmp/docker-mailserver-test/email-templates/test-email.txt'
+  local MAIL_TEMPLATE='/tmp/docker-mailserver-test/emails/test-email.txt'
 
   _run_in_container_bash "sendmail -f ${SENDER_ADDRESS} ${RECIPIENT_ADDRESS} < ${MAIL_TEMPLATE}"
   _wait_for_empty_mail_queue_in_container

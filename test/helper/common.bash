@@ -469,5 +469,19 @@ function _print_mail_log_for_id() {
   _run_in_container grep -F "${MAIL_ID}" /var/log/mail.log
 }
 
+# A simple wrapper for netcat (`nc`). This is useful when sending
+# "raw" e-mails or doing IMAP-related work.
+#
+# @param ${1} = the file that is given to `nc`
+# @param ${1} = custom parameters for `nc` [OPTIONAL] (default: 0.0.0.0 25)
+function _nc_wrapper() {
+  local FILE=${1:?Must provide name of template file}
+  local NC_PARAMETERS=${2:-0.0.0.0 25}
+
+  [[ -v CONTAINER_NAME ]] || return 1
+
+  _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${FILE}.txt"
+}
+
 # ? << Miscellaneous helper functions
 # ! -------------------------------------------------------------------
