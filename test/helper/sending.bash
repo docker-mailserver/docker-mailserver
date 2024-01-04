@@ -38,8 +38,6 @@ function _send_email_unchecked() {
   local PORT=25
   # Extra options for `swaks` that aren't covered by the default options above:
   local ADDITIONAL_SWAKS_OPTIONS=()
-  # Specifically for handling `--data` option below:
-  local FINAL_SWAKS_OPTIONS=()
 
   while [[ ${#} -gt 0 ]]; do
     case "${1}" in
@@ -49,18 +47,17 @@ function _send_email_unchecked() {
       ( '--server' ) SERVER=${2:?--server given but no argument} ; shift 2 ;;
       ( '--port' )   PORT=${2:?--port given but no argument}     ; shift 2 ;;
       ( '--data' )
-        local TEMPLATE_FILE="/tmp/docker-mailserver-test/emails/${2:?--data given but no argument provided}.txt"
-        FINAL_SWAKS_OPTIONS+=('--data')
-        FINAL_SWAKS_OPTIONS+=('-')
-        FINAL_SWAKS_OPTIONS+=('<')
-        FINAL_SWAKS_OPTIONS+=("${TEMPLATE_FILE}")
+        ADDITIONAL_SWAKS_OPTIONS+=('--data')
+        ADDITIONAL_SWAKS_OPTIONS+=("@/tmp/docker-mailserver-test/emails/${2:?--data given but no argument provided}.txt")
         shift 2
         ;;
-      ( * ) ADDITIONAL_SWAKS_OPTIONS+=("${1}") ; shift 1 ;;
+      ( * ) ADDITIONAL_SWAKS_OPTIONS+=("'${1}'") ; shift 1 ;;
     esac
   done
 
-  _run_in_container_bash "swaks --server ${SERVER} --port ${PORT} --ehlo ${EHLO} --from ${FROM} --to ${TO} ${ADDITIONAL_SWAKS_OPTIONS[*]} ${FINAL_SWAKS_OPTIONS[*]}"
+  _run_in_container_bash "swaks --server '${SERVER}' --port '${PORT}' --ehlo '${EHLO}' --from '${FROM}' --to '${TO}' ${ADDITIONAL_SWAKS_OPTIONS[*]}"
+}
+
 # Sends a mail from localhost (127.0.0.1) to a container. To send
 # a custom email, create a file at `test/files/<TEST FILE>`,
 # and provide `<TEST FILE>` as an argument to this function.
@@ -97,7 +94,12 @@ function _send_email() {
 # test file and need to assert certain log entries for each mail individually.
 #
 # The first argument has to be the name of the variable that the e-mail ID is stored
-# in. The rest of the arguments are the same as `_send_email`.
+# in. The second argument **can** be the flag `--unchecked`; if this flag is supplied,
+# the function uses `_send_email_unchecked` instead of `_send_email`. This avoids the
+# `assert_success`. Be warned though this is only required in special situations where
+# it is still possible to `grep` for the mail IDs - otherwise this function fails.
+#
+# The rest of the arguments are the same as `_send_email`.
 #
 # ## Attention
 #
@@ -117,18 +119,23 @@ function _send_email() {
 function _send_email_and_get_id() {
   # Get the name of the variable that the ID is stored in
   local ID_NAME="${1:?Mail ID must be set for _send_email_and_get_id}"
-  # Get a "reference" so wan manipulate the ID
+  # Get a "reference" to the content of ID_NAME so we can manipulate the content
   local -n MAIL_ID=${ID_NAME}
   # Export the variable so everyone has access
-  # `:?` is required, otherwise ShellCheck complains
-  export "${ID_NAME:?}"
+  # shellcheck disable=SC2163
+  export "${ID_NAME}"
   shift 1
 
   _wait_for_empty_mail_queue_in_container
-  _send_email "${@}" --add-header "Message-Id: ${ID_NAME}"
+  if [[ ${1:-} == --unchecked ]]; then
+    shift 1
+    _send_email_unchecked "${@}" --add-header "Message-Id: ${ID_NAME}"
+  else
+    _send_email "${@}" --add-header "Message-Id: ${ID_NAME}"
+  fi
   _wait_for_empty_mail_queue_in_container
 
-  # The unique ID Postfix (and other services) use may be different in length
+  # The unique IDs Postfix (and other services) use may be different in length
   # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
   # range to safely capture it.
   #
@@ -139,19 +146,18 @@ function _send_email_and_get_id() {
   #
   # Jan  4 16:09:19 mail postfix/cleanup[1188]: 07B29249A7: message-id=MAIL_ID_HEADER
   #
-  # where 07B29249A7 is one of the IDs we are searching for and MAIL_ID_HEADER is the ID_NAME.
-  # Note that we are searching the log in reverse, which is important to get the correct ID.
+  # where 07B29249A7 is one of the IDs we are searching for and MAIL_ID_HEADER is what ID_NAME
+  # is set to. Note that we are searching the log in reverse, which is important to get the correct ID.
   MAIL_ID=$(_exec_in_container tac /var/log/mail.log \
     | grep -F -m 1 "message-id=${ID_NAME}" \
     | grep -E -o "${REGEX_ID_PART_ONE}")
-  # We additionally grep for another ID that Postfix (and later mechanisms like Sieve) use (additionally),
-  # and the line looks something like this:
+  # We additionally grep for another ID that Postfix (and later mechanisms like Sieve) use (additionally).
+  # The corresponding line looks something like this:
   #
   # Jan  4 16:09:19 mail postfix/cleanup[1188]: 07B29249A7: message-id=<20240104160919.001289@mail.example.test>
   #
   # where 20240104160919 is the other ID we are searching for. Note that the date is encoded by this ID.
-  # We exploit the fact that MAIL_ID is already on the line, so we can search for it efficiently. Moreover,
-  # these lines appear close to each other (usually next to each other). When looking in reverse.
+  # We exploit the fact that MAIL_ID is already on the line (07B29249A7), so we can search for it efficiently.
   MAIL_ID+="|$(_exec_in_container grep -F "${MAIL_ID}: message-id=" /var/log/mail.log \
     | grep -E -o "${REGEX_ID_PART_TWO}")"
 
