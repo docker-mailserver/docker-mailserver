@@ -89,18 +89,24 @@ function _send_email() {
 # Like `_send_email` with two major differences:
 #
 # 1. this function waits for the mail to be processed; there is no asynchronicity
-#    because filtering the logs in a synchronous way is easier and safer!
-# 2. this function prints an ID one can later filter by to check logs
+#    because filtering the logs in a synchronous way is easier and safer;
+# 2. this function takes the name of a variable and inserts ID(s) one can later
+#    filter by to check logs.
 #
 # No. 2 is especially useful in case you send more than one email in a single
 # test file and need to assert certain log entries for each mail individually.
 #
-# This function takes the same arguments as `_send_mail`.
+# The first argument has to be the name of the variable that the e-mail ID is stored
+# in. The rest of the arguments are the same as `_send_email`.
 #
 # ## Attention
 #
 # This function assumes `CONTAINER_NAME` to be properly set (to the container
 # name the command should be executed in)!
+#
+# Moreover, if `--data <DATA>` is specified, the additional header added implicitly
+# (with `--add-header`) may get lost, so pay attention to the data having the token
+# to place additonal headers into.
 #
 # ## Safety
 #
@@ -109,20 +115,48 @@ function _send_email() {
 # chosen. Sending more than one mail at any given point in time with this function
 # is UNDEFINED BEHAVIOR!
 function _send_email_and_get_id() {
-  [[ -v CONTAINER_NAME ]] || return 1
+  # Get the name of the variable that the ID is stored in
+  local ID_NAME="${1:?Mail ID must be set for _send_email_and_get_id}"
+  # Get a "reference" so wan manipulate the ID
+  local -n MAIL_ID=${ID_NAME}
+  # Export the variable so everyone has access
+  # `:?` is required, otherwise ShellCheck complains
+  export "${ID_NAME:?}"
+  shift 1
 
   _wait_for_empty_mail_queue_in_container
-  _send_email "${@}"
+  _send_email "${@}" --add-header "Message-Id: ${ID_NAME}"
   _wait_for_empty_mail_queue_in_container
 
-  local MAIL_ID
   # The unique ID Postfix (and other services) use may be different in length
   # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
   # range to safely capture it.
-  MAIL_ID=$(_exec_in_container tac /var/log/mail.log              \
-    | grep -E -m 1 'postfix/smtpd.*: [A-Z0-9]+: client=localhost' \
-    | grep -E -o '[A-Z0-9]{9,12}' || true)
+  #
+  # First, we define the regular expressions we need for capturing the IDs.
+  local REGEX_ID_PART_ONE='[A-Z0-9]{9,12}'
+  local REGEX_ID_PART_TWO="$(date +'%Y%m%d')[0-9]+\\.[0-9]+"
+  # The first line Postfix logs looks something like this:
+  #
+  # Jan  4 16:09:19 mail postfix/cleanup[1188]: 07B29249A7: message-id=MAIL_ID_HEADER
+  #
+  # where 07B29249A7 is one of the IDs we are searching for and MAIL_ID_HEADER is the ID_NAME.
+  # Note that we are searching the log in reverse, which is important to get the correct ID.
+  MAIL_ID=$(_exec_in_container tac /var/log/mail.log \
+    | grep -F -m 1 "message-id=${ID_NAME}" \
+    | grep -E -o "${REGEX_ID_PART_ONE}")
+  # We additionally grep for another ID that Postfix (and later mechanisms like Sieve) use (additionally),
+  # and the line looks something like this:
+  #
+  # Jan  4 16:09:19 mail postfix/cleanup[1188]: 07B29249A7: message-id=<20240104160919.001289@mail.example.test>
+  #
+  # where 20240104160919 is the other ID we are searching for. Note that the date is encoded by this ID.
+  # We exploit the fact that MAIL_ID is already on the line, so we can search for it efficiently. Moreover,
+  # these lines appear close to each other (usually next to each other). When looking in reverse.
+  MAIL_ID+="|$(_exec_in_container grep -F "${MAIL_ID}: message-id=" /var/log/mail.log \
+    | grep -E -o "${REGEX_ID_PART_TWO}")"
 
+  # Last but not least, we perform plausibility checks on the IDs.
   assert_not_equal "${MAIL_ID}" ''
-  echo "${MAIL_ID}"
+  run echo "${MAIL_ID}"
+  assert_line --regexp "^${REGEX_ID_PART_ONE}|${REGEX_ID_PART_TWO}$"
 }

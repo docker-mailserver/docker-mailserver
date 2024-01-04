@@ -43,16 +43,20 @@ function setup_file() {
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
 
-  # We will send 3 emails: the first one should pass just fine; the second one should
-  # be rejected due to spam; the third one should be rejected due to a virus.
-  export MAIL_ID1=$(_send_email_and_get_id --from 'rspamd-pass@example.test' --data 'rspamd/pass')
-  export MAIL_ID2=$(_send_email_and_get_id --from 'rspamd-spam@example.test' --data 'rspamd/spam')
-  export MAIL_ID3=$(_send_email_and_get_id --from 'rspamd-virus@example.test' --data 'rspamd/virus')
-  export MAIL_ID4=$(_send_email_and_get_id --from 'rspamd-spam-header@example.test' --data 'rspamd/spam-header')
+  # We will send 4 emails:
+  # 1. The first one should pass just fine
+  _send_email_and_get_id MAIL_ID_PASS
+  # 2. The second one should be rejected due to spam (GTube pattern)
+  _send_email_and_get_id MAIL_ID_SPAM --body 'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
+  # 3. Te third one should be rejected due to a virus (ClamAV Eicar pattern)
+  # shellcheck disable=SC2016
+  _send_email_and_get_id MAIL_ID_VIRUS --body 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+  # 4. The fourth one will receive an added header (GTube pattern)
+  _send_email_and_get_id MAIL_ID_HEADER --body 'YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
 
-  for ID in MAIL_ID{1,2,3,4}; do
-    [[ -n ${!ID} ]] || { echo "${ID} is empty - aborting!" ; return 1 ; }
-  done
+  _run_in_container cat /var/log/mail.log
+  assert_success
+  refute_output --partial 'inet:localhost:11332: Connection refused'
 }
 
 function teardown_file() { _default_teardown ; }
@@ -104,7 +108,7 @@ function teardown_file() { _default_teardown ; }
 @test 'normal mail passes fine' {
   _service_log_should_contain_string 'rspamd' 'F \(no action\)'
 
-  _print_mail_log_for_id "${MAIL_ID1}"
+  _print_mail_log_for_id "${MAIL_ID_PASS}"
   assert_output --partial "stored mail into mailbox 'INBOX'"
 
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
@@ -114,7 +118,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'S \(reject\)'
   _service_log_should_contain_string 'rspamd' 'reject "Gtube pattern"'
 
-  _print_mail_log_for_id "${MAIL_ID2}"
+  _print_mail_log_for_id "${MAIL_ID_SPAM}"
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 Gtube pattern'
 
@@ -125,7 +129,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'T \(reject\)'
   _service_log_should_contain_string 'rspamd' 'reject "ClamAV FOUND VIRUS "Eicar-Signature"'
 
-  _print_mail_log_for_id "${MAIL_ID3}"
+  _print_mail_log_for_id "${MAIL_ID_VIRUS}"
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 ClamAV FOUND VIRUS "Eicar-Signature"'
   refute_output --partial "stored mail into mailbox 'INBOX'"
@@ -214,7 +218,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'S \(add header\)'
   _service_log_should_contain_string 'rspamd' 'add header "Gtube pattern"'
 
-  _print_mail_log_for_id "${MAIL_ID4}"
+  _print_mail_log_for_id "${MAIL_ID_HEADER}"
   assert_output --partial "fileinto action: stored mail into mailbox 'Junk'"
 
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1

@@ -56,12 +56,10 @@ function teardown_file() {
 @test "should successfully pass postscreen and get postfix greeting message (respecting postscreen_greet_wait time)" {
   # Configure `send_email()` to send from the mail client container (CONTAINER2_NAME) via ENV override,
   # mail is sent to the DMS server container (CONTAINER1_NAME) via `--server` parameter:
-  # TODO: Use _send_email when proper resolution of domain names is possible:
+  # TODO: Use _send_email_and_get_id when proper resolution of domain names is possible:
   CONTAINER_NAME=${CONTAINER2_NAME} _send_email_unchecked --server "${CONTAINER1_IP}" --port 25 --data 'postscreen'
-
-  # TODO: Prefer this approach when `_send_email_and_get_id()` can support separate client and server containers:
-  # local MAIL_ID=$(_send_email_and_get_id --port 25 --data 'postscreen')
-  # _print_mail_log_for_id "${MAIL_ID}"
+  # CONTAINER_NAME=${CONTAINER2_NAME} _send_email_and_get_id MAIL_ID_POSTSCREEN --server "${CONTAINER1_IP}" --data 'postscreen'
+  # _print_mail_log_for_id "${MAIL_ID_POSTSCREEN}"
   # assert_output --partial "stored mail into mailbox 'INBOX'"
 
   _run_in_container cat /var/log/mail.log
