@@ -293,8 +293,8 @@ EOF
 
   # An authenticated user cannot use an envelope sender (MAIL FROM)
   # address they do not own according to `main.cf:smtpd_sender_login_maps` lookup
-  _send_email \
     --port 465 -tlsc --auth LOGIN \
+  _send_email_unchecked \
     --auth-user added@localhost.localdomain \
     --auth-password mypassword \
     --ehlo mail \

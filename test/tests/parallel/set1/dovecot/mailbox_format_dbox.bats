@@ -27,7 +27,6 @@ function teardown() { _default_teardown ; }
   _wait_for_smtp_port_in_container
 
   _send_email --data 'existing/user1'
-  assert_success
   _wait_for_empty_mail_queue_in_container
 
   # Mail received should be stored as `u.1` (one file per message)
@@ -49,7 +48,6 @@ function teardown() { _default_teardown ; }
   _wait_for_smtp_port_in_container
 
   _send_email --data 'existing/user1'
-  assert_success
   _wait_for_empty_mail_queue_in_container
 
   # Mail received should be stored in `m.1` (1 or more messages)

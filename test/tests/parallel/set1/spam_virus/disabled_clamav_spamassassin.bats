@@ -19,7 +19,6 @@ function setup_file() {
   _wait_for_smtp_port_in_container
 
   _send_email --data 'existing/user1'
-  assert_success
   _wait_for_empty_mail_queue_in_container
 }
 

@@ -15,6 +15,10 @@
 # itself. The `--data` parameter expects a relative path from `emails/`
 # where the contents will be implicitly provided to `swaks` via STDIN.
 #
+# This functions performs **no** implicit `assert_success` to check whether
+# the e-mail transaction was successful. If this is not desirable, use
+# `_send_email`.
+#
 # ## Attention
 #
 # This function assumes `CONTAINER_NAME` to be properly set (to the container
@@ -23,7 +27,7 @@
 # This function will just send the email in an "asynchronous" fashion, i.e. it will
 # send the email but it will not make sure the mail queue is empty after the mail
 # has been sent.
-function _send_email() {
+function _send_email_unchecked() {
   [[ -v CONTAINER_NAME ]] || return 1
 
   # Parameter defaults common to our testing needs:
@@ -57,6 +61,29 @@ function _send_email() {
   done
 
   _run_in_container_bash "swaks --server ${SERVER} --port ${PORT} --ehlo ${EHLO} --from ${FROM} --to ${TO} ${ADDITIONAL_SWAKS_OPTIONS[*]} ${FINAL_SWAKS_OPTIONS[*]}"
+# Sends a mail from localhost (127.0.0.1) to a container. To send
+# a custom email, create a file at `test/files/<TEST FILE>`,
+# and provide `<TEST FILE>` as an argument to this function.
+#
+# Parameters include all options that one can supply to `swaks`
+# itself. The `--data` parameter expects a relative path from `emails/`
+# where the contents will be implicitly provided to `swaks` via STDIN.
+#
+# This functions performs an implicit `assert_success` to check whether
+# the e-mail transaction was successful. If this is not desirable, use
+# `_send_email_unchecked`.
+#
+# ## Attention
+#
+# This function assumes `CONTAINER_NAME` to be properly set (to the container
+# name the command should be executed in)!
+#
+# This function will just send the email in an "asynchronous" fashion, i.e. it will
+# send the email but it will not make sure the mail queue is empty after the mail
+# has been sent.
+function _send_email() {
+  _send_email_unchecked "${@}"
+  assert_success
 }
 
 # Like `_send_email` with two major differences:

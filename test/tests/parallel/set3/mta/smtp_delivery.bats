@@ -75,7 +75,8 @@ function setup_file() {
   _send_email --to test123@localhost.localdomain --data 'existing/regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _send_email --to nouser@localhost.localdomain --data 'non-existing-user'
+  _send_email_unchecked --to nouser@localhost.localdomain --data 'non-existing-user'
+  assert_failure
   # Required for 'redirects mail to external aliases':
   _send_email --to bounce-always@localhost.localdomain --data 'existing/regexp-alias-external'
   _send_email --to alias2@localhost.localdomain --data 'existing/alias-local'
@@ -84,25 +85,18 @@ function setup_file() {
 
   # Required for 'delivers mail to existing account':
   _send_email --data 'existing/user1'
-  assert_success
   _send_email --to user2@otherdomain.tld
-  assert_success
   _send_email --to user3@localhost.localdomain
-  assert_success
   _send_email --to added@localhost.localdomain --data 'existing/added'
-  assert_success
   _send_email --to user1@localhost.localdomain --data 'existing/user-and-cc-local-alias'
-  assert_success
   _send_email --data 'sieve/spam-folder'
-  assert_success
   _send_email --to user2@otherdomain.tld --data 'sieve/pipe'
-  assert_success
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
   assert_success
 }
 
 function _unsuccessful() {
-  _send_email --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword
+  _send_email_unchecked --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword
   assert_failure
   assert_output --partial 'authentication failed'
   assert_output --partial 'No authentication type succeeded'
@@ -110,7 +104,6 @@ function _unsuccessful() {
 
 function _successful() {
   _send_email --port 465 --auth "${1}" --auth-user "${2}" --auth-password mypassword --quit-after AUTH
-  assert_success
   assert_output --partial 'Authentication successful'
 }
 

@@ -226,11 +226,8 @@ function teardown_file() { _default_teardown ; }
 
   # send some big emails
   _send_email --to 'quotauser@otherdomain.tld' --data 'quota-exceeded'
-  assert_success
   _send_email --to 'quotauser@otherdomain.tld' --data 'quota-exceeded'
-  assert_success
   _send_email --to 'quotauser@otherdomain.tld' --data 'quota-exceeded'
-  assert_success
   # check for quota warn message existence
   run _repeat_until_success_or_timeout 20 _exec_in_container grep -R 'Subject: quota warning' /var/mail/otherdomain.tld/quotauser/new/
   assert_success

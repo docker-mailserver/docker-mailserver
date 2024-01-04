@@ -326,13 +326,14 @@ function teardown() {
 @test "spoofing (with LDAP): rejects sender forging" {
   _wait_for_smtp_port_in_container_to_respond dms-test_ldap
 
-  _send_email \
     --port 465 -tlsc --auth LOGIN \
+  _send_email_unchecked \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
     --ehlo mail \
     --from ldap@localhost.localdomain \
     --data 'auth/ldap-smtp-auth-spoofed'
+  assert_failure
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
@@ -353,20 +354,21 @@ function teardown() {
   # Template used has invalid AUTH: https://github.com/docker-mailserver/docker-mailserver/pull/3006#discussion_r1073321432
   skip 'TODO: This test seems to have been broken from the start (?)'
 
-  _send_email \
     --port 465 -tlsc --auth LOGIN \
+  _send_email_unchecked \
     --auth-user some.user.email@localhost.localdomain \
     --auth-password secret \
     --ehlo mail \
     --from randomspoofedaddress@localhost.localdomain \
     --to some.user@localhost.localdomain \
     --data 'auth/ldap-smtp-auth-spoofed-sender-with-filter-exception'
+  assert_failure
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "saslauthd: ldap smtp authentication" {
-  _send_email \
     --auth LOGIN \
+  _send_email_unchecked \
     --auth-user some.user@localhost.localdomain \
     --auth-password wrongpassword \
     --quit-after AUTH
@@ -379,7 +381,6 @@ function teardown() {
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
     --quit-after AUTH
-  assert_success
   assert_output --partial 'Authentication successful'
 
   _send_email \
