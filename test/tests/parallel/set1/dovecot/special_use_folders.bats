@@ -14,7 +14,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test 'normal delivery works' {
-  _send_email --data 'existing/user1.txt'
+  _send_email
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new 1
 }
 

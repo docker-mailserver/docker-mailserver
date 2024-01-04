@@ -66,29 +66,29 @@ function setup_file() {
   # _send_email --from 'virus@external.tld' --data 'amavis/virus.txt'
 
   # Required for 'delivers mail to existing alias':
-  _send_email --to alias1@localhost.localdomain --data 'existing/alias-external.txt'
+  _send_email --to alias1@localhost.localdomain --header "Subject: Test Message existing-alias-external"
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _send_email --to alias1~test@localhost.localdomain --data 'existing/alias-recipient-delimiter.txt'
+  _send_email --to alias1~test@localhost.localdomain --header 'Subject: Test Message existing-alias-recipient-delimiter'
   # Required for 'delivers mail to existing catchall':
-  _send_email --to wildcard@localdomain2.com --data 'existing/catchall-local.txt'
+  _send_email --to wildcard@localdomain2.com --header 'Subject: Test Message existing-catchall-local'
   # Required for 'delivers mail to regexp alias':
-  _send_email --to test123@localhost.localdomain --data 'existing/regexp-alias-local.txt'
+  _send_email --to test123@localhost.localdomain --header 'Subject: Test Message existing-regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _send_email_unchecked --to nouser@localhost.localdomain --data 'non-existing-user.txt'
+  _send_email_unchecked --to nouser@localhost.localdomain
   assert_failure
   # Required for 'redirects mail to external aliases':
-  _send_email --to bounce-always@localhost.localdomain --data 'existing/regexp-alias-external.txt'
-  _send_email --to alias2@localhost.localdomain --data 'existing/alias-local.txt'
+  _send_email --to bounce-always@localhost.localdomain
+  _send_email --to alias2@localhost.localdomain
   # Required for 'rejects spam':
   _send_email --from 'spam@external.tld' --data 'amavis/spam.txt'
 
   # Required for 'delivers mail to existing account':
-  _send_email --data 'existing/user1.txt'
+  _send_email --header 'Subject: Test Message existing-user1'
   _send_email --to user2@otherdomain.tld
   _send_email --to user3@localhost.localdomain
-  _send_email --to added@localhost.localdomain --data 'existing/added.txt'
-  _send_email --to user1@localhost.localdomain --data 'existing/user-and-cc-local-alias.txt'
+  _send_email --to added@localhost.localdomain --header 'Subject: Test Message existing-added'
+  _send_email --to user1@localhost.localdomain --header 'Subject: Test Message existing-user-and-cc-local-alias'
   _send_email --data 'sieve/spam-folder.txt'
   _send_email --to user2@otherdomain.tld --data 'sieve/pipe.txt'
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
