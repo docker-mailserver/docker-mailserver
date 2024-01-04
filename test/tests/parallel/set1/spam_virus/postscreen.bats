@@ -44,7 +44,7 @@ function teardown_file() {
 # Use `nc` to send all SMTP commands at once instead (emulate a misbehaving client that should be rejected)
 # NOTE: Postscreen only runs on port 25, avoid implicit ports in test methods
 @test 'should fail send when talking out of turn' {
-  CONTAINER_NAME=${CONTAINER2_NAME} _nc_wrapper 'emails/nc_raw/postscreen' "${CONTAINER1_IP} 25"
+  CONTAINER_NAME=${CONTAINER2_NAME} _nc_wrapper 'emails/nc_raw/postscreen.txt' "${CONTAINER1_IP} 25"
   # Expected postscreen log entry:
   assert_output --partial 'Protocol error'
 

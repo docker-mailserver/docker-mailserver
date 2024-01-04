@@ -21,7 +21,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test '(Dovecot) LDAP RIMAP connection and authentication works' {
-  _nc_wrapper 'auth/imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/imap-auth.txt' '-w 1 0.0.0.0 143'
   assert_success
 }
 
