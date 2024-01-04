@@ -299,7 +299,7 @@ EOF
     --auth-password mypassword \
     --ehlo mail \
     --from user2@localhost.localdomain \
-    --data 'auth/added-smtp-auth-spoofed'
+    --data 'auth/added-smtp-auth-spoofed.txt'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
@@ -315,7 +315,7 @@ EOF
     --auth-password mypassword \
     --ehlo mail \
     --from alias1@localhost.localdomain \
-    --data 'auth/added-smtp-auth-spoofed-alias'
+    --data 'auth/added-smtp-auth-spoofed-alias.txt'
   assert_success
   assert_output --partial 'End data with'
 }

@@ -63,34 +63,34 @@ function setup_file() {
 
   # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
-  # _send_email --from 'virus@external.tld' --data 'amavis/virus'
+  # _send_email --from 'virus@external.tld' --data 'amavis/virus.txt'
 
   # Required for 'delivers mail to existing alias':
-  _send_email --to alias1@localhost.localdomain --data 'existing/alias-external'
+  _send_email --to alias1@localhost.localdomain --data 'existing/alias-external.txt'
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _send_email --to alias1~test@localhost.localdomain --data 'existing/alias-recipient-delimiter'
+  _send_email --to alias1~test@localhost.localdomain --data 'existing/alias-recipient-delimiter.txt'
   # Required for 'delivers mail to existing catchall':
-  _send_email --to wildcard@localdomain2.com --data 'existing/catchall-local'
+  _send_email --to wildcard@localdomain2.com --data 'existing/catchall-local.txt'
   # Required for 'delivers mail to regexp alias':
-  _send_email --to test123@localhost.localdomain --data 'existing/regexp-alias-local'
+  _send_email --to test123@localhost.localdomain --data 'existing/regexp-alias-local.txt'
 
   # Required for 'rejects mail to unknown user':
-  _send_email_unchecked --to nouser@localhost.localdomain --data 'non-existing-user'
+  _send_email_unchecked --to nouser@localhost.localdomain --data 'non-existing-user.txt'
   assert_failure
   # Required for 'redirects mail to external aliases':
-  _send_email --to bounce-always@localhost.localdomain --data 'existing/regexp-alias-external'
-  _send_email --to alias2@localhost.localdomain --data 'existing/alias-local'
+  _send_email --to bounce-always@localhost.localdomain --data 'existing/regexp-alias-external.txt'
+  _send_email --to alias2@localhost.localdomain --data 'existing/alias-local.txt'
   # Required for 'rejects spam':
-  _send_email --from 'spam@external.tld' --data 'amavis/spam'
+  _send_email --from 'spam@external.tld' --data 'amavis/spam.txt'
 
   # Required for 'delivers mail to existing account':
-  _send_email --data 'existing/user1'
+  _send_email --data 'existing/user1.txt'
   _send_email --to user2@otherdomain.tld
   _send_email --to user3@localhost.localdomain
-  _send_email --to added@localhost.localdomain --data 'existing/added'
-  _send_email --to user1@localhost.localdomain --data 'existing/user-and-cc-local-alias'
-  _send_email --data 'sieve/spam-folder'
-  _send_email --to user2@otherdomain.tld --data 'sieve/pipe'
+  _send_email --to added@localhost.localdomain --data 'existing/added.txt'
+  _send_email --to user1@localhost.localdomain --data 'existing/user-and-cc-local-alias.txt'
+  _send_email --data 'sieve/spam-folder.txt'
+  _send_email --to user2@otherdomain.tld --data 'sieve/pipe.txt'
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
   assert_success
 }

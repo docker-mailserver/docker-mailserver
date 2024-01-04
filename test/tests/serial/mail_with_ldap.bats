@@ -332,7 +332,7 @@ function teardown() {
     --auth-password secret \
     --ehlo mail \
     --from ldap@localhost.localdomain \
-    --data 'auth/ldap-smtp-auth-spoofed'
+    --data 'auth/ldap-smtp-auth-spoofed.txt'
   assert_failure
   assert_output --partial 'Sender address rejected: not owned by user'
 }
@@ -345,7 +345,7 @@ function teardown() {
     --ehlo mail \
     --from postmaster@localhost.localdomain \
     --to some.user@localhost.localdomain \
-    --data 'auth/ldap-smtp-auth-spoofed-alias'
+    --data 'auth/ldap-smtp-auth-spoofed-alias.txt'
   assert_output --partial 'End data with'
 }
 
@@ -361,7 +361,7 @@ function teardown() {
     --ehlo mail \
     --from randomspoofedaddress@localhost.localdomain \
     --to some.user@localhost.localdomain \
-    --data 'auth/ldap-smtp-auth-spoofed-sender-with-filter-exception'
+    --data 'auth/ldap-smtp-auth-spoofed-sender-with-filter-exception.txt'
   assert_failure
   assert_output --partial 'Sender address rejected: not owned by user'
 }

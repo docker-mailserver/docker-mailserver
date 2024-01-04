@@ -51,7 +51,7 @@ function teardown_file() { _default_teardown ; }
   _reload_postfix
 
   # Send test mail (it should fail to deliver):
-  _send_email_unchecked --from 'user@external.tld' --port 25 --data 'postgrey'
+  _send_email_unchecked --from 'user@external.tld' --port 25 --data 'postgrey.txt'
   assert_failure
   assert_output --partial 'Recipient address rejected: Delayed by Postgrey'
 
@@ -67,7 +67,7 @@ function teardown_file() { _default_teardown ; }
   # Wait until `$POSTGREY_DELAY` seconds pass before trying again:
   sleep 3
   # Retry delivering test mail (it should be trusted this time):
-  _send_email --from 'user@external.tld' --port 25 --data 'postgrey'
+  _send_email --from 'user@external.tld' --port 25 --data 'postgrey.txt'
 
   # Confirm postgrey permitted delivery (triplet is now trusted):
   _should_have_log_entry \

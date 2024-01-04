@@ -48,7 +48,7 @@ function _send_email_unchecked() {
       ( '--port' )   PORT=${2:?--port given but no argument}     ; shift 2 ;;
       ( '--data' )
         ADDITIONAL_SWAKS_OPTIONS+=('--data')
-        ADDITIONAL_SWAKS_OPTIONS+=("@/tmp/docker-mailserver-test/emails/${2:?--data given but no argument provided}.txt")
+        ADDITIONAL_SWAKS_OPTIONS+=("@/tmp/docker-mailserver-test/emails/${2:?--data given but no argument provided}")
         shift 2
         ;;
       ( * ) ADDITIONAL_SWAKS_OPTIONS+=("'${1}'") ; shift 1 ;;
