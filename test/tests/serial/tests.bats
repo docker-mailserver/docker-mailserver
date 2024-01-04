@@ -293,8 +293,8 @@ EOF
 
   # An authenticated user cannot use an envelope sender (MAIL FROM)
   # address they do not own according to `main.cf:smtpd_sender_login_maps` lookup
-    --port 465 -tlsc --auth LOGIN \
   _send_email_unchecked \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user added@localhost.localdomain \
     --auth-password mypassword \
     --ehlo mail \
@@ -310,7 +310,7 @@ EOF
   # to each table. Address is authorized when a result that maps to
   # the DMS account is returned.
   _send_email \
-    --port 465 -tlsc --auth LOGIN \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user user1@localhost.localdomain \
     --auth-password mypassword \
     --ehlo mail \

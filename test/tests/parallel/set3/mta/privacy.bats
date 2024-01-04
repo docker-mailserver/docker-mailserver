@@ -26,7 +26,7 @@ function teardown_file() { _default_teardown ; }
 # this test covers https://github.com/docker-mailserver/docker-mailserver/issues/681
 @test "(Postfix) remove privacy details of the sender" {
   _send_email \
-    --port 587 -tls --auth LOGIN \
+    --port 587 -tls --auth PLAIN \
     --auth-user user1@localhost.localdomain \
     --auth-password mypassword \
     --data 'privacy'

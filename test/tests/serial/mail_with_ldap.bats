@@ -326,8 +326,8 @@ function teardown() {
 @test "spoofing (with LDAP): rejects sender forging" {
   _wait_for_smtp_port_in_container_to_respond dms-test_ldap
 
-    --port 465 -tlsc --auth LOGIN \
   _send_email_unchecked \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
     --ehlo mail \
@@ -339,7 +339,7 @@ function teardown() {
 
 @test "spoofing (with LDAP): accepts sending as alias" {
   _send_email \
-    --port 465 -tlsc --auth LOGIN \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
     --ehlo mail \
@@ -354,8 +354,8 @@ function teardown() {
   # Template used has invalid AUTH: https://github.com/docker-mailserver/docker-mailserver/pull/3006#discussion_r1073321432
   skip 'TODO: This test seems to have been broken from the start (?)'
 
-    --port 465 -tlsc --auth LOGIN \
   _send_email_unchecked \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user some.user.email@localhost.localdomain \
     --auth-password secret \
     --ehlo mail \
@@ -367,8 +367,8 @@ function teardown() {
 }
 
 @test "saslauthd: ldap smtp authentication" {
-    --auth LOGIN \
   _send_email_unchecked \
+    --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password wrongpassword \
     --quit-after AUTH
@@ -385,7 +385,7 @@ function teardown() {
 
   _send_email \
     --port 587 -tls \
-    --auth LOGIN \
+    --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
     --quit-after AUTH
