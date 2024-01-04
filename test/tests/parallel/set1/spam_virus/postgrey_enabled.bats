@@ -44,7 +44,7 @@ function teardown_file() { _default_teardown ; }
   # The other spam checks in `main.cf:smtpd_recipient_restrictions` would interfere with testing postgrey.
   _run_in_container sed -i \
     -e 's/permit_sasl_authenticated.*policyd-spf,$//g' \
-    -e 's/reject_unauth_pipelining.*reject_unknown_recipient_domain,$//g' \
+    -e 's/reject_invalid_helo_hostname.*reject_unknown_recipient_domain,$//g' \
     -e 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' \
     -e 's/smtpd_recipient_restrictions =/smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' \
     /etc/postfix/main.cf
