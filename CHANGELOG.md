@@ -25,6 +25,7 @@ DMS is now secured against the [recently published spoofing attack "SMTP Smuggli
   - `swaks` handles pipelining correctly, hence we can now use `reject_unauth_pipelining` in Postfix's configuration.
   - `swaks` provides better CLI options that make many files superflous.
   - `swaks` can also replace `openssl s_client` and handles authentication on submission ports better.
+- The Postfix configuration was adjusted to reject unauthorized pipelining, now in `smtpd_data_restrictions` (i.e. at the end of the mail transfer transaction) ([#3744](https://github.com/docker-mailserver/docker-mailserver/pull/3744))
 
 ## [v13.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.1.0)
 
