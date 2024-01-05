@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Rspamd** ([#3726](https://github.com/docker-mailserver/docker-mailserver/pull/3726)):
   - symbol scores for SPF, DKIM & DMARC were updated to more closely align with [RFC7489](https://www.rfc-editor.org/rfc/rfc7489#page-24); please note though that complete alignment is undesirable, because other symbols might be added as well, which changes the overall score calculation again, see [this issue](https://github.com/docker-mailserver/docker-mailserver/issues/3690#issuecomment-1866871996)
+- **Tests**:
+  - existing tests were streamlined and simplified, which is a follow-up of [#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732)
 
 ## [v13.2.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.2.0)
 
