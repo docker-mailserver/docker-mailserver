@@ -5,6 +5,9 @@ biff = no
 append_dot_mydomain = no
 readme_directory = no
 
+# Disabled as not compatible with Dovecot
+smtputf8_enable = no
+
 # Basic configuration
 # myhostname =
 alias_maps = hash:/etc/aliases
