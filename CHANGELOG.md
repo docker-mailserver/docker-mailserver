@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Updates
+
+- **Internal:**
+  - Postfix is now configured with `smtputf8_enable = no` in our default `main.cf` config (_instead of during container startup_). ([#3750](https://github.com/docker-mailserver/docker-mailserver/pull/3750))
+
 ## [v13.2.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.2.0)
 
 ### Security
