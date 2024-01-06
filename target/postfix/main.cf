@@ -5,6 +5,9 @@ biff = no
 append_dot_mydomain = no
 readme_directory = no
 
+# Disabled as not compatible with Dovecot
+smtputf8_enable = no
+
 # Basic configuration
 # myhostname =
 alias_maps = hash:/etc/aliases
@@ -51,11 +54,18 @@ smtpd_helo_required = yes
 smtpd_delay_reject = yes
 smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname, permit
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
-smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
+smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
+smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
 smtpd_sender_restrictions = $dms_smtpd_sender_restrictions
 smtpd_discard_ehlo_keywords = silent-discard, dsn
+smtpd_data_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_pipelining
 disable_vrfy_command = yes
+
+# Security - Prevent SMTP Smuggling attack
+# https://www.postfix.org/smtp-smuggling.html#long
+smtpd_forbid_bare_newline = yes
+# It is possible to exclude clients on trusted networks from this restriction (the upstream default is `$mynetwork`):
+# smtpd_forbid_bare_newline_exclusions = $mynetworks
 
 # Custom defined parameters for DMS:
 dms_smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain

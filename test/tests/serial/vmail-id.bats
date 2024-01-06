@@ -20,7 +20,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test 'should successfully deliver mail' {
-  _send_email 'email-templates/existing-user1'
+  _send_email --data 'existing/user1'
   _wait_for_empty_mail_queue_in_container
 
   # Should be successfully sent (received) by Postfix:

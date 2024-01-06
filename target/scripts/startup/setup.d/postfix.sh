@@ -19,9 +19,6 @@ function _setup_postfix_early() {
     postconf "inet_protocols = ${POSTFIX_INET_PROTOCOLS}"
   fi
 
-  __postfix__log 'trace' "Disabling SMTPUTF8 support"
-  postconf 'smtputf8_enable = no'
-
   __postfix__log 'trace' "Configuring SASLauthd"
   if [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && [[ ! -f /etc/postfix/sasl/smtpd.conf ]]; then
     cat >/etc/postfix/sasl/smtpd.conf << EOF

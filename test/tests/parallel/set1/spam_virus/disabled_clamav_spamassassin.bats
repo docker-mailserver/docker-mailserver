@@ -12,12 +12,14 @@ function setup_file() {
     --env ENABLE_CLAMAV=0
     --env ENABLE_SPAMASSASSIN=0
     --env AMAVIS_LOGLEVEL=2
+    --env PERMIT_DOCKER=container
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _send_email 'email-templates/existing-user1'
+  _send_email --data 'existing/user1'
+  assert_success
   _wait_for_empty_mail_queue_in_container
 }
 
