@@ -106,6 +106,7 @@ EOF
 # -----------------------------------------------
 
 COPY target/rspamd/local.d/ /etc/rspamd/local.d/
+COPY target/rspamd/scores.d/* /etc/rspamd/scores.d/
 
 # -----------------------------------------------
 # --- LDAP & SpamAssassin's Cron ----------------
