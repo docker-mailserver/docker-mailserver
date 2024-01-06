@@ -47,12 +47,15 @@ function setup_file() {
   # 1. The first one should pass just fine
   _send_email_and_get_id MAIL_ID_PASS
   # 2. The second one should be rejected due to spam (GTube pattern)
-  _send_email_and_get_id MAIL_ID_SPAM --unchecked --body 'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
+  _send_email_and_get_id MAIL_ID_SPAM --unchecked \
+    --body 'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
   # 3. Te third one should be rejected due to a virus (ClamAV Eicar pattern)
   # shellcheck disable=SC2016
-  _send_email_and_get_id MAIL_ID_VIRUS --unchecked --body 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+  _send_email_and_get_id MAIL_ID_VIRUS --unchecked \
+    --body 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
   # 4. The fourth one will receive an added header (GTube pattern)
-  _send_email_and_get_id MAIL_ID_HEADER --unchecked --body 'YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
+  _send_email_and_get_id MAIL_ID_HEADER \
+    --body 'YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
 
   _run_in_container cat /var/log/mail.log
   assert_success

@@ -128,7 +128,7 @@ function _send_email() {
 #
 # 1. this function waits for the mail to be processed; there is no asynchronicity
 #    because filtering the logs in a synchronous way is easier and safer;
-# 2. this function takes the name of a variable and inserts ID(s) one can later
+# 2. this function takes the name of a variable and inserts IDs one can later
 #    filter by to check logs.
 #
 # No. 2 is especially useful in case you send more than one email in a single
@@ -138,18 +138,13 @@ function _send_email() {
 # in. The second argument **can** be the flag `--unchecked`; if this flag is supplied,
 # the function uses `_send_email_unchecked` instead of `_send_email`. This avoids the
 # `assert_success`. Be warned though this is only required in special situations where
-# it is still possible to `grep` for the mail IDs - otherwise this function fails.
-#
-# The rest of the arguments are the same as `_send_email`.
+# it is still possible to `grep` for the Message-ID that Postfix generated, -
+# otherwise this function fails. The rest of the arguments are the same as `_send_email`.
 #
 # ## Attention
 #
 # This function assumes `CONTAINER_NAME` to be properly set (to the container
 # name the command should be executed in)!
-#
-# Moreover, if `--data <DATA>` is specified, the additional header added implicitly
-# (with `--add-header`) may get lost, so pay attention to the data having the token
-# to place additonal headers into.
 #
 # ## Safety
 #
@@ -159,51 +154,42 @@ function _send_email() {
 # is UNDEFINED BEHAVIOR!
 function _send_email_and_get_id() {
   # Get the name of the variable that the ID is stored in
-  local ID_NAME="${1:?Mail ID must be set for _send_email_and_get_id}"
-  # Get a "reference" to the content of ID_NAME so we can manipulate the content
-  local -n MAIL_ID=${ID_NAME}
+  local ID_ENV_VAR_NAME="${1:?Mail ID must be set for _send_email_and_get_id}"
+  # Get a "reference" to the content of ID_ENV_VAR_NAME so we can manipulate the content
+  local -n ID_ENV_VAR_REF=${ID_ENV_VAR_NAME}
   # Export the variable so everyone has access
   # shellcheck disable=SC2163
-  export "${ID_NAME}"
+  export "${ID_ENV_VAR_NAME}"
   shift 1
 
+  local QUEUE_ID MESSAGE_ID
+  # The unique ID Postfix (and other services) use may be different in length
+  # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
+  # range to safely capture it.
+  local QUEUE_ID_REGEX='[A-Z0-9]{9,12}'
+  local MESSAGE_ID_REGEX="[0-9]{14}\\.${QUEUE_ID_REGEX}"
+
   _wait_for_empty_mail_queue_in_container
-  if [[ ${1:-} == --unchecked ]]; then
+  if [[ ${1} == --unchecked ]]; then
     shift 1
-    _send_email_unchecked "${@}" --add-header "Message-Id: ${ID_NAME}"
+    local OUTPUT=$(_send_email_unchecked "${@}")
+    QUEUE_ID=$(_exec_in_container tac /var/log/mail.log       \
+      | grep -E "postfix/smtpd.*: ${QUEUE_ID_REGEX}: client=" \
+      | grep -E -m 1 -o '[A-Z0-9]{9,12}' || :)
   else
-    _send_email "${@}" --add-header "Message-Id: ${ID_NAME}"
+    local OUTPUT=$(_send_email "${@}")
+    QUEUE_ID=$(grep -F 'queued as' <<< "${OUTPUT}" | grep -E -o "${QUEUE_ID_REGEX}$")
   fi
   _wait_for_empty_mail_queue_in_container
 
-  # The unique IDs Postfix (and other services) use may be different in length
-  # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
-  # range to safely capture it.
-  #
-  # First, we define the regular expressions we need for capturing the IDs.
-  local REGEX_ID_PART_ONE='[A-Z0-9]{9,12}'
-  local REGEX_ID_PART_TWO="$(date +'%Y%m%d')[0-9]+\\.[0-9]+"
-  # The first line Postfix logs looks something like this:
-  #
-  # Jan  4 16:09:19 mail postfix/cleanup[1188]: 07B29249A7: message-id=MAIL_ID_HEADER
-  #
-  # where 07B29249A7 is one of the IDs we are searching for and MAIL_ID_HEADER is what ID_NAME
-  # is set to. Note that we are searching the log in reverse, which is important to get the correct ID.
-  MAIL_ID=$(_exec_in_container tac /var/log/mail.log \
-    | grep -F -m 1 "message-id=${ID_NAME}" \
-    | grep -E -o "${REGEX_ID_PART_ONE}")
-  # We additionally grep for another ID that Postfix (and later mechanisms like Sieve) use (additionally).
-  # The corresponding line looks something like this:
-  #
-  # Jan  4 16:09:19 mail postfix/cleanup[1188]: 07B29249A7: message-id=<20240104160919.001289@mail.example.test>
-  #
-  # where 20240104160919 is the other ID we are searching for. Note that the date is encoded by this ID.
-  # We exploit the fact that MAIL_ID is already on the line (07B29249A7), so we can search for it efficiently.
-  MAIL_ID+="|$(_exec_in_container grep -F "${MAIL_ID}: message-id=" /var/log/mail.log \
-    | grep -E -o "${REGEX_ID_PART_TWO}")"
+  MESSAGE_ID=$(_exec_in_container tac /var/log/mail.log \
+    | grep -E "message-id=<${MESSAGE_ID_REGEX}@"        \
+    | grep -E -m 1 -o "${MESSAGE_ID_REGEX}" || :)
+
+  ID_ENV_VAR_REF="${QUEUE_ID}|${MESSAGE_ID}"
 
   # Last but not least, we perform plausibility checks on the IDs.
-  assert_not_equal "${MAIL_ID}" ''
-  run echo "${MAIL_ID}"
-  assert_line --regexp "^${REGEX_ID_PART_ONE}|${REGEX_ID_PART_TWO}$"
+  assert_not_equal "${ID_ENV_VAR_REF}" ''
+  run echo "${ID_ENV_VAR_REF}"
+  assert_line --regexp "^${QUEUE_ID_REGEX}|${MESSAGE_ID_REGEX}$"
 }
