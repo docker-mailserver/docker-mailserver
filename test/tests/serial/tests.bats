@@ -264,7 +264,7 @@ EOF
 #
 
 @test "amavis: config overrides" {
-  _run_in_container_bash "grep 'Test Verification' /etc/amavis/conf.d/50-user | wc -l"
+  _run_in_container_bash "grep -c 'Test Verification' /etc/amavis/conf.d/50-user"
   assert_success
   assert_output 1
 }
