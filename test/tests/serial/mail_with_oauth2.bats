@@ -32,7 +32,7 @@ function setup_file() {
   # Add OAUTH2 configuration so that Dovecot can reach out to our mock provider (CONTAINER2)
   local ENV_OAUTH2_CONFIG=(
     --env ENABLE_OAUTH2=1
-    --env OAUTH2_INTROSPECTION_URL=http://oauth2.example.test/
+    --env OAUTH2_INTROSPECTION_URL=http://oauth2.example.test/userinfo/
   )
 
   export CONTAINER_NAME=${CONTAINER1_NAME}
@@ -45,7 +45,7 @@ function setup_file() {
 
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  _wait_for_smtp_port_in_container
+  _wait_for_tcp_port_in_container 143
 
   # Set default implicit container fallback for helpers:
   export CONTAINER_NAME=${CONTAINER1_NAME}
@@ -58,8 +58,9 @@ function teardown_file() {
 
 
 @test "oauth2: imap connect and authentication works" {
+  # An initial connection needs to be made first, otherwise the auth attempt fails
   _run_in_container_bash 'nc -vz 0.0.0.0 143'
-  _run_in_container_bash 'sleep 5'
+
   _run_in_container_bash 'nc -w 1 0.0.0.0 143 < /tmp/docker-mailserver-test/auth/imap-oauth2-auth.txt'
   assert_output --partial 'Examine completed'
 }

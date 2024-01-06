@@ -1,3 +1,8 @@
+# OAuth2 mock service
+#
+# Dovecot will query this service with the token it was provided.
+# If the session for the token is valid, a response provides an attribute to perform a UserDB lookup on (default: email).
+
 import json
 import base64
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -25,6 +30,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             return
         auth = auth.split()[1]
+        # Valid session, respond with JSON containing the expected `email` claim to match as Dovecot username:
         if auth == token:
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')

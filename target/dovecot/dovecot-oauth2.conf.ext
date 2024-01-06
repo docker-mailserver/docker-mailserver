@@ -1,1 +1,2 @@
-introspection_url = 
+introspection_url =
+introspection_mode = auth
