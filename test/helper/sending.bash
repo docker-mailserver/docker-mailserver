@@ -7,25 +7,14 @@
 # ! ATTENTION: This file is loaded by `common.sh` - do not load it yourself!
 # ! ATTENTION: This file requires helper functions from `common.sh`!
 
-# Sends a mail from localhost (127.0.0.1) to a container. To send
-# a custom email, create a file at `test/files/<TEST FILE>`,
-# and provide `<TEST FILE>` as an argument to this function.
+# Parse the arguments given to `_send_email` and `_send_email_unchecked`
+# and print the command that is to be exuted in these functions. How these
+# functions then handle the result of the invocation depends on the function.
 #
-# Parameters include all options that one can supply to `swaks` itself.
-# The `--data` parameter expects a relative path from `emails/`.
+# ## Note
 #
-# This functions performs **no** implicit `assert_success` to check whether
-# the e-mail transaction was successful. If this is not desirable, use
-# `_send_email`.
-#
-# ## Attention
-#
-# This function assumes `CONTAINER_NAME` to be properly set (to the container
-# name the command should be executed in)!
-#
-# This function will send the email in an "asynchronous" fashion,
-# it will return without waiting for the Postfix mail queue to be emptied.
-function _send_email_unchecked() {
+# This function is internal and should not be used in tests.
+function __parse_swaks_arguments() {
   [[ -v CONTAINER_NAME ]] || return 1
 
   # Parameter defaults common to our testing needs:
@@ -68,28 +57,71 @@ function _send_email_unchecked() {
     ADDITIONAL_SWAKS_OPTIONS+=("'Date: %DATE%\nTo: %TO_ADDRESS%\nFrom: %FROM_ADDRESS%\nSubject: test %DATE%\n%NEW_HEADERS%\n%BODY%\n'")
   fi
 
-  echo "swaks --server '${SERVER}' --port '${PORT}' --ehlo '${EHLO}' --from '${FROM}' --to '${TO}' ${ADDITIONAL_SWAKS_OPTIONS[*]}" >/tmp/lol
-  _run_in_container_bash "swaks --server '${SERVER}' --port '${PORT}' --ehlo '${EHLO}' --from '${FROM}' --to '${TO}' ${ADDITIONAL_SWAKS_OPTIONS[*]}"
+  echo "swaks --server '${SERVER}' --port '${PORT}' --ehlo '${EHLO}' --from '${FROM}' --to '${TO}' ${ADDITIONAL_SWAKS_OPTIONS[*]}"
 }
 
-# Sends a mail from localhost (127.0.0.1) to a container. To send a custom email:
+# Sends a mail from the container named by the environment variable `CONTAINER_NAME`
+# to the same or another container.
 #
-# 1. Create a file at `test/files/<TEST FILE>`
-# 2. Provide `<TEST FILE>` as an argument to this function.
+# To send a custom email, create a file at `test/files/<TEST FILE>`,
+# and provide `<TEST FILE>` as an argument to this function.
 #
 # Parameters include all options that one can supply to `swaks` itself.
-# The `--data` parameter expects a relative path from `emails/`.
+# The `--data` parameter expects either, a relative path from `emails/` or
+# "inline" data, e.g., `Date: 1 Jan 2024\nSubject: This is a test`.
 #
-# This functions performs an implicit `assert_success` to check whether
-# the e-mail transaction was successful. If this is not desirable, use
-# `_send_email_unchecked`.
+# ## Output
+#
+# This functions prints the output of the transaction that `swaks` prints.
 #
 # ## Attention
 #
-# Please see the 'Attention' section of `_send_email_unchecked`,
+# This function assumes `CONTAINER_NAME` to be properly set (to the container
+# name the command should be executed in)!
+#
+# This function will send the email in an "asynchronous" fashion,
+# it will return without waiting for the Postfix mail queue to be emptied.
+#
+# This functions performs **no** implicit `assert_success` to check whether
+# the e-mail transaction was successful. If this is not desirable, use
+# `_send_email`. If you anticipate the sending to succeed, use `_send_email`
+# instead.
+function _send_email_unchecked() {
+  local COMMAND_STRING=$(__parse_swaks_arguments "${@}")
+  _run_in_container_bash "${COMMAND_STRING}"
+  local RETURN_VALUE=${?}
+  # shellcheck disable=SC2154
+  echo "${output}"
+  return "${RETURN_VALUE}"
+}
+
+# Sends a mail from the container named by the environment variable `CONTAINER_NAME`
+# to the same or another container.
+#
+# To send a custom email, create a file at `test/files/<TEST FILE>`,
+# and provide `<TEST FILE>` as an argument to this function.
+#
+# Parameters include all options that one can supply to `swaks` itself.
+# The `--data` parameter expects either, a relative path from `emails/` or
+# "inline" data, e.g., `Date: 1 Jan 2024\nSubject: This is a test`.
+#
+# ## Output
+#
+# This functions prints the output of the transaction that `swaks` prints.
+#
+# ## Attention
+#
+# This function assumes `CONTAINER_NAME` to be properly set (to the container
+# name the command should be executed in)!
+#
+# This function will send the email in an "asynchronous" fashion,
+# it will return without waiting for the Postfix mail queue to be emptied.
 function _send_email() {
-  _send_email_unchecked "${@}"
+  local COMMAND_STRING=$(__parse_swaks_arguments "${@}")
+  _run_in_container_bash "${COMMAND_STRING}"
   assert_success
+  # shellcheck disable=SC2154
+  echo "${output}"
 }
 
 # Like `_send_email` with two major differences:
