@@ -88,7 +88,10 @@ function setup_file() {
   _send_email --to user2@otherdomain.tld
   _send_email --to user3@localhost.localdomain
   _send_email --to added@localhost.localdomain --header 'Subject: Test Message existing-added'
-  _send_email --to user1@localhost.localdomain --header 'Subject: Test Message existing-user-and-cc-local-alias'
+  _send_email \
+    --to user1@localhost.localdomain \
+    --header 'Subject: Test Message existing-user-and-cc-local-alias' \
+    --cc 'alias2@localhost.localdomain'
   _send_email --data 'sieve/spam-folder.txt'
   _send_email --to user2@otherdomain.tld --data 'sieve/pipe.txt'
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
@@ -96,7 +99,7 @@ function setup_file() {
 }
 
 function _unsuccessful() {
-  _send_email_unchecked --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword
+  _send_email_unchecked --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword --quit-after AUTH
   assert_failure
   assert_output --partial 'authentication failed'
   assert_output --partial 'No authentication type succeeded'

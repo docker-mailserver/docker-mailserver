@@ -11,9 +11,8 @@
 # a custom email, create a file at `test/files/<TEST FILE>`,
 # and provide `<TEST FILE>` as an argument to this function.
 #
-# Parameters include all options that one can supply to `swaks`
-# itself. The `--data` parameter expects a relative path from `emails/`
-# where the contents will be implicitly provided to `swaks` via STDIN.
+# Parameters include all options that one can supply to `swaks` itself.
+# The `--data` parameter expects a relative path from `emails/`.
 #
 # This functions performs **no** implicit `assert_success` to check whether
 # the e-mail transaction was successful. If this is not desirable, use
@@ -24,9 +23,8 @@
 # This function assumes `CONTAINER_NAME` to be properly set (to the container
 # name the command should be executed in)!
 #
-# This function will just send the email in an "asynchronous" fashion, i.e. it will
-# send the email but it will not make sure the mail queue is empty after the mail
-# has been sent.
+# This function will send the email in an "asynchronous" fashion,
+# it will return without waiting for the Postfix mail queue to be emptied.
 function _send_email_unchecked() {
   [[ -v CONTAINER_NAME ]] || return 1
 
@@ -38,6 +36,7 @@ function _send_email_unchecked() {
   local PORT=25
   # Extra options for `swaks` that aren't covered by the default options above:
   local ADDITIONAL_SWAKS_OPTIONS=()
+  local DATA_WAS_SUPPLIED=0
 
   while [[ ${#} -gt 0 ]]; do
     case "${1}" in
@@ -55,21 +54,31 @@ function _send_email_unchecked() {
           ADDITIONAL_SWAKS_OPTIONS+=("'${2}'")
         fi
         shift 2
+        DATA_WAS_SUPPLIED=1
         ;;
       ( * ) ADDITIONAL_SWAKS_OPTIONS+=("'${1}'") ; shift 1 ;;
     esac
   done
 
+  if [[ ${DATA_WAS_SUPPLIED} -eq 0 ]]; then
+    # Fallback template without implicit `Message-Id` + `X-Mailer` headers:
+    # NOTE: It is better to let Postfix generate the `Message-Id` header and append that
+    #       as it contains the queue ID for tracking logs and is returned to in swaks output.
+    ADDITIONAL_SWAKS_OPTIONS+=('--data')
+    ADDITIONAL_SWAKS_OPTIONS+=("'Date: %DATE%\nTo: %TO_ADDRESS%\nFrom: %FROM_ADDRESS%\nSubject: test %DATE%\n%NEW_HEADERS%\n%BODY%\n'")
+  fi
+
+  echo "swaks --server '${SERVER}' --port '${PORT}' --ehlo '${EHLO}' --from '${FROM}' --to '${TO}' ${ADDITIONAL_SWAKS_OPTIONS[*]}" >/tmp/lol
   _run_in_container_bash "swaks --server '${SERVER}' --port '${PORT}' --ehlo '${EHLO}' --from '${FROM}' --to '${TO}' ${ADDITIONAL_SWAKS_OPTIONS[*]}"
 }
 
-# Sends a mail from localhost (127.0.0.1) to a container. To send
-# a custom email, create a file at `test/files/<TEST FILE>`,
-# and provide `<TEST FILE>` as an argument to this function.
+# Sends a mail from localhost (127.0.0.1) to a container. To send a custom email:
 #
-# Parameters include all options that one can supply to `swaks`
-# itself. The `--data` parameter expects a relative path from `emails/`
-# where the contents will be implicitly provided to `swaks` via STDIN.
+# 1. Create a file at `test/files/<TEST FILE>`
+# 2. Provide `<TEST FILE>` as an argument to this function.
+#
+# Parameters include all options that one can supply to `swaks` itself.
+# The `--data` parameter expects a relative path from `emails/`.
 #
 # This functions performs an implicit `assert_success` to check whether
 # the e-mail transaction was successful. If this is not desirable, use
@@ -77,12 +86,7 @@ function _send_email_unchecked() {
 #
 # ## Attention
 #
-# This function assumes `CONTAINER_NAME` to be properly set (to the container
-# name the command should be executed in)!
-#
-# This function will just send the email in an "asynchronous" fashion, i.e. it will
-# send the email but it will not make sure the mail queue is empty after the mail
-# has been sent.
+# Please see the 'Attention' section of `_send_email_unchecked`,
 function _send_email() {
   _send_email_unchecked "${@}"
   assert_success
