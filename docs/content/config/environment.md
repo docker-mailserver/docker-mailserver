@@ -316,27 +316,31 @@ Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 
 ##### MOVE_SPAM_TO_JUNK
 
-When enabled, e-mails marked with the
-
-1. `X-Spam: Yes` header added by Rspamd
-2. `X-Spam-Flag: YES` header added by SpamAssassin (requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox))
-
-will be automatically moved to the Junk folder (with the help of a Sieve script).
-
 - 0 => Spam messages will be delivered in the mailbox.
 - **1** => Spam messages will be delivered in the `Junk` folder.
 
+Routes mail identified as spam into the recipient(s) Junk folder (_via a Dovecot Sieve script_).
+
+!!! info
+
+    Mail is received as spam when it has been marked with either header:
+
+    - `X-Spam: Yes` (_added by Rspamd_)
+    - `X-Spam-Flag: YES` (_added by SpamAssassin - requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox)_)
+
 ##### MARK_SPAM_AS_READ
-
-Enable to treat received spam as "read" (_avoids notification to MUA client of new mail_).
-
-Mail is received as spam when it has been marked with either header:
-
-1. `X-Spam: Yes` (_by Rspamd_)
-2. `X-Spam-Flag: YES` (_by SpamAssassin - requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox)_)
 
 - **0** => disabled
 - 1 => Spam messages will be marked as read
+
+Enable to treat received spam as "read" (_avoids notification to MUA client of new mail_).
+
+!!! info
+
+    Mail is received as spam when it has been marked with either header:
+
+    - `X-Spam: Yes` (_added by Rspamd_)
+    - `X-Spam-Flag: YES` (_added by SpamAssassin - requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox)_)
 
 #### Rspamd
 
@@ -515,63 +519,110 @@ Changes the interval in which log files are rotated.
 - **0** => SpamAssassin is disabled
 - 1 => SpamAssassin is enabled
 
+!!! info "SpamAssassin analyzes incoming mail and assigns a spam score"
+
+    Integration with Amavis involves processing mail based on the assigned spam score via [`SA_TAG`, `SA_TAG2` and `SA_KILL`][amavis-docs::spam-score]. These settings have equivalent ENV supported by DMS for easy adjustments.
+
+[amavis-docs::spam-score]: https://www.ijs.si/software/amavisd/amavisd-new-docs.html#tagkill
+
 ##### SPAMASSASSIN_SPAM_TO_INBOX
 
-- 0 => Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
-- **1** => Spam messages will be delivered to the inbox and tagged as spam using `SA_SPAM_SUBJECT`.
+- 0 => (_Amavis action: `D_BOUNCE`_): Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
+- **1** => (_Amavis action: `D_PASS`_): Spam messages will be delivered to the inbox and tagged as spam using [`SA_SPAM_SUBJECT`](#sa_spam_subject).
+
+The Amavis action configured by this setting:
+
+- Influences the behaviour of the [`SA_KILL`](#sa_kill) setting.
+- Applies to the Amavis config parameters `$final_spam_destiny` and `$final_bad_header_destiny`.
+
+This ENV setting is related to:
+
+- [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk)
+- [`MARK_SPAM_AS_READ=1`](#mark_spam_as_read)
 
 ##### ENABLE_SPAMASSASSIN_KAM
-
-[KAM](https://mcgrail.com/template/projects#KAM1) is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.
 
 - **0** => KAM disabled
 - 1 => KAM enabled
 
+[KAM](https://mcgrail.com/template/projects#KAM1) is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.
+
 ##### SA_TAG
 
-- **2.0** => add spam info headers if at, or above that level
+- **2.0** => add spam info headers if at, or above this level
 
-Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
+Mail is not yet considered spam, but for purposes like diagnositcs it can be useful to identify mail from a lower bound spam score.
 
 ##### SA_TAG2
 
-- **6.31** => add 'spam detected' headers at that level
+- **6.31** => add 'spam detected' headers at, or above this level
 
-Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`
+Mail that is considered to be spam. With settings like [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk), the mail is delivered but to the recipient(s) junk folder.
 
 ##### SA_KILL
 
-- **10.0** => triggers spam evasive actions
+- **10.0** => triggers action + quarantine
 
-!!! note "This SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`"
+Controls the spam score threshold for triggering an action on mail that has a high spam score.
 
-    By default, DMS is configured to quarantine spam emails.
+!!! tip "Choosing an appropriate value"
 
-    If emails are quarantined, they are compressed and stored in a location dependent on the `ONE_DIR` setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. `100.0`.
+    The value should be high enough to be represent confidence in mail as spam:
 
-    If `ONE_DIR=1` (default) the location is `/var/mail-state/lib-amavis/virusmails/`, or if `ONE_DIR=0`: `/var/lib/amavis/virusmails/`. These paths are inside the docker container.
+    - Too low: The action taken may prevent legitimate mail (ham) that was incorrectly detected as spam from being delivered successfully.
+    - Too high: Allows more spam through.
+
+!!! info "Trigger action"
+
+    DMS will configure Amavis with either of these actions based on the DMS [`SPAMASSASSIN_SPAM_TO_INBOX`](#spamassassin_spam_to_inbox) setting:
+
+    - `D_PASS` (default):
+        - Accept mail and deliver it to the recipient(s), despite a high spam score.
+    - `D_BOUNCE`:
+        - Additionally sends a bounce notification (DSN).
+        - The [DSN is suppressed][amavis-docs::actions] (_no bounce sent_) when the spam score exceeds the Amavis `$sa_dsn_cutoff_level` config setting (default: `10`).
+    - `D_REJECT` / `D_DISCARD`:
+        - These two aren't configured by DMS, but are valid alternative action values if configuring Amavis directly.
+
+!!! note "Quarantine"
+
+    When mail has a spam score that reaches the `SA_KILL` threshold, [it will be quarantined][amavis-docs::quarantine] regardless of the `SA_KILL` action to perform.
+
+    If emails are quarantined, they are compressed and stored at a location dependent on the [`ONE_DIR`](#one_dir) setting:
+
+    - `ONE_DIR=1` (default): `/var/mail-state/lib-amavis/virusmails/`
+    - `ONE_DIR=0`: `/var/lib/amavis/virusmails/`
+
+[amavis-docs::actions]: https://www.ijs.si/software/amavisd/amavisd-new-docs.html#actions
+[amavis-docs::quarantine]: https://www.ijs.si/software/amavisd/amavisd-new-docs.html#quarantine
 
 ##### SA_SPAM_SUBJECT
 
-- **\*\*\*SPAM\*\*\*** => add tag to subject if spam detected
+- **`***SPAM(_SCORE_)***`** => add tag to subject if spam detected
 
-Note: this SpamAssassin setting needs `ENABLE_SPAMASSASSIN=1`. Add the SpamAssassin score to the subject line by inserting the keyword \_SCORE\_: **\*\*\*SPAM(\_SCORE\_)\*\*\***.
+!!! tip
+
+    Add the SpamAssassin score to the subject line by inserting the keyword `_SCORE_`: **`***SPAM(_SCORE_)***`**.
 
 ##### SA_SHORTCIRCUIT_BAYES_SPAM
 
 - **1** => will activate SpamAssassin short circuiting for bayes spam detection.
 
-This will uncomment the respective line in ```/etc/spamassasin/local.cf```
+This will uncomment the respective line in `/etc/spamassasin/local.cf`
 
-Note: activate this only if you are confident in your bayes database for identifying spam.
+!!! warning
+
+    Activate this only if you are confident in your bayes database for identifying spam.
 
 ##### SA_SHORTCIRCUIT_BAYES_HAM
 
 - **1** => will activate SpamAssassin short circuiting for bayes ham detection
 
-This will uncomment the respective line in ```/etc/spamassasin/local.cf```
+This will uncomment the respective line in `/etc/spamassasin/local.cf`
 
-Note: activate this only if you are confident in your bayes database for identifying ham.
+!!! warning
+
+    Activate this only if you are confident in your bayes database for identifying ham.
 
 #### Fetchmail
 
