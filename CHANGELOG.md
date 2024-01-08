@@ -17,6 +17,11 @@ All notable changes to this project will be documented in this file. The format 
   - Revised the SpamAssassin ENV docs to better communicate configuration and their relation to other ENV settings. ([#3756](https://github.com/docker-mailserver/docker-mailserver/pull/3756))
 
 
+### Fixes
+
+- **Internal:**
+  - `.gitattributes`: Always use LF line endings on checkout for files with shell script content ([#3755](https://github.com/docker-mailserver/docker-mailserver/pull/3755))
+
 ## [v13.2.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.2.0)
 
 ### Security
