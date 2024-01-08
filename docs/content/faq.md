@@ -378,7 +378,7 @@ When you run DMS with the ENV variable `ONE_DIR=1` (default), this directory wil
 
 #### How can I manage my custom SpamAssassin rules?
 
-Antispam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
+Anti-spam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
 
 #### What are acceptable `SA_SPAM_SUBJECT` values?
 
