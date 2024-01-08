@@ -13,6 +13,9 @@ All notable changes to this project will be documented in this file. The format 
   - Postfix is now configured with `smtputf8_enable = no` in our default `main.cf` config (_instead of during container startup_). ([#3750](https://github.com/docker-mailserver/docker-mailserver/pull/3750))
 - **Rspamd** ([#3726](https://github.com/docker-mailserver/docker-mailserver/pull/3726)):
   - symbol scores for SPF, DKIM & DMARC were updated to more closely align with [RFC7489](https://www.rfc-editor.org/rfc/rfc7489#page-24); please note though that complete alignment is undesirable, because other symbols might be added as well, which changes the overall score calculation again, see [this issue](https://github.com/docker-mailserver/docker-mailserver/issues/3690#issuecomment-1866871996)
+- **Docs:**
+  - Revised the SpamAssassin ENV docs to better communicate configuration and their relation to other ENV settings. ([#3756](https://github.com/docker-mailserver/docker-mailserver/pull/3756))
+
 
 ### Fixes
 

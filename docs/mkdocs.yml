@@ -1,6 +1,6 @@
 # Site specific:
 site_name: 'Docker Mailserver'
-site_description: 'A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.'
+site_description: 'A fullstack but simple mail-server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.) using Docker.'
 site_author: 'docker-mailserver (Github Organization)'
 copyright: '<p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>'
 
