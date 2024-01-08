@@ -380,17 +380,6 @@ When you run DMS with the ENV variable `ONE_DIR=1` (default), this directory wil
 
 Anti-spam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
 
-#### What are acceptable `SA_SPAM_SUBJECT` values?
-
-For no subject set `SA_SPAM_SUBJECT=undef`.
-
-For a trailing white-space subject one can define the whole variable with quotes in `compose.yaml`:
-
-```yaml
-environment:
-  - "SA_SPAM_SUBJECT=[SPAM] "
-```
-
 #### Why are SpamAssassin `x-headers` not inserted into my `subdomain.example.com` subdomain emails?
 
 In the default setup, amavis only applies SpamAssassin x-headers into domains matching the template listed in the config file (`05-domain_id` in the amavis defaults).

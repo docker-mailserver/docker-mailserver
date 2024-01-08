@@ -528,7 +528,7 @@ Changes the interval in which log files are rotated.
 ##### SPAMASSASSIN_SPAM_TO_INBOX
 
 - 0 => (_Amavis action: `D_BOUNCE`_): Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
-- **1** => (_Amavis action: `D_PASS`_): Spam messages will be delivered to the inbox and tagged as spam using [`SA_SPAM_SUBJECT`](#sa_spam_subject).
+- **1** => (_Amavis action: `D_PASS`_): Spam messages will be delivered to the inbox.
 
 The Amavis action configured by this setting:
 
@@ -539,6 +539,7 @@ This ENV setting is related to:
 
 - [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk)
 - [`MARK_SPAM_AS_READ=1`](#mark_spam_as_read)
+- [`SA_SPAM_SUBJECT`](#sa_spam_subject)
 
 ##### ENABLE_SPAMASSASSIN_KAM
 
@@ -549,19 +550,26 @@ This ENV setting is related to:
 
 ##### SA_TAG
 
-- **2.0** => add spam info headers if at, or above this level
+- **2.0** => add 'spam info' headers at, or above this level
 
-Mail is not yet considered spam, but for purposes like diagnositcs it can be useful to identify mail from a lower bound spam score.
+Mail is not yet considered spam, but for purposes like diagnositcs it can be useful to identify mail with a spam score from a lower bound than `SA_TAG2`.
+
+This appends the mail header `X-Spam-Level`, with the spam score value assigned.
 
 ##### SA_TAG2
 
 - **6.31** => add 'spam detected' headers at, or above this level
 
-Mail that is considered to be spam. With settings like [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk), the mail is delivered but to the recipient(s) junk folder.
+When a spam score is high enough, mark mail as spam (_Appends the mail header: `X-Spam-Flag: YES`_).
+
+!!! info "Interaction with other ENV"
+
+    - [`SA_SPAM_SUBJECT`](#sa_spam_subject) modifies the mail subject to better communicate spam mail to the user.
+    - [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk): The mail is still delivered, but to the recipient(s) junk folder instead. This feature reduces the usefulness of `SA_SPAM_SUBJECT`.
 
 ##### SA_KILL
 
-- **10.0** => triggers action + quarantine
+- **10.0** => quarantine + triggers action to handle spam
 
 Controls the spam score threshold for triggering an action on mail that has a high spam score.
 
@@ -570,17 +578,23 @@ Controls the spam score threshold for triggering an action on mail that has a hi
     The value should be high enough to be represent confidence in mail as spam:
 
     - Too low: The action taken may prevent legitimate mail (ham) that was incorrectly detected as spam from being delivered successfully.
-    - Too high: Allows more spam through.
+    - Too high: Allows more spam to bypass the `SA_KILL` trigger (_how to treat mail with high confidence that it is actually spam_).
+
+    Experiences from DMS users with these settings has been [collected here][gh-issue::sa-tunables-insights], along with [some direct configuration guides][gh-issue::sa-tunables-guides] (_under "Resources for references"_).
+
+[gh-issue::sa-tunables-insights]: https://github.com/docker-mailserver/docker-mailserver/pull/3058#issuecomment-1420268148
+[gh-issue::sa-tunables-guides]: https://github.com/docker-mailserver/docker-mailserver/pull/3058#issuecomment-1416547911
 
 !!! info "Trigger action"
 
     DMS will configure Amavis with either of these actions based on the DMS [`SPAMASSASSIN_SPAM_TO_INBOX`](#spamassassin_spam_to_inbox) setting:
 
     - `D_PASS` (default):
-        - Accept mail and deliver it to the recipient(s), despite a high spam score.
+        - Accept mail and deliver it to the recipient(s), despite the high spam score. A copy is still stored in quarantine.
+        - This is a good default to start with until you are more confident in an `SA_KILL` threshold that won't accidentally discard / bounce legitimate mail users are expecting to arrive but is detected as spam.
     - `D_BOUNCE`:
         - Additionally sends a bounce notification (DSN).
-        - The [DSN is suppressed][amavis-docs::actions] (_no bounce sent_) when the spam score exceeds the Amavis `$sa_dsn_cutoff_level` config setting (default: `10`).
+        - The [DSN is suppressed][amavis-docs::actions] (_no bounce sent_) when the spam score exceeds the Amavis `$sa_dsn_cutoff_level` config setting (default: `10`). With the DMS `SA_KILL` default also being `10`, no DSN will ever be sent.
     - `D_REJECT` / `D_DISCARD`:
         - These two aren't configured by DMS, but are valid alternative action values if configuring Amavis directly.
 
@@ -598,11 +612,20 @@ Controls the spam score threshold for triggering an action on mail that has a hi
 
 ##### SA_SPAM_SUBJECT
 
-- **`***SPAM(_SCORE_)***`** => add tag to subject if spam detected
+Adds a prefix to the subject header when mail is marked as spam (_via [`SA_TAG2`](#sa_tag2)_).
 
-!!! tip
+- **`'***SPAM*** '`** => A string value to use as a mail subject prefix.
+- `undef` => Opt-out of modifying the subject for mail marked as spam.
 
-    Add the SpamAssassin score to the subject line by inserting the keyword `_SCORE_`: **`***SPAM(_SCORE_)***`**.
+!!! tip "Including trailing white-space"
+
+    Add trailing white-space by quote wrapping the value: `SA_SPAM_SUBJECT='[SPAM] '`
+
+!!! tip "Including the associated spam score"
+
+    The [`_SCORE_` tag][sa-docs::score-tag] will be substituted with the SpamAssassin score: `SA_SPAM_SUBJECT=***SPAM(_SCORE_)***`.
+
+[sa-docs::score-tag]: https://spamassassin.apache.org/full/4.0.x/doc/Mail_SpamAssassin_Conf.html#rewrite_header-subject-from-to-STRING
 
 ##### SA_SHORTCIRCUIT_BAYES_SPAM
 
