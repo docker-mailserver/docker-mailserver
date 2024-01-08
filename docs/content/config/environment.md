@@ -519,9 +519,11 @@ Changes the interval in which log files are rotated.
 - **0** => SpamAssassin is disabled
 - 1 => SpamAssassin is enabled
 
-!!! info "SpamAssassin analyzes incoming mail and assigns a spam score"
+??? info "SpamAssassin analyzes incoming mail and assigns a spam score"
 
-    Integration with Amavis involves processing mail based on the assigned spam score via [`SA_TAG`, `SA_TAG2` and `SA_KILL`][amavis-docs::spam-score]. These settings have equivalent ENV supported by DMS for easy adjustments.
+    Integration with Amavis involves processing mail based on the assigned spam score via [`SA_TAG`, `SA_TAG2` and `SA_KILL`][amavis-docs::spam-score].
+
+    These settings have equivalent ENV supported by DMS for easy adjustments, as documented below.
 
 [amavis-docs::spam-score]: https://www.ijs.si/software/amavisd/amavisd-new-docs.html#tagkill
 
@@ -537,10 +539,12 @@ Changes the interval in which log files are rotated.
 - 0 => (_Amavis action: `D_BOUNCE`_): Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
 - **1** => (_Amavis action: `D_PASS`_): Spam messages will be delivered to the inbox.
 
-The Amavis action configured by this setting:
+!!! note
 
-- Influences the behaviour of the [`SA_KILL`](#sa_kill) setting.
-- Applies to the Amavis config parameters `$final_spam_destiny` and `$final_bad_header_destiny`.
+    The Amavis action configured by this setting:
+
+    - Influences the behaviour of the [`SA_KILL`](#sa_kill) setting.
+    - Applies to the Amavis config parameters `$final_spam_destiny` and `$final_bad_header_destiny`.
 
 !!! note "This ENV setting is related to"
 
@@ -550,13 +554,11 @@ The Amavis action configured by this setting:
 
 ##### SA_TAG
 
-- **2.0** => add 'spam info' headers at, or above this level
+- **2.0** => add 'spam info' headers at, or above this spam score
 
-Mail is not yet considered spam, but for purposes like diagnositcs it can be useful to identify mail with a spam score from a lower bound than `SA_TAG2`.
+Mail is not yet considered spam at this spam score, but for purposes like diagnositcs it can be useful to identify mail with a spam score at a lower bound than `SA_TAG2`.
 
-This appends several `X-Spam` headers to the mail.
-
-!!! example
+??? example "`X-Spam` headers appended to mail"
 
     Send a simple mail to a local DMS account `hello@example.com`:
 
@@ -576,7 +578,9 @@ This appends several `X-Spam` headers to the mail.
             PYZOR_CHECK=1.985] autolearn=no autolearn_force=no
     ```
 
-    The `X-Spam-Score` is `4.162`. High enough for `SA_TAG` to trigger adding these headers, but not high enough for `SA_TAG2` (_which would set `X-Spam-Flag: YES` instead_).
+    !!! info "The `X-Spam-Score` is `4.162`"
+    
+        High enough for `SA_TAG` to trigger adding these headers, but not high enough for `SA_TAG2` (_which would set `X-Spam-Flag: YES` instead_).
 
 ##### SA_TAG2
 
@@ -595,7 +599,7 @@ When a spam score is high enough, mark mail as spam (_Appends the mail header: `
 
 Controls the spam score threshold for triggering an action on mail that has a high spam score.
 
-!!! tip "Choosing an appropriate `SA_KILL` value"
+??? tip "Choosing an appropriate `SA_KILL` value"
 
     The value should be high enough to be represent confidence in mail as spam:
 
@@ -607,7 +611,7 @@ Controls the spam score threshold for triggering an action on mail that has a hi
 [gh-issue::sa-tunables-insights]: https://github.com/docker-mailserver/docker-mailserver/pull/3058#issuecomment-1420268148
 [gh-issue::sa-tunables-guides]: https://github.com/docker-mailserver/docker-mailserver/pull/3058#issuecomment-1416547911
 
-!!! info "Trigger action"
+??? info "Trigger action"
 
     DMS will configure Amavis with either of these actions based on the DMS [`SPAMASSASSIN_SPAM_TO_INBOX`](#spamassassin_spam_to_inbox) ENV setting:
 
@@ -620,7 +624,7 @@ Controls the spam score threshold for triggering an action on mail that has a hi
     - `D_REJECT` / `D_DISCARD`:
         - These two aren't configured by DMS, but are valid alternative action values if configuring Amavis directly.
 
-!!! note "Quarantine"
+??? note "Quarantined mail"
 
     When mail has a spam score that reaches the `SA_KILL` threshold:
 
@@ -650,11 +654,11 @@ Adds a prefix to the subject header when mail is marked as spam (_via [`SA_TAG2`
 - **`'***SPAM*** '`** => A string value to use as a mail subject prefix.
 - `undef` => Opt-out of modifying the subject for mail marked as spam.
 
-!!! tip "Including trailing white-space"
+??? example "Including trailing white-space"
 
     Add trailing white-space by quote wrapping the value: `SA_SPAM_SUBJECT='[SPAM] '`
 
-!!! tip "Including the associated spam score"
+??? example "Including the associated spam score"
 
     The [`_SCORE_` tag][sa-docs::score-tag] will be substituted with the SpamAssassin score: `SA_SPAM_SUBJECT=***SPAM(_SCORE_)***`.
 
