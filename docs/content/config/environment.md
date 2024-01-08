@@ -542,11 +542,11 @@ The Amavis action configured by this setting:
 - Influences the behaviour of the [`SA_KILL`](#sa_kill) setting.
 - Applies to the Amavis config parameters `$final_spam_destiny` and `$final_bad_header_destiny`.
 
-This ENV setting is related to:
+!!! note "This ENV setting is related to"
 
-- [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk)
-- [`MARK_SPAM_AS_READ=1`](#mark_spam_as_read)
-- [`SA_SPAM_SUBJECT`](#sa_spam_subject)
+    - [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk)
+    - [`MARK_SPAM_AS_READ=1`](#mark_spam_as_read)
+    - [`SA_SPAM_SUBJECT`](#sa_spam_subject)
 
 ##### SA_TAG
 
@@ -554,7 +554,29 @@ This ENV setting is related to:
 
 Mail is not yet considered spam, but for purposes like diagnositcs it can be useful to identify mail with a spam score from a lower bound than `SA_TAG2`.
 
-This appends the mail header `X-Spam-Level`, with the spam score value assigned.
+This appends several `X-Spam` headers to the mail.
+
+!!! example
+
+    Send a simple mail to a local DMS account `hello@example.com`:
+
+    ```bash
+    docker exec dms swaks --server 0.0.0.0 --to hello@example.com --body 'spam'
+    ```
+
+    Inspecting the raw mail you will notice several `X-Spam` headers were added to the mail like this:
+
+    ```
+    X-Spam-Flag: NO
+    X-Spam-Score: 4.162
+    X-Spam-Level: ****
+    X-Spam-Status: No, score=4.162 tagged_above=2 required=4
+            tests=[BODY_SINGLE_WORD=1, DKIM_ADSP_NXDOMAIN=0.8,
+            NO_DNS_FOR_FROM=0.379, NO_RECEIVED=-0.001, NO_RELAYS=-0.001,
+            PYZOR_CHECK=1.985] autolearn=no autolearn_force=no
+    ```
+
+    The `X-Spam-Score` is `4.162`. High enough for `SA_TAG` to trigger adding these headers, but not high enough for `SA_TAG2` (_which would set `X-Spam-Flag: YES` instead_).
 
 ##### SA_TAG2
 
@@ -573,7 +595,7 @@ When a spam score is high enough, mark mail as spam (_Appends the mail header: `
 
 Controls the spam score threshold for triggering an action on mail that has a high spam score.
 
-!!! tip "Choosing an appropriate value"
+!!! tip "Choosing an appropriate `SA_KILL` value"
 
     The value should be high enough to be represent confidence in mail as spam:
 
@@ -587,9 +609,9 @@ Controls the spam score threshold for triggering an action on mail that has a hi
 
 !!! info "Trigger action"
 
-    DMS will configure Amavis with either of these actions based on the DMS [`SPAMASSASSIN_SPAM_TO_INBOX`](#spamassassin_spam_to_inbox) setting:
+    DMS will configure Amavis with either of these actions based on the DMS [`SPAMASSASSIN_SPAM_TO_INBOX`](#spamassassin_spam_to_inbox) ENV setting:
 
-    - `D_PASS` (default):
+    - `D_PASS` (**default**):
         - Accept mail and deliver it to the recipient(s), despite the high spam score. A copy is still stored in quarantine.
         - This is a good default to start with until you are more confident in an `SA_KILL` threshold that won't accidentally discard / bounce legitimate mail users are expecting to arrive but is detected as spam.
     - `D_BOUNCE`:
@@ -600,12 +622,23 @@ Controls the spam score threshold for triggering an action on mail that has a hi
 
 !!! note "Quarantine"
 
-    When mail has a spam score that reaches the `SA_KILL` threshold, [it will be quarantined][amavis-docs::quarantine] regardless of the `SA_KILL` action to perform.
+    When mail has a spam score that reaches the `SA_KILL` threshold:
+
+    - [It will be quarantined][amavis-docs::quarantine] regardless of the `SA_KILL` action to perform.
+    - With `D_PASS` the delivered mail also appends an `X-Quarantine-ID` mail header. The ID value of this header is part of the quarantined file name.
 
     If emails are quarantined, they are compressed and stored at a location dependent on the [`ONE_DIR`](#one_dir) setting:
 
     - `ONE_DIR=1` (default): `/var/mail-state/lib-amavis/virusmails/`
     - `ONE_DIR=0`: `/var/lib/amavis/virusmails/`
+
+    !!! tip
+
+        Easily list mail stored in quarantine with `find` and the quarantine path:
+
+        ```bash
+        find /var/lib/amavis/virusmails -type f
+        ```
 
 [amavis-docs::actions]: https://www.ijs.si/software/amavisd/amavisd-new-docs.html#actions
 [amavis-docs::quarantine]: https://www.ijs.si/software/amavisd/amavisd-new-docs.html#quarantine
