@@ -525,6 +525,13 @@ Changes the interval in which log files are rotated.
 
 [amavis-docs::spam-score]: https://www.ijs.si/software/amavisd/amavisd-new-docs.html#tagkill
 
+##### ENABLE_SPAMASSASSIN_KAM
+
+- **0** => KAM disabled
+- 1 => KAM enabled
+
+[KAM](https://mcgrail.com/template/projects#KAM1) is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.
+
 ##### SPAMASSASSIN_SPAM_TO_INBOX
 
 - 0 => (_Amavis action: `D_BOUNCE`_): Spam messages will be bounced (_rejected_) without any notification (_dangerous_).
@@ -540,13 +547,6 @@ This ENV setting is related to:
 - [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk)
 - [`MARK_SPAM_AS_READ=1`](#mark_spam_as_read)
 - [`SA_SPAM_SUBJECT`](#sa_spam_subject)
-
-##### ENABLE_SPAMASSASSIN_KAM
-
-- **0** => KAM disabled
-- 1 => KAM enabled
-
-[KAM](https://mcgrail.com/template/projects#KAM1) is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.
 
 ##### SA_TAG
 
