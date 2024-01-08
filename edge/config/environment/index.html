@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.) using Docker.">
       
       
         <meta name="author" content="docker-mailserver (Github Organization)">
@@ -1038,15 +1038,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#spamassassin_spam_to_inbox" class="md-nav__link">
-    SPAMASSASSIN_SPAM_TO_INBOX
+  <a href="#enable_spamassassin_kam" class="md-nav__link">
+    ENABLE_SPAMASSASSIN_KAM
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_spamassassin_kam" class="md-nav__link">
-    ENABLE_SPAMASSASSIN_KAM
+  <a href="#spamassassin_spam_to_inbox" class="md-nav__link">
+    SPAMASSASSIN_SPAM_TO_INBOX
   </a>
   
 </li>
@@ -3390,15 +3390,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#spamassassin_spam_to_inbox" class="md-nav__link">
-    SPAMASSASSIN_SPAM_TO_INBOX
+  <a href="#enable_spamassassin_kam" class="md-nav__link">
+    ENABLE_SPAMASSASSIN_KAM
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_spamassassin_kam" class="md-nav__link">
-    ENABLE_SPAMASSASSIN_KAM
+  <a href="#spamassassin_spam_to_inbox" class="md-nav__link">
+    SPAMASSASSIN_SPAM_TO_INBOX
   </a>
   
 </li>
@@ -4257,29 +4257,33 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 </ul>
 <p>Note: More information at <a href="https://dovecot.org/doc/dovecot-example.conf">https://dovecot.org/doc/dovecot-example.conf</a></p>
 <h5 id="move_spam_to_junk"><a class="toclink" href="#move_spam_to_junk">MOVE_SPAM_TO_JUNK</a></h5>
-<p>When enabled, e-mails marked with the</p>
-<ol>
-<li><code>X-Spam: Yes</code> header added by Rspamd</li>
-<li><code>X-Spam-Flag: YES</code> header added by SpamAssassin (requires <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></a>)</li>
-</ol>
-<p>will be automatically moved to the Junk folder (with the help of a Sieve script).</p>
 <ul>
 <li>0 =&gt; Spam messages will be delivered in the mailbox.</li>
 <li><strong>1</strong> =&gt; Spam messages will be delivered in the <code>Junk</code> folder.</li>
 </ul>
-<h5 id="mark_spam_as_read"><a class="toclink" href="#mark_spam_as_read">MARK_SPAM_AS_READ</a></h5>
-<p>Enable to treat received spam as "read" (<em>avoids notification to MUA client of new mail</em>).</p>
+<p>Routes mail identified as spam into the recipient(s) Junk folder (<em>via a Dovecot Sieve script</em>).</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
 <p>Mail is received as spam when it has been marked with either header:</p>
-<ol>
-<li><code>X-Spam: Yes</code> (<em>by Rspamd</em>)</li>
-<li>
-<p><code>X-Spam-Flag: YES</code> (<em>by SpamAssassin - requires <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></a></em>)</p>
-</li>
-<li>
-<p><strong>0</strong> =&gt; disabled</p>
-</li>
+<ul>
+<li><code>X-Spam: Yes</code> (<em>added by Rspamd</em>)</li>
+<li><code>X-Spam-Flag: YES</code> (<em>added by SpamAssassin - requires <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></a></em>)</li>
+</ul>
+</div>
+<h5 id="mark_spam_as_read"><a class="toclink" href="#mark_spam_as_read">MARK_SPAM_AS_READ</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; disabled</li>
 <li>1 =&gt; Spam messages will be marked as read</li>
-</ol>
+</ul>
+<p>Enable to treat received spam as "read" (<em>avoids notification to MUA client of new mail</em>).</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Mail is received as spam when it has been marked with either header:</p>
+<ul>
+<li><code>X-Spam: Yes</code> (<em>added by Rspamd</em>)</li>
+<li><code>X-Spam-Flag: YES</code> (<em>added by SpamAssassin - requires <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></a></em>)</li>
+</ul>
+</div>
 <h4 id="rspamd"><a class="toclink" href="#rspamd">Rspamd</a></h4>
 <h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
 <p>Enable or disable <a href="../security/rspamd/">Rspamd</a>.</p>
@@ -4421,54 +4425,159 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <li><strong>0</strong> =&gt; SpamAssassin is disabled</li>
 <li>1 =&gt; SpamAssassin is enabled</li>
 </ul>
-<h5 id="spamassassin_spam_to_inbox"><a class="toclink" href="#spamassassin_spam_to_inbox">SPAMASSASSIN_SPAM_TO_INBOX</a></h5>
-<ul>
-<li>0 =&gt; Spam messages will be bounced (<em>rejected</em>) without any notification (<em>dangerous</em>).</li>
-<li><strong>1</strong> =&gt; Spam messages will be delivered to the inbox and tagged as spam using <code>SA_SPAM_SUBJECT</code>.</li>
-</ul>
+<details class="info">
+<summary>SpamAssassin analyzes incoming mail and assigns a spam score</summary>
+<p>Integration with Amavis involves processing mail based on the assigned spam score via <a href="https://www.ijs.si/software/amavisd/amavisd-new-docs.html#tagkill"><code>SA_TAG</code>, <code>SA_TAG2</code> and <code>SA_KILL</code></a>.</p>
+<p>These settings have equivalent ENV supported by DMS for easy adjustments, as documented below.</p>
+</details>
 <h5 id="enable_spamassassin_kam"><a class="toclink" href="#enable_spamassassin_kam">ENABLE_SPAMASSASSIN_KAM</a></h5>
-<p><a href="https://mcgrail.com/template/projects#KAM1">KAM</a> is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.</p>
 <ul>
 <li><strong>0</strong> =&gt; KAM disabled</li>
 <li>1 =&gt; KAM enabled</li>
 </ul>
-<h5 id="sa_tag"><a class="toclink" href="#sa_tag">SA_TAG</a></h5>
+<p><a href="https://mcgrail.com/template/projects#KAM1">KAM</a> is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.</p>
+<h5 id="spamassassin_spam_to_inbox"><a class="toclink" href="#spamassassin_spam_to_inbox">SPAMASSASSIN_SPAM_TO_INBOX</a></h5>
 <ul>
-<li><strong>2.0</strong> =&gt; add spam info headers if at, or above that level</li>
-</ul>
-<p>Note: this SpamAssassin setting needs <code>ENABLE_SPAMASSASSIN=1</code></p>
-<h5 id="sa_tag2"><a class="toclink" href="#sa_tag2">SA_TAG2</a></h5>
-<ul>
-<li><strong>6.31</strong> =&gt; add 'spam detected' headers at that level</li>
-</ul>
-<p>Note: this SpamAssassin setting needs <code>ENABLE_SPAMASSASSIN=1</code></p>
-<h5 id="sa_kill"><a class="toclink" href="#sa_kill">SA_KILL</a></h5>
-<ul>
-<li><strong>10.0</strong> =&gt; triggers spam evasive actions</li>
+<li>0 =&gt; (<em>Amavis action: <code>D_BOUNCE</code></em>): Spam messages will be bounced (<em>rejected</em>) without any notification (<em>dangerous</em>).</li>
+<li><strong>1</strong> =&gt; (<em>Amavis action: <code>D_PASS</code></em>): Spam messages will be delivered to the inbox.</li>
 </ul>
 <div class="admonition note">
-<p class="admonition-title">This SpamAssassin setting needs <code>ENABLE_SPAMASSASSIN=1</code></p>
-<p>By default, DMS is configured to quarantine spam emails.</p>
-<p>If emails are quarantined, they are compressed and stored in a location dependent on the <code>ONE_DIR</code> setting above. To inhibit this behaviour and deliver spam emails, set this to a very high value e.g. <code>100.0</code>.</p>
-<p>If <code>ONE_DIR=1</code> (default) the location is <code>/var/mail-state/lib-amavis/virusmails/</code>, or if <code>ONE_DIR=0</code>: <code>/var/lib/amavis/virusmails/</code>. These paths are inside the docker container.</p>
-</div>
-<h5 id="sa_spam_subject"><a class="toclink" href="#sa_spam_subject">SA_SPAM_SUBJECT</a></h5>
+<p class="admonition-title">Note</p>
+<p>The Amavis action configured by this setting:</p>
 <ul>
-<li><strong>***SPAM***</strong> =&gt; add tag to subject if spam detected</li>
+<li>Influences the behaviour of the <a href="#sa_kill"><code>SA_KILL</code></a> setting.</li>
+<li>Applies to the Amavis config parameters <code>$final_spam_destiny</code> and <code>$final_bad_header_destiny</code>.</li>
 </ul>
-<p>Note: this SpamAssassin setting needs <code>ENABLE_SPAMASSASSIN=1</code>. Add the SpamAssassin score to the subject line by inserting the keyword _SCORE_: <strong>***SPAM(_SCORE_)***</strong>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">This ENV setting is related to</p>
+<ul>
+<li><a href="#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK=1</code></a></li>
+<li><a href="#mark_spam_as_read"><code>MARK_SPAM_AS_READ=1</code></a></li>
+<li><a href="#sa_spam_subject"><code>SA_SPAM_SUBJECT</code></a></li>
+</ul>
+</div>
+<h5 id="sa_tag"><a class="toclink" href="#sa_tag">SA_TAG</a></h5>
+<ul>
+<li><strong>2.0</strong> =&gt; add 'spam info' headers at, or above this spam score</li>
+</ul>
+<p>Mail is not yet considered spam at this spam score, but for purposes like diagnostics it can be useful to identify mail with a spam score at a lower bound than <code>SA_TAG2</code>.</p>
+<details class="example">
+<summary><code>X-Spam</code> headers appended to mail</summary>
+<p>Send a simple mail to a local DMS account <code>hello@example.com</code>:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dms<span class="w"> </span>swaks<span class="w"> </span>--server<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--to<span class="w"> </span>hello@example.com<span class="w"> </span>--body<span class="w"> </span><span class="s1">&#39;spam&#39;</span>
+</code></pre></div>
+<p>Inspecting the raw mail you will notice several <code>X-Spam</code> headers were added to the mail like this:</p>
+<div class="highlight"><pre><span></span><code>X-Spam-Flag: NO
+X-Spam-Score: 4.162
+X-Spam-Level: ****
+X-Spam-Status: No, score=4.162 tagged_above=2 required=4
+        tests=[BODY_SINGLE_WORD=1, DKIM_ADSP_NXDOMAIN=0.8,
+        NO_DNS_FOR_FROM=0.379, NO_RECEIVED=-0.001, NO_RELAYS=-0.001,
+        PYZOR_CHECK=1.985] autolearn=no autolearn_force=no
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">The <code>X-Spam-Score</code> is <code>4.162</code></p>
+<p>High enough for <code>SA_TAG</code> to trigger adding these headers, but not high enough for <code>SA_TAG2</code> (<em>which would set <code>X-Spam-Flag: YES</code> instead</em>).</p>
+</div>
+</details>
+<h5 id="sa_tag2"><a class="toclink" href="#sa_tag2">SA_TAG2</a></h5>
+<ul>
+<li><strong>6.31</strong> =&gt; add 'spam detected' headers at, or above this level</li>
+</ul>
+<p>When a spam score is high enough, mark mail as spam (<em>Appends the mail header: <code>X-Spam-Flag: YES</code></em>).</p>
+<div class="admonition info">
+<p class="admonition-title">Interaction with other ENV</p>
+<ul>
+<li><a href="#sa_spam_subject"><code>SA_SPAM_SUBJECT</code></a> modifies the mail subject to better communicate spam mail to the user.</li>
+<li><a href="#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK=1</code></a>: The mail is still delivered, but to the recipient(s) junk folder instead. This feature reduces the usefulness of <code>SA_SPAM_SUBJECT</code>.</li>
+</ul>
+</div>
+<h5 id="sa_kill"><a class="toclink" href="#sa_kill">SA_KILL</a></h5>
+<ul>
+<li><strong>10.0</strong> =&gt; quarantine + triggers action to handle spam</li>
+</ul>
+<p>Controls the spam score threshold for triggering an action on mail that has a high spam score.</p>
+<details class="tip">
+<summary>Choosing an appropriate <code>SA_KILL</code> value</summary>
+<p>The value should be high enough to be represent confidence in mail as spam:</p>
+<ul>
+<li>Too low: The action taken may prevent legitimate mail (ham) that was incorrectly detected as spam from being delivered successfully.</li>
+<li>Too high: Allows more spam to bypass the <code>SA_KILL</code> trigger (<em>how to treat mail with high confidence that it is actually spam</em>).</li>
+</ul>
+<p>Experiences from DMS users with these settings has been <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3058#issuecomment-1420268148">collected here</a>, along with <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3058#issuecomment-1416547911">some direct configuration guides</a> (<em>under "Resources for references"</em>).</p>
+</details>
+<details class="info">
+<summary>Trigger action</summary>
+<p>DMS will configure Amavis with either of these actions based on the DMS <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX</code></a> ENV setting:</p>
+<ul>
+<li><code>D_PASS</code> (<strong>default</strong>):<ul>
+<li>Accept mail and deliver it to the recipient(s), despite the high spam score. A copy is still stored in quarantine.</li>
+<li>This is a good default to start with until you are more confident in an <code>SA_KILL</code> threshold that won't accidentally discard / bounce legitimate mail users are expecting to arrive but is detected as spam.</li>
+</ul>
+</li>
+<li><code>D_BOUNCE</code>:<ul>
+<li>Additionally sends a bounce notification (DSN).</li>
+<li>The <a href="https://www.ijs.si/software/amavisd/amavisd-new-docs.html#actions">DSN is suppressed</a> (<em>no bounce sent</em>) when the spam score exceeds the Amavis <code>$sa_dsn_cutoff_level</code> config setting (default: <code>10</code>). With the DMS <code>SA_KILL</code> default also being <code>10</code>, no DSN will ever be sent.</li>
+</ul>
+</li>
+<li><code>D_REJECT</code> / <code>D_DISCARD</code>:<ul>
+<li>These two aren't configured by DMS, but are valid alternative action values if configuring Amavis directly.</li>
+</ul>
+</li>
+</ul>
+</details>
+<details class="note">
+<summary>Quarantined mail</summary>
+<p>When mail has a spam score that reaches the <code>SA_KILL</code> threshold:</p>
+<ul>
+<li><a href="https://www.ijs.si/software/amavisd/amavisd-new-docs.html#quarantine">It will be quarantined</a> regardless of the <code>SA_KILL</code> action to perform.</li>
+<li>With <code>D_PASS</code> the delivered mail also appends an <code>X-Quarantine-ID</code> mail header. The ID value of this header is part of the quarantined file name.</li>
+</ul>
+<p>If emails are quarantined, they are compressed and stored at a location dependent on the <a href="#one_dir"><code>ONE_DIR</code></a> setting:</p>
+<ul>
+<li><code>ONE_DIR=1</code> (default): <code>/var/mail-state/lib-amavis/virusmails/</code></li>
+<li><code>ONE_DIR=0</code>: <code>/var/lib/amavis/virusmails/</code></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Easily list mail stored in quarantine with <code>find</code> and the quarantine path:</p>
+<div class="highlight"><pre><span></span><code>find<span class="w"> </span>/var/lib/amavis/virusmails<span class="w"> </span>-type<span class="w"> </span>f
+</code></pre></div>
+</div>
+</details>
+<h5 id="sa_spam_subject"><a class="toclink" href="#sa_spam_subject">SA_SPAM_SUBJECT</a></h5>
+<p>Adds a prefix to the subject header when mail is marked as spam (<em>via <a href="#sa_tag2"><code>SA_TAG2</code></a></em>).</p>
+<ul>
+<li><strong><code>'***SPAM*** '</code></strong> =&gt; A string value to use as a mail subject prefix.</li>
+<li><code>undef</code> =&gt; Opt-out of modifying the subject for mail marked as spam.</li>
+</ul>
+<details class="example">
+<summary>Including trailing white-space</summary>
+<p>Add trailing white-space by quote wrapping the value: <code>SA_SPAM_SUBJECT='[SPAM] '</code></p>
+</details>
+<details class="example">
+<summary>Including the associated spam score</summary>
+<p>The <a href="https://spamassassin.apache.org/full/4.0.x/doc/Mail_SpamAssassin_Conf.html#rewrite_header-subject-from-to-STRING"><code>_SCORE_</code> tag</a> will be substituted with the SpamAssassin score: <code>SA_SPAM_SUBJECT=***SPAM(_SCORE_)***</code>.</p>
+</details>
 <h5 id="sa_shortcircuit_bayes_spam"><a class="toclink" href="#sa_shortcircuit_bayes_spam">SA_SHORTCIRCUIT_BAYES_SPAM</a></h5>
 <ul>
 <li><strong>1</strong> =&gt; will activate SpamAssassin short circuiting for bayes spam detection.</li>
 </ul>
 <p>This will uncomment the respective line in <code>/etc/spamassasin/local.cf</code></p>
-<p>Note: activate this only if you are confident in your bayes database for identifying spam.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Activate this only if you are confident in your bayes database for identifying spam.</p>
+</div>
 <h5 id="sa_shortcircuit_bayes_ham"><a class="toclink" href="#sa_shortcircuit_bayes_ham">SA_SHORTCIRCUIT_BAYES_HAM</a></h5>
 <ul>
 <li><strong>1</strong> =&gt; will activate SpamAssassin short circuiting for bayes ham detection</li>
 </ul>
 <p>This will uncomment the respective line in <code>/etc/spamassasin/local.cf</code></p>
-<p>Note: activate this only if you are confident in your bayes database for identifying ham.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Activate this only if you are confident in your bayes database for identifying ham.</p>
+</div>
 <h4 id="fetchmail"><a class="toclink" href="#fetchmail">Fetchmail</a></h4>
 <h5 id="enable_fetchmail"><a class="toclink" href="#enable_fetchmail">ENABLE_FETCHMAIL</a></h5>
 <ul>

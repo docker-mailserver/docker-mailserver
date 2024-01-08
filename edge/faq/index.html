@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.) using Docker.">
       
       
         <meta name="author" content="docker-mailserver (Github Organization)">
@@ -1990,13 +1990,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#what-are-acceptable-sa_spam_subject-values" class="md-nav__link">
-    What are acceptable SA_SPAM_SUBJECT values?
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#why-are-spamassassin-x-headers-not-inserted-into-my-subdomainexamplecom-subdomain-emails" class="md-nav__link">
     Why are SpamAssassin x-headers not inserted into my subdomain.example.com subdomain emails?
   </a>
@@ -2013,6 +2006,13 @@
           <li class="md-nav__item">
   <a href="#how-do-i-have-more-control-about-what-spamassassin-is-filtering" class="md-nav__link">
     How do I have more control about what SpamAssassin is filtering?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-send-quarantined-mail-to-a-mailbox" class="md-nav__link">
+    How can I send quarantined mail to a mailbox?
   </a>
   
 </li>
@@ -2473,13 +2473,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#what-are-acceptable-sa_spam_subject-values" class="md-nav__link">
-    What are acceptable SA_SPAM_SUBJECT values?
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#why-are-spamassassin-x-headers-not-inserted-into-my-subdomainexamplecom-subdomain-emails" class="md-nav__link">
     Why are SpamAssassin x-headers not inserted into my subdomain.example.com subdomain emails?
   </a>
@@ -2496,6 +2489,13 @@
           <li class="md-nav__item">
   <a href="#how-do-i-have-more-control-about-what-spamassassin-is-filtering" class="md-nav__link">
     How do I have more control about what SpamAssassin is filtering?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-can-i-send-quarantined-mail-to-a-mailbox" class="md-nav__link">
+    How can I send quarantined mail to a mailbox?
   </a>
   
 </li>
@@ -2783,13 +2783,7 @@ supervisorctl<span class="w"> </span>update
 <p>When you run DMS with the ENV variable <code>ONE_DIR=1</code> (default), this directory will provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated. Service data is <a href="https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33">relocated to the <code>mail-state</code> folder</a> for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd &amp; Redis.</p>
 <h3 id="spamassasin"><a class="toclink" href="#spamassasin">SpamAssasin</a></h3>
 <h4 id="how-can-i-manage-my-custom-spamassassin-rules"><a class="toclink" href="#how-can-i-manage-my-custom-spamassassin-rules">How can I manage my custom SpamAssassin rules?</a></h4>
-<p>Antispam rules are managed in <code>docker-data/dms/config/spamassassin-rules.cf</code>.</p>
-<h4 id="what-are-acceptable-sa_spam_subject-values"><a class="toclink" href="#what-are-acceptable-sa_spam_subject-values">What are acceptable <code>SA_SPAM_SUBJECT</code> values?</a></h4>
-<p>For no subject set <code>SA_SPAM_SUBJECT=undef</code>.</p>
-<p>For a trailing white-space subject one can define the whole variable with quotes in <code>compose.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;SA_SPAM_SUBJECT=[SPAM]</span><span class="nv"> </span><span class="s">&quot;</span>
-</code></pre></div>
+<p>Anti-spam rules are managed in <code>docker-data/dms/config/spamassassin-rules.cf</code>.</p>
 <h4 id="why-are-spamassassin-x-headers-not-inserted-into-my-subdomainexamplecom-subdomain-emails"><a class="toclink" href="#why-are-spamassassin-x-headers-not-inserted-into-my-subdomainexamplecom-subdomain-emails">Why are SpamAssassin <code>x-headers</code> not inserted into my <code>subdomain.example.com</code> subdomain emails?</a></h4>
 <p>In the default setup, amavis only applies SpamAssassin x-headers into domains matching the template listed in the config file (<code>05-domain_id</code> in the amavis defaults).</p>
 <p>The default setup <code>@local_domains_acl = ( ".$mydomain" );</code> does not match subdomains. To match subdomains, you can override the <code>@local_domains_acl</code> directive in the amavis user config file <code>50-user</code> with <code>@local_domains_maps = (".");</code> to match any sort of domain template.</p>
@@ -2858,40 +2852,25 @@ chmod<span class="w"> </span><span class="m">0644</span><span class="w"> </span>
 <span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/cron/sa-learn</span>
 </code></pre></div>
 </details>
-<p>With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using <code>--ham</code> and providing it with some ham mails). Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account. For further reference, see the <a href="https://wiki.apache.org/spamassassin/BayesNotWorking">SpamAssassin Wiki</a>.</p>
-<h4 id="how-do-i-have-more-control-about-what-spamassassin-is-filtering"><a class="toclink" href="#how-do-i-have-more-control-about-what-spamassassin-is-filtering">How do I have more control about what SpamAssassin is filtering?</a></h4>
-<p>By default, SPAM and INFECTED emails are put to a quarantine which is not very straight forward to access. Several config settings are affecting this behavior:</p>
-<p>First, make sure you have the proper thresholds set:</p>
-<div class="highlight"><pre><span></span><code><span class="na">SA_TAG</span><span class="o">=</span><span class="s">-100000.0</span>
-<span class="na">SA_TAG2</span><span class="o">=</span><span class="s">3.75</span>
-<span class="na">SA_KILL</span><span class="o">=</span><span class="s">100000.0</span>
-</code></pre></div>
+<p>With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using <code>--ham</code> and providing it with some ham mails).</p>
 <ul>
-<li>The very negative value in <code>SA_TAG</code> makes sure, that all emails have the SpamAssassin headers included.</li>
-<li><code>SA_TAG2</code> is the actual threshold to set the YES/NO flag for spam detection.</li>
-<li><code>SA_KILL</code> needs to be very high, to make sure nothing is bounced at all (<code>SA_KILL</code> superseeds <code>SPAMASSASSIN_SPAM_TO_INBOX</code>)</li>
+<li>Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account.</li>
+<li>For further reference, see the <a href="https://wiki.apache.org/spamassassin/BayesNotWorking">SpamAssassin Wiki</a>.</li>
 </ul>
-<p>Make sure everything (including SPAM) is delivered to the inbox and not quarantined:</p>
-<div class="highlight"><pre><span></span><code><span class="na">SPAMASSASSIN_SPAM_TO_INBOX</span><span class="o">=</span><span class="s">1</span>
-</code></pre></div>
-<p>Use <code>MOVE_SPAM_TO_JUNK=1</code> or create a sieve script which puts spam to the Junk folder:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">require</span> <span class="p">[</span><span class="s">&quot;comparator-i;ascii-numeric&quot;</span><span class="p">,</span><span class="s">&quot;relational&quot;</span><span class="p">,</span><span class="s">&quot;fileinto&quot;</span><span class="p">];</span>
-
-<span class="nb">if</span> <span class="nb">header</span> <span class="nt">:contains</span> <span class="s">&quot;X-Spam-Flag&quot;</span> <span class="s">&quot;YES&quot;</span> <span class="p">{</span>
-  <span class="nb">fileinto</span> <span class="s">&quot;Junk&quot;</span><span class="p">;</span>
-<span class="p">}</span> <span class="nb">elsif</span> <span class="nb">allof</span> <span class="p">(</span>
-  <span class="nb">not</span> <span class="nb">header</span> <span class="nt">:matches</span> <span class="s">&quot;x-spam-score&quot;</span> <span class="s">&quot;-*&quot;</span><span class="p">,</span>
-  <span class="nb">header</span> <span class="nt">:value</span> <span class="s">&quot;ge&quot;</span> <span class="nt">:comparator</span> <span class="s">&quot;i;ascii-numeric&quot;</span> <span class="s">&quot;x-spam-score&quot;</span> <span class="s">&quot;3.75&quot;</span>
-<span class="p">)</span> <span class="p">{</span>
-  <span class="nb">fileinto</span> <span class="s">&quot;Junk&quot;</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
-<p>Create a dedicated mailbox for emails which are infected/bad header and everything amavis is blocking by default and put its address into <code>docker-data/dms/config/amavis.cf</code></p>
-<div class="highlight"><pre><span></span><code><span class="na">$clean_quarantine_to</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;</span><span class="c1">;</span>
-<span class="na">$virus_quarantine_to</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;</span><span class="c1">;</span>
-<span class="na">$banned_quarantine_to</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;</span><span class="c1">;</span>
-<span class="na">$bad_header_quarantine_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;</span><span class="c1">;</span>
-<span class="na">$spam_quarantine_to</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amavis\@example.com&quot;</span><span class="c1">;</span>
+<h4 id="how-do-i-have-more-control-about-what-spamassassin-is-filtering"><a class="toclink" href="#how-do-i-have-more-control-about-what-spamassassin-is-filtering">How do I have more control about what SpamAssassin is filtering?</a></h4>
+<p>This is related to Amavis processing the mail after SpamAssassin has analyzed it and assigned a spam score.</p>
+<ul>
+<li>DMS provides some <a href="../config/environment/#spamassassin">common SA tunables via ENV</a>.</li>
+<li>Additional configuration can be managed with the DMS config volume by providing <code>docker-data/dms/config/amavis.cf</code>.</li>
+</ul>
+<h4 id="how-can-i-send-quarantined-mail-to-a-mailbox"><a class="toclink" href="#how-can-i-send-quarantined-mail-to-a-mailbox">How can I send quarantined mail to a mailbox?</a></h4>
+<p>SPAM and INFECTED emails that <a href="../config/environment/#sa_kill">reach the <code>SA_KILL</code> threshold are archived into quarantine</a>.</p>
+<p>Instead of a quarantine folder, you can use a dedicated mailbox instead. Create an account like <code>quarantine@example.com</code> and create <code>docker-data/dms/config/amavis.cf</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="na">$clean_quarantine_to</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;quarantine\@example.com&quot;</span><span class="c1">;</span>
+<span class="na">$virus_quarantine_to</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;quarantine\@example.com&quot;</span><span class="c1">;</span>
+<span class="na">$banned_quarantine_to</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;quarantine\@example.com&quot;</span><span class="c1">;</span>
+<span class="na">$bad_header_quarantine_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;quarantine\@example.com&quot;</span><span class="c1">;</span>
+<span class="na">$spam_quarantine_to</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;quarantine\@example.com&quot;</span><span class="c1">;</span>
 </code></pre></div>
 
 
