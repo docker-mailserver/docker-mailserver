@@ -556,7 +556,7 @@ Changes the interval in which log files are rotated.
 
 - **2.0** => add 'spam info' headers at, or above this spam score
 
-Mail is not yet considered spam at this spam score, but for purposes like diagnositcs it can be useful to identify mail with a spam score at a lower bound than `SA_TAG2`.
+Mail is not yet considered spam at this spam score, but for purposes like diagnostics it can be useful to identify mail with a spam score at a lower bound than `SA_TAG2`.
 
 ??? example "`X-Spam` headers appended to mail"
 
