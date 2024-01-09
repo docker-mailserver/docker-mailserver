@@ -192,7 +192,7 @@ function _install_getmail() {
 
 function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
-  curl -sL https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-x86_64-unknown-linux-musl -o /usr/bin/jaq && chmod +x /usr/bin/jaq
+  curl -sL "https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq && chmod +x /usr/bin/jaq
 }
 
 function _remove_data_after_package_installations() {
