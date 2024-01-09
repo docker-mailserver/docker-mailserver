@@ -326,7 +326,7 @@ function teardown() {
 @test "spoofing (with LDAP): rejects sender forging" {
   _wait_for_smtp_port_in_container_to_respond dms-test_ldap
 
-  _send_email_unchecked \
+  _send_email --expect-rejection \
     --port 465 -tlsc --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
@@ -354,7 +354,7 @@ function teardown() {
   # Template used has invalid AUTH: https://github.com/docker-mailserver/docker-mailserver/pull/3006#discussion_r1073321432
   skip 'TODO: This test seems to have been broken from the start (?)'
 
-  _send_email_unchecked \
+  _send_email --expect-rejection \
     --port 465 -tlsc --auth PLAIN \
     --auth-user some.user.email@localhost.localdomain \
     --auth-password secret \
@@ -367,7 +367,7 @@ function teardown() {
 }
 
 @test "saslauthd: ldap smtp authentication" {
-  _send_email_unchecked \
+  _send_email --expect-rejection \
     --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password wrongpassword \

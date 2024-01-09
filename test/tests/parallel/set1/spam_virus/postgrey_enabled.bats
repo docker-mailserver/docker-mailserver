@@ -51,7 +51,7 @@ function teardown_file() { _default_teardown ; }
   _reload_postfix
 
   # Send test mail (it should fail to deliver):
-  _send_email_unchecked --from 'user@external.tld' --port 25 --data 'postgrey.txt'
+  _send_email --expect-rejection --from 'user@external.tld' --port 25 --data 'postgrey.txt'
   assert_failure
   assert_output --partial 'Recipient address rejected: Delayed by Postgrey'
 

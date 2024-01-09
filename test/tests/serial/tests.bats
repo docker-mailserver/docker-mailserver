@@ -293,7 +293,7 @@ EOF
 
   # An authenticated user cannot use an envelope sender (MAIL FROM)
   # address they do not own according to `main.cf:smtpd_sender_login_maps` lookup
-  _send_email_unchecked \
+  _send_email --expect-rejection \
     --port 465 -tlsc --auth PLAIN \
     --auth-user added@localhost.localdomain \
     --auth-password mypassword \

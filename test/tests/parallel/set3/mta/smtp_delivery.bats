@@ -75,7 +75,7 @@ function setup_file() {
   _send_email --to test123@localhost.localdomain --header 'Subject: Test Message existing-regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _send_email_unchecked --to nouser@localhost.localdomain
+  _send_email --expect-rejection --to nouser@localhost.localdomain
   assert_failure
   # Required for 'redirects mail to external aliases':
   _send_email --to bounce-always@localhost.localdomain
@@ -99,7 +99,7 @@ function setup_file() {
 }
 
 function _unsuccessful() {
-  _send_email_unchecked --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword --quit-after AUTH
+  _send_email --expect-rejection --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword --quit-after AUTH
   assert_failure
   assert_output --partial 'authentication failed'
   assert_output --partial 'No authentication type succeeded'

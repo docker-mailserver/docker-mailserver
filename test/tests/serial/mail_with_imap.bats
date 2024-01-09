@@ -31,7 +31,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test '(SASLauthd) RIMAP SMTP authentication works' {
-  _send_email_unchecked \
+  _send_email --expect-rejection \
     --auth PLAIN \
     --auth-user user1@localhost.localdomain \
     --auth-password mypassword \

@@ -7,103 +7,19 @@
 # ! ATTENTION: This file is loaded by `common.sh` - do not load it yourself!
 # ! ATTENTION: This file requires helper functions from `common.sh`!
 
-# Parse the arguments given to `_send_email` and `_send_email_unchecked`.
-# Outputs the `swaks` command to later be executed by the calling function.
-#
-# ## Note
-#
-# This is an internal support function, it should not be used directly by tests.
-function __parse_swaks_arguments() {
-  [[ -v CONTAINER_NAME ]] || return 1
-
-  # Parameter defaults common to our testing needs:
-  local EHLO='mail.external.tld'
-  local FROM='user@external.tld'
-  local TO='user1@localhost.localdomain'
-  local SERVER='0.0.0.0'
-  local PORT=25
-  # Extra options for `swaks` that aren't covered by the default options above:
-  local ADDITIONAL_SWAKS_OPTIONS=()
-  local DATA_WAS_SUPPLIED=0
-
-  while [[ ${#} -gt 0 ]]; do
-    case "${1}" in
-      ( '--ehlo' )   EHLO=${2:?--ehlo given but no argument}     ; shift 2 ;;
-      ( '--from' )   FROM=${2:?--from given but no argument}     ; shift 2 ;;
-      ( '--to' )     TO=${2:?--to given but no argument}         ; shift 2 ;;
-      ( '--server' ) SERVER=${2:?--server given but no argument} ; shift 2 ;;
-      ( '--port' )   PORT=${2:?--port given but no argument}     ; shift 2 ;;
-      ( '--data' )
-        ADDITIONAL_SWAKS_OPTIONS+=('--data')
-        local FILE_PATH="/tmp/docker-mailserver-test/emails/${2:?--data given but no argument provided}"
-        if _exec_in_container_bash "[[ -e ${FILE_PATH} ]]"; then
-          ADDITIONAL_SWAKS_OPTIONS+=("@${FILE_PATH}")
-        else
-          ADDITIONAL_SWAKS_OPTIONS+=("'${2}'")
-        fi
-        shift 2
-        DATA_WAS_SUPPLIED=1
-        ;;
-      ( * ) ADDITIONAL_SWAKS_OPTIONS+=("'${1}'") ; shift 1 ;;
-    esac
-  done
-
-  if [[ ${DATA_WAS_SUPPLIED} -eq 0 ]]; then
-    # Fallback template (without the implicit `Message-Id` + `X-Mailer` headers from swaks):
-    # NOTE: It is better to let Postfix generate and append the `Message-Id` header itself,
-    #       as it will contain the Queue ID for tracking in logs (which is also returned in swaks output).
-    ADDITIONAL_SWAKS_OPTIONS+=('--data')
-    ADDITIONAL_SWAKS_OPTIONS+=("'Date: %DATE%\nTo: %TO_ADDRESS%\nFrom: %FROM_ADDRESS%\nSubject: test %DATE%\n%NEW_HEADERS%\n%BODY%\n'")
-  fi
-
-  echo "swaks --server '${SERVER}' --port '${PORT}' --ehlo '${EHLO}' --from '${FROM}' --to '${TO}' ${ADDITIONAL_SWAKS_OPTIONS[*]}"
-}
-
-# Sends a mail from the container named by the environment variable `CONTAINER_NAME`
+# Sends an e-mail from the container named by the environment variable `CONTAINER_NAME`
 # to the same or another container.
 #
-# To send a custom email:
-# 1. Create a file at `test/files/<TEST FILE>`
-# 2. Provide `<TEST FILE>` as an argument to this function.
+# To send a custom email, you can
 #
-# Parameters include all options that one can supply to `swaks` itself.
-# The `--data` parameter expects a value of either:
-# - A relative path from `test/files/emails/`
-# - An "inline" data string (e.g., `Date: 1 Jan 2024\nSubject: This is a test`)
+# 1. create a file at `test/files/<TEST FILE>` and provide `<TEST FILE>` via `--data` as an argument to this function;
+# 2. use this function without the `--data` argument, in which case we provide a default;
+# 3. provide data inline (`--data <INLINE DATA>`).
 #
-# ## Output
+# The very first parameter **may** be `--expect-rejection` - use it of you expect the mail transaction to not finish
+# successfully. All other (following) parameters include all options that one can supply to `swaks` itself.
+# As mentioned before, the `--data` parameter expects a value of either:
 #
-# This functions prints the output of the transaction that `swaks` prints.
-#
-# ## Attention
-#
-# This function assumes `CONTAINER_NAME` to be properly set (to the container
-# name the command should be executed in)!
-#
-# This function will send the email in an "asynchronous" fashion,
-# it will return without waiting for the Postfix mail queue to be emptied.
-#
-# This functions performs **no** implicit `assert_success` to check whether the
-# e-mail transaction was successful. If this is not desirable, use `_send_email`.
-# If you anticipate the sending to succeed, use `_send_email` instead.
-function _send_email_unchecked() {
-  local COMMAND_STRING=$(__parse_swaks_arguments "${@}")
-  _run_in_container_bash "${COMMAND_STRING}"
-  local RETURN_VALUE=${?}
-  # shellcheck disable=SC2154
-  echo "${output}"
-  return "${RETURN_VALUE}"
-}
-
-# Sends a mail from the container named by the environment variable `CONTAINER_NAME`
-# to the same or another container.
-#
-# To send a custom email:
-# 1. Create a file at `test/files/<TEST FILE>`
-# 2. Provide `<TEST FILE>` as an argument to this function.
-#
-# Parameters include all options that one can supply to `swaks` itself.
-# The `--data` parameter expects a value of either:
 # - A relative path from `test/files/emails/`
 # - An "inline" data string (e.g., `Date: 1 Jan 2024\nSubject: This is a test`)
 #
@@ -119,11 +35,69 @@ function _send_email_unchecked() {
 # This function will send the email in an "asynchronous" fashion,
 # it will return without waiting for the Postfix mail queue to be emptied.
 function _send_email() {
-  local COMMAND_STRING=$(__parse_swaks_arguments "${@}")
-  _run_in_container_bash "${COMMAND_STRING}"
-  assert_success
+  local RETURN_VALUE=0
+  local COMMAND_STRING
+
+  function __parse_arguments() {
+    [[ -v CONTAINER_NAME ]] || return 1
+
+    # Parameter defaults common to our testing needs:
+    local EHLO='mail.external.tld'
+    local FROM='user@external.tld'
+    local TO='user1@localhost.localdomain'
+    local SERVER='0.0.0.0'
+    local PORT=25
+    # Extra options for `swaks` that aren't covered by the default options above:
+    local ADDITIONAL_SWAKS_OPTIONS=()
+    local DATA_WAS_SUPPLIED=0
+
+    while [[ ${#} -gt 0 ]]; do
+      case "${1}" in
+        ( '--ehlo' )   EHLO=${2:?--ehlo given but no argument}     ; shift 2 ;;
+        ( '--from' )   FROM=${2:?--from given but no argument}     ; shift 2 ;;
+        ( '--to' )     TO=${2:?--to given but no argument}         ; shift 2 ;;
+        ( '--server' ) SERVER=${2:?--server given but no argument} ; shift 2 ;;
+        ( '--port' )   PORT=${2:?--port given but no argument}     ; shift 2 ;;
+        ( '--data' )
+          ADDITIONAL_SWAKS_OPTIONS+=('--data')
+          local FILE_PATH="/tmp/docker-mailserver-test/emails/${2:?--data given but no argument provided}"
+          if _exec_in_container_bash "[[ -e ${FILE_PATH} ]]"; then
+            ADDITIONAL_SWAKS_OPTIONS+=("@${FILE_PATH}")
+          else
+            ADDITIONAL_SWAKS_OPTIONS+=("'${2}'")
+          fi
+          shift 2
+          DATA_WAS_SUPPLIED=1
+          ;;
+        ( * ) ADDITIONAL_SWAKS_OPTIONS+=("'${1}'") ; shift 1 ;;
+      esac
+    done
+
+    if [[ ${DATA_WAS_SUPPLIED} -eq 0 ]]; then
+      # Fallback template (without the implicit `Message-Id` + `X-Mailer` headers from swaks):
+      # NOTE: It is better to let Postfix generate and append the `Message-Id` header itself,
+      #       as it will contain the Queue ID for tracking in logs (which is also returned in swaks output).
+      ADDITIONAL_SWAKS_OPTIONS+=('--data')
+      ADDITIONAL_SWAKS_OPTIONS+=("'Date: %DATE%\nTo: %TO_ADDRESS%\nFrom: %FROM_ADDRESS%\nSubject: test %DATE%\n%NEW_HEADERS%\n%BODY%\n'")
+    fi
+
+    echo "swaks --server '${SERVER}' --port '${PORT}' --ehlo '${EHLO}' --from '${FROM}' --to '${TO}' ${ADDITIONAL_SWAKS_OPTIONS[*]}"
+  }
+
+  if [[ ${1:-} == --expect-rejection ]]; then
+    shift 1
+    COMMAND_STRING=$(__parse_arguments "${@}")
+    _run_in_container_bash "${COMMAND_STRING}"
+    assert_success
+  else
+    COMMAND_STRING=$(__parse_arguments "${@}")
+    _run_in_container_bash "${COMMAND_STRING}"
+    RETURN_VALUE=${?}
+  fi
+
   # shellcheck disable=SC2154
   echo "${output}"
+  return "${RETURN_VALUE}"
 }
 
 # Like `_send_email` with two major differences:
@@ -172,9 +146,9 @@ function _send_email_and_get_id() {
   local MESSAGE_ID_REGEX="[0-9]{14}\\.${QUEUE_ID_REGEX}"
 
   _wait_for_empty_mail_queue_in_container
-  if [[ ${1} == --expect-rejection ]]; then
-    shift 1
-    local OUTPUT=$(_send_email_unchecked "${@}")
+  local OUTPUT=$(_send_email "${@}")
+
+  if [[ ${1:-} == --expect-rejection ]]; then
     # Because we expect the mail to be rejected, we have to query the mail log
     # instead of `swaks`, because `swaks` cannot provide us with a queue ID when
     # mail is rejected (we see something like this instead: `<** 554 5.7.1 Gtube pattern`).
@@ -182,7 +156,6 @@ function _send_email_and_get_id() {
       | grep -E "postfix/smtpd.*: ${QUEUE_ID_REGEX}: client=" \
       | grep -E -m 1 -o '[A-Z0-9]{9,12}' || :)
   else
-    local OUTPUT=$(_send_email "${@}")
     # When mail is expected to be delivered, we can use the output of `swaks`
     # to easily query the queue ID.
     QUEUE_ID=$(grep -F 'queued as' <<< "${OUTPUT}" | grep -E -o "${QUEUE_ID_REGEX}$")
