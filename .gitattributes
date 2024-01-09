@@ -20,9 +20,8 @@
 
 ## BUILD:
 .dockerignore       text
-Dockerfile          text
+Dockerfile          text eol=lf
 Makefile
-VERSION
 
 ## EXAMPLE (RUNTIME):
 *.env               text
@@ -75,8 +74,8 @@ target/postsrsd/**  text
 #################################################
 
 ## BATS
-*.bash              text
-*.bats              text
+*.bash              text eol=lf
+*.bats              text eol=lf
 
 ## CONFIG (test/config/)
 ### OpenLDAP image
