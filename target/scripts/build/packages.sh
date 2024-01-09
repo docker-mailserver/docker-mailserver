@@ -196,8 +196,9 @@ function _install_utils() {
   curl -sL https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-x86_64-unknown-linux-musl -o /usr/bin/jaq && chmod +x /usr/bin/jaq
 
   _log 'trace' 'Installing swaks'
-  local SWAKS_RELEASE='swaks-20240103.0'
-  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v20240103.0/${SWAKS_RELEASE}.tar.gz" | tar -xz
+  local SWAKS_VERSION='20240103.0'
+  local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
+  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" | tar -xz
   mv "${SWAKS_RELEASE}/swaks" /usr/local/bin
   rm -r "${SWAKS_RELEASE}"
 }

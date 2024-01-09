@@ -7,13 +7,12 @@
 # ! ATTENTION: This file is loaded by `common.sh` - do not load it yourself!
 # ! ATTENTION: This file requires helper functions from `common.sh`!
 
-# Parse the arguments given to `_send_email` and `_send_email_unchecked`
-# and print the command that is to be exuted in these functions. How these
-# functions then handle the result of the invocation depends on the function.
+# Parse the arguments given to `_send_email` and `_send_email_unchecked`.
+# Outputs the `swaks` command to later be executed by the calling function.
 #
 # ## Note
 #
-# This function is internal and should not be used in tests.
+# This is an internal support function, it should not be used directly by tests.
 function __parse_swaks_arguments() {
   [[ -v CONTAINER_NAME ]] || return 1
 
@@ -50,9 +49,9 @@ function __parse_swaks_arguments() {
   done
 
   if [[ ${DATA_WAS_SUPPLIED} -eq 0 ]]; then
-    # Fallback template without implicit `Message-Id` + `X-Mailer` headers:
-    # NOTE: It is better to let Postfix generate the `Message-Id` header and append that
-    #       as it contains the queue ID for tracking logs and is returned to in swaks output.
+    # Fallback template (without the implicit `Message-Id` + `X-Mailer` headers from swaks):
+    # NOTE: It is better to let Postfix generate and append the `Message-Id` header itself,
+    #       as it will contain the Queue ID for tracking in logs (which is also returned in swaks output).
     ADDITIONAL_SWAKS_OPTIONS+=('--data')
     ADDITIONAL_SWAKS_OPTIONS+=("'Date: %DATE%\nTo: %TO_ADDRESS%\nFrom: %FROM_ADDRESS%\nSubject: test %DATE%\n%NEW_HEADERS%\n%BODY%\n'")
   fi
@@ -63,12 +62,14 @@ function __parse_swaks_arguments() {
 # Sends a mail from the container named by the environment variable `CONTAINER_NAME`
 # to the same or another container.
 #
-# To send a custom email, create a file at `test/files/<TEST FILE>`,
-# and provide `<TEST FILE>` as an argument to this function.
+# To send a custom email:
+# 1. Create a file at `test/files/<TEST FILE>`
+# 2. Provide `<TEST FILE>` as an argument to this function.
 #
 # Parameters include all options that one can supply to `swaks` itself.
-# The `--data` parameter expects either, a relative path from `emails/` or
-# "inline" data, e.g., `Date: 1 Jan 2024\nSubject: This is a test`.
+# The `--data` parameter expects a value of either:
+# - A relative path from `test/files/emails/`
+# - An "inline" data string (e.g., `Date: 1 Jan 2024\nSubject: This is a test`)
 #
 # ## Output
 #
@@ -82,10 +83,9 @@ function __parse_swaks_arguments() {
 # This function will send the email in an "asynchronous" fashion,
 # it will return without waiting for the Postfix mail queue to be emptied.
 #
-# This functions performs **no** implicit `assert_success` to check whether
-# the e-mail transaction was successful. If this is not desirable, use
-# `_send_email`. If you anticipate the sending to succeed, use `_send_email`
-# instead.
+# This functions performs **no** implicit `assert_success` to check whether the
+# e-mail transaction was successful. If this is not desirable, use `_send_email`.
+# If you anticipate the sending to succeed, use `_send_email` instead.
 function _send_email_unchecked() {
   local COMMAND_STRING=$(__parse_swaks_arguments "${@}")
   _run_in_container_bash "${COMMAND_STRING}"
@@ -98,12 +98,14 @@ function _send_email_unchecked() {
 # Sends a mail from the container named by the environment variable `CONTAINER_NAME`
 # to the same or another container.
 #
-# To send a custom email, create a file at `test/files/<TEST FILE>`,
-# and provide `<TEST FILE>` as an argument to this function.
+# To send a custom email:
+# 1. Create a file at `test/files/<TEST FILE>`
+# 2. Provide `<TEST FILE>` as an argument to this function.
 #
 # Parameters include all options that one can supply to `swaks` itself.
-# The `--data` parameter expects either, a relative path from `emails/` or
-# "inline" data, e.g., `Date: 1 Jan 2024\nSubject: This is a test`.
+# The `--data` parameter expects a value of either:
+# - A relative path from `test/files/emails/`
+# - An "inline" data string (e.g., `Date: 1 Jan 2024\nSubject: This is a test`)
 #
 # ## Output
 #

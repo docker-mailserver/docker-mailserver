@@ -46,14 +46,14 @@ function setup_file() {
   # We will send 4 emails:
   # 1. The first one should pass just fine
   _send_email_and_get_id MAIL_ID_PASS
-  # 2. The second one should be rejected due to spam (GTube pattern)
+  # 2. The second one should be rejected due to spam (GTUBE pattern)
   _send_email_and_get_id MAIL_ID_SPAM --unchecked \
     --body 'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
-  # 3. Te third one should be rejected due to a virus (ClamAV Eicar pattern)
+  # 3. The third one should be rejected due to a virus (ClamAV EICAR pattern)
   # shellcheck disable=SC2016
   _send_email_and_get_id MAIL_ID_VIRUS --unchecked \
     --body 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
-  # 4. The fourth one will receive an added header (GTube pattern)
+  # 4. The fourth one will receive an added header (GTUBE pattern)
   _send_email_and_get_id MAIL_ID_HEADER \
     --body 'YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
 
