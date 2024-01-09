@@ -137,11 +137,11 @@ function _send_email() {
 # test file and need to assert certain log entries for each mail individually.
 #
 # The first argument has to be the name of the variable that the e-mail ID is stored
-# in. The second argument **can** be the flag `--unchecked`; if this flag is supplied,
-# the function uses `_send_email_unchecked` instead of `_send_email`. This avoids the
-# `assert_success`. Be warned though this is only required in special situations where
-# it is still possible to `grep` for the Message-ID that Postfix generated, -
-# otherwise this function fails. The rest of the arguments are the same as `_send_email`.
+# in. The second argument **can** be the flag `--expect-rejection`. If this flag is supplied,
+# the function does not check whether the whole mail delivery transaction was successful and
+# it will also query the queue ID differently. Be warned though that it must still be possible
+# to `grep` for the Message-ID that Postfix generated in the mail log; otherwise this function
+# fails. The rest of the arguments are the same as `_send_email`.
 #
 # ## Attention
 #
@@ -172,17 +172,24 @@ function _send_email_and_get_id() {
   local MESSAGE_ID_REGEX="[0-9]{14}\\.${QUEUE_ID_REGEX}"
 
   _wait_for_empty_mail_queue_in_container
-  if [[ ${1} == --unchecked ]]; then
+  if [[ ${1} == --expect-rejection ]]; then
     shift 1
     local OUTPUT=$(_send_email_unchecked "${@}")
+    # Because we expect the mail to be rejected, we have to query the mail log
+    # instead of `swaks`, because `swaks` cannot provide us with a queue ID when
+    # mail is rejected (we see something like this instead: `<** 554 5.7.1 Gtube pattern`).
     QUEUE_ID=$(_exec_in_container tac /var/log/mail.log       \
       | grep -E "postfix/smtpd.*: ${QUEUE_ID_REGEX}: client=" \
       | grep -E -m 1 -o '[A-Z0-9]{9,12}' || :)
   else
     local OUTPUT=$(_send_email "${@}")
+    # When mail is expected to be delivered, we can use the output of `swaks`
+    # to easily query the queue ID.
     QUEUE_ID=$(grep -F 'queued as' <<< "${OUTPUT}" | grep -E -o "${QUEUE_ID_REGEX}$")
   fi
   _wait_for_empty_mail_queue_in_container
+
+  assert_not_equal "${QUEUE_ID}" ''
 
   MESSAGE_ID=$(_exec_in_container tac /var/log/mail.log \
     | grep -E "message-id=<${MESSAGE_ID_REGEX}@"        \

@@ -50,10 +50,10 @@ function setup_file() {
   # 1. The first one should pass just fine
   _send_email_and_get_id MAIL_ID_PASS
   # 2. The second one should be rejected (GTUBE pattern)
-  _send_email_and_get_id MAIL_ID_REJECT --unchecked --body "XJS${GTUBE_SUFFIX}"
+  _send_email_and_get_id MAIL_ID_REJECT --expect-rejection --body "XJS${GTUBE_SUFFIX}"
   # 3. The third one should be rejected due to a virus (ClamAV EICAR pattern)
   # shellcheck disable=SC2016
-  _send_email_and_get_id MAIL_ID_VIRUS --unchecked \
+  _send_email_and_get_id MAIL_ID_VIRUS --expect-rejection \
     --body 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
   # 4. The fourth one will receive an added header (GTUBE pattern)
   _send_email_and_get_id MAIL_ID_HEADER --body "YJS${GTUBE_SUFFIX}"
