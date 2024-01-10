@@ -110,12 +110,13 @@ function _send_email() {
 # No. 2 is especially useful in case you send more than one email in a single
 # test file and need to assert certain log entries for each mail individually.
 #
-# The first argument has to be the name of the variable that the e-mail ID is stored
-# in. The second argument **can** be the flag `--expect-rejection`. If this flag is supplied,
-# the function does not check whether the whole mail delivery transaction was successful and
-# it will also query the queue ID differently. Be warned though that it must still be possible
-# to `grep` for the Message-ID that Postfix generated in the mail log; otherwise this function
-# fails. The rest of the arguments are the same as `_send_email`.
+# The first argument has to be the name of the variable that the e-mail ID is stored in.
+# The second argument **can** be the flag `--expect-rejection`.
+# - If this flag is supplied, the function does not check whether the whole mail delivery
+#    transaction was successful. Additionally the queue ID will be retrieved differently.
+# - CAUTION: It must still be possible to `grep` for the Message-ID that Postfix
+#    generated in the mail log; otherwise this function fails.
+# The rest of the arguments are the same as `_send_email`.
 #
 # ## Attention
 #
