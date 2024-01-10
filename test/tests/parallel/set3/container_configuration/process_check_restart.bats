@@ -21,6 +21,7 @@ function teardown() { _default_teardown ; }
 # dovecot (/usr/sbin/dovecot)
 # fetchmail (/usr/bin/fetchmail)
 # fail2ban-server (/usr/bin/python3 /usr/bin/fail2ban-server) - Started by fail2ban-wrapper.sh
+# mta-sts-daemon (/usr/bin/bin/python3 /usr/bin/mta-sts-daemon)
 # postgrey (postgrey) - NOTE: This process lacks path information to match with `--full` in pgrep / pkill
 # postsrsd (/usr/sbin/postsrsd) - NOTE: Also matches the wrapper: `/bin/bash /usr/local/bin/postsrsd-wrapper.sh`
 # saslauthd (/usr/sbin/saslauthd) - x5 of the same process are found running (1 is a parent of 4)
@@ -44,6 +45,7 @@ ENV_PROCESS_LIST=(
   dovecot
   fail2ban-server
   fetchmail
+  mta-sts-daemon
   opendkim
   opendmarc
   postgrey
@@ -58,6 +60,7 @@ ENV_PROCESS_LIST=(
     --env ENABLE_CLAMAV=0
     --env ENABLE_FAIL2BAN=0
     --env ENABLE_FETCHMAIL=0
+    --env ENABLE_MTA_STS=0
     --env ENABLE_OPENDKIM=0
     --env ENABLE_OPENDMARC=0
     --env ENABLE_POSTGREY=0
@@ -93,6 +96,7 @@ ENV_PROCESS_LIST=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_FAIL2BAN=1
     --env ENABLE_FETCHMAIL=1
+    --env ENABLE_MTA_STS=1
     --env ENABLE_OPENDKIM=1
     --env ENABLE_OPENDMARC=1
     --env FETCHMAIL_PARALLEL=1
