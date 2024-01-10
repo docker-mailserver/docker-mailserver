@@ -88,11 +88,11 @@ function _send_email() {
     shift 1
     COMMAND_STRING=$(__parse_arguments "${@}")
     _run_in_container_bash "${COMMAND_STRING}"
-    assert_success
+    RETURN_VALUE=${?}
   else
     COMMAND_STRING=$(__parse_arguments "${@}")
     _run_in_container_bash "${COMMAND_STRING}"
-    RETURN_VALUE=${?}
+    assert_success
   fi
 
   # shellcheck disable=SC2154
@@ -112,10 +112,12 @@ function _send_email() {
 #
 # The first argument has to be the name of the variable that the e-mail ID is stored in.
 # The second argument **can** be the flag `--expect-rejection`.
+#
 # - If this flag is supplied, the function does not check whether the whole mail delivery
-#    transaction was successful. Additionally the queue ID will be retrieved differently.
+#   transaction was successful. Additionally the queue ID will be retrieved differently.
 # - CAUTION: It must still be possible to `grep` for the Message-ID that Postfix
-#    generated in the mail log; otherwise this function fails.
+#   generated in the mail log; otherwise this function fails.
+#
 # The rest of the arguments are the same as `_send_email`.
 #
 # ## Attention
@@ -130,13 +132,13 @@ function _send_email() {
 # chosen. Sending more than one mail at any given point in time with this function
 # is UNDEFINED BEHAVIOR!
 function _send_email_and_get_id() {
-  # Get the name of the variable that the ID is stored in
-  local ID_ENV_VAR_NAME="${1:?Mail ID must be set for _send_email_and_get_id}"
-  # Get a "reference" to the content of ID_ENV_VAR_NAME so we can manipulate the content
-  local -n ID_ENV_VAR_REF=${ID_ENV_VAR_NAME}
-  # Export the variable so everyone has access
-  # shellcheck disable=SC2163
-  export "${ID_ENV_VAR_NAME}"
+  # Export the variable denoted by ${1} so everyone has access
+  export "${1:?Mail ID must be set for _send_email_and_get_id}"
+  # Get a "reference" to the content of the variable denoted by ${1} so we can manipulate the content
+  local -n ID_ENV_VAR_REF=${1:?}
+  # Prepare the message ID header here because will will shift away ${1} later
+  local MID="<${1}@dms-tests>"
+  # Get rid of ${1} so only the arguments for swaks remain
   shift 1
 
   local QUEUE_ID MESSAGE_ID
@@ -144,35 +146,21 @@ function _send_email_and_get_id() {
   # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
   # range to safely capture it.
   local QUEUE_ID_REGEX='[A-Z0-9]{9,12}'
-  local MESSAGE_ID_REGEX="[0-9]{14}\\.${QUEUE_ID_REGEX}"
 
   _wait_for_empty_mail_queue_in_container
-  local OUTPUT=$(_send_email "${@}")
-
-  if [[ ${1:-} == --expect-rejection ]]; then
-    # Because we expect the mail to be rejected, we have to query the mail log
-    # instead of `swaks`, because `swaks` cannot provide us with a queue ID when
-    # mail is rejected (we see something like this instead: `<** 554 5.7.1 Gtube pattern`).
-    QUEUE_ID=$(_exec_in_container tac /var/log/mail.log       \
-      | grep -E "postfix/smtpd.*: ${QUEUE_ID_REGEX}: client=" \
-      | grep -E -m 1 -o '[A-Z0-9]{9,12}' || :)
-  else
-    # When mail is expected to be delivered, we can use the output of `swaks`
-    # to easily query the queue ID.
-    QUEUE_ID=$(grep -F 'queued as' <<< "${OUTPUT}" | grep -E -o "${QUEUE_ID_REGEX}$")
-  fi
+  local OUTPUT=$(_send_email "${@}" --header "Message-Id: ${MID}")
   _wait_for_empty_mail_queue_in_container
 
-  assert_not_equal "${QUEUE_ID}" ''
-
-  MESSAGE_ID=$(_exec_in_container tac /var/log/mail.log \
-    | grep -E "message-id=<${MESSAGE_ID_REGEX}@"        \
-    | grep -E -m 1 -o "${MESSAGE_ID_REGEX}" || :)
-
-  ID_ENV_VAR_REF="${QUEUE_ID}|${MESSAGE_ID}"
+  # We store Postfix's queue ID first
+  ID_ENV_VAR_REF=$(_exec_in_container tac /var/log/mail.log                    \
+    | grep -E "postfix/cleanup.*: ${QUEUE_ID_REGEX}:.*message-id=${MID}" \
+    | grep -E --only-matching --max-count 1 "${QUEUE_ID_REGEX}" || :)
+  # But we also requre potential Dovecot sieve output, which requires the mesage ID,
+  # so we need to provide the message ID too.
+  ID_ENV_VAR_REF+="|${MID}"
 
   # Last but not least, we perform plausibility checks on the IDs.
   assert_not_equal "${ID_ENV_VAR_REF}" ''
   run echo "${ID_ENV_VAR_REF}"
-  assert_line --regexp "^${QUEUE_ID_REGEX}|${MESSAGE_ID_REGEX}$"
+  assert_line --regexp "^${QUEUE_ID_REGEX}\|${MID}$"
 }
