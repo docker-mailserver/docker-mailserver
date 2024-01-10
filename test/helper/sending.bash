@@ -136,12 +136,12 @@ function _send_email_and_get_id() {
   export "${1:?Mail ID must be set for _send_email_and_get_id}"
   # Get a "reference" to the content of the variable denoted by ${1} so we can manipulate the content
   local -n ID_ENV_VAR_REF=${1:?}
-  # Prepare the message ID header here because will will shift away ${1} later
+  # Prepare the message ID header here because we will shift away ${1} later
   local MID="<${1}@dms-tests>"
   # Get rid of ${1} so only the arguments for swaks remain
   shift 1
 
-  local QUEUE_ID MESSAGE_ID
+  local QUEUE_ID
   # The unique ID Postfix (and other services) use may be different in length
   # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
   # range to safely capture it.
