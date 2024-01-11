@@ -162,3 +162,12 @@ function _send_email_and_get_id() {
   run echo "${ID_ENV_VAR_REF}"
   assert_line --regexp "^${QUEUE_ID_REGEX}\|${MID}$"
 }
+
+# Send a spam e-mail by utilizing GTUBE.
+#
+# Extra arguments given to this function will be supplied by `_send_email_and_get_id` directly.
+function _send_spam() {
+  _send_email_and_get_id MAIL_ID_SPAM "${@}" \
+    --from 'spam@external.tld' \
+    --body 'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
+}
