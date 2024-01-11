@@ -277,6 +277,10 @@ function _successful() {
     --protocol ESMTP \
     --server mail.example.test \
     --quit-after FIRST-EHLO
+
+  # Ensure the output is actually related to what we want to refute against:
+  assert_output --partial 'EHLO mail.external.tld'
+  assert_output --partial '221 2.0.0 Bye'
   refute_output --partial 'SMTPUTF8'
 }
 

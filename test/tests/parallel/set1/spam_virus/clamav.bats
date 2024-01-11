@@ -33,7 +33,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test 'log files exist at /var/log/mail directory' {
-  _run_in_container_bash "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log' | wc -l"
+  _run_in_container_bash "ls -1 /var/log/mail/ | grep -c -E 'clamav|freshclam|mail.log'"
   assert_success
   assert_output 3
 }

@@ -14,7 +14,7 @@ This documentation provides you not only with the basic setup and configuration 
 
 ## About
 
-`docker-mailserver`, or DMS for short, is a production-ready fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). It employs only configuration files, no SQL database. The image is focused around the slogan "Keep it simple and versioned".
+`docker-mailserver`, or DMS for short, is a production-ready fullstack but simple mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.). It employs only configuration files, no SQL database. The image is focused around the slogan "Keep it simple and versioned".
 
 ## Contents
 
