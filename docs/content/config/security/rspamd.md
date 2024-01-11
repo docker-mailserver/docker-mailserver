@@ -25,7 +25,7 @@ The following environment variables are related to Rspamd:
 8. [`MOVE_SPAM_TO_JUNK`](../environment.md#move_spam_to_junk)
 9. [`MARK_SPAM_AS_READ`](../environment.md#mark_spam_as_read)
 
-With these variables, you can enable Rspamd itself and you can enable / disable certain features related to Rspamd.
+With these variables, you can enable Rspamd itself, and you can enable / disable certain features related to Rspamd.
 
 ## The Default Configuration
 
@@ -39,9 +39,9 @@ DMS does not set a default password for the controller worker. You may want to d
 
 ### Persistence with Redis
 
-When Rspamd is enabled, we implicitly also start an instance of Redis in the container. Redis is configured to persist it's data via RDB snapshots to disk in the directory `/var/lib/redis` (_which is a symbolic link to `/var/mail-state/lib-redis/` when [`ONE_DIR=1`](../environment.md#one_dir) and a volume is mounted to `/var/mail-state/`_). With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.
+When Rspamd is enabled, we implicitly also start an instance of Redis in the container. Redis is configured to persist its data via RDB snapshots to disk in the directory `/var/lib/redis` (_which is a symbolic link to `/var/mail-state/lib-redis/` when [`ONE_DIR=1`](../environment.md#one_dir) and a volume is mounted to `/var/mail-state/`_). With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.
 
-Redis uses `/etc/redis/redis.conf` for configuration. We adjust this file when enabling the internal Redis service. If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV  [`ENABLE_RSPAMD_REDIS=0`](../environment.md#enable_rspamd_redis) (_link also details required changes to the DMS rspamd config_).
+Redis uses `/etc/redis/redis.conf` for configuration. We adjust this file when enabling the internal Redis service. If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV [`ENABLE_RSPAMD_REDIS=0`](../environment.md#enable_rspamd_redis) (_link also details required changes to the DMS Rspamd config_).
 
 ### Web Interface
 
@@ -77,13 +77,13 @@ You can find a list of all Rspamd modules [on their website][rspamd-docs-modules
 
 #### Disabled By Default
 
-DMS disables certain modules (clickhouse, elastic, neural, reputation, spamassassin, url_redirector, metric_exporter) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.
+DMS disables certain modules (`clickhouse`, `elastic`, `neural`, `reputation`, `spamassassin`, `url_redirector`, `metric_exporter`) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.
 
 #### Anti-Virus (ClamAV)
 
 You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable `ENABLE_CLAMAV=1`.
 
-#### RBLs (Realtime Blacklists) / DNSBLs (DNS-based Blacklists)
+#### RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)
 
 The [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default. As a consequence, Rspamd will perform DNS lookups to a variety of blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body \[[source][rbl-vs-dnsbl]\].
 
@@ -127,7 +127,7 @@ where `COMMAND` can be:
 3. `set-option-for-module`: sets the value for option `ARGUMENT2` to `ARGUMENT3` inside module `ARGUMENT1`
 4. `set-option-for-controller`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the controller worker
 5. `set-option-for-proxy`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the proxy worker
-6. `set-common-option`: set the option `ARGUMENT1` that [defines basic Rspamd behaviour][rspamd-docs-basic-options] to value `ARGUMENT2`
+6. `set-common-option`: set the option `ARGUMENT1` that [defines basic Rspamd behavior][rspamd-docs-basic-options] to value `ARGUMENT2`
 7. `add-line`: this will add the complete line after `ARGUMENT1` (with all characters) to the file `/etc/rspamd/override.d/<ARGUMENT1>`
 
 !!! example "An Example Is [Shown Down Below](#adjusting-and-extending-the-very-basic-configuration)"
