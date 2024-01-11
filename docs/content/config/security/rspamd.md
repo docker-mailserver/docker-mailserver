@@ -22,14 +22,51 @@ The following environment variables are related to Rspamd:
 5. [`RSPAMD_HFILTER`](../environment.md#rspamd_hfilter)
 6. [`RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE`](../environment.md#rspamd_hfilter_hostname_unknown_score)
 7. [`RSPAMD_LEARN`](../environment.md#rspamd_learn)
-8. [`MOVE_SPAM_TO_JUNK`](../environment.md#move_spam_to_junk)
+8. [`MOVE_SPAM_TO_JUNK`][docs-spam-to-junk]
 9. [`MARK_SPAM_AS_READ`](../environment.md#mark_spam_as_read)
 
 With these variables, you can enable Rspamd itself, and you can enable / disable certain features related to Rspamd.
 
+[docs-spam-to-junk]: ../environment.md#move_spam_to_junk
+
 ## The Default Configuration
 
 ### Mode of Operation
+
+!!! tip "Attention"
+
+    Read this section carefully if you want to understand how Rspamd is integrated into DMS and how it works (on a surface level).
+
+Rspamd is integrated as a milter into DMS. Postfix's main configuration file contains the entry `rspamd_milter = inet:localhost:11332` when Rspamd is enabled, and this milter is added to `smtpd_milters`. As a milter, Rspamd can check incoming and outgoing e-mails. Each mail is assigned what Rspamd calls symbols: when an e-mail matches a specific criterion, the mail receives a symbol. Afterwards, Rspamd applies a _spam score_ (as usual with anti-spam software) to the e-mail. The score itself is calculated by adding the values of the individual symbols applied earlier. The higher the spam score is, the more likely the e-mail is spam. Symbol values can be negative (i.e., these symbols indicate the mail is legit, maybe because [SPF and DKIM][docs-dkim-dmarc-spf] check out) or the symbol can be positive (i.e., these symbols indicate the e-mail is spam, maybe because the e-mail contains a lot of links).
+
+Rspamd then adds (a few) headers to the e-mail based on the spam score. Most important are `X-Spamd-Result`, which contains an overview of which symbols were applied. It could look like this:
+
+```txt
+X-Spamd-Result     default: False [-4.10 / 11.00]; SIGNED_SMIME(-2.00)[]; R_SPF_ALLOW(-1.00)[+ip4:<SOME IP ADDRESS INCL. SUBNET>]; RWL_AMI_LASTHOP(-1.00)[<SOME IP ADDRESS>:from]; MIME_GOOD(-0.20)[multipart/signed,multipart/alternative,text/plain]; ONCE_RECEIVED(0.10)[]; RCVD_VIA_SMTP_AUTH(0.00)[]; RCVD_TLS_ALL(0.00)[]; RCPT_COUNT_ONE(0.00)[1]; ASN(0.00)[asn:8560, ipnet:<SOME IP ADDRESS INCL. SUBNET>, country:DE]; RECEIVED_SPAMHAUS_PBL(0.00)[<SOME IP ADDRESS>:received]; MIME_TRACE(0.00)[0:+,1:+,2:+,3:~,4:~]; RCVD_COUNT_ONE(0.00)[1]; RWL_MAILSPIKE_POSSIBLE(0.00)[<SOME IP ADDRESS>:from]; MID_RHS_MATCH_FROM(0.00)[]; R_DKIM_NA(0.00)[]; ARC_NA(0.00)[]; FROM_EQ_ENVFROM(0.00)[]; FROM_HAS_DN(0.00)[]; RCVD_IN_DNSWL_NONE(0.00)[<SOME IP ADDRESS>:from]; TO_MATCH_ENVRCPT_ALL(0.00)[]; TO_DN_ALL(0.00)[]; PREVIOUSLY_DELIVERED(0.00)[info@georglauterbach.de]; DMARC_DNSFAIL(0.00)[online.de : query refused]; HAS_ATTACHMENT(0.00)[]
+```
+
+And then there is a corresponding `X-Rspamd-Action` header, which shows the overall result and the action that is taken. In our example, it would be:
+
+```txt
+X-Rspamd-Action    no action
+```
+
+Since the score is `-4.10`, nothing will happen and the e-mail is not classified as spam. Our custom [`actions.conf`][rspamd-actions-config] defines what to do at certain scores:
+
+1. At a score of 4, the e-mail is to be _greylisted_;
+2. At a score of 6, the e-mail is _marked with a header_ (`X-Spam: Yes`);
+3. At a score of 7, the e-mail will additionally have their _subject re-written_ (appending a prefix like `[SPAM]`);
+4. At a score of 11, the e-mail is outright _rejected_.
+
+---
+
+There is more to spam analysis than meets the eye: we have not covered the [Bayes training and filters][rspamc-docs-bayes] here, nor have we talked about [Sieve rules for e-mails that are marked as spam][docs-spam-to-junk]. Even the calculation of the score with the individual symbols has been presented to you in a simplified manner. But with the knowledge from above, you're equipped to read on and use Rspamd confidently. Keep on reading to understand the integration even better - you will want to know about your anti-spam software, not only to keep the bad e-mail out, but also to make sure the good e-mail arrive properly!
+
+[docs-dkim-dmarc-spf]: ../best-practices/dkim_dmarc_spf.md
+[rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/rspamd/local.d/actions.conf
+[rspamc-docs-bayes]: https://rspamd.com/doc/configuration/statistic.html
+
+### Workers
 
 The proxy worker operates in [self-scan mode][rspamd-docs-proxy-self-scan-mode]. This simplifies the setup as we do not require a normal worker. You can easily change this though by [overriding the configuration by DMS](#providing-custom-settings-overriding-settings).
 
@@ -105,12 +142,15 @@ DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/lo
 
 If you want to overwrite the default settings and / or provide your own settings, you can place files at `docker-data/dms/config/rspamd/override.d/`. Files from this directory are copied to `/etc/rspamd/override.d/` during startup. These files [forcibly override][rspamd-docs-override-dir] Rspamd and DMS default settings.
 
+!!! question "What is the [`local.d` directory and how does it compare to `override.d`][rspamd-docs-config-directories]?"
+
 !!! warning "Clashing Overrides"
 
     Note that when also [using the `custom-commands.conf` file](#with-the-help-of-a-custom-file), files in `override.d` may be overwritten in case you adjust them manually and with the help of the file.
 
 [rspamd-docs-override-dir]: https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 [docs-dms-config-volume]: ../../faq.md#what-about-the-docker-datadmsconfig-directory
+[rspamd-docs-config-directories]: https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 
 ### With the Help of a Custom File
 
