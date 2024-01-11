@@ -60,7 +60,7 @@ Enable `ip6tables` support so that Docker will manage IPv6 networking rules as w
     ```
 
     - `experimental: true` is currently required for `ip6tables: true` to work.
-    - `userland-proxy` setting [can potentially affect connection behaviour][gh-pull-3244-proxy] for local connections.
+    - `userland-proxy` setting [can potentially affect connection behavior][gh-pull-3244-proxy] for local connections.
 
     Now restart the daemon if it's running: `systemctl restart docker`.
 
