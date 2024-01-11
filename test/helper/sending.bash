@@ -141,14 +141,12 @@ function _send_email_and_get_id() {
   # Get rid of ${1} so only the arguments for swaks remain
   shift 1
 
-  local QUEUE_ID
   # The unique ID Postfix (and other services) use may be different in length
-  # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
-  # range to safely capture it.
+  # on different systems. Hence, we use a range to safely capture it.
   local QUEUE_ID_REGEX='[A-Z0-9]{9,12}'
 
   _wait_for_empty_mail_queue_in_container
-  local OUTPUT=$(_send_email "${@}" --header "Message-Id: ${MID}")
+  _send_email "${@}" --header "Message-Id: ${MID}"
   _wait_for_empty_mail_queue_in_container
 
   # We store Postfix's queue ID first
