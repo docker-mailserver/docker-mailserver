@@ -80,7 +80,7 @@ function _install_packages() {
   # `bind9-dnsutils` provides the `dig` command
   # `iputils-ping` provides the `ping` command
   DEBUG_PACKAGES=(
-    bind9-dnsutils iputils-ping less nano swaks
+    bind9-dnsutils iputils-ping less nano
   )
 
   apt-get "${QUIET}" --no-install-recommends install \
@@ -192,7 +192,15 @@ function _install_getmail() {
 
 function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
+  _log 'trace' 'Installing jaq'
   curl -sL "https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq && chmod +x /usr/bin/jaq
+
+  _log 'trace' 'Installing swaks'
+  local SWAKS_VERSION='20240103.0'
+  local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
+  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" | tar -xz
+  mv "${SWAKS_RELEASE}/swaks" /usr/local/bin
+  rm -r "${SWAKS_RELEASE}"
 }
 
 function _remove_data_after_package_installations() {

@@ -8,6 +8,13 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Updates
 
+- **Tests**:
+  - Refactored mail sending ([#3747](https://github.com/docker-mailserver/docker-mailserver/pull/3747)):
+    - This change is a follow-up to [#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732) from DMS v13.2.
+    - `swaks` version is now the latest from Github releases instead of the Debian package.
+    - `_nc_wrapper`, `_send_mail` and related helpers expect the `.txt` filepath extension again.
+    - `sending.bash` helper methods were refactored to better integrate `swaks` and accommodate different usage contexts.
+    - `test/files/emails/existing/` files were removed similar to previous removal of SMTP auth files as they became redundant with `swaks`.
 - **Internal:**
   - tests: Replace `wc -l` with `grep -c` ([#3752](https://github.com/docker-mailserver/docker-mailserver/pull/3752))
   - Postfix is now configured with `smtputf8_enable = no` in our default `main.cf` config (_instead of during container startup_). ([#3750](https://github.com/docker-mailserver/docker-mailserver/pull/3750))
