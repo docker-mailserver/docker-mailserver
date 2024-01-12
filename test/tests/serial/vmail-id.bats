@@ -20,7 +20,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test 'should successfully deliver mail' {
-  _send_email --data 'existing/user1'
+  _send_email --header 'Subject: Test Message existing-user1'
   _wait_for_empty_mail_queue_in_container
 
   # Should be successfully sent (received) by Postfix:
@@ -31,7 +31,7 @@ function teardown_file() { _default_teardown ; }
 
   # Verify successful delivery via Dovecot to `/var/mail` account by searching for the subject:
   _repeat_in_container_until_success_or_timeout 20 "${CONTAINER_NAME}" grep -R \
-    'Subject: Test Message existing-user1.txt' \
+    'Subject: Test Message existing-user1' \
     '/var/mail/localhost.localdomain/user1/new/'
   assert_success
   _should_output_number_of_lines 1

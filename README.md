@@ -11,7 +11,7 @@
 
 ## :page_with_curl: About
 
-A production-ready fullstack but simple containerized mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. Originally created by @tomav, this project is now maintained by volunteers since January 2021.
+A production-ready fullstack but simple containerized mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. Originally created by @tomav, this project is now maintained by volunteers since January 2021.
 
 ## :bulb: Documentation
 

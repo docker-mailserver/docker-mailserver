@@ -63,46 +63,43 @@ function setup_file() {
 
   # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
-  # _send_email --from 'virus@external.tld' --data 'amavis/virus'
+  # _send_email --from 'virus@external.tld' --data 'amavis/virus.txt'
 
   # Required for 'delivers mail to existing alias':
-  _send_email --to alias1@localhost.localdomain --data 'existing/alias-external'
+  _send_email --to alias1@localhost.localdomain --header "Subject: Test Message existing-alias-external"
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _send_email --to alias1~test@localhost.localdomain --data 'existing/alias-recipient-delimiter'
+  _send_email --to alias1~test@localhost.localdomain --header 'Subject: Test Message existing-alias-recipient-delimiter'
   # Required for 'delivers mail to existing catchall':
-  _send_email --to wildcard@localdomain2.com --data 'existing/catchall-local'
+  _send_email --to wildcard@localdomain2.com --header 'Subject: Test Message existing-catchall-local'
   # Required for 'delivers mail to regexp alias':
-  _send_email --to test123@localhost.localdomain --data 'existing/regexp-alias-local'
+  _send_email --to test123@localhost.localdomain --header 'Subject: Test Message existing-regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _send_email --to nouser@localhost.localdomain --data 'non-existing-user'
+  _send_email --expect-rejection --to nouser@localhost.localdomain
+  assert_failure
   # Required for 'redirects mail to external aliases':
-  _send_email --to bounce-always@localhost.localdomain --data 'existing/regexp-alias-external'
-  _send_email --to alias2@localhost.localdomain --data 'existing/alias-local'
+  _send_email --to bounce-always@localhost.localdomain
+  _send_email --to alias2@localhost.localdomain
   # Required for 'rejects spam':
-  _send_email --from 'spam@external.tld' --data 'amavis/spam'
+  _send_email --from 'spam@external.tld' --data 'amavis/spam.txt'
 
   # Required for 'delivers mail to existing account':
-  _send_email --data 'existing/user1'
-  assert_success
+  _send_email --header 'Subject: Test Message existing-user1'
   _send_email --to user2@otherdomain.tld
-  assert_success
   _send_email --to user3@localhost.localdomain
-  assert_success
-  _send_email --to added@localhost.localdomain --data 'existing/added'
-  assert_success
-  _send_email --to user1@localhost.localdomain --data 'existing/user-and-cc-local-alias'
-  assert_success
-  _send_email --data 'sieve/spam-folder'
-  assert_success
-  _send_email --to user2@otherdomain.tld --data 'sieve/pipe'
-  assert_success
+  _send_email --to added@localhost.localdomain --header 'Subject: Test Message existing-added'
+  _send_email \
+    --to user1@localhost.localdomain \
+    --header 'Subject: Test Message existing-user-and-cc-local-alias' \
+    --cc 'alias2@localhost.localdomain'
+  _send_email --data 'sieve/spam-folder.txt'
+  _send_email --to user2@otherdomain.tld --data 'sieve/pipe.txt'
   _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
   assert_success
 }
 
 function _unsuccessful() {
-  _send_email --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword
+  _send_email --expect-rejection --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword --quit-after AUTH
   assert_failure
   assert_output --partial 'authentication failed'
   assert_output --partial 'No authentication type succeeded'
@@ -110,7 +107,6 @@ function _unsuccessful() {
 
 function _successful() {
   _send_email --port 465 --auth "${1}" --auth-user "${2}" --auth-password mypassword --quit-after AUTH
-  assert_success
   assert_output --partial 'Authentication successful'
 }
 

@@ -111,7 +111,7 @@ function __setup__security__spamassassin() {
 
     if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]; then
       _log 'trace' 'Configuring Spamassassin/Amavis to send SPAM to inbox'
-      _log 'debug'  'SPAM_TO_INBOX=1 is set. SA_KILL will be ignored.'
+      _log 'debug'  "'SPAMASSASSIN_SPAM_TO_INBOX=1' is set. The 'SA_KILL' ENV will be ignored."
 
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
@@ -265,7 +265,7 @@ EOF
     chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_to_junk.{sieve,svbin}
 
     if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
-      _log 'warning' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MOVE_SPAM_TO_JUNK=1' to work"
+      _log 'warn' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MOVE_SPAM_TO_JUNK=1' to work"
     fi
   else
     _log 'debug' 'Spam emails will not be moved to the Junk folder'
@@ -290,7 +290,7 @@ EOF
     chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_mark_as_read.{sieve,svbin}
 
     if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
-      _log 'warning' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MARK_SPAM_AS_READ=1' to work"
+      _log 'warn' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MARK_SPAM_AS_READ=1' to work"
     fi
   else
     _log 'debug' 'Spam emails will not be marked as read'
