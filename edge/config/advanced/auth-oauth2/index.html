@@ -12,13 +12,13 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/full-text-search/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/auth-oauth2/">
       
       
-        <link rel="prev" href="../mail-forwarding/aws-ses/">
+        <link rel="prev" href="../auth-ldap/">
       
       
-        <link rel="next" href="../kubernetes/">
+        <link rel="next" href="../mail-sieve/">
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Advanced | Full-Text Search - Docker Mailserver</title>
+        <title>Advanced | Basic OAuth2 Authentication - Docker Mailserver</title>
       
     
     
@@ -83,7 +83,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#overview" class="md-skip">
+        <a href="#introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Advanced | Full-Text Search
+              Advanced | Basic OAuth2 Authentication
             
           </span>
         </div>
@@ -1099,9 +1099,27 @@
                 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../auth-oauth2/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    OAuth2 Authentication
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1110,6 +1128,38 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-authentik-roundcube" class="md-nav__link">
+    Example (Authentik &amp; Roundcube)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1263,27 +1313,9 @@
                 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Full-Text Search
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../full-text-search/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1292,84 +1324,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    Overview
-  </a>
-  
-    <nav class="md-nav" aria-label="Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#xapian" class="md-nav__link">
-    Xapian
-  </a>
-  
-    <nav class="md-nav" aria-label="Xapian">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    Setup
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#solr" class="md-nav__link">
-    Solr
-  </a>
-  
-    <nav class="md-nav" aria-label="Solr">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#setup_1" class="md-nav__link">
-    Setup
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#further-discussion" class="md-nav__link">
-    Further Discussion
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1966,62 +1920,16 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    Overview
-  </a>
-  
-    <nav class="md-nav" aria-label="Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#xapian" class="md-nav__link">
-    Xapian
-  </a>
-  
-    <nav class="md-nav" aria-label="Xapian">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    Setup
+  <a href="#introduction" class="md-nav__link">
+    Introduction
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#solr" class="md-nav__link">
-    Solr
+      
+        <li class="md-nav__item">
+  <a href="#example-authentik-roundcube" class="md-nav__link">
+    Example (Authentik &amp; Roundcube)
   </a>
-  
-    <nav class="md-nav" aria-label="Solr">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#setup_1" class="md-nav__link">
-    Setup
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#further-discussion" class="md-nav__link">
-    Further Discussion
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2040,7 +1948,7 @@
                   
 
   
-    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/full-text-search.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/auth-oauth2.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -2049,174 +1957,78 @@
     
       
     
-    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/advanced/full-text-search.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/advanced/auth-oauth2.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-  <h1>Full-Text Search</h1>
+  <h1>OAuth2 Authentication</h1>
 
-<h2 id="overview"><a class="toclink" href="#overview">Overview</a></h2>
-<p>Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content. Dovecot supports a variety of community supported <a href="https://doc.dovecot.org/configuration_manual/fts/">FTS indexing backends</a>.</p>
-<p>DMS comes pre-installed with two plugins that can be enabled with a dovecot config file.</p>
-<p>Please be aware that indexing consumes memory and takes up additional disk space.</p>
-<h3 id="xapian"><a class="toclink" href="#xapian">Xapian</a></h3>
-<p>The <a href="https://github.com/grosjo/fts-xapian">dovecot-fts-xapian</a> plugin makes use of <a href="https://xapian.org/">Xapian</a>. Xapian enables embedding an FTS engine without the need for additional backends.</p>
-<p>The indexes will be stored as a subfolder named <code>xapian-indexes</code> inside your local <code>mail-data</code> folder (<em><code>/var/mail</code> internally</em>). With the default settings, 10GB of email data may generate around 4GB of indexed data.</p>
-<p>While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB) as compared to Solr.</p>
-<h4 id="setup"><a class="toclink" href="#setup">Setup</a></h4>
+<h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">This is only a supplement to the existing account provisioners</p>
+<p>Accounts must still be managed via the configured <a href="../../environment/#account_provisioner"><code>ACCOUNT_PROVISIONER</code></a> (FILE or LDAP).</p>
+<p>Reasoning for this can be found in <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3480">#3480</a>. Future iterations on this feature may allow it to become a full account provisioner.</p>
+</div>
+<p>The present OAuth2 support provides the capability for 3rd-party applications such as Roundcube to authenticate with DMS (dovecot) by using a token obtained from an OAuth2 provider, instead of passing passwords around.</p>
+<h2 id="example-authentik-roundcube"><a class="toclink" href="#example-authentik-roundcube">Example (Authentik &amp; Roundcube)</a></h2>
+<p>This example assumes you have:</p>
+<ul>
+<li>A working DMS server set up</li>
+<li>An Authentik server set up (<a href="https://goauthentik.io/docs/installation/">documentation</a>)</li>
+<li>A Roundcube server set up (either <a href="https://hub.docker.com/r/roundcube/roundcubemail/">docker</a> or <a href="https://github.com/roundcube/roundcubemail/wiki/Installation">bare metal</a>)</li>
+</ul>
+<div class="admonition example">
+<p class="admonition-title">Setup Instructions</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">1. Docker Mailserver</label><label for="__tabbed_1_2">2. Authentik</label><label for="__tabbed_1_3">3. Roundcube</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Edit the following values in <code>mailserver.env</code>:
+<div class="highlight"><pre><span></span><code><span class="c1"># -----------------------------------------------</span>
+<span class="c1"># --- OAUTH2 Section ----------------------------</span>
+<span class="c1"># -----------------------------------------------</span>
+
+<span class="c1"># empty =&gt; OAUTH2 authentication is disabled</span>
+<span class="c1"># 1 =&gt; OAUTH2 authentication is enabled</span>
+<span class="na">ENABLE_OAUTH2</span><span class="o">=</span><span class="s">1</span>
+
+<span class="c1"># Specify the user info endpoint URL of the oauth2 provider</span>
+<span class="na">OAUTH2_INTROSPECTION_URL</span><span class="o">=</span><span class="s">https://authentik.example.com/application/o/userinfo/</span>
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
 <ol>
-<li>
-<p>To configure <code>fts-xapian</code> as a dovecot plugin, create a file at <code>docker-data/dms/config/dovecot/fts-xapian-plugin.conf</code> and place the following in it:</p>
-<div class="highlight"><pre><span></span><code>mail_plugins = $mail_plugins fts fts_xapian
-
-plugin {
-    fts = xapian
-    fts_xapian = partial=3 full=20 verbose=0
-
-    fts_autoindex = yes
-    fts_enforced = yes
-
-    # disable indexing of folders
-    # fts_autoindex_exclude = \Trash
-
-    # Index attachements
-    # fts_decoder = decode2text
-}
-
-service indexer-worker {
-    # limit size of indexer-worker RAM usage, ex: 512MB, 1GB, 2GB
-    vsz_limit = 1GB
-}
-
-# service decode2text {
-#     executable = script /usr/libexec/dovecot/decode2text.sh
-#     user = dovecot
-#     unix_listener decode2text {
-#         mode = 0666
-#     }
-# }
-</code></pre></div>
-<p>adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments</p>
-</li>
-<li>
-<p>Update <code>compose.yaml</code> to load the previously created dovecot plugin config file:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">services</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">mailserver</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
-<span class="w">      </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="w">      </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
-<span class="w">      </span><span class="nt">env_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver.env</span>
-<span class="w">      </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;25:25&quot;</span><span class="w">    </span><span class="c1"># SMTP  (explicit TLS =&gt; STARTTLS)</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;143:143&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (explicit TLS =&gt; STARTTLS)</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;465:465&quot;</span><span class="w">  </span><span class="c1"># ESMTP (implicit TLS)</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;587:587&quot;</span><span class="w">  </span><span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;993:993&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (implicit TLS)</span>
-<span class="w">      </span><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-logs/:/var/log/mail/</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
-<span class="w">      </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
-<span class="w">      </span><span class="nt">stop_grace_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1m</span>
-<span class="w">      </span><span class="nt">cap_add</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
-</code></pre></div>
-</li>
-<li>
-<p>Recreate containers:</p>
-<div class="highlight"><pre><span></span><code>docker compose down
-docker compose up -d
-</code></pre></div>
-</li>
-<li>
-<p>Initialize indexing on all users for all mail:</p>
-<div class="highlight"><pre><span></span><code>docker compose exec mailserver doveadm index -A -q \*
-</code></pre></div>
-</li>
-<li>
-<p>Run the following command in a daily cron job:</p>
-<p><div class="highlight"><pre><span></span><code>docker compose exec mailserver doveadm fts optimize -A
-</code></pre></div>
-Or like the <a href="../../../faq/#how-can-i-make-spamassassin-better-recognize-spam">Spamassassin example</a> shows, you can instead use <code>cron</code> from within DMS to avoid potential errors if the mail server is not running:</p>
-</li>
+<li>Create a new OAuth2 provider</li>
+<li>Note the client id and client secret</li>
+<li>Set the allowed redirect url to the equivalent of <code>https://roundcube.example.com/index.php/login/oauth</code> for your RoundCube instance.</li>
 </ol>
-<details class="example">
-<summary>Example</summary>
-<p>Create a <em>system</em> cron file:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># in the compose.yaml root directory</span>
-mkdir<span class="w"> </span>-p<span class="w"> </span>./docker-data/dms/cron<span class="w"> </span><span class="c1"># if you didn&#39;t have this folder before</span>
-touch<span class="w"> </span>./docker-data/dms/cron/fts_xapian
-chown<span class="w"> </span>root:root<span class="w"> </span>./docker-data/dms/cron/fts_xapian
-chmod<span class="w"> </span><span class="m">0644</span><span class="w"> </span>./docker-data/dms/cron/fts_xapian
-</code></pre></div>
-<p>Edit the system cron file <code>nano ./docker-data/dms/cron/fts_xapian</code>, and set an appropriate configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Adding `MAILTO=&quot;&quot;` prevents cron emailing notifications of the task outcome each run</span>
-<span class="na">MAILTO</span><span class="o">=</span><span class="s">&quot;&quot;</span>
-<span class="c1">#</span>
-<span class="c1"># m h dom mon dow user command</span>
-<span class="c1">#</span>
-<span class="c1"># Everyday 4:00AM, optimize index files</span>
-<span class="na">0  4 * * * root  doveadm fts optimize -A</span>
-</code></pre></div>
-<p>Then with <code>compose.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
-<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian</span>
-</code></pre></div>
-</details>
-<h3 id="solr"><a class="toclink" href="#solr">Solr</a></h3>
-<p>The <a href="https://wiki2.dovecot.org/Plugins/FTS/Solr">dovecot-solr Plugin</a> is used in conjunction with <a href="https://lucene.apache.org/solr/">Apache Solr</a> running in a separate container. This is quite straightforward to setup using the following instructions.</p>
-<p>Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email.</p>
-<p>However, Solr also requires a fair bit of RAM. While Solr is <a href="https://solr.apache.org/guide/7_0/query-settings-in-solrconfig.html">highly tuneable</a>, it may require a bit of testing to get it right.</p>
-<h4 id="setup_1"><a class="toclink" href="#setup_1">Setup</a></h4>
-<ol>
-<li>
-<p><code>compose.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">solr</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lmmdock/dovecot-solr:latest</span>
-<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/solr-dovecot:/opt/solr/server/solr/dovecot</span>
-<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
+</div>
+<div class="tabbed-block">
+<p>Add the following to <code>oauth2.inc.php</code> (<a href="https://github.com/roundcube/roundcubemail/wiki/Configuration">documentation</a>):</p>
+<div class="highlight"><pre><span></span><code><span class="x">$config[&#39;oauth_provider&#39;] = &#39;generic&#39;;</span>
+<span class="x">$config[&#39;oauth_provider_name&#39;] = &#39;Authentik&#39;;</span>
+<span class="x">$config[&#39;oauth_client_id&#39;] = &#39;&lt;insert client id here&gt;&#39;;</span>
+<span class="x">$config[&#39;oauth_client_secret&#39;] = &#39;&lt;insert client secret here&gt;&#39;;</span>
+<span class="x">$config[&#39;oauth_auth_uri&#39;] = &#39;https://authentik.example.com/application/o/authorize/&#39;;</span>
+<span class="x">$config[&#39;oauth_token_uri&#39;] = &#39;https://authentik.example.com/application/o/token/&#39;;</span>
+<span class="x">$config[&#39;oauth_identity_uri&#39;] = &#39;https://authentik.example.com/application/o/userinfo/&#39;;</span>
 
-<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">solr</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">- ./docker-data/dms/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-</code></pre></div>
-</li>
-<li>
-<p><code>./docker-data/dms/config/dovecot/10-plugin.conf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">mail_plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$mail_plugins fts fts_solr</span>
+<span class="x">// Optional: disable SSL certificate check on HTTP requests to OAuth server. For possible values, see:</span>
+<span class="x">// http://docs.guzzlephp.org/en/stable/request-options.html#verify</span>
+<span class="x">$config[&#39;oauth_verify_peer&#39;] = false;</span>
 
-<span class="na">plugin {</span>
-<span class="w">  </span><span class="na">fts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">solr</span>
-<span class="w">  </span><span class="na">fts_autoindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
-<span class="w">  </span><span class="na">fts_solr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">url=http://solr:8983/solr/dovecot/</span>
-<span class="na">}</span>
+<span class="x">$config[&#39;oauth_scope&#39;] = &#39;email openid profile&#39;;</span>
+<span class="x">$config[&#39;oauth_identity_fields&#39;] = [&#39;email&#39;];</span>
+
+<span class="x">// Boolean: automatically redirect to OAuth login when opening Roundcube without a valid session</span>
+<span class="x">$config[&#39;oauth_login_redirect&#39;] = false;</span>
 </code></pre></div>
-</li>
-<li>
-<p>Recreate containers: <code>docker compose down ; docker compose up -d</code></p>
-</li>
-<li>
-<p>Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: <code>docker compose exec mailserver doveadm fts rescan -A</code></p>
-</li>
-</ol>
-<h4 id="further-discussion"><a class="toclink" href="#further-discussion">Further Discussion</a></h4>
-<p>See <a href="https://github.com/docker-mailserver/docker-mailserver/issues/905">#905</a></p>
+</div>
+</div>
+</div>
+</div>
 
 
 

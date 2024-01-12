@@ -1160,6 +1160,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#oauth2" class="md-nav__link">
+    OAUTH2
+  </a>
+  
+    <nav class="md-nav" aria-label="OAUTH2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_oauth2" class="md-nav__link">
+    ENABLE_OAUTH2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oauth2_introspection_url" class="md-nav__link">
+    OAUTH2_INTROSPECTION_URL
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ldap" class="md-nav__link">
     LDAP
   </a>
@@ -2174,6 +2201,26 @@
   
   
     <li class="md-nav__item">
+      <a href="../advanced/auth-oauth2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OAuth2 Authentication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../advanced/mail-sieve/" class="md-nav__link">
         
   
@@ -2244,9 +2291,9 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_8" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_9" >
         
-          <label class="md-nav__link" for="__nav_4_8_8" id="__nav_4_8_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_8_9" id="__nav_4_8_9_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -2257,8 +2304,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8_8">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_9">
             <span class="md-nav__icon md-icon"></span>
             Email Forwarding
           </label>
@@ -3512,6 +3559,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#oauth2" class="md-nav__link">
+    OAUTH2
+  </a>
+  
+    <nav class="md-nav" aria-label="OAUTH2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_oauth2" class="md-nav__link">
+    ENABLE_OAUTH2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oauth2_introspection_url" class="md-nav__link">
+    OAUTH2_INTROSPECTION_URL
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ldap" class="md-nav__link">
     LDAP
   </a>
@@ -4029,7 +4103,15 @@
 </ul>
 <h5 id="account_provisioner"><a class="toclink" href="#account_provisioner">ACCOUNT_PROVISIONER</a></h5>
 <p>Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (<em>Postfix and Dovecot</em>).</p>
-<p>User provisioning via OIDC is planned for the future, see <a href="https://github.com/docker-mailserver/docker-mailserver/issues/2713">this tracking issue</a>.</p>
+<div class="admonition tip">
+<p class="admonition-title">OAuth2 Support</p>
+<p>Presently DMS supports OAuth2 only as an supplementary authentication method. </p>
+<ul>
+<li>A third-party service must provide a valid token for the user which Dovecot validates with the authentication service provider. To enable this feature reference the <a href="../advanced/auth-oauth2/">OAuth2 configuration example guide</a>.</li>
+<li>User accounts must be provisioned to receive mail via one of the supported <code>ACCOUNT_PROVISIONER</code> providers.</li>
+<li>User provisioning via OIDC is planned for the future, see <a href="https://github.com/docker-mailserver/docker-mailserver/issues/2713">this tracking issue</a>.</li>
+</ul>
+</div>
 <ul>
 <li><strong>empty</strong> =&gt; use FILE</li>
 <li>LDAP =&gt; use LDAP authentication</li>
@@ -4604,6 +4686,16 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <h5 id="getmail_poll"><a class="toclink" href="#getmail_poll">GETMAIL_POLL</a></h5>
 <ul>
 <li><strong>5</strong> =&gt; <code>getmail</code> The number of minutes for the interval. Min: 1; Max: 30; Default: 5.</li>
+</ul>
+<h4 id="oauth2"><a class="toclink" href="#oauth2">OAUTH2</a></h4>
+<h5 id="enable_oauth2"><a class="toclink" href="#enable_oauth2">ENABLE_OAUTH2</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; OAUTH2 authentication is disabled</li>
+<li>1 =&gt; OAUTH2 authentication is enabled</li>
+</ul>
+<h5 id="oauth2_introspection_url"><a class="toclink" href="#oauth2_introspection_url">OAUTH2_INTROSPECTION_URL</a></h5>
+<ul>
+<li>=&gt; Specify the user info endpoint URL of the oauth2 provider (<em>eg: <code>https://oauth2.example.com/userinfo/</code></em>)</li>
 </ul>
 <h4 id="ldap"><a class="toclink" href="#ldap">LDAP</a></h4>
 <h5 id="ldap_start_tls"><a class="toclink" href="#ldap_start_tls">LDAP_START_TLS</a></h5>
