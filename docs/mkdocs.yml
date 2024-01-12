@@ -142,6 +142,7 @@ nav:
           - 'Postfix': config/advanced/override-defaults/postfix.md
           - 'Modifications via Script': config/advanced/override-defaults/user-patches.md
         - 'LDAP Authentication': config/advanced/auth-ldap.md
+        - 'OAuth2 Authentication': config/advanced/auth-oauth2.md
         - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
         - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md
         - 'Email Gathering with Getmail': config/advanced/mail-getmail.md
