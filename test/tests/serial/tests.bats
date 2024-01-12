@@ -80,12 +80,12 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "imap: authentication works" {
-  _nc_wrapper 'auth/imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/imap-auth.txt' '-w 1 0.0.0.0 143'
   assert_success
 }
 
 @test "imap: added user authentication works" {
-  _nc_wrapper 'auth/added-imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/added-imap-auth.txt' '-w 1 0.0.0.0 143'
   assert_success
 }
 
@@ -293,13 +293,13 @@ EOF
 
   # An authenticated user cannot use an envelope sender (MAIL FROM)
   # address they do not own according to `main.cf:smtpd_sender_login_maps` lookup
-  _send_email \
-    --port 465 -tlsc --auth LOGIN \
+  _send_email --expect-rejection \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user added@localhost.localdomain \
     --auth-password mypassword \
     --ehlo mail \
     --from user2@localhost.localdomain \
-    --data 'auth/added-smtp-auth-spoofed'
+    --data 'auth/added-smtp-auth-spoofed.txt'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
@@ -310,12 +310,12 @@ EOF
   # to each table. Address is authorized when a result that maps to
   # the DMS account is returned.
   _send_email \
-    --port 465 -tlsc --auth LOGIN \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user user1@localhost.localdomain \
     --auth-password mypassword \
     --ehlo mail \
     --from alias1@localhost.localdomain \
-    --data 'auth/added-smtp-auth-spoofed-alias'
+    --data 'auth/added-smtp-auth-spoofed-alias.txt'
   assert_success
   assert_output --partial 'End data with'
 }

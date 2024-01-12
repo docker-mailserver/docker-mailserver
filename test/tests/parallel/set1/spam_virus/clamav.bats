@@ -25,8 +25,7 @@ function setup_file() {
 
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
-  _send_email --from 'virus@external.tld' --data 'amavis/virus'
-  assert_success
+  _send_email --from 'virus@external.tld' --data 'amavis/virus.txt'
   _wait_for_empty_mail_queue_in_container
 }
 
