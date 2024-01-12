@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file. The format 
     - DMS now supports authentication via OAuth2 (_via `XOAUTH2` or `OAUTHBEARER` SASL mechanisms_) from capable services (_like Roundcube_).
     - This does not replace the need for an `ACCOUNT_PROVISIONER` (`FILE` / `LDAP`), which is required for an account to receive or send mail.
     - Successful authentication (_via Dovecot PassDB_) still requires an existing account (_lookup via Dovecot UserDB_).
+  - Optional support for mandatory outgoing TLS encryption with MTA-STS
+    - ENV `ENABLE_MTA_STS`
+    - If enabled and the recipient has a MTA-STS policy set, TLS is mandatory for that recipient.
+    - Supported by major email hosters like Gmail, Yahoo and Outlook.
 
 ### Updates
 
