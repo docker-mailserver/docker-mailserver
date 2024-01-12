@@ -61,6 +61,6 @@ function teardown_file() {
   # An initial connection needs to be made first, otherwise the auth attempt fails
   _run_in_container_bash 'nc -vz 0.0.0.0 143'
 
-  _nc_wrapper 'auth/imap-oauth2-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/imap-oauth2-auth.txt' '-w 1 0.0.0.0 143'
   assert_output --partial 'Examine completed'
 }
