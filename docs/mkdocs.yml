@@ -122,8 +122,9 @@ nav:
     - 'Environment Variables': config/environment.md
     - 'User Management': config/user-management.md
     - 'Best Practices':
-      - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
       - 'Auto-discovery': config/best-practices/autodiscover.md
+      - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
+      - 'MTA-STS': config/best-practices/mta-sts.md
     - 'Security':
       - 'Understanding the Ports': config/security/understanding-the-ports.md
       - 'SSL/TLS': config/security/ssl.md
