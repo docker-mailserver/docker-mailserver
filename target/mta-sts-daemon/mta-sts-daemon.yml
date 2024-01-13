@@ -1,0 +1,7 @@
+# Docs: https://github.com/Snawoot/postfix-mta-sts-resolver/blob/master/man/mta-sts-daemon.yml.5.adoc
+path: /var/run/mta-sts/daemon.sock
+mode: 0666
+cache:
+  type: sqlite
+  options:
+    filename: "/var/lib/mta-sts/cache.db"

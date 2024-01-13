@@ -48,3 +48,4 @@ If you have issues, please search through [the documentation][documentation::web
 - Support for [LetsEncrypt](https://letsencrypt.org/), manual and self-signed certificates
 - A [setup script](https://docker-mailserver.github.io/docker-mailserver/latest/config/setup.sh) for easy configuration and maintenance
 - SASLauthd with LDAP authentication
+- OAuth2 authentication (_via `XOAUTH2` or `OAUTHBEARER` SASL mechanisms_)

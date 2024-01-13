@@ -122,8 +122,9 @@ nav:
     - 'Environment Variables': config/environment.md
     - 'User Management': config/user-management.md
     - 'Best Practices':
-      - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
       - 'Auto-discovery': config/best-practices/autodiscover.md
+      - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
+      - 'MTA-STS': config/best-practices/mta-sts.md
     - 'Security':
       - 'Understanding the Ports': config/security/understanding-the-ports.md
       - 'SSL/TLS': config/security/ssl.md
@@ -142,6 +143,7 @@ nav:
           - 'Postfix': config/advanced/override-defaults/postfix.md
           - 'Modifications via Script': config/advanced/override-defaults/user-patches.md
         - 'LDAP Authentication': config/advanced/auth-ldap.md
+        - 'OAuth2 Authentication': config/advanced/auth-oauth2.md
         - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
         - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md
         - 'Email Gathering with Getmail': config/advanced/mail-getmail.md

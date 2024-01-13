@@ -68,7 +68,7 @@ function _install_packages() {
   )
 
   POSTFIX_PACKAGES=(
-    pflogsumm postgrey postfix-ldap
+    pflogsumm postgrey postfix-ldap postfix-mta-sts-resolver
     postfix-pcre postfix-policyd-spf-python postsrsd
   )
 
