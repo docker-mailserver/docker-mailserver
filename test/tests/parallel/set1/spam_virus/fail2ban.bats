@@ -74,7 +74,7 @@ function teardown_file() {
   CONTAINER1_IP=$(_get_container_ip "${CONTAINER1_NAME}")
   # Trigger a ban by failing to login twice:
   for _ in {1..2}; do
-    CONTAINER_NAME=${CONTAINER2_NAME} _send_email \
+    CONTAINER_NAME=${CONTAINER2_NAME} _send_email --expect-rejection \
       --server "${CONTAINER1_IP}" \
       --port 465 \
       --auth PLAIN \
