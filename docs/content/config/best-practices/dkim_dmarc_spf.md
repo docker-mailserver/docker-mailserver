@@ -157,7 +157,9 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
         check_pubkey = true; # you want to use this in the beginning
 
         selector = "mail";
-        # The location is searched for a DKIM key with `$domain` sourced from the MIME mail message `From` header, while `$selector` is configured for `mail` (as a default fallback).
+        # The path location is searched for a DKIM key with these variables:
+        # - `$domain` is sourced from the MIME mail message `From` header
+        # - `$selector` is configured for `mail` (as a default fallback)
         path = "/tmp/docker-mailserver/dkim/keys/$domain/$selector.private";
 
         # domain specific configurations can be provided below:
