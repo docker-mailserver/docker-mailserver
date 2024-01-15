@@ -2,9 +2,11 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.2.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.3.0...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [v13.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.0)
 
 ### Features
 
@@ -33,7 +35,6 @@ All notable changes to this project will be documented in this file. The format 
   - symbol scores for SPF, DKIM & DMARC were updated to more closely align with [RFC7489](https://www.rfc-editor.org/rfc/rfc7489#page-24); please note though that complete alignment is undesirable, because other symbols might be added as well, which changes the overall score calculation again, see [this issue](https://github.com/docker-mailserver/docker-mailserver/issues/3690#issuecomment-1866871996)
 - **Docs:**
   - Revised the SpamAssassin ENV docs to better communicate configuration and their relation to other ENV settings. ([#3756](https://github.com/docker-mailserver/docker-mailserver/pull/3756))
-
 
 ### Fixes
 
