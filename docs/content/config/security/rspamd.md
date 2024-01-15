@@ -47,7 +47,7 @@ Each mail is assigned what Rspamd calls symbols: when an e-mail matches a specif
 Rspamd then adds (a few) headers to the e-mail based on the spam score. Most important are `X-Spamd-Result`, which contains an overview of which symbols were applied. It could look like this:
 
 ```txt
-X-Spamd-Result     default: False [-4.10 / 11.00]; SIGNED_SMIME(-2.00)[]; R_SPF_ALLOW(-1.00)[+ip4:192.0.2.42/24]; RWL_AMI_LASTHOP(-1.00)[192.0.2.42:from]; MIME_GOOD(-0.20)[multipart/signed,multipart/alternative,text/plain]; ONCE_RECEIVED(0.10)[]; RCVD_VIA_SMTP_AUTH(0.00)[]; RCVD_TLS_ALL(0.00)[]; RCPT_COUNT_ONE(0.00)[1]; ASN(0.00)[asn:8560, ipnet:192.0.2.42/24, country:DE]; RECEIVED_SPAMHAUS_PBL(0.00)[192.0.2.42:received]; MIME_TRACE(0.00)[0:+,1:+,2:+,3:~,4:~]; RCVD_COUNT_ONE(0.00)[1]; RWL_MAILSPIKE_POSSIBLE(0.00)[192.0.2.42:from]; MID_RHS_MATCH_FROM(0.00)[]; R_DKIM_NA(0.00)[]; ARC_NA(0.00)[]; FROM_EQ_ENVFROM(0.00)[]; FROM_HAS_DN(0.00)[]; RCVD_IN_DNSWL_NONE(0.00)[192.0.2.42:from]; TO_MATCH_ENVRCPT_ALL(0.00)[]; TO_DN_ALL(0.00)[]; PREVIOUSLY_DELIVERED(0.00)[info@example.com]; DMARC_DNSFAIL(0.00)[online.de : query refused]; HAS_ATTACHMENT(0.00)[]
+X-Spamd-Result     default: False [-2.80 / 11.00]; R_SPF_NA(1.50)[no SPF record]; R_DKIM_ALLOW(-1.00)[example.com:s=dtag1]; DWL_DNSWL_LOW(-1.00)[example.com:dkim]; RWL_AMI_LASTHOP(-1.00)[192.0.2.42:from]; DMARC_POLICY_ALLOW(-1.00)[example.com,none]; RWL_MAILSPIKE_EXCELLENT(-0.40)[192.0.2.42:from]; FORGED_SENDER(0.30)[noreply@example.com,some-reply-address@bounce.example.com]; RCVD_IN_DNSWL_LOW(-0.10)[192.0.2.42:from]; MIME_GOOD(-0.10)[multipart/mixed,multipart/related,multipart/alternative,text/plain]; MIME_TRACE(0.00)[0:+,1:+,2:+,3:+,4:~,5:~,6:~]; RCVD_COUNT_THREE(0.00)[3]; RCPT_COUNT_ONE(0.00)[1]; REPLYTO_DN_EQ_FROM_DN(0.00)[]; ARC_NA(0.00)[]; TO_MATCH_ENVRCPT_ALL(0.00)[]; RCVD_TLS_LAST(0.00)[]; DKIM_TRACE(0.00)[example.com:+]; HAS_ATTACHMENT(0.00)[]; TO_DN_NONE(0.00)[]; FROM_NEQ_ENVFROM(0.00)[noreply@example.com,some-reply-address@bounce.example.com]; FROM_HAS_DN(0.00)[]; REPLYTO_DOM_NEQ_FROM_DOM(0.00)[]; PREVIOUSLY_DELIVERED(0.00)[receiver@anotherexample.com]; ASN(0.00)[asn:3320, ipnet:192.0.2.0/24, country:DE]; MID_RHS_MATCH_FROM(0.00)[]; MISSING_XM_UA(0.00)[]; HAS_REPLYTO(0.00)[some-reply-address@dms-reply.example.com]
 ```
 
 And then there is a corresponding `X-Rspamd-Action` header, which shows the overall result and the action that is taken. In our example, it would be:
@@ -56,7 +56,7 @@ And then there is a corresponding `X-Rspamd-Action` header, which shows the over
 X-Rspamd-Action    no action
 ```
 
-Since the score is `-4.10`, nothing will happen and the e-mail is not classified as spam. Our custom [`actions.conf`][rspamd-actions-config] defines what to do at certain scores:
+Since the score is `-2.80`, nothing will happen and the e-mail is not classified as spam. Our custom [`actions.conf`][rspamd-actions-config] defines what to do at certain scores:
 
 1. At a score of 4, the e-mail is to be _greylisted_;
 2. At a score of 6, the e-mail is _marked with a header_ (`X-Spam: Yes`);
