@@ -106,6 +106,14 @@ EOF
 # -----------------------------------------------
 
 COPY target/rspamd/local.d/ /etc/rspamd/local.d/
+COPY target/rspamd/scores.d/* /etc/rspamd/scores.d/
+
+# -----------------------------------------------
+# --- OAUTH2 ------------------------------------
+# -----------------------------------------------
+
+COPY target/dovecot/auth-oauth2.conf.ext /etc/dovecot/conf.d
+COPY target/dovecot/dovecot-oauth2.conf.ext /etc/dovecot
 
 # -----------------------------------------------
 # --- LDAP & SpamAssassin's Cron ----------------
@@ -190,6 +198,15 @@ COPY target/opendkim/default-opendkim /etc/default/opendkim
 COPY target/opendmarc/opendmarc.conf /etc/opendmarc.conf
 COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
 COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
+
+# --------------------------------------------------
+# --- postfix-mta-sts-daemon -----------------------
+# --------------------------------------------------
+COPY target/mta-sts-daemon/mta-sts-daemon.yml /etc/mta-sts-daemon.yml
+RUN <<EOF
+  mkdir /var/run/mta-sts
+  chown -R _mta-sts:root /var/run/mta-sts
+EOF
 
 # --------------------------------------------------
 # --- Fetchmail, Getmail, Postfix & Let'sEncrypt ---
@@ -277,8 +294,6 @@ RUN <<EOF
   update-locale
 EOF
 
-COPY VERSION /
-
 COPY \
   target/bin/* \
   target/scripts/*.sh \
@@ -320,7 +335,7 @@ LABEL org.opencontainers.image.title="docker-mailserver"
 LABEL org.opencontainers.image.vendor="The Docker Mailserver Organization"
 LABEL org.opencontainers.image.authors="The Docker Mailserver Organization on GitHub"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.description="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database."
+LABEL org.opencontainers.image.description="A fullstack but simple mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.). Only configuration files, no SQL database."
 LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
 LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
 LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"

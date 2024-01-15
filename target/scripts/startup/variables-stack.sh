@@ -83,10 +83,12 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_FETCHMAIL]="${ENABLE_FETCHMAIL:=0}"
   VARS[ENABLE_GETMAIL]="${ENABLE_GETMAIL:=0}"
   VARS[ENABLE_MANAGESIEVE]="${ENABLE_MANAGESIEVE:=0}"
+  VARS[ENABLE_OAUTH2]="${ENABLE_OAUTH2:=0}"
   VARS[ENABLE_OPENDKIM]="${ENABLE_OPENDKIM:=1}"
   VARS[ENABLE_OPENDMARC]="${ENABLE_OPENDMARC:=1}"
   VARS[ENABLE_POLICYD_SPF]="${ENABLE_POLICYD_SPF:=1}"
   VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
+  VARS[ENABLE_IMAP]="${ENABLE_IMAP:=1}"
   VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
   VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
   VARS[ENABLE_RSPAMD]="${ENABLE_RSPAMD:=0}"
@@ -148,6 +150,12 @@ function __environment_variables_general_setup() {
   VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
   VARS[TZ]="${TZ:=}"
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
+}
+
+function _environment_variables_oauth2() {
+  _log 'debug' 'Setting OAUTH2-related environment variables now'
+
+  VARS[OAUTH2_INTROSPECTION_URL]="${OAUTH2_INTROSPECTION_URL:=}"
 }
 
 # This function handles environment variables related to LDAP.
