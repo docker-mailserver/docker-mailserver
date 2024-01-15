@@ -2224,6 +2224,13 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <span class="na">use_esld</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">;</span>
 <span class="na">check_pubkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="c1">; # you want to use this in the beginning</span>
 
+<span class="na">selector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;mail&quot;</span><span class="c1">;</span>
+<span class="c1"># The path location is searched for a DKIM key with these variables:</span>
+<span class="c1"># - `$domain` is sourced from the MIME mail message `From` header</span>
+<span class="c1"># - `$selector` is configured for `mail` (as a default fallback)</span>
+<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/docker-mailserver/dkim/keys/$domain/$selector.private&quot;</span><span class="c1">;</span>
+
+<span class="c1"># domain specific configurations can be provided below:</span>
 <span class="na">domain {</span>
 <span class="w">    </span><span class="na">example.com {</span>
 <span class="w">        </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/docker-mailserver/rspamd/dkim/mail.private&quot;</span><span class="c1">;</span>
