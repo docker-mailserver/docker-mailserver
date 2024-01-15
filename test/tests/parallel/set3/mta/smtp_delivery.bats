@@ -81,7 +81,7 @@ function setup_file() {
   _send_email --to bounce-always@localhost.localdomain
   _send_email --to alias2@localhost.localdomain
   # Required for 'rejects spam':
-  _send_email --from 'spam@external.tld' --data 'amavis/spam.txt'
+  _send_spam
 
   # Required for 'delivers mail to existing account':
   _send_email --header 'Subject: Test Message existing-user1'

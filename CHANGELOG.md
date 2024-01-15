@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Updates
 
 - **Tests**:
-  - Refactored mail sending ([#3747](https://github.com/docker-mailserver/docker-mailserver/pull/3747)):
+  - Refactored mail sending ([#3747](https://github.com/docker-mailserver/docker-mailserver/pull/3747) & [#3772](https://github.com/docker-mailserver/docker-mailserver/pull/3772)):
     - This change is a follow-up to [#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732) from DMS v13.2.
     - `swaks` version is now the latest from Github releases instead of the Debian package.
     - `_nc_wrapper`, `_send_mail` and related helpers expect the `.txt` filepath extension again.
