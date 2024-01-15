@@ -27,8 +27,8 @@ function _setup_post() {
   # Dovecot `.svbin` files must have a newer mtime than their `.sieve` source files,
   # Modifications during setup to these files sometimes results in a common mtime value.
   # Handled during post-setup as setup of Dovecot Sieve scripts is not centralized.
-  find /usr/lib/dovecot/ -iname *.sieve -exec touch -d '2 seconds ago' {} +
-  find /usr/lib/dovecot/ -iname *.svbin -exec touch -d '1 seconds ago' {} +
+  find /usr/lib/dovecot/ -iname '*.sieve' -exec touch -d '2 seconds ago' {} +
+  find /usr/lib/dovecot/ -iname '*.svbin' -exec touch -d '1 seconds ago' {} +
 
   # All startup modifications to configs should have taken place before calling this:
   _prepare_for_change_detection
