@@ -466,7 +466,7 @@ function _print_mail_log_for_id() {
   local MAIL_ID=${1:?Mail ID must be provided}
   local CONTAINER_NAME=$(__handle_container_name "${2:-}")
 
-  _run_in_container grep -F "${MAIL_ID}" /var/log/mail.log
+  _run_in_container grep -E "${MAIL_ID}" /var/log/mail.log
 }
 
 # A simple wrapper for netcat (`nc`). This is useful when sending
@@ -480,7 +480,7 @@ function _nc_wrapper() {
 
   [[ -v CONTAINER_NAME ]] || return 1
 
-  _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${FILE}.txt"
+  _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${FILE}"
 }
 
 # ? << Miscellaneous helper functions

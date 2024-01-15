@@ -25,15 +25,14 @@ function setup_file() {
 
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
-  _send_email --from 'virus@external.tld' --data 'amavis/virus'
-  assert_success
+  _send_email --from 'virus@external.tld' --data 'amavis/virus.txt'
   _wait_for_empty_mail_queue_in_container
 }
 
 function teardown_file() { _default_teardown ; }
 
 @test 'log files exist at /var/log/mail directory' {
-  _run_in_container_bash "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log' | wc -l"
+  _run_in_container_bash "ls -1 /var/log/mail/ | grep -c -E 'clamav|freshclam|mail.log'"
   assert_success
   assert_output 3
 }

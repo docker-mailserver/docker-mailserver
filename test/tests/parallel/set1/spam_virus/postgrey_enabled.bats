@@ -44,14 +44,14 @@ function teardown_file() { _default_teardown ; }
   # The other spam checks in `main.cf:smtpd_recipient_restrictions` would interfere with testing postgrey.
   _run_in_container sed -i \
     -e 's/permit_sasl_authenticated.*policyd-spf,$//g' \
-    -e 's/reject_unauth_pipelining.*reject_unknown_recipient_domain,$//g' \
+    -e 's/reject_invalid_helo_hostname.*reject_unknown_recipient_domain,$//g' \
     -e 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' \
     -e 's/smtpd_recipient_restrictions =/smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' \
     /etc/postfix/main.cf
   _reload_postfix
 
   # Send test mail (it should fail to deliver):
-  _send_email --from 'user@external.tld' --port 25 --data 'postgrey'
+  _send_email --expect-rejection --from 'user@external.tld' --port 25 --data 'postgrey.txt'
   assert_failure
   assert_output --partial 'Recipient address rejected: Delayed by Postgrey'
 
@@ -71,8 +71,7 @@ function teardown_file() { _default_teardown ; }
   # Wait until `$POSTGREY_DELAY` seconds pass before trying again:
   sleep 3
   # Retry delivering test mail (it should be trusted this time):
-  _send_email --from 'user@external.tld' --port 25 --data 'postgrey'
-  assert_success
+  _send_email --from 'user@external.tld' --port 25 --data 'postgrey.txt'
 
   # Confirm postgrey permitted delivery (triplet is now trusted):
   _should_have_log_entry \
@@ -91,7 +90,7 @@ function teardown_file() { _default_teardown ; }
 #   - It'd also cause the earlier greylist test to fail.
 # - TODO: Actually confirm whitelist feature works correctly as these test cases are using a workaround:
 @test "should whitelist sender 'user@whitelist.tld'" {
-  _nc_wrapper 'nc/postgrey_whitelist' '-w 0 0.0.0.0 10023'
+  _nc_wrapper 'nc/postgrey_whitelist.txt' '-w 0 0.0.0.0 10023'
 
   _should_have_log_entry \
     'action=pass' \
@@ -100,7 +99,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "should whitelist recipient 'user2@otherdomain.tld'" {
-  _nc_wrapper 'nc/postgrey_whitelist_recipients' '-w 0 0.0.0.0 10023'
+  _nc_wrapper 'nc/postgrey_whitelist_recipients.txt' '-w 0 0.0.0.0 10023'
 
   _should_have_log_entry \
     'action=pass' \
