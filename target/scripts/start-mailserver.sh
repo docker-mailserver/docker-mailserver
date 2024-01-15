@@ -71,6 +71,11 @@ function _register_functions() {
       ;;
   esac
 
+  if [[ ${ENABLE_OAUTH2} -eq 1 ]]; then
+      _environment_variables_oauth2
+      _register_setup_function '_setup_oauth2'
+  fi
+
   if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]; then
     _environment_variables_saslauthd
     _register_setup_function '_setup_saslauthd'
@@ -114,6 +119,11 @@ function _register_functions() {
   _register_setup_function '_setup_save_states'
   _register_setup_function '_setup_apply_fixes_after_configuration'
   _register_setup_function '_environment_variables_export'
+
+  if [[ ${ENABLE_MTA_STS} -eq 1 ]]; then
+    _register_setup_function '_setup_mta_sts'
+    _register_start_daemon '_start_daemon_mta_sts_daemon'
+  fi
 
   # ? >> Daemons
 

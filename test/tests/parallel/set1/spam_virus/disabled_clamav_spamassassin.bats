@@ -18,8 +18,7 @@ function setup_file() {
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _send_email --data 'existing/user1'
-  assert_success
+  _send_email
   _wait_for_empty_mail_queue_in_container
 }
 

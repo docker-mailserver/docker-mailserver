@@ -1,0 +1,4 @@
+introspection_url =
+# Dovecot defaults:
+introspection_mode = auth
+username_attribute = email

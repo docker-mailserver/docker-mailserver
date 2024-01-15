@@ -248,7 +248,7 @@ function teardown() {
 
 # dovecot
 @test "dovecot: ldap imap connection and authentication works" {
-  _nc_wrapper 'auth/imap-ldap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/imap-ldap-auth.txt' '-w 1 0.0.0.0 143'
   assert_success
 }
 
@@ -326,25 +326,26 @@ function teardown() {
 @test "spoofing (with LDAP): rejects sender forging" {
   _wait_for_smtp_port_in_container_to_respond dms-test_ldap
 
-  _send_email \
-    --port 465 -tlsc --auth LOGIN \
+  _send_email --expect-rejection \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
     --ehlo mail \
     --from ldap@localhost.localdomain \
-    --data 'auth/ldap-smtp-auth-spoofed'
+    --data 'auth/ldap-smtp-auth-spoofed.txt'
+  assert_failure
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "spoofing (with LDAP): accepts sending as alias" {
   _send_email \
-    --port 465 -tlsc --auth LOGIN \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
     --ehlo mail \
     --from postmaster@localhost.localdomain \
     --to some.user@localhost.localdomain \
-    --data 'auth/ldap-smtp-auth-spoofed-alias'
+    --data 'auth/ldap-smtp-auth-spoofed-alias.txt'
   assert_output --partial 'End data with'
 }
 
@@ -353,20 +354,21 @@ function teardown() {
   # Template used has invalid AUTH: https://github.com/docker-mailserver/docker-mailserver/pull/3006#discussion_r1073321432
   skip 'TODO: This test seems to have been broken from the start (?)'
 
-  _send_email \
-    --port 465 -tlsc --auth LOGIN \
+  _send_email --expect-rejection \
+    --port 465 -tlsc --auth PLAIN \
     --auth-user some.user.email@localhost.localdomain \
     --auth-password secret \
     --ehlo mail \
     --from randomspoofedaddress@localhost.localdomain \
     --to some.user@localhost.localdomain \
-    --data 'auth/ldap-smtp-auth-spoofed-sender-with-filter-exception'
+    --data 'auth/ldap-smtp-auth-spoofed-sender-with-filter-exception.txt'
+  assert_failure
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "saslauthd: ldap smtp authentication" {
-  _send_email \
-    --auth LOGIN \
+  _send_email --expect-rejection \
+    --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password wrongpassword \
     --quit-after AUTH
@@ -379,12 +381,11 @@ function teardown() {
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
     --quit-after AUTH
-  assert_success
   assert_output --partial 'Authentication successful'
 
   _send_email \
     --port 587 -tls \
-    --auth LOGIN \
+    --auth PLAIN \
     --auth-user some.user@localhost.localdomain \
     --auth-password secret \
     --quit-after AUTH

@@ -49,9 +49,9 @@ function teardown_file() {
 
   # TODO replace with _send_email as soon as it supports DSN
   # TODO ref: https://github.com/jetmore/swaks/issues/41
-  _nc_wrapper 'emails/nc_raw/dsn/unauthenticated'
-  _nc_wrapper 'emails/nc_raw/dsn/authenticated' '0.0.0.0 465'
-  _nc_wrapper 'emails/nc_raw/dsn/authenticated' '0.0.0.0 587'
+  _nc_wrapper 'emails/nc_raw/dsn/unauthenticated.txt'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 465'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 587'
   _wait_for_empty_mail_queue_in_container
 
   _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
@@ -62,7 +62,7 @@ function teardown_file() {
 @test "should only send a DSN when requested from ports 465/587" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
 
-  _nc_wrapper 'emails/nc_raw/dsn/unauthenticated'
+  _nc_wrapper 'emails/nc_raw/dsn/unauthenticated.txt'
   _wait_for_empty_mail_queue_in_container
 
   # DSN requests can now only be made on ports 465 and 587,
@@ -74,8 +74,8 @@ function teardown_file() {
   assert_failure
 
   # These ports are excluded via master.cf.
-  _nc_wrapper 'emails/nc_raw/dsn/authenticated' '0.0.0.0 465'
-  _nc_wrapper 'emails/nc_raw/dsn/authenticated' '0.0.0.0 587'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 465'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 587'
   _wait_for_empty_mail_queue_in_container
 
   _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
@@ -85,9 +85,9 @@ function teardown_file() {
 @test "should never send a DSN" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
-  _nc_wrapper 'emails/nc_raw/dsn/unauthenticated'
-  _nc_wrapper 'emails/nc_raw/dsn/authenticated' '0.0.0.0 465'
-  _nc_wrapper 'emails/nc_raw/dsn/authenticated' '0.0.0.0 587'
+  _nc_wrapper 'emails/nc_raw/dsn/unauthenticated.txt'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 465'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 587'
   _wait_for_empty_mail_queue_in_container
 
   # DSN requests are rejected regardless of origin.
