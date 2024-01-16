@@ -12,13 +12,14 @@ The most noteworthy change of this release is the update of the container's base
 
 ### Breaking
 
-- **Updated base image to Debian 12**
-- Changed the default of `DOVECOT_COMMUNITY_REPO` to `0` (disabled) - the Dovecot community repo will (for now) not be the default when building the DMS.
-- Updated packages. For an overview, [we have a review comment on the PR that introduces Debian 12](https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1694563615)
-  - Notable major version bump: `openssl 3`, `clamav 1`, `spamassassin 4`, `redis-server 7`.
-  - Notable minor version bump: `postfix 3.5.18 => 3.7.6`
+- **Updated base image to Debian 12** ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
+  - Changed the default of `DOVECOT_COMMUNITY_REPO` to `0` (disabled) - the Dovecot community repo will (for now) not be the default when building the DMS.
+  - Updated packages. For an overview, [we have a review comment on the PR that introduces Debian 12](https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1694563615)
+    - Notable major version bump: `openssl 3`, `clamav 1`, `spamassassin 4`, `redis-server 7`.
+    - Notable minor version bump: `postfix 3.5.23 => 3.7.9`
 - **Postfix:**
-  - `compatibility_level` was raised from `2` to `3.6` ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
+  - Postfix upgrade from 3.5 to 3.7 ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
+    - `compatibility_level` was raised from `2` to `3.6`
     - Postfix has deprecated the usage of `whitelist` / `blacklist` in config parameters and logging in favor of `allowlist` / `denylist` and similar variations. ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403/files#r1306356328))
       - This [may affect monitoring / analysis of logs output from Postfix](https://www.postfix.org/COMPATIBILITY_README.html#respectful_logging) that expects to match patterns on the prior terminology used.
       - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
