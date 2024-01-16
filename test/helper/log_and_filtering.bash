@@ -36,7 +36,7 @@ function _filter_service_log() {
 
   # Fallback to alternative log location:
   [[ -f ${FILE} ]] || FILE="/var/log/mail/${SERVICE}.log"
-  _run_in_container grep -E "${STRING}" "${FILE}"
+  _run_in_container grep -i -E "${STRING}" "${FILE}"
 }
 
 # Like `_filter_service_log` but asserts that the string was found.
@@ -51,12 +51,24 @@ function _filter_service_log() {
 # as a regular expression. In case you use characters that are special
 # in regular expressions, you need to escape them!
 function _service_log_should_contain_string() {
-  local SERVICE=${1:?Service name must be provided}
-  local STRING=${2:?String to match must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
-
-  _filter_service_log "${SERVICE}" "${STRING}"
+  _filter_service_log "${@}"
   assert_success
+}
+
+# Like `_filter_service_log` but asserts that the string was not found.
+#
+# @param ${1} = service name
+# @param ${2} = string to filter by
+# @param ${3} = container name [OPTIONAL]
+#
+# ## Attention
+#
+# The string given to this function is interpreted by `grep -E`, i.e.
+# as a regular expression. In case you use characters that are special
+# in regular expressions, you need to escape them!
+function _service_log_should_not_contain_string() {
+  _filter_service_log "${@}"
+  assert_failure
 }
 
 # Filters the mail log according to MID (Message-ID) and prints lines
