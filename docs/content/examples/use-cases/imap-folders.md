@@ -61,7 +61,7 @@ Take care to test localized names work well as well.
 
     This information is provided by the community.
 
-    It presently lacks references to confirm the behaviour. If any information is incorrect please let us know! :smile:
+    It presently lacks references to confirm the behavior. If any information is incorrect please let us know! :smile:
 
 
 [docs-config-overrides-dovecot]: ../../config/advanced/override-defaults/dovecot.md#override-configuration

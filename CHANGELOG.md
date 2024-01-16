@@ -55,9 +55,12 @@ The most noteworthy change of this release is the update of the container's base
   - symbol scores for SPF, DKIM & DMARC were updated to more closely align with [RFC7489](https://www.rfc-editor.org/rfc/rfc7489#page-24); please note though that complete alignment is undesirable, because other symbols might be added as well, which changes the overall score calculation again, see [this issue](https://github.com/docker-mailserver/docker-mailserver/issues/3690#issuecomment-1866871996)
 - **Docs:**
   - Revised the SpamAssassin ENV docs to better communicate configuration and their relation to other ENV settings. ([#3756](https://github.com/docker-mailserver/docker-mailserver/pull/3756))
+  - Detailed how mail received is assigned a spam score by Rspamd and processed accordingly ([#3773](https://github.com/docker-mailserver/docker-mailserver/pull/3773))
 
 ### Fixes
 
+- **Dovecot:**
+  - During container startup for Dovecot Sieve, `.sievec` source files compiled to `.svbin` now have their `mtime` adjusted post setup to ensure it is always older than the associated `.svbin` file. This avoids superfluous error logs for sieve scripts that don't actually need to be compiled again ([#3779](https://github.com/docker-mailserver/docker-mailserver/pull/3779))
 - **Internal:**
   - `.gitattributes`: Always use LF line endings on checkout for files with shell script content ([#3755](https://github.com/docker-mailserver/docker-mailserver/pull/3755))
   - Fix missing 'jaq' binary for ARM architecture ([#3766](https://github.com/docker-mailserver/docker-mailserver/pull/3766))
