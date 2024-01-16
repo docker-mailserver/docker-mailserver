@@ -59,7 +59,7 @@ function teardown_file() { _default_teardown ; }
   _should_have_log_entry \
     'action=greylist' \
     'reason=new' \
-    'client_address=127.0.0.1/32, sender=user@external.tld, recipient=user1@localhost.localdomain'
+    'client_address=127.0.0.1, sender=user@external.tld, recipient=user1@localhost.localdomain'
 }
 
 # NOTE: This test case depends on the previous one
@@ -73,7 +73,7 @@ function teardown_file() { _default_teardown ; }
   _should_have_log_entry \
     'action=pass' \
     'reason=triplet found' \
-    'client_address=127.0.0.1/32, sender=user@external.tld, recipient=user1@localhost.localdomain'
+    'client_address=127.0.0.1, sender=user@external.tld, recipient=user1@localhost.localdomain'
 }
 
 # NOTE: These two whitelist tests use `files/nc/` instead of `files/emails`.
@@ -91,7 +91,7 @@ function teardown_file() { _default_teardown ; }
   _should_have_log_entry \
     'action=pass' \
     'reason=client whitelist' \
-    'client_address=127.0.0.1/32, sender=test@whitelist.tld, recipient=user1@localhost.localdomain'
+    'client_address=127.0.0.1, sender=test@whitelist.tld, recipient=user1@localhost.localdomain'
 }
 
 @test "should whitelist recipient 'user2@otherdomain.tld'" {
@@ -100,7 +100,7 @@ function teardown_file() { _default_teardown ; }
   _should_have_log_entry \
     'action=pass' \
     'reason=recipient whitelist' \
-    'client_address=127.0.0.1/32, sender=test@nonwhitelist.tld, recipient=user2@otherdomain.tld'
+    'client_address=127.0.0.1, sender=test@nonwhitelist.tld, recipient=user2@otherdomain.tld'
 }
 
 function _should_have_log_entry() {
