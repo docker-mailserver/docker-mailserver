@@ -182,23 +182,15 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "system: /var/log/mail/mail.log is error free" {
-  _run_in_container grep 'non-null host address bits in' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep 'mail system configuration error' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep ': error:' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i 'is not writable' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i 'permission denied' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i '(!)connect' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i 'using backwards-compatible default setting' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i 'connect to 127.0.0.1:10023: Connection refused' /var/log/mail/mail.log
-  assert_failure
+@test "system: Mail log is error free" {
+  _service_log_should_not_contain_string 'mail' 'non-null host address bits in'
+  _service_log_should_not_contain_string 'mail' 'mail system configuration error'
+  _service_log_should_not_contain_string 'mail' ': error:'
+  _service_log_should_not_contain_string 'mail' 'is not writable'
+  _service_log_should_not_contain_string 'mail' 'permission denied'
+  _service_log_should_not_contain_string 'mail' '\(!\)connect'
+  _service_log_should_not_contain_string 'mail' 'using backwards-compatible default setting'
+  _service_log_should_not_contain_string 'mail' 'connect to 127.0.0.1:10023: Connection refused'
 }
 
 @test "system: /var/log/auth.log is error free" {
@@ -212,7 +204,8 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "system: amavis decoders installed and available" {
-  _run_in_container_bash "grep -E '.*(Internal decoder|Found decoder) for\s+\..*' /var/log/mail/mail.log*|grep -Eo '(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe)' | sort | uniq"
+  _service_log_should_contain_string 'mail' '.*(Internal decoder|Found decoder) for\s+\..*'
+  run bash -c "grep -Eo '(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe)' <<< '${output}' | sort | uniq"
   assert_success
   # Support for doc and zoo removed in buster
   cat <<'EOF' | assert_output

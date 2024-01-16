@@ -272,10 +272,10 @@ function teardown_file() { _default_teardown ; }
   _nc_wrapper 'nc/rspamd_imap_move_to_junk.txt' '0.0.0.0 143'
   sleep 1 # wait for the transaction to finish
 
-  _run_in_container cat /var/log/mail/mail.log
-  assert_success
-  assert_output --partial 'imapsieve: Matched static mailbox rule [1]'
-  refute_output --partial 'imapsieve: Matched static mailbox rule [2]'
+  _service_log_should_contain_string 'mail' 'imapsieve: Matched static mailbox rule \[1\]'
+  _service_log_should_not_contain_string 'mail' 'imapsieve: Matched static mailbox rule \[2\]'
+
+  _filter_service_log 'mail' '.'
   for LINE in "${LEARN_SPAM_LINES[@]}"; do
     assert_output --partial "${LINE}"
   done
@@ -286,9 +286,9 @@ function teardown_file() { _default_teardown ; }
   _nc_wrapper 'nc/rspamd_imap_move_to_inbox.txt' '0.0.0.0 143'
   sleep 1 # wait for the transaction to finish
 
-  _run_in_container cat /var/log/mail/mail.log
-  assert_success
-  assert_output --partial 'imapsieve: Matched static mailbox rule [2]'
+  _service_log_should_contain_string 'mail' 'imapsieve: Matched static mailbox rule \[2\]'
+
+  _filter_service_log 'mail' '.'
   for LINE in "${LEARN_HAM_LINES[@]}"; do
     assert_output --partial "${LINE}"
   done

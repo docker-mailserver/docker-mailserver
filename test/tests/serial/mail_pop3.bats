@@ -33,11 +33,9 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test '/var/log/mail/mail.log is error-free' {
-  _run_in_container grep 'non-null host address bits in' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep ': error:' /var/log/mail/mail.log
-  assert_failure
+@test 'Mail log is error-free' {
+  _service_log_should_not_contain_string 'mail' 'non-null host address bits in'
+  _service_log_should_not_contain_string 'mail' ': error:'
 }
 
 @test '(Manage Sieve) disabled per default' {

@@ -25,16 +25,14 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test "ClamAV - Amavis integration should not be active" {
-  _run_in_container grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' 'Found secondary av scanner ClamAV-clamscan'
 }
 
 @test "SA - Amavis integration should not be active" {
-  _run_in_container_bash "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
-  assert_success
+  _service_log_should_contain_string 'mail' 'ANTI-SPAM-SA code'
+  assert_output --partial 'NOT loaded'
 }
 
 @test "SA - should not have been called" {
-  _run_in_container grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' 'connect to /var/run/clamav/clamd.ctl failed'
 }
