@@ -17,6 +17,10 @@ The most noteworthy change of this release is the update of the container's base
   - Updated packages. For an overview, [we have a review comment on the PR that introduces Debian 12](https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1694563615)
     - Notable major version bump: `openssl 3`, `clamav 1`, `spamassassin 4`, `redis-server 7`.
     - Notable minor version bump: `postfix 3.5.23 => 3.7.9`
+  - Updates to `packages.sh`:
+    - The script now uses `/etc/os-release` to determine the release name of Debian
+    - Removed custom installations of Fail2Ban, getmail6 and Rspamd
+    - Updated packages lists and added comments for maintainability
 - **Postfix:**
   - Postfix upgrade from 3.5 to 3.7 ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
     - `compatibility_level` was raised from `2` to `3.6`
@@ -110,10 +114,8 @@ DMS is now secured against the [recently published spoofing attack "SMTP Smuggli
   - Debugging - Raise awareness of temporary downtime during certificate renewal that can cause a failure to deliver local mail ([#3718](https://github.com/docker-mailserver/docker-mailserver/pull/3718))
 - **Internal:**
   - Postfix configures `virtual_mailbox_maps` and `virtual_transport` during startup instead of using defaults (configured for Dovecot) via our `main.cf` ([#3681](https://github.com/docker-mailserver/docker-mailserver/pull/3681))
-  - Updates to `packages.sh`:
-    - The script now uses `/etc/os-release` to determine the release name of Debian
-    - Removed custom installations of Fail2Ban, getmail6 and Rspamd
-    - Updated packages lists and added comments for maintainability
+- **Rspamd:**
+  - Upgraded to version `3.7.5`. This was previously inconsistent between our AMD64 (`3.5`) and ARM64 (`3.4`) images ([#3686](https://github.com/docker-mailserver/docker-mailserver/pull/3686))
 
 ### Fixed
 
