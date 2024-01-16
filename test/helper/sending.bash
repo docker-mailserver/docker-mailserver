@@ -122,9 +122,9 @@ function _send_email_with_mid() {
 
 # Send a spam e-mail by utilizing GTUBE.
 #
-# Extra arguments given to this function will be supplied by `_send_email_and_get_id` directly.
+# Extra arguments given to this function will be supplied by `_send_email_with_mid` directly.
 function _send_spam() {
-  _send_email_and_get_id MAIL_ID_SPAM "${@}" \
+  _send_email_with_mid 'spam' "${@}" \
     --from 'spam@external.tld' \
     --body 'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
 }
