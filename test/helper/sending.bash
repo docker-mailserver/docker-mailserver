@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# shellcheck disable=SC2034,SC2155
-
 # ? ABOUT: Functions defined here help with sending emails in tests.
 
 # ! ATTENTION: This file is loaded by `common.sh` - do not load it yourself!
 # ! ATTENTION: This file requires helper functions from `common.sh`!
+
+# shellcheck disable=SC2034,SC2155
 
 # Sends an e-mail from the container named by the environment variable `CONTAINER_NAME`
 # to the same or another container.

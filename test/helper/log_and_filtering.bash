@@ -5,6 +5,8 @@
 # ! ATTENTION: This file is loaded by `common.sh` - do not load it yourself!
 # ! ATTENTION: This file requires helper functions from `common.sh`!
 
+# shellcheck disable=SC2034,SC2155
+
 # Assert that the number of lines output by a previous command matches the given
 # amount (${1}). `lines` is a special BATS variable updated via `run`.
 #
