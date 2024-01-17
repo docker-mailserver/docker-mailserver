@@ -107,7 +107,7 @@ The `PERMIT_DOCKER` variable in the `mailserver.env` file allows to specify trus
 #### Use the slip4netns network driver
 
 The second workaround is slightly more complicated because the `compose.yaml` has to be modified.
-As shown in the [fail2ban section](../../security/fail2ban/#podman-with-slirp4netns-port-driver) the `slirp4netns` network driver has to be enabled.
+As shown in the [fail2ban section](../security/fail2ban.md#podman-with-slirp4netns-port-driver) the `slirp4netns` network driver has to be enabled.
 This network driver enables podman to correctly resolve IP addresses but it is not compatible with
 user defined networks which might be a problem depending on your setup.
 

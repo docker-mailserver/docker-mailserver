@@ -560,7 +560,7 @@ Changes the interval in which log files are rotated.
 
     The Amavis action configured by this setting:
 
-    - Influences the behaviour of the [`SA_KILL`](#sa_kill) setting.
+    - Influences the behavior of the [`SA_KILL`](#sa_kill) setting.
     - Applies to the Amavis config parameters `$final_spam_destiny` and `$final_bad_header_destiny`.
 
 !!! note "This ENV setting is related to"
@@ -596,7 +596,7 @@ Mail is not yet considered spam at this spam score, but for purposes like diagno
     ```
 
     !!! info "The `X-Spam-Score` is `4.162`"
-    
+
         High enough for `SA_TAG` to trigger adding these headers, but not high enough for `SA_TAG2` (_which would set `X-Spam-Flag: YES` instead_).
 
 ##### SA_TAG2

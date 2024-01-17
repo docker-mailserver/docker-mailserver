@@ -70,6 +70,8 @@ function __setup__security__spamassassin() {
   if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring SpamAssassin'
 
+    # Maintainers should take care in attempting to change these sed commands. Alternatives were already explored:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/3767#issuecomment-1885989591
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
