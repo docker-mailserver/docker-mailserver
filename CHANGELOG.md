@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Updates
 
 - **Tests**:
+  - Revised testing of service process management (supervisord) to be more robust ([#3780](https://github.com/docker-mailserver/docker-mailserver/pull/3780))
   - Refactored mail sending ([#3747](https://github.com/docker-mailserver/docker-mailserver/pull/3747) & [#3772](https://github.com/docker-mailserver/docker-mailserver/pull/3772)):
     - This change is a follow-up to [#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732) from DMS v13.2.
     - `swaks` version is now the latest from Github releases instead of the Debian package.
