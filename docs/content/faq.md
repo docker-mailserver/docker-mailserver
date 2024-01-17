@@ -12,7 +12,7 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 
 ### How are IMAP mailboxes (_aka IMAP Folders_) set up?
 
-`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](../examples/use-cases/imap-folders) for more information.
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](./examples/use-cases/imap-folders.md) for more information.
 
 ### How do I update DMS?
 
@@ -128,7 +128,7 @@ find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
 
 ### I Want to Know More About the Ports
 
-See [this part of the documentation](../config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
+See [this part of the documentation](./config/security/understanding-the-ports.md) for further details and best practice advice, **especially regarding security concerns**.
 
 ### How can I configure my email client?
 
@@ -210,7 +210,7 @@ baduser@example.com devnull
 
 ### What kind of SSL certificates can I use?
 
-Both RSA and ECDSA certs are supported. You can provide your own cert files manually, or mount a `letsencrypt` generated directory (_with alternative support for Traefik's `acme.json`_). Check out the [`SSL_TYPE` documentation](../config/environment/#ssl_type) for more details.
+Both RSA and ECDSA certs are supported. You can provide your own cert files manually, or mount a `letsencrypt` generated directory (_with alternative support for Traefik's `acme.json`_). Check out the [`SSL_TYPE` documentation](./config/environment.md#ssl_type) for more details.
 
 ### I just moved from my old mail server to DMS, but "it doesn't work"?
 
