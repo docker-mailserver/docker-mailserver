@@ -38,6 +38,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixes
 
+- **Setup:**
+  - `setup` CLI - `setup dkim domain` now creates the keys files with the user owning the key directory ([#3783](https://github.com/docker-mailserver/docker-mailserver/pull/3783))
 - **Dovecot:**
   - During container startup for Dovecot Sieve, `.sievec` source files compiled to `.svbin` now have their `mtime` adjusted post setup to ensure it is always older than the associated `.svbin` file. This avoids superfluous error logs for sieve scripts that don't actually need to be compiled again ([#3779](https://github.com/docker-mailserver/docker-mailserver/pull/3779))
 - **Internal:**
