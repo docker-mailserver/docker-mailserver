@@ -9,7 +9,7 @@ function setup_file() {
   export DMS_TEST_NETWORK='test-network-oauth2'
   export DMS_DOMAIN='example.test'
   export FQDN_MAIL="mail.${DMS_DOMAIN}"
-  export FQDN_OAUTH2="oauth2.${DMS_DOMAIN}"
+  export FQDN_OAUTH2="auth.${DMS_DOMAIN}"
 
   # Link the test containers to separate network:
   # NOTE: If the network already exists, test will fail to start.
@@ -31,7 +31,7 @@ function setup_file() {
   # Add OAUTH2 configuration so that Dovecot can reach out to our mock provider (CONTAINER2)
   local ENV_OAUTH2_CONFIG=(
     --env ENABLE_OAUTH2=1
-    --env OAUTH2_INTROSPECTION_URL=http://oauth2.example.test/userinfo/
+    --env OAUTH2_INTROSPECTION_URL=http://auth.example.test/userinfo
   )
 
   export CONTAINER_NAME=${CONTAINER1_NAME}
@@ -61,5 +61,9 @@ function teardown_file() {
   _run_in_container_bash 'nc -vz 0.0.0.0 143'
 
   _nc_wrapper 'auth/imap-oauth2-auth.txt' '-w 1 0.0.0.0 143'
-  assert_output --partial 'Examine completed'
+
+  # Inspect the relevant Dovecot logs to catch failure / success:
+  _run_in_container grep 'dovecot:' /var/log/mail.log
+  refute_output --partial 'oauth2 failed: Introspection failed'
+  assert_output --partial 'dovecot: imap-login: Login: user=<user1@localhost.localdomain>, method=XOAUTH2'
 }

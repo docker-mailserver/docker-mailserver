@@ -3,6 +3,10 @@
 # Dovecot will query the mocked `/userinfo` endpoint with the OAuth2 bearer token it was provided during login.
 # If the session for the token is valid, a response returns an attribute to perform a UserDB lookup on (default: email).
 
+# `DMS_YWNjZXNzX3Rva2Vu` is the access token our OAuth2 tests expect for an authorization request to be successful.
+# - The token was created by base64 encoding the string `access_token`, followed by adding `DMS_` as a prefix.
+# - Normally an access token is a short-lived value associated to a login session. The value does not encode any real data.
+
 :80 {
   # This is the `/userinfo` endpoint that Dovecot connects to with the OAuth2 setting (default: `introspection_mode = auth`).
   # Example: curl http://auth.example.test/userinfo -H 'Authorization: Bearer <token here>'
@@ -22,9 +26,7 @@
 
 # /userinfo
 :2000 {
-  # OAuth2.0 Bearer token (paste into https://jwt.io/ to check it's contents).
-  # You should never need to edit this unless you REALLY need to change the issuer.
-  vars token "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vcHJvdmlkZXIuZXhhbXBsZS50ZXN0OjgwMDAvIiwic3ViIjoiODJjMWMzMzRkY2M2ZTMxMWFlNGFhZWJmZTk0NmM1ZTg1OGYwNTVhZmYxY2U1YTM3YWE3Y2M5MWFhYjE3ZTM1YyIsImF1ZCI6Im1haWxzZXJ2ZXIiLCJ1aWQiOiI4OU4zR0NuN1M1Y090WkZNRTVBeVhNbmxURFdVcnEzRmd4YWlyWWhFIn0.zuCytArbphhJn9XT_y9cBdGqDCNo68tBrtOwPIsuKNyF340SaOuZa0xarZofygytdDpLtYr56QlPTKImi-n1ZWrHkRZkwrQi5jQ-j_n2hEAL0vUToLbDnXYfc5q2w7z7X0aoCmiK8-fV7Kx4CVTM7riBgpElf6F3wNAIcX6R1ijUh6ISCL0XYsdogf8WUNZipXY-O4R7YHXdOENuOp3G48hWhxuUh9PsUqE5yxDwLsOVzCTqg9S5gxPQzF2eCN9J0I2XiIlLKvLQPIZ2Y_K7iYvVwjpNdgb4xhm9wuKoIVinYkF_6CwIzAawBWIDJAbix1IslkUPQMGbupTDtOgTiQ"
+  vars token "DMS_YWNjZXNzX3Rva2Vu"
 
   # Expects to match an authorization header with a specific bearer token:
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#authentication_schemes
@@ -38,8 +40,7 @@
     respond <<EOF
     {
       "email": "user1@localhost.localdomain",
-      "email_verified": true,
-      "sub": "82c1c334dcc6e311ae4aaebfe946c5e858f055aff1ce5a37aa7cc91aab17e35c"
+      "email_verified": true
     }
     EOF
   }
@@ -57,7 +58,7 @@
 # and sending the `auth` value from the `credentials` variable as an HTTP Authorization header.
 :3000 {
   route {
-    vars token "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vcHJvdmlkZXIuZXhhbXBsZS50ZXN0OjgwMDAvIiwic3ViIjoiODJjMWMzMzRkY2M2ZTMxMWFlNGFhZWJmZTk0NmM1ZTg1OGYwNTVhZmYxY2U1YTM3YWE3Y2M5MWFhYjE3ZTM1YyIsImF1ZCI6Im1haWxzZXJ2ZXIiLCJ1aWQiOiI4OU4zR0NuN1M1Y090WkZNRTVBeVhNbmxURFdVcnEzRmd4YWlyWWhFIn0.zuCytArbphhJn9XT_y9cBdGqDCNo68tBrtOwPIsuKNyF340SaOuZa0xarZofygytdDpLtYr56QlPTKImi-n1ZWrHkRZkwrQi5jQ-j_n2hEAL0vUToLbDnXYfc5q2w7z7X0aoCmiK8-fV7Kx4CVTM7riBgpElf6F3wNAIcX6R1ijUh6ISCL0XYsdogf8WUNZipXY-O4R7YHXdOENuOp3G48hWhxuUh9PsUqE5yxDwLsOVzCTqg9S5gxPQzF2eCN9J0I2XiIlLKvLQPIZ2Y_K7iYvVwjpNdgb4xhm9wuKoIVinYkF_6CwIzAawBWIDJAbix1IslkUPQMGbupTDtOgTiQ"
+    vars token "DMS_YWNjZXNzX3Rva2Vu"
     vars user "user1@localhost.localdomain"
     vars credentials "user={vars.user}\001auth=Bearer {vars.token}\001\001"
   }
