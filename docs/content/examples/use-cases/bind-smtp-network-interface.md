@@ -20,7 +20,7 @@ This can be configured by [overriding the default Postfix configurations][docs::
 In `postfix-main.cf` you'll have to set the [`smtp_bind_address`][postfix-docs::smtp-bind-address-ipv4] and [`smtp_bind_address6`][postfix-docs::smtp-bind-address-ipv6]
 to the respective IP-address on the server you want to use.
 
-[docs::overrides-postfix]: ../override-defaults/postfix.md
+[docs::overrides-postfix]: ../../config/advanced/override-defaults/postfix.md
 [postfix-docs::smtp-bind-address-ipv4]: https://www.postfix.org/postconf.5.html#smtp_bind_address
 [postfix-docs::smtp-bind-address-ipv6]: https://www.postfix.org/postconf.5.html#smtp_bind_address6
 
