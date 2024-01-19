@@ -52,16 +52,20 @@
 }
 
 # /imap/xoauth2
-# Responds with the auth string (base64 encoded) for use with the IMAP `AUTHENTICATE` command:
-# curl http://auth.example.test/imap/xoauth2
+# Provide `user` and `access_token` values via query string parameters:
+# curl 'http://auth.example.test/imap/xoauth2?user=user1@localhost.localdomain&access_token=DMS_YWNjZXNzX3Rva2Vu'
+#
 # When Dovecot queries /userinfo endpoint, it will be after base64 decoding the IMAP `AUTHENTICATE` value,
 # and sending the `auth` value from the `credentials` variable as an HTTP Authorization header.
 :3000 {
-  route {
-    vars token "DMS_YWNjZXNzX3Rva2Vu"
-    vars user "user1@localhost.localdomain"
-    vars credentials "user={vars.user}\001auth=Bearer {vars.token}\001\001"
-  }
+  # The login username + OAuth2 access token prior to Base64 encoding, as per the XOAUTH2 spec:
+  # https://developers.google.com/gmail/imap/xoauth2-protocol#the_sasl_xoauth2_mechanism
+  vars credentials "user={query.user}\001auth=Bearer {query.access_token}\001\001"
+
+  # Responds with the auth string (base64 encoded) for use with the IMAP `AUTHENTICATE` command:
+  templates
+  respond "{{b64enc \"{vars.credentials}\"}}"
+}
 
   templates
   respond "{{b64enc \"{vars.credentials}\"}}"
