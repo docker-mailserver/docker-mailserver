@@ -12,7 +12,7 @@ hide:
 
 If your Docker host is running multiple IPv4 and IPv6 IP-addresses, it may be beneficial to bind outgoing SMTP connections to specific IP-address / interface.
 
-- When a mail is sent outbound from DMS, it greets the MTA it is connecting to with a EHLO (DMS FQDN) which might be verified against the IP resolved, and that a `PTR` record for that IP resolves an address back to the same IP.
+- When a mail is sent outbound from DMS, it greets the MTA it is connecting to with a EHLO (DMS FQDN) which might be verified against the IP resolved, and that a `PTR` record for that IP resolves an address back to the same IP. A similar check can against the envelope-sender address for SPF that verifies a DNS record like MX / A is valid (_or a similar restriction check from an MTA like [Postfix has with `reject_unknown_sender`][gh-pr::3465::comment-restrictions]_).
 - If DMS connections are inconsistent with the IP used here, these DNS checks are likely to fail.
 
 This can be configured by [overriding the default Postfix configurations][docs::overrides-postfix] DMS provides. Create `postfix-master.cf` and `postfix-main.cf` files for your config volume (`docker-data/dms/config`).
@@ -46,7 +46,7 @@ to the respective IP-address on the server you want to use.
 
     === "Alternative (unverified)"
 
-        A potentially better solution might be to instead [explicitly set the `smtp_bind_address` override on the `smtp` transport service][gh-pr::3465]:
+        A potentially better solution might be to instead [explicitly set the `smtp_bind_address` override on the `smtp` transport service][gh-pr::3465::alternative-solution]:
 
         ```title="postfix-master.cf"
         smtp/inet/smtp_bind_address = 198.51.100.42
@@ -61,6 +61,7 @@ to the respective IP-address on the server you want to use.
     
 [rfc-5737]: https://datatracker.ietf.org/doc/html/rfc5737
 [rfc-3849]: https://datatracker.ietf.org/doc/html/rfc3849
-[gh-pr::3465]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#issuecomment-1678107233
-[gh-src::postfix-master-cf::relay-transport]: https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65
 
+[gh-pr::3465::comment-restrictions]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#discussion_r1458114528
+[gh-pr::3465::alternative-solution]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#issuecomment-1678107233
+[gh-src::postfix-master-cf::relay-transport]: https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65
