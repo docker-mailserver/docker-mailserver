@@ -17,9 +17,15 @@ All notable changes to this project will be documented in this file. The format 
     - Enable via the ENV `ENABLE_MTA_STS=1`
     - Supported by major email service providers like Gmail, Yahoo and Outlook.
 
+### Added
+
+- **Docs:**
+  - An example for how to bind outbound SMTP connections to a specific network interface ([#3465](https://github.com/docker-mailserver/docker-mailserver/pull/3465))
+
 ### Updates
 
 - **Tests**:
+  - Replace `wc -l` with `grep -c` ([#3752](https://github.com/docker-mailserver/docker-mailserver/pull/3752))
   - Revised testing of service process management (supervisord) to be more robust ([#3780](https://github.com/docker-mailserver/docker-mailserver/pull/3780))
   - Refactored mail sending ([#3747](https://github.com/docker-mailserver/docker-mailserver/pull/3747) & [#3772](https://github.com/docker-mailserver/docker-mailserver/pull/3772)):
     - This change is a follow-up to [#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732) from DMS v13.2.
@@ -28,10 +34,9 @@ All notable changes to this project will be documented in this file. The format 
     - `sending.bash` helper methods were refactored to better integrate `swaks` and accommodate different usage contexts.
     - `test/files/emails/existing/` files were removed similar to previous removal of SMTP auth files as they became redundant with `swaks`.
 - **Internal:**
-  - tests: Replace `wc -l` with `grep -c` ([#3752](https://github.com/docker-mailserver/docker-mailserver/pull/3752))
   - Postfix is now configured with `smtputf8_enable = no` in our default `main.cf` config (_instead of during container startup_). ([#3750](https://github.com/docker-mailserver/docker-mailserver/pull/3750))
 - **Rspamd** ([#3726](https://github.com/docker-mailserver/docker-mailserver/pull/3726)):
-  - symbol scores for SPF, DKIM & DMARC were updated to more closely align with [RFC7489](https://www.rfc-editor.org/rfc/rfc7489#page-24); please note though that complete alignment is undesirable, because other symbols might be added as well, which changes the overall score calculation again, see [this issue](https://github.com/docker-mailserver/docker-mailserver/issues/3690#issuecomment-1866871996)
+  - Symbol scores for SPF, DKIM & DMARC were updated to more closely align with [RFC7489](https://www.rfc-editor.org/rfc/rfc7489#page-24). Please note that complete alignment is undesirable as other symbols may be added as well, which changes the overall score calculation again, see [this issue](https://github.com/docker-mailserver/docker-mailserver/issues/3690#issuecomment-1866871996)
 - **Docs:**
   - Revised the SpamAssassin ENV docs to better communicate configuration and their relation to other ENV settings. ([#3756](https://github.com/docker-mailserver/docker-mailserver/pull/3756))
   - Detailed how mail received is assigned a spam score by Rspamd and processed accordingly ([#3773](https://github.com/docker-mailserver/docker-mailserver/pull/3773))
