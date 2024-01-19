@@ -19,11 +19,10 @@ function setup_file() {
   docker run --rm -d --name "${CONTAINER2_NAME}" \
     --hostname "${FQDN_OAUTH2}" \
     --network "${DMS_TEST_NETWORK}" \
-    --volume "${REPOSITORY_ROOT}/test/config/oauth2/:/app/" \
-    docker.io/library/python:latest \
-    python /app/provider.py
+    --volume "${REPOSITORY_ROOT}/test/config/oauth2/Caddyfile:/etc/caddy/Caddyfile:ro" \
+    caddy:2.7
 
-  _run_until_success_or_timeout 20 sh -c "docker logs ${CONTAINER2_NAME} 2>&1 | grep 'Starting server'"
+  _run_until_success_or_timeout 20 sh -c "docker logs ${CONTAINER2_NAME} 2>&1 | grep 'serving initial configuration'"
 
   #
   # Setup DMS container
