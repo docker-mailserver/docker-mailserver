@@ -6,38 +6,41 @@ hide:
 
 !!! warning "Advice not extensively tested"
 
-    This configuration has only been used with `network: host`, where you have direct access to the host interfaces.
+    This configuration advice is a community contribution which has only been verified as a solution when using `network: host`, where you have direct access to the host interfaces.
 
-If your host system is running multiple IPv4 and IPv6 IP-addresses, you probably have an interest to
-bind outgoing SMTP connections to specific IP-addresses to ensure MX records are aligned with
-PTR-records in DNS when sending emails to avoid getting blocked by SPF for example.
+    It may be applicable in other network modes if the container has control of the outbound IPs to bind to. This is not the case with bridge networks that typically bind to a private range network for containers which are bridged to a public interface via Docker.
 
-This can be configured by [overriding the default Postfix configurations](../override-defaults/postfix.md) DMS provides. Create `postfix-master.cf` and `postfix-main.cf` files for your config volume (`docker-data/dms/config`).
+If your Docker host is running multiple IPv4 and IPv6 IP-addresses, it may be beneficial to bind outgoing SMTP connections to specific IP-address / interface. When a mail is sent outbound from DMS, it greets the MTA it is connecting to with a EHLO (DMS FQDN) which might be verified against the IP resolved, and that a `PTR` record for that IP resolves an address back to the same IP. If DMS connections are inconsistent with the IP used here, these DNS checks are likely to fail.
 
-In `postfix-main.cf` you'll have to set the [`smtp_bind_address`](https://www.postfix.org/postconf.5.html#smtp_bind_address) and [`smtp_bind_address6`](https://www.postfix.org/postconf.5.html#smtp_bind_address6)
+This can be configured by [overriding the default Postfix configurations][docs::overrides-postfix] DMS provides. Create `postfix-master.cf` and `postfix-main.cf` files for your config volume (`docker-data/dms/config`).
+
+In `postfix-main.cf` you'll have to set the [`smtp_bind_address`][postfix-docs::smtp-bind-address-ipv4] and [`smtp_bind_address6`][postfix-docs::smtp-bind-address-ipv6]
 to the respective IP-address on the server you want to use.
+
+[docs::overrides-postfix]: ../override-defaults/postfix.md
+[postfix-docs::smtp-bind-address-ipv4]: https://www.postfix.org/postconf.5.html#smtp_bind_address
+[postfix-docs::smtp-bind-address-ipv6]: https://www.postfix.org/postconf.5.html#smtp_bind_address6
 
 !!! example
 
     ```title="postfix-main.cf"
-    smtp_bind_address = 198.51.100.10
-    smtp_bind_address6 = 2001:DB8::10
+    smtp_bind_address = 198.51.100.42
+    smtp_bind_address6 = 2001:DB8::42
     ```
 
-    **NOTE:** IP-addresses shown above are placeholders, using reserved documentation IP-addresses by IANA, [RFC-5737](https://datatracker.ietf.org/doc/rfc5737/) and [RFC-3849](https://datatracker.ietf.org/doc/html/rfc3849).
+    **NOTE:** IP addresses shown above are placeholders, they are IP addresses reserved for documentation by IANA (_[RFC-5737 (IPv4)][rfc-5737] and [RFC-3849 (IPv6)][rfc-3849]_). Replace with the IP addresses you want DMS to send mail through.
+    
+[rfc-5737]: https://datatracker.ietf.org/doc/html/rfc5737
+[rfc-3849]: https://datatracker.ietf.org/doc/html/rfc3849
 
-One problem with using `smtp_bind_address` is that the default configuration for `smtp-amavis` in
-DMS needs to be updated to explicitly connect via loopback (localhost), which avoids using
-the `smtp_bind_address` as source address when "forwarding" email for filtering via Amavis.
+    !!! bug "Inheriting the bind from `main.cf` can misconfigure services"
 
-!!! example
+        One problem when setting `smtp_bind_address` in `main.cf` is that it will be inherited by any services in `master.cf` that extend the `smtp` transport. One of these is `smtp-amavis`, which is explicitly configured to listen / connect via loopback (localhost / `127.0.0.1`).
 
-    ```title="postfix-master.cf"
-    smtp-amavis/unix/smtp_bind_address=127.0.0.1
-    smtp-amavis/unix/smtp_bind_address6=::1
-    ```
+        A `postfix-master.cf` override can workaround that issue by ensuring `smtp-amavis` binds to the expected internal IP:
 
-This seems to be a better approach than adding your bind-addresses to `mynetworks` parameter in
-Postfix `postfix-main.cf`.
-
+        ```title="postfix-master.cf"
+        smtp-amavis/unix/smtp_bind_address=127.0.0.1
+        smtp-amavis/unix/smtp_bind_address6=::1
+        ```
 
