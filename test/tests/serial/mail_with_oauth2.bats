@@ -55,15 +55,22 @@ function teardown_file() {
   docker network rm "${DMS_TEST_NETWORK}"
 }
 
-
 @test "oauth2: imap connect and authentication works" {
   # An initial connection needs to be made first, otherwise the auth attempt fails
   _run_in_container_bash 'nc -vz 0.0.0.0 143'
 
-  _nc_wrapper 'auth/imap-oauth2-auth.txt' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/imap-oauth2-xoauth2.txt' '-w 1 0.0.0.0 143'
+  __verify_successful_login 'XOAUTH2'
+
+  _nc_wrapper 'auth/imap-oauth2-oauthbearer.txt' '-w 1 0.0.0.0 143'
+  __verify_successful_login 'OAUTHBEARER'
+}
+
+function __verify_successful_login() {
+  local AUTH_METHOD=${1}
 
   # Inspect the relevant Dovecot logs to catch failure / success:
   _run_in_container grep 'dovecot:' /var/log/mail.log
   refute_output --partial 'oauth2 failed: Introspection failed'
-  assert_output --partial 'dovecot: imap-login: Login: user=<user1@localhost.localdomain>, method=XOAUTH2'
+  assert_output --partial "dovecot: imap-login: Login: user=<user1@localhost.localdomain>, method=${AUTH_METHOD}"
 }

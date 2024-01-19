@@ -15,7 +15,7 @@
   }
 
   # An additional endpoint for maintainers to generate `test/files/auth/imap-oauth2-auth.txt`
-  handle_path /imap/xoauth2 {
+  handle_path /imap/* {
     reverse_proxy localhost:3000
   }
 }
@@ -55,6 +55,7 @@
 # Generate IMAP commands for authentication testing
 # Provide `user` and `access_token` values via query string parameters:
 # curl 'http://auth.example.test/imap/xoauth2?user=user1@localhost.localdomain&access_token=DMS_YWNjZXNzX3Rva2Vu'
+# curl 'http://auth.example.test/imap/oauthbearer?user=user1@localhost.localdomain&access_token=DMS_YWNjZXNzX3Rva2Vu'
 #
 # Example Response:
 # a0 AUTHENTICATE XOAUTH2 dXNlcj11c2VyMUBsb2NhbGhvc3QubG9jYWxkb21haW4BYXV0aD1CZWFyZXIgRE1TX1lXTmpaWE56WDNSdmEyVnUBAQ==
@@ -66,13 +67,17 @@
 :3000 {
   # The login username + OAuth2 access token prior to Base64 encoding, as per the XOAUTH2 spec:
   # https://developers.google.com/gmail/imap/xoauth2-protocol#the_sasl_xoauth2_mechanism
-  vars credentials "user={query.user}\001auth=Bearer {query.access_token}\001\001"
+  # For OAUTHBEARER `host` and `port` do not appear to affect authentication with Dovecot
+  map {path}        {sasl_mechanism}  {credentials} {
+      /xoauth2      XOAUTH2           "user={query.user}\001auth=Bearer {query.access_token}\001\001"
+      /oauthbearer  OAUTHBEARER       "n,a={query.user},\001host=localhost\001port=143\001auth=Bearer {query.access_token}\001\001"
+  }
 
   # Responds with the raw IMAP commands for testing XOAUTH2 authentication.
   # Uses the `b64enc` template function to encode credentials as required for `IMAP AUTHENTICATE`:
   templates
   respond <<EOF
-  a0 AUTHENTICATE XOAUTH2 {{b64enc "{vars.credentials}"}}
+  a0 AUTHENTICATE {sasl_mechanism} {{b64enc "{credentials}"}}
   a1 EXAMINE INBOX
   a2 LOGOUT
   EOF
