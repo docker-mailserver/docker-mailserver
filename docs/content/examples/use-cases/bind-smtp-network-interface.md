@@ -1,5 +1,5 @@
 ---
-title: 'Use Cases | Binding DMS to a specific network'
+title: 'Use Cases | Binding outbound SMTP to a specific network'
 hide:
   - toc
 ---
