@@ -23,24 +23,41 @@ to the respective IP-address on the server you want to use.
 
 !!! example
 
-    ```title="postfix-main.cf"
-    smtp_bind_address = 198.51.100.42
-    smtp_bind_address6 = 2001:DB8::42
-    ```
+    === "Contributed solution"
 
-    **NOTE:** IP addresses shown above are placeholders, they are IP addresses reserved for documentation by IANA (_[RFC-5737 (IPv4)][rfc-5737] and [RFC-3849 (IPv6)][rfc-3849]_). Replace with the IP addresses you want DMS to send mail through.
+        ```title="postfix-main.cf"
+        smtp_bind_address = 198.51.100.42
+        smtp_bind_address6 = 2001:DB8::42
+        ```
+
+        !!! bug "Inheriting the bind from `main.cf` can misconfigure services"
+
+            One problem when setting `smtp_bind_address` in `main.cf` is that it will be inherited by any services in `master.cf` that extend the `smtp` transport. One of these is `smtp-amavis`, which is explicitly configured to listen / connect via loopback (localhost / `127.0.0.1`).
+
+            A `postfix-master.cf` override can workaround that issue by ensuring `smtp-amavis` binds to the expected internal IP:
+
+            ```title="postfix-master.cf"
+            smtp-amavis/unix/smtp_bind_address=127.0.0.1
+            smtp-amavis/unix/smtp_bind_address6=::1
+            ```
+
+    === "Alternative (unverified)"
+
+        During review of the contribution, it was identified that a better solution might be to [explicitly set the `smtp_bind_address` override on the `smtp` transport service][gh-pr::3465] instead:
+
+        ```title="postfix-master.cf"
+        smtp/inet/smtp_bind_address = 198.51.100.42
+        smtp/inet/smtp_bind_address6 = 2001:DB8::42
+        ```
+
+        If that avoids the concern with `smtp-amavis`, you may still need to additionally override for the [`relay` transport][gh-src::postfix-master-cf::relay-transport] as well if you have configured DMS to relay mail.
+
+!!! note "IP addresses for documentation"
+
+    IP addresses shown in above examples are placeholders, they are IP addresses reserved for documentation by IANA (_[RFC-5737 (IPv4)][rfc-5737] and [RFC-3849 (IPv6)][rfc-3849]_). Replace them with the IP addresses you want DMS to send mail through.
     
 [rfc-5737]: https://datatracker.ietf.org/doc/html/rfc5737
 [rfc-3849]: https://datatracker.ietf.org/doc/html/rfc3849
-
-    !!! bug "Inheriting the bind from `main.cf` can misconfigure services"
-
-        One problem when setting `smtp_bind_address` in `main.cf` is that it will be inherited by any services in `master.cf` that extend the `smtp` transport. One of these is `smtp-amavis`, which is explicitly configured to listen / connect via loopback (localhost / `127.0.0.1`).
-
-        A `postfix-master.cf` override can workaround that issue by ensuring `smtp-amavis` binds to the expected internal IP:
-
-        ```title="postfix-master.cf"
-        smtp-amavis/unix/smtp_bind_address=127.0.0.1
-        smtp-amavis/unix/smtp_bind_address6=::1
-        ```
+[gh-pr::3465]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#issuecomment-1678107233
+[gh-src::postfix-master-cf::relay-transport]: https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65
 
