@@ -6,6 +6,7 @@
 # `DMS_YWNjZXNzX3Rva2Vu` is the access token our OAuth2 tests expect for an authorization request to be successful.
 # - The token was created by base64 encoding the string `access_token`, followed by adding `DMS_` as a prefix.
 # - Normally an access token is a short-lived value associated to a login session. The value does not encode any real data.
+# It is an opaque token: https://oauth.net/2/bearer-tokens/
 
 # NOTE: The main server config is at the end within the `:80 { ... }` block.
 # This is because the endpoints are extracted out into Caddy snippets, which must be defined before they're referenced.
