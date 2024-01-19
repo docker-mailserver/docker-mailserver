@@ -10,7 +10,10 @@ hide:
 
     It may be applicable in other network modes if the container has control of the outbound IPs to bind to. This is not the case with bridge networks that typically bind to a private range network for containers which are bridged to a public interface via Docker.
 
-If your Docker host is running multiple IPv4 and IPv6 IP-addresses, it may be beneficial to bind outgoing SMTP connections to specific IP-address / interface. When a mail is sent outbound from DMS, it greets the MTA it is connecting to with a EHLO (DMS FQDN) which might be verified against the IP resolved, and that a `PTR` record for that IP resolves an address back to the same IP. If DMS connections are inconsistent with the IP used here, these DNS checks are likely to fail.
+If your Docker host is running multiple IPv4 and IPv6 IP-addresses, it may be beneficial to bind outgoing SMTP connections to specific IP-address / interface.
+
+- When a mail is sent outbound from DMS, it greets the MTA it is connecting to with a EHLO (DMS FQDN) which might be verified against the IP resolved, and that a `PTR` record for that IP resolves an address back to the same IP.
+- If DMS connections are inconsistent with the IP used here, these DNS checks are likely to fail.
 
 This can be configured by [overriding the default Postfix configurations][docs::overrides-postfix] DMS provides. Create `postfix-master.cf` and `postfix-main.cf` files for your config volume (`docker-data/dms/config`).
 
@@ -43,7 +46,7 @@ to the respective IP-address on the server you want to use.
 
     === "Alternative (unverified)"
 
-        During review of the contribution, it was identified that a better solution might be to [explicitly set the `smtp_bind_address` override on the `smtp` transport service][gh-pr::3465] instead:
+        A potentially better solution might be to instead [explicitly set the `smtp_bind_address` override on the `smtp` transport service][gh-pr::3465]:
 
         ```title="postfix-master.cf"
         smtp/inet/smtp_bind_address = 198.51.100.42
