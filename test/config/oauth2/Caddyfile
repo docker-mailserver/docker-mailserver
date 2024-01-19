@@ -7,25 +7,11 @@
 # - The token was created by base64 encoding the string `access_token`, followed by adding `DMS_` as a prefix.
 # - Normally an access token is a short-lived value associated to a login session. The value does not encode any real data.
 
-:80 {
-  # This is the `/userinfo` endpoint that Dovecot connects to with the OAuth2 setting (default: `introspection_mode = auth`).
-  # Example: curl http://auth.example.test/userinfo -H 'Authorization: Bearer DMS_YWNjZXNzX3Rva2Vu'
-  handle_path /userinfo {
-    reverse_proxy localhost:2000
-  }
-
-  # An additional endpoint for maintainers to generate `test/files/auth/imap-oauth2-auth.txt`
-  handle_path /imap/* {
-    reverse_proxy localhost:3000
-  }
-}
-
-#
-# Internal blocks below provide actual endpoint logic
-#
+# NOTE: The main server config is at the end within the `:80 { ... }` block.
+# This is because the endpoints are extracted out into Caddy snippets, which must be defined before they're referenced.
 
 # /userinfo
-:2000 {
+(route-userinfo) {
   vars token "DMS_YWNjZXNzX3Rva2Vu"
 
   # Expects to match an authorization header with a specific bearer token:
@@ -67,7 +53,7 @@
 #
 # When Dovecot queries /userinfo endpoint, it will be after base64 decoding the IMAP `AUTHENTICATE` value,
 # and sending the `auth` value from the `credentials` variable as an HTTP Authorization header.
-:3000 {
+(route-imap) {
   # The login username + OAuth2 access token prior to Base64 encoding, as per the XOAUTH2 spec:
   # https://developers.google.com/gmail/imap/xoauth2-protocol#the_sasl_xoauth2_mechanism
   # For OAUTHBEARER `host` and `port` do not appear to affect authentication with Dovecot
@@ -84,4 +70,18 @@
   a1 EXAMINE INBOX
   a2 LOGOUT
   EOF
+}
+
+# Routes the endpoints to the logical blocks extracted out as snippets above
+:80 {
+  # This is the `/userinfo` endpoint that Dovecot connects to with the OAuth2 setting (default: `introspection_mode = auth`).
+  # Example: curl http://auth.example.test/userinfo -H 'Authorization: Bearer DMS_YWNjZXNzX3Rva2Vu'
+  handle_path /userinfo {
+    import route-userinfo
+  }
+
+  # An additional endpoint for maintainers to generate `test/files/auth/imap-oauth2-auth.txt`
+  handle_path /imap/* {
+    import route-imap
+  }
 }
