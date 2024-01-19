@@ -78,6 +78,10 @@ We use `make` to run commands.
 
     When writing tests, ensure that parallel set tests still pass when run in parallel. You need to account for other tests running in parallel that may interfere with your own tests logic.
 
+!!! tip
+
+    You may use `make run-local-instance` to run a version of the image built locally to test and edit your changes in a running DMS instance.
+
 ### An Example
 
 In this example, you've made a change to the Rspamd feature support (_or adjusted it's tests_). First verify no regressions have been introduced by running it's specific test file:
@@ -85,10 +89,10 @@ In this example, you've made a change to the Rspamd feature support (_or adjuste
 ```console
 $ make clean generate-accounts test/rspamd
 rspamd.bats
- ✓ [Rspamd] Postfix's main.cf was adjusted [12]
- ✓ [Rspamd] normal mail passes fine [44]
- ✓ [Rspamd] detects and rejects spam [122]
- ✓ [Rspamd] detects and rejects virus [189]
+  ✓ [Rspamd] Postfix's main.cf was adjusted [12]
+  ✓ [Rspamd] normal mail passes fine [44]
+  ✓ [Rspamd] detects and rejects spam [122]
+  ✓ [Rspamd] detects and rejects virus [189]
 ```
 
 As your feature work progresses your change for Rspamd also affects ClamAV. As your change now spans more than just the Rspamd test file, you could run multiple test files serially:
@@ -96,16 +100,17 @@ As your feature work progresses your change for Rspamd also affects ClamAV. As y
 ```console
 $ make clean generate-accounts test/rspamd,clamav
 rspamd.bats
- ✓ [Rspamd] Postfix's main.cf was adjusted [12]
- ✓ [Rspamd] normal mail passes fine [44]
- ✓ [Rspamd] detects and rejects spam [122]
- ✓ [Rspamd] detects and rejects virus [189]
+  ✓ [Rspamd] Postfix's main.cf was adjusted [12]
+  ✓ [Rspamd] normal mail passes fine [44]
+  ✓ [Rspamd] detects and rejects spam [122]
+  ✓ [Rspamd] detects and rejects virus [189]
+
 clamav.bats
- ✓ [ClamAV] log files exist at /var/log/mail directory [68]
- ✓ [ClamAV] should be identified by Amavis [67]
- ✓ [ClamAV] freshclam cron is enabled [76]
- ✓ [ClamAV] env CLAMAV_MESSAGE_SIZE_LIMIT is set correctly [63]
- ✓ [ClamAV] rejects virus [60]
+  ✓ [ClamAV] log files exist at /var/log/mail directory [68]
+  ✓ [ClamAV] should be identified by Amavis [67]
+  ✓ [ClamAV] freshclam cron is enabled [76]
+  ✓ [ClamAV] env CLAMAV_MESSAGE_SIZE_LIMIT is set correctly [63]
+  ✓ [ClamAV] rejects virus [60]
 ```
 
 You're almost finished with your change before submitting it as a PR. It's a good idea to run the full parallel set those individual tests belong to (_especially if you've modified any tests_):
@@ -113,13 +118,15 @@ You're almost finished with your change before submitting it as a PR. It's a goo
 ```console
 $ make clean generate-accounts tests/parallel/set1
 default_relay_host.bats
- ✓ [Relay] (ENV) 'DEFAULT_RELAY_HOST' should configure 'main.cf:relayhost' [88]
+  ✓ [Relay] (ENV) 'DEFAULT_RELAY_HOST' should configure 'main.cf:relayhost' [88]
+
 spam_virus/amavis.bats
- ✓ [Amavis] SpamAssassin integration should be active [1165]
+  ✓ [Amavis] SpamAssassin integration should be active [1165]
+
 spam_virus/clamav.bats
- ✓ [ClamAV] log files exist at /var/log/mail directory [73]
- ✓ [ClamAV] should be identified by Amavis [67]
- ✓ [ClamAV] freshclam cron is enabled [76]
+  ✓ [ClamAV] log files exist at /var/log/mail directory [73]
+  ✓ [ClamAV] should be identified by Amavis [67]
+  ✓ [ClamAV] freshclam cron is enabled [76]
 ...
 ```
 
@@ -127,7 +134,6 @@ Even better, before opening a PR run the full test suite:
 
 ```console
 $ make clean tests
-...
 ```
 
 [BATS]: https://github.com/bats-core/bats-core

@@ -204,12 +204,12 @@ function teardown_file() { _default_teardown ; }
   run ./setup.sh -c "${CONTAINER_NAME}" quota set quota_user2 51M
   assert_failure
 
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -E '^quota_user@example.com\:12M\$' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -c -E '^quota_user@example.com\:12M\$' | grep 1"
   assert_success
 
   run ./setup.sh -c "${CONTAINER_NAME}" quota set quota_user@example.com 26M
   assert_success
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -E '^quota_user@example.com\:26M\$' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -c -E '^quota_user@example.com\:26M\$' | grep 1"
   assert_success
 
   run grep "quota_user2@example.com" "${TEST_TMP_CONFIG}/dovecot-quotas.cf"
@@ -220,12 +220,12 @@ function teardown_file() { _default_teardown ; }
 @test "delquota" {
   run ./setup.sh -c "${CONTAINER_NAME}" quota set quota_user@example.com 12M
   assert_success
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -E '^quota_user@example.com\:12M\$' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -c -E '^quota_user@example.com\:12M\$' | grep 1"
   assert_success
 
   run ./setup.sh -c "${CONTAINER_NAME}" quota del unknown@domain.com
   assert_failure
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -E '^quota_user@example.com\:12M\$' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/dovecot-quotas.cf | grep -c -E '^quota_user@example.com\:12M\$' | grep 1"
   assert_success
 
   run ./setup.sh -c "${CONTAINER_NAME}" quota del quota_user@example.com
@@ -237,7 +237,7 @@ function teardown_file() { _default_teardown ; }
 @test "config dkim (help correctly displayed)" {
   run ./setup.sh -c "${CONTAINER_NAME}" config dkim help
   assert_success
-  assert_line --index 3 --partial "    open-dkim - configure DomainKeys Identified Mail (DKIM)"
+  assert_line --index 3 --partial "open-dkim - Configure DKIM (DomainKeys Identified Mail)"
 }
 
 # debug
@@ -260,13 +260,13 @@ function teardown_file() { _default_teardown ; }
   ./setup.sh -c "${CONTAINER_NAME}" relay add-domain example3.org smtp.relay.com 587
 
   # check adding
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -e '^@example1.org\s\+\[smtp.relay1.com\]:2525' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -c -e '^@example1.org\s\+\[smtp.relay1.com\]:2525' | grep 1"
   assert_success
   # test default port
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -e '^@example2.org\s\+\[smtp.relay2.com\]:25' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -c -e '^@example2.org\s\+\[smtp.relay2.com\]:25' | grep 1"
   assert_success
   # test modifying
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -e '^@example3.org\s\+\[smtp.relay.com\]:587' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -c -e '^@example3.org\s\+\[smtp.relay.com\]:587' | grep 1"
   assert_success
 }
 
@@ -276,16 +276,16 @@ function teardown_file() { _default_teardown ; }
   ./setup.sh -c "${CONTAINER_NAME}" relay add-auth example2.org smtp_user2 smtp_pass_new
 
   # test adding
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-sasl-password.cf | grep -e '^@example.org\s\+smtp_user:smtp_pass' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-sasl-password.cf | grep -c -e '^@example.org\s\+smtp_user:smtp_pass' | grep 1"
   assert_success
   # test updating
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-sasl-password.cf | grep -e '^@example2.org\s\+smtp_user2:smtp_pass_new' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-sasl-password.cf | grep -c -e '^@example2.org\s\+smtp_user2:smtp_pass_new' | grep 1"
   assert_success
 }
 
 @test "relay exclude-domain" {
   ./setup.sh -c "${CONTAINER_NAME}" relay exclude-domain example.org
 
-  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -e '^@example.org\s*$' | wc -l | grep 1"
+  run /bin/sh -c "cat ${TEST_TMP_CONFIG}/postfix-relaymap.cf | grep -c -e '^@example.org\s*$' | grep 1"
   assert_success
 }

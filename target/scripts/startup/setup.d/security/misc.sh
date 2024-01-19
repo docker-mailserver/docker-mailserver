@@ -70,6 +70,8 @@ function __setup__security__spamassassin() {
   if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring SpamAssassin'
 
+    # Maintainers should take care in attempting to change these sed commands. Alternatives were already explored:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/3767#issuecomment-1885989591
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
@@ -111,7 +113,7 @@ function __setup__security__spamassassin() {
 
     if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]; then
       _log 'trace' 'Configuring Spamassassin/Amavis to send SPAM to inbox'
-      _log 'debug'  'SPAM_TO_INBOX=1 is set. SA_KILL will be ignored.'
+      _log 'debug'  "'SPAMASSASSIN_SPAM_TO_INBOX=1' is set. The 'SA_KILL' ENV will be ignored."
 
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
@@ -265,9 +267,34 @@ EOF
     chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_to_junk.{sieve,svbin}
 
     if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
-      _log 'warning' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MOVE_SPAM_TO_JUNK=1' to work"
+      _log 'warn' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MOVE_SPAM_TO_JUNK=1' to work"
     fi
   else
     _log 'debug' 'Spam emails will not be moved to the Junk folder'
+  fi
+}
+
+function _setup_spam_mark_as_read() {
+  if [[ ${MARK_SPAM_AS_READ} -eq 1 ]]; then
+    _log 'debug' 'Spam emails will be marked as read'
+    mkdir -p /usr/lib/dovecot/sieve-global/after/
+
+    # Header support: `X-Spam-Flag` (SpamAssassin), `X-Spam` (Rspamd)
+    cat >/usr/lib/dovecot/sieve-global/after/spam_mark_as_read.sieve << EOF
+require ["mailbox","imap4flags"];
+
+if anyof (header :contains "X-Spam-Flag" "YES",
+          header :contains "X-Spam" "Yes") {
+    setflag "\\\\Seen";
+}
+EOF
+    sievec /usr/lib/dovecot/sieve-global/after/spam_mark_as_read.sieve
+    chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_mark_as_read.{sieve,svbin}
+
+    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
+      _log 'warn' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MARK_SPAM_AS_READ=1' to work"
+    fi
+  else
+    _log 'debug' 'Spam emails will not be marked as read'
   fi
 }

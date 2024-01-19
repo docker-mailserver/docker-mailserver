@@ -60,7 +60,7 @@ Enable `ip6tables` support so that Docker will manage IPv6 networking rules as w
     ```
 
     - `experimental: true` is currently required for `ip6tables: true` to work.
-    - `userland-proxy` setting [can potentially affect connection behaviour][gh-pull-3244-proxy] for local connections.
+    - `userland-proxy` setting [can potentially affect connection behavior][gh-pull-3244-proxy] for local connections.
 
     Now restart the daemon if it's running: `systemctl restart docker`.
 
@@ -92,12 +92,14 @@ Next, configure a network with an IPv6 subnet for your container with any of the
             networks:
               dms-ipv6:
                 enable_ipv6: true
-                subnet: fd00:cafe:face:feed::/64
+                ipam:
+                  config:
+                    - subnet: fd00:cafe:face:feed::/64
             ```
 
             ??? tip "Override the implicit `default` network"
 
-                You can optionally avoid the service assignment by [overriding the `default` user-defined network that Docker Compose generates](docker-docs-network-compose-default). Just replace `dms-ipv6` with `default`.
+                You can optionally avoid the service assignment by [overriding the `default` user-defined network that Docker Compose generates][docker-docs-network-compose-default]. Just replace `dms-ipv6` with `default`.
 
                 The Docker Compose `default` bridge is not affected by settings for the default `bridge` (aka `docker0`) in `/etc/docker/daemon.json`.
 
@@ -130,7 +132,7 @@ Next, configure a network with an IPv6 subnet for your container with any of the
 
         !!! warning "This approach is discouraged"
 
-             The [`bridge` network is considered legacy][docker-docs-network-bridge-legacy].
+            The [`bridge` network is considered legacy][docker-docs-network-bridge-legacy].
 
         Add these two extra IPv6 settings to your daemon config. They only apply to the [default `bridge` docker network][docker-docs-ipv6-create-default] aka `docker0` (_which containers are attached to by default when using `docker run`_).
 
@@ -178,7 +180,7 @@ curl --max-time 5 http://[2001:db8::1]:80
 !!! info "IPv6 ULA address priority"
 
     DNS lookups that have records for both IPv4 and IPv6 addresses (_eg: `localhost`_) may prefer IPv4 over IPv6 (ULA) for private addresses, whereas for public addresses IPv6 has priority. This shouldn't be anything to worry about, but can come across as a surprise when testing your IPv6 setup on the same host instead of from a remote client.
-    
+
     The preference can be controlled with [`/etc/gai.conf`][networking-gai], and appears was configured this way based on [the assumption that IPv6 ULA would never be used with NAT][networking-gai-blog]. It should only affect the destination resolved for outgoing connections, which for IPv6 ULA should only really affect connections between your containers / host. In future [IPv6 ULA may also be prioritized][networking-gai-rfc].
 
 [docker-subnets]: https://straz.to/2021-09-08-docker-address-pools/#what-are-the-default-address-pools-when-no-configuration-is-given-vanilla-pools

@@ -1,6 +1,6 @@
 # Site specific:
 site_name: 'Docker Mailserver'
-site_description: 'A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.'
+site_description: 'A fullstack but simple mail-server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.) using Docker.'
 site_author: 'docker-mailserver (Github Organization)'
 copyright: '<p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>'
 
@@ -86,8 +86,8 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.tilde
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       extend_pygments_lang:
         - name: yml
@@ -122,8 +122,9 @@ nav:
     - 'Environment Variables': config/environment.md
     - 'User Management': config/user-management.md
     - 'Best Practices':
-      - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
       - 'Auto-discovery': config/best-practices/autodiscover.md
+      - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
+      - 'MTA-STS': config/best-practices/mta-sts.md
     - 'Security':
       - 'Understanding the Ports': config/security/understanding-the-ports.md
       - 'SSL/TLS': config/security/ssl.md
@@ -142,6 +143,7 @@ nav:
           - 'Postfix': config/advanced/override-defaults/postfix.md
           - 'Modifications via Script': config/advanced/override-defaults/user-patches.md
         - 'LDAP Authentication': config/advanced/auth-ldap.md
+        - 'OAuth2 Authentication': config/advanced/auth-oauth2.md
         - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
         - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md
         - 'Email Gathering with Getmail': config/advanced/mail-getmail.md
@@ -159,11 +161,14 @@ nav:
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
       - 'Mailserver behind Proxy': examples/tutorials/mailserver-behind-proxy.md
+      - 'Crowdsec': examples/tutorials/crowdsec.md
       - 'Building your own Docker image': examples/tutorials/docker-build.md
       - 'Blog Posts': examples/tutorials/blog-posts.md
     - 'Use Cases':
       - 'Forward-Only Mail-Server with LDAP': examples/use-cases/forward-only-mailserver-with-ldap-authentication.md
       - 'Customize IMAP Folders': examples/use-cases/imap-folders.md
+      - 'iOS Mail Push Support': examples/use-cases/ios-mail-push-support.md
+      - 'Lua Authentication': examples/use-cases/auth-lua.md
   - 'FAQ' : faq.md
   - 'Contributing':
     - 'General Information': contributing/general.md

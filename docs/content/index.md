@@ -14,7 +14,7 @@ This documentation provides you not only with the basic setup and configuration 
 
 ## About
 
-`docker-mailserver`, or DMS for short, is a production-ready fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). It employs only configuration files, no SQL database. The image is focused around the slogan "Keep it simple and versioned".
+`docker-mailserver`, or DMS for short, is a production-ready fullstack but simple mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.). It employs only configuration files, no SQL database. The image is focused around the slogan "Keep it simple and versioned".
 
 ## Contents
 
@@ -24,9 +24,9 @@ If you're completely new to mail servers or you want to read up on them, check o
 
 There is also a script - [`setup.sh`][github-file-setupsh] - supplied with this project. It supports you in configuring and administrating your server. Information on how to get it and how to use it is available [on a dedicated page][docs-setupsh].
 
-[docs-introduction]: ./introduction/
-[docs-usage]: ./usage/
-[docs-examples]: ./examples/tutorials/basic-installation/
+[docs-introduction]: ./introduction.md
+[docs-usage]: ./usage.md
+[docs-examples]: ./examples/tutorials/basic-installation.md
 [github-file-setupsh]: https://github.com/docker-mailserver/docker-mailserver/blob/master/setup.sh
 [docs-setupsh]: ./config/setup.sh/
 
@@ -59,10 +59,10 @@ You might also want to check out:
 
 DMS employs a variety of tests. If you want to know more about our test suite, view our [testing docs][docs-tests].
 
-[docs-tests]: ./contributing/tests/
+[docs-tests]: ./contributing/tests.md
 
 ### Contributing
 
 We are always happy to welcome new contributors. For guidelines and entrypoints please have a look at the [Contributing section][docs-contributing].
 
-[docs-contributing]: ./contributing/issues-and-pull-requests/
+[docs-contributing]: ./contributing/issues-and-pull-requests.md

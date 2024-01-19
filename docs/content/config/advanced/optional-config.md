@@ -12,7 +12,7 @@ This is a list of all configuration files and directories which are optional or 
 - **sieve-pipe:** directory for sieve pipe scripts. (Docs: [Sieve][docs-sieve])
 - **opendkim:** DKIM directory. Auto-configurable via [`setup.sh config dkim`][docs-setupsh]. (Docs: [DKIM][docs-dkim])
 - **ssl:** SSL Certificate directory if `SSL_TYPE` is set to `self-signed` or `custom`. (Docs: [SSL][docs-ssl])
-- **Rspamd:** Override directory for custom settings when using Rspamd (Docs: [Rspamd][docs-rspamd-override-d])
+- **rspamd:** Override directory for custom settings when using Rspamd (Docs: [Rspamd][docs-rspamd-override-d])
 
 ## Files
 
@@ -33,9 +33,9 @@ This is a list of all configuration files and directories which are optional or 
 - **ldap-aliases.cf:** Configuration for the virtual alias mapping `virtual_alias_maps`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
 - **ldap-domains.cf:** Configuration for the virtual domain mapping `virtual_mailbox_domains`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
 - **whitelist_clients.local:** Whitelisted domains, not considered by postgrey. Enter one host or domain per line.
-- **spamassassin-rules.cf:** Antispam rules for Spamassassin. (Docs: [FAQ - SpamAssassin Rules][docs-faq-spamrules])
+- **spamassassin-rules.cf:** Anti-spam rules for Spamassassin. (Docs: [FAQ - SpamAssassin Rules][docs-faq-spamrules])
 - **fail2ban-fail2ban.cf:** Additional config options for `fail2ban.cf`. (Docs: [Fail2Ban][docs-fail2ban])
-- **fail2ban-jail.cf:** Additional config options for fail2ban's jail behaviour. (Docs: [Fail2Ban][docs-fail2ban])
+- **fail2ban-jail.cf:** Additional config options for fail2ban's jail behavior. (Docs: [Fail2Ban][docs-fail2ban])
 - **amavis.cf:** replaces the `/etc/amavis/conf.d/50-user` file
 - **dovecot.cf:** replaces `/etc/dovecot/local.conf`. (Docs: [Override Dovecot Defaults][docs-override-dovecot])
 - **dovecot-quotas.cf:** list of custom quotas per mailbox. (Docs: [Accounts][docs-accounts-quota])

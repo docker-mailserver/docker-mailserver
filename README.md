@@ -11,7 +11,7 @@
 
 ## :page_with_curl: About
 
-A production-ready fullstack but simple containerized mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. Originally created by @tomav, this project is now maintained by volunteers since January 2021.
+A production-ready fullstack but simple containerized mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. Originally created by @tomav, this project is now maintained by volunteers since January 2021.
 
 ## :bulb: Documentation
 
@@ -48,3 +48,4 @@ If you have issues, please search through [the documentation][documentation::web
 - Support for [LetsEncrypt](https://letsencrypt.org/), manual and self-signed certificates
 - A [setup script](https://docker-mailserver.github.io/docker-mailserver/latest/config/setup.sh) for easy configuration and maintenance
 - SASLauthd with LDAP authentication
+- OAuth2 authentication (_via `XOAUTH2` or `OAUTHBEARER` SASL mechanisms_)

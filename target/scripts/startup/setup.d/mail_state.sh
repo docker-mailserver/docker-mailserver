@@ -24,6 +24,7 @@ function _setup_save_states() {
     [[ ${ENABLE_FAIL2BAN}     -eq 1 ]] && SERVICEDIRS+=('lib/fail2ban')
     [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && SERVICEDIRS+=('lib/fetchmail')
     [[ ${ENABLE_GETMAIL}      -eq 1 ]] && SERVICEDIRS+=('lib/getmail')
+    [[ ${ENABLE_MTA_STS}      -eq 1 ]] && SERVICEDIRS+=('lib/mta-sts')
     [[ ${ENABLE_POSTGREY}     -eq 1 ]] && SERVICEDIRS+=('lib/postgrey')
     [[ ${ENABLE_RSPAMD}       -eq 1 ]] && SERVICEDIRS+=('lib/rspamd')
     [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && SERVICEDIRS+=('lib/redis')
@@ -84,6 +85,7 @@ function _setup_save_states() {
     [[ ${ENABLE_AMAVIS}       -eq 1 ]] && chown -R amavis:amavis             "${STATEDIR}/lib-amavis"
     [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav             "${STATEDIR}/lib-clamav"
     [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup         "${STATEDIR}/lib-fetchmail"
+    [[ ${ENABLE_MTA_STS}      -eq 1 ]] && chown -R _mta-sts:_mta-sts         "${STATEDIR}/lib-mta-sts"
     [[ ${ENABLE_POSTGREY}     -eq 1 ]] && chown -R postgrey:postgrey         "${STATEDIR}/lib-postgrey"
     [[ ${ENABLE_RSPAMD}       -eq 1 ]] && chown -R _rspamd:_rspamd           "${STATEDIR}/lib-rspamd"
     [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && chown -R redis:redis               "${STATEDIR}/lib-redis"
@@ -105,10 +107,10 @@ function _setup_save_states() {
     # These two require the postdrop(103) group:
     chgrp -R postdrop "${STATEDIR}"/spool-postfix/{maildrop,public}
 
-    # After changing the group, special bits (set-gid, sticky) may be stripped, restore them:
-    # Ref: https://github.com/docker-mailserver/docker-mailserver/pull/3149#issuecomment-1454981309
-    chmod 1730 "${STATEDIR}/spool-postfix/maildrop"
-    chmod 2710 "${STATEDIR}/spool-postfix/public"
+    # These permissions rely on the `postdrop` binary having the SGID bit set.
+    # Ref: https://github.com/docker-mailserver/docker-mailserver/pull/3625
+    chmod 730 "${STATEDIR}/spool-postfix/maildrop"
+    chmod 710 "${STATEDIR}/spool-postfix/public"
   elif [[ ${ONE_DIR} -eq 1 ]]; then
     _log 'warn' "'ONE_DIR=1' but no volume was mounted to '${STATEDIR}'"
   else

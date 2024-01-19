@@ -1,0 +1,20 @@
+# NOTE: This user differs by local-part of mail address not matching their uniqueIdentifier attribute
+# They also do not have any alias or groups configured
+dn: uid=some.user.id,ou=users,dc=example,dc=test
+objectClass: inetOrgPerson
+objectClass: PostfixBookMailAccount
+cn: Some User
+givenName: Some
+surname: User
+userID: some.user.id
+# Password is: secret
+userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx
+mail: some.user.email@localhost.localdomain
+# postfix-book.schema:
+mailHomeDirectory: /var/mail/localhost.localdomain/some.user.id/
+mailStorageDirectory: maildir:/var/mail/localhost.localdomain/some.user.id/
+# postfix-book.schema generic options:
+mailEnabled: TRUE
+mailUidNumber: 5000
+mailGidNumber: 5000
+mailQuota: 10240

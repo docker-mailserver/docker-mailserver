@@ -12,7 +12,7 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 
 ### How are IMAP mailboxes (_aka IMAP Folders_) set up?
 
-`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](../examples/use-cases/imap-folders) for more information.
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](./examples/use-cases/imap-folders.md) for more information.
 
 ### How do I update DMS?
 
@@ -128,7 +128,7 @@ find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
 
 ### I Want to Know More About the Ports
 
-See [this part of the documentation](../config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
+See [this part of the documentation](./config/security/understanding-the-ports.md) for further details and best practice advice, **especially regarding security concerns**.
 
 ### How can I configure my email client?
 
@@ -143,7 +143,7 @@ imap port:          143 or 993 with STARTTLS/SSL (recommended)
 imap path prefix:   INBOX
 
 # SMTP
-smtp port:          25 or 587/465 with STARTTLS/SSL (recommended)
+smtp port:          587 or 465 with STARTTLS/SSL (recommended)
 username:           <user1@example.com>
 password:           <mypassword>
 ```
@@ -210,7 +210,7 @@ baduser@example.com devnull
 
 ### What kind of SSL certificates can I use?
 
-Both RSA and ECDSA certs are supported. You can provide your own cert files manually, or mount a `letsencrypt` generated directory (_with alternative support for Traefik's `acme.json`_). Check out the [`SSL_TYPE` documentation](../config/environment/#ssl_type) for more details.
+Both RSA and ECDSA certs are supported. You can provide your own cert files manually, or mount a `letsencrypt` generated directory (_with alternative support for Traefik's `acme.json`_). Check out the [`SSL_TYPE` documentation](./config/environment.md#ssl_type) for more details.
 
 ### I just moved from my old mail server to DMS, but "it doesn't work"?
 
@@ -378,18 +378,7 @@ When you run DMS with the ENV variable `ONE_DIR=1` (default), this directory wil
 
 #### How can I manage my custom SpamAssassin rules?
 
-Antispam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
-
-#### What are acceptable `SA_SPAM_SUBJECT` values?
-
-For no subject set `SA_SPAM_SUBJECT=undef`.
-
-For a trailing white-space subject one can define the whole variable with quotes in `compose.yaml`:
-
-```yaml
-environment:
-  - "SA_SPAM_SUBJECT=[SPAM] "
-```
+Anti-spam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
 
 #### Why are SpamAssassin `x-headers` not inserted into my `subdomain.example.com` subdomain emails?
 
@@ -479,58 +468,39 @@ The following configuration works nicely:
         file: ./docker-data/dms/cron/sa-learn
     ```
 
-With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account. For further reference, see the [SpamAssassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
+With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails).
+
+- Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account.
+- For further reference, see the [SpamAssassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
 
 #### How do I have more control about what SpamAssassin is filtering?
 
-By default, SPAM and INFECTED emails are put to a quarantine which is not very straight forward to access. Several config settings are affecting this behavior:
+This is related to Amavis processing the mail after SpamAssassin has analyzed it and assigned a spam score.
 
-First, make sure you have the proper thresholds set:
+- DMS provides some [common SA tunables via ENV][docs::env::sa_env].
+- Additional configuration can be managed with the DMS config volume by providing `docker-data/dms/config/amavis.cf`.
 
-```conf
-SA_TAG=-100000.0
-SA_TAG2=3.75
-SA_KILL=100000.0
-```
+#### How can I send quarantined mail to a mailbox?
 
-- The very negative value in `SA_TAG` makes sure, that all emails have the SpamAssassin headers included.
-- `SA_TAG2` is the actual threshold to set the YES/NO flag for spam detection.
-- `SA_KILL` needs to be very high, to make sure nothing is bounced at all (`SA_KILL` superseeds `SPAMASSASSIN_SPAM_TO_INBOX`)
+SPAM and INFECTED emails that [reach the `SA_KILL` threshold are archived into quarantine][docs::env::sa_kill].
 
-Make sure everything (including SPAM) is delivered to the inbox and not quarantined:
-
-```conf
-SPAMASSASSIN_SPAM_TO_INBOX=1
-```
-
-Use `MOVE_SPAM_TO_JUNK=1` or create a sieve script which puts spam to the Junk folder:
-
-```sieve
-require ["comparator-i;ascii-numeric","relational","fileinto"];
-
-if header :contains "X-Spam-Flag" "YES" {
-  fileinto "Junk";
-} elsif allof (
-   not header :matches "x-spam-score" "-*",
-   header :value "ge" :comparator "i;ascii-numeric" "x-spam-score" "3.75" ) {
-  fileinto "Junk";
-}
-```
-
-Create a dedicated mailbox for emails which are infected/bad header and everything amavis is blocking by default and put its address into `docker-data/dms/config/amavis.cf`
+Instead of a quarantine folder, you can use a dedicated mailbox instead. Create an account like `quarantine@example.com` and create `docker-data/dms/config/amavis.cf`:
 
 ```cf
-$clean_quarantine_to      = "amavis\@example.com";
-$virus_quarantine_to      = "amavis\@example.com";
-$banned_quarantine_to     = "amavis\@example.com";
-$bad_header_quarantine_to = "amavis\@example.com";
-$spam_quarantine_to       = "amavis\@example.com";
+$clean_quarantine_to      = "quarantine\@example.com";
+$virus_quarantine_to      = "quarantine\@example.com";
+$banned_quarantine_to     = "quarantine\@example.com";
+$bad_header_quarantine_to = "quarantine\@example.com";
+$spam_quarantine_to       = "quarantine\@example.com";
 ```
 
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
+[docs-optional-configuration]: ./config/advanced/optional-config.md
+[docs::env::sa_env]: ./config/environment.md#spamassassin
+[docs::env::sa_kill]: ./config/environment.md#sa_kill
 [github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
 [github-comment-override-hostname]: https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95
@@ -541,4 +511,3 @@ $spam_quarantine_to       = "amavis\@example.com";
 [github-issue-1792]: https://github.com/docker-mailserver/docker-mailserver/pull/1792
 [hanscees-userpatches]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh
 [mail-state-folders]: https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33
-[docs-optional-configuration]: ./config/advanced/optional-config.md

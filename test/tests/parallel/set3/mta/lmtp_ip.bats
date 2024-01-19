@@ -38,11 +38,13 @@ function teardown_file() { _default_teardown ; }
 
 @test "delivers mail to existing account" {
   _wait_for_smtp_port_in_container
-  _send_email 'email-templates/existing-user1' # send a test email
+  _send_email
 
   # Verify delivery was successful, log line should look similar to:
   # postfix/lmtp[1274]: 0EA424ABE7D9: to=<user1@localhost.localdomain>, relay=127.0.0.1[127.0.0.1]:24, delay=0.13, delays=0.07/0.01/0.01/0.05, dsn=2.0.0, status=sent (250 2.0.0 <user1@localhost.localdomain> ixPpB+Zvv2P7BAAAUi6ngw Saved)
-  local MATCH_LOG_LINE='postfix/lmtp.* status=sent .* Saved)'
-  run timeout 60 docker exec "${CONTAINER_NAME}" bash -c "tail -F /var/log/mail/mail.log | grep --max-count 1 '${MATCH_LOG_LINE}'"
+  local MATCH_LOG_LINE='postfix/lmtp.* status'
+  _run_in_container_bash "timeout 60 tail -F /var/log/mail/mail.log | grep --max-count 1 '${MATCH_LOG_LINE}'"
   assert_success
+  # Assertion of full pattern here (instead of via grep) is a bit more helpful for debugging partial failures:
+  assert_output --regexp "${MATCH_LOG_LINE}=sent .* Saved)"
 }

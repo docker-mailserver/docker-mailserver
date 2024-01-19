@@ -91,3 +91,44 @@ function _vhost_ldap_support() {
 #
 # /etc/aliases is handled by `alias.sh` and uses `postalias` to update the Postfix alias database. No need for `postmap`.
 # http://www.postfix.org/postalias.1.html
+
+# Add a key with a value to Postfix's main configuration file
+# or update an existing key. An already existing key can be updated
+# by either appending to the existing value (default) or by prepending.
+#
+# @param ${1} = key name in Postfix's main configuration file
+# @param ${2} = new value (appended or prepended)
+# @param ${3} = action "append" (default) or "prepend" [OPTIONAL]
+function _add_to_or_update_postfix_main() {
+  local KEY=${1:?Key name is required}
+  local NEW_VALUE=${2:?New value is required}
+  local ACTION=${3:-append}
+  local CURRENT_VALUE
+
+  # Get current value from /etc/postfix/main.cf
+  _adjust_mtime_for_postfix_maincf
+  CURRENT_VALUE=$(postconf -h "${KEY}" 2>/dev/null)
+
+  # If key does not exist or value is empty, add it - otherwise update with ACTION:
+  if [[ -z ${CURRENT_VALUE} ]]; then
+    postconf "${KEY} = ${NEW_VALUE}"
+  else
+    # If $NEW_VALUE is already present --> nothing to do, skip.
+    if [[ " ${CURRENT_VALUE} " == *" ${NEW_VALUE} "* ]]; then
+      return 0
+    fi
+
+    case "${ACTION}" in
+      ('append')
+        postconf "${KEY} = ${CURRENT_VALUE} ${NEW_VALUE}"
+        ;;
+      ('prepend')
+        postconf "${KEY} = ${NEW_VALUE} ${CURRENT_VALUE}"
+        ;;
+      (*)
+        _log 'error' "Action '${3}' in _add_to_or_update_postfix_main is unknown"
+        return 1
+        ;;
+    esac
+  fi
+}

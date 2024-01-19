@@ -1,6 +1,5 @@
 /^test[0-9][0-9]*@localhost.localdomain/ user1@localhost.localdomain
 # this is a test comment, please don't delete me :'(
-     # this is also a test comment, :O
+    # this is also a test comment, :O
 /^bounce.*@.*/ external1@otherdomain.tld
 /^postmaster@/ user1@localhost.localdomain
-

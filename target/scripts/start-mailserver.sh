@@ -39,6 +39,7 @@ function _register_functions() {
 
   # ? >> Setup
 
+  _register_setup_function '_setup_vmail_id'
   _register_setup_function '_setup_logs_general'
   _register_setup_function '_setup_timezone'
 
@@ -48,6 +49,7 @@ function _register_functions() {
     _register_setup_function '_setup_dovecot_dhparam'
     _register_setup_function '_setup_dovecot_quota'
     _register_setup_function '_setup_spam_to_junk'
+    _register_setup_function '_setup_spam_mark_as_read'
   fi
 
   case "${ACCOUNT_PROVISIONER}" in
@@ -69,6 +71,11 @@ function _register_functions() {
       ;;
   esac
 
+  if [[ ${ENABLE_OAUTH2} -eq 1 ]]; then
+      _environment_variables_oauth2
+      _register_setup_function '_setup_oauth2'
+  fi
+
   if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]; then
     _environment_variables_saslauthd
     _register_setup_function '_setup_saslauthd'
@@ -89,20 +96,22 @@ function _register_functions() {
   _register_setup_function '_setup_dovecot_hostname'
 
   _register_setup_function '_setup_postfix_early'
-  _register_setup_function '_setup_fetchmail'
-  _register_setup_function '_setup_fetchmail_parallel'
 
-  # needs to come after _setup_postfix_early
+  # Dependent upon _setup_postfix_early first calling _create_aliases
+  # Due to conditional check for /etc/postfix/regexp
   _register_setup_function '_setup_spoof_protection'
 
-  _register_setup_function '_setup_getmail'
+  _register_setup_function '_setup_postfix_late'
 
   if [[ ${ENABLE_SRS} -eq 1  ]]; then
     _register_setup_function '_setup_SRS'
     _register_start_daemon '_start_daemon_postsrsd'
   fi
 
-  _register_setup_function '_setup_postfix_late'
+  _register_setup_function '_setup_fetchmail'
+  _register_setup_function '_setup_fetchmail_parallel'
+  _register_setup_function '_setup_getmail'
+
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
@@ -111,6 +120,11 @@ function _register_functions() {
   _register_setup_function '_setup_apply_fixes_after_configuration'
   _register_setup_function '_environment_variables_export'
 
+  if [[ ${ENABLE_MTA_STS} -eq 1 ]]; then
+    _register_setup_function '_setup_mta_sts'
+    _register_start_daemon '_start_daemon_mta_sts_daemon'
+  fi
+
   # ? >> Daemons
 
   _register_start_daemon '_start_daemon_cron'
@@ -118,7 +132,13 @@ function _register_functions() {
 
   [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
 
-  [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
+  if [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]]; then
+    if [[ ${DMS_RELEASE} != 'edge' ]]; then
+      _register_start_daemon '_start_daemon_update_check'
+    else
+      _log 'warn' "ENABLE_UPDATE_CHECK=1 is configured, but image is not a stable release. Update-Check is disabled."
+    fi
+  fi
 
   # The order here matters: Since Rspamd is using Redis, Redis should be started before Rspamd.
   [[ ${ENABLE_RSPAMD_REDIS}     -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_redis'
@@ -151,7 +171,7 @@ function _register_functions() {
 _early_supervisor_setup
 _early_variables_setup
 
-_log 'info' "Welcome to docker-mailserver $(</VERSION)"
+_log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
 
 _register_functions
 _check

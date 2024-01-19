@@ -106,6 +106,14 @@ EOF
 # -----------------------------------------------
 
 COPY target/rspamd/local.d/ /etc/rspamd/local.d/
+COPY target/rspamd/scores.d/* /etc/rspamd/scores.d/
+
+# -----------------------------------------------
+# --- OAUTH2 ------------------------------------
+# -----------------------------------------------
+
+COPY target/dovecot/auth-oauth2.conf.ext /etc/dovecot/conf.d
+COPY target/dovecot/dovecot-oauth2.conf.ext /etc/dovecot
 
 # -----------------------------------------------
 # --- LDAP & SpamAssassin's Cron ----------------
@@ -134,9 +142,7 @@ EOF
 
 COPY target/postsrsd/postsrsd /etc/default/postsrsd
 COPY target/postgrey/postgrey /etc/default/postgrey
-COPY target/postgrey/postgrey.init /etc/init.d/postgrey
 RUN <<EOF
-  chmod 755 /etc/init.d/postgrey
   mkdir /var/run/postgrey
   chown postgrey:postgrey /var/run/postgrey
   curl -Lsfo /etc/postgrey/whitelist_clients https://postgrey.schweikert.ch/pub/postgrey_whitelist_clients
@@ -192,6 +198,15 @@ COPY target/opendkim/default-opendkim /etc/default/opendkim
 COPY target/opendmarc/opendmarc.conf /etc/opendmarc.conf
 COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
 COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
+
+# --------------------------------------------------
+# --- postfix-mta-sts-daemon -----------------------
+# --------------------------------------------------
+COPY target/mta-sts-daemon/mta-sts-daemon.yml /etc/mta-sts-daemon.yml
+RUN <<EOF
+  mkdir /var/run/mta-sts
+  chown -R _mta-sts:root /var/run/mta-sts
+EOF
 
 # --------------------------------------------------
 # --- Fetchmail, Getmail, Postfix & Let'sEncrypt ---
@@ -279,8 +294,6 @@ RUN <<EOF
   update-locale
 EOF
 
-COPY VERSION /
-
 COPY \
   target/bin/* \
   target/scripts/*.sh \
@@ -297,8 +310,8 @@ COPY target/scripts/startup/setup.d /usr/local/bin/setup.d
 #
 
 FROM stage-main AS stage-final
+ARG DMS_RELEASE=edge
 ARG VCS_REVISION=unknown
-ARG VCS_VERSION=edge
 
 WORKDIR /
 EXPOSE 25 587 143 465 993 110 995 4190
@@ -322,11 +335,12 @@ LABEL org.opencontainers.image.title="docker-mailserver"
 LABEL org.opencontainers.image.vendor="The Docker Mailserver Organization"
 LABEL org.opencontainers.image.authors="The Docker Mailserver Organization on GitHub"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.description="A fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database."
+LABEL org.opencontainers.image.description="A fullstack but simple mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.). Only configuration files, no SQL database."
 LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
 LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
 LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"
 # ARG invalidates cache when it is used by a layer (implicitly affects RUN)
 # Thus to maximize cache, keep these lines last:
 LABEL org.opencontainers.image.revision=${VCS_REVISION}
-LABEL org.opencontainers.image.version=${VCS_VERSION}
+LABEL org.opencontainers.image.version=${DMS_RELEASE}
+ENV DMS_RELEASE=${DMS_RELEASE}

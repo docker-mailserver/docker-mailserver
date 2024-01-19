@@ -43,10 +43,6 @@ function _install_postfix() {
 function _install_packages() {
   _log 'debug' 'Installing all packages now'
 
-  declare -a ANTI_VIRUS_SPAM_PACKAGES
-  declare -a CODECS_PACKAGES MISCELLANEOUS_PACKAGES
-  declare -a POSTFIX_PACKAGES MAIL_PROGRAMS_PACKAGES
-
   ANTI_VIRUS_SPAM_PACKAGES=(
     amavisd-new clamav clamav-daemon
     pyzor razor spamassassin
@@ -62,18 +58,17 @@ function _install_packages() {
   )
 
   MISCELLANEOUS_PACKAGES=(
-    apt-transport-https bind9-dnsutils binutils bsd-mailx
+    apt-transport-https binutils bsd-mailx
     ca-certificates curl dbconfig-no-thanks
-    dumb-init ed gnupg iproute2 iputils-ping
-    libdate-manip-perl libldap-common
-    libmail-spf-perl libnet-dns-perl
-    locales logwatch netcat-openbsd
-    nftables rsyslog supervisor
-    uuid whois
+    dumb-init gnupg iproute2 libdate-manip-perl
+    libldap-common libmail-spf-perl
+    libnet-dns-perl locales logwatch
+    netcat-openbsd nftables rsyslog
+    supervisor uuid whois
   )
 
   POSTFIX_PACKAGES=(
-    pflogsumm postgrey postfix-ldap
+    pflogsumm postgrey postfix-ldap postfix-mta-sts-resolver
     postfix-pcre postfix-policyd-spf-python postsrsd
   )
 
@@ -82,24 +77,37 @@ function _install_packages() {
     opendmarc libsasl2-modules sasl2-bin
   )
 
+  # `bind9-dnsutils` provides the `dig` command
+  # `iputils-ping` provides the `ping` command
+  DEBUG_PACKAGES=(
+    bind9-dnsutils iputils-ping less nano
+  )
+
   apt-get "${QUIET}" --no-install-recommends install \
     "${ANTI_VIRUS_SPAM_PACKAGES[@]}" \
     "${CODECS_PACKAGES[@]}" \
     "${MISCELLANEOUS_PACKAGES[@]}" \
     "${POSTFIX_PACKAGES[@]}" \
-    "${MAIL_PROGRAMS_PACKAGES[@]}"
+    "${MAIL_PROGRAMS_PACKAGES[@]}" \
+    "${DEBUG_PACKAGES[@]}"
 }
 
 function _install_dovecot() {
   declare -a DOVECOT_PACKAGES
 
+  # Dovecot packages for officially supported features.
   DOVECOT_PACKAGES=(
     dovecot-core dovecot-imapd
     dovecot-ldap dovecot-lmtpd dovecot-managesieved
     dovecot-pop3d dovecot-sieve dovecot-solr
   )
 
-  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]; then
+  # Dovecot packages for community supported features.
+  DOVECOT_PACKAGES+=(dovecot-auth-lua)
+
+  # Dovecot's deb community repository only provides x86_64 packages, so do not include it
+  # when building for another architecture.
+  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]] && [[ "$(uname --machine)" == "x86_64" ]]; then
     _log 'trace' 'Using Dovecot community repository'
     curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
     gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
@@ -107,6 +115,9 @@ function _install_dovecot() {
 
     _log 'trace' 'Updating Dovecot package signatures'
     apt-get "${QUIET}" update
+
+    # Additional community package needed for Lua support if the Dovecot community repository is used.
+    DOVECOT_PACKAGES+=(dovecot-lua)
   fi
 
   _log 'debug' 'Installing Dovecot'
@@ -119,29 +130,14 @@ function _install_dovecot() {
 function _install_rspamd() {
   _log 'trace' 'Adding Rspamd package signatures'
   local DEB_FILE='/etc/apt/sources.list.d/rspamd.list'
-  local RSPAMD_PACKAGE_NAME
 
-  # We try getting the most recent version of Rspamd for aarch64 (from an official source, which
-  # is the backports repository). The version for aarch64 is 3.2; the most recent version for amd64
-  # that we get with the official PPA is 3.4.
-  #
-  # Not removing it later is fine as you have to explicitly opt into installing a backports package
-  # which is not something you could be doing by accident.
-  if [[ $(uname --machine) == 'aarch64' ]]; then
-    echo '# Official Rspamd PPA does not support aarch64, so we use the Bullseye backports' >"${DEB_FILE}"
-    echo 'deb [arch=arm64] http://deb.debian.org/debian bullseye-backports main' >>"${DEB_FILE}"
-    RSPAMD_PACKAGE_NAME='rspamd/bullseye-backports'
-  else
-    curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
-    local URL='[arch=amd64 signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main'
-    echo "deb ${URL}" >"${DEB_FILE}"
-    echo "deb-src ${URL}" >>"${DEB_FILE}"
-    RSPAMD_PACKAGE_NAME='rspamd'
-  fi
+  curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
+  local URL='[signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ bullseye main'
+  echo "deb ${URL}" >"${DEB_FILE}"
 
   _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" update
-  apt-get "${QUIET}" --no-install-recommends install "${RSPAMD_PACKAGE_NAME}" 'redis-server'
+  apt-get "${QUIET}" --no-install-recommends install 'rspamd' 'redis-server'
 }
 
 function _install_fail2ban() {
@@ -194,6 +190,19 @@ function _install_getmail() {
   apt-get "${QUIET}" autoremove
 }
 
+function _install_utils() {
+  _log 'debug' 'Installing utils sourced from Github'
+  _log 'trace' 'Installing jaq'
+  curl -sL "https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq && chmod +x /usr/bin/jaq
+
+  _log 'trace' 'Installing swaks'
+  local SWAKS_VERSION='20240103.0'
+  local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
+  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" | tar -xz
+  mv "${SWAKS_RELEASE}/swaks" /usr/local/bin
+  rm -r "${SWAKS_RELEASE}"
+}
+
 function _remove_data_after_package_installations() {
   _log 'debug' 'Deleting sensitive files (secrets)'
   rm /etc/postsrsd.secret
@@ -217,5 +226,6 @@ _install_dovecot
 _install_rspamd
 _install_fail2ban
 _install_getmail
+_install_utils
 _remove_data_after_package_installations
 _post_installation_steps

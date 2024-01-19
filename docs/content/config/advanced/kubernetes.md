@@ -190,7 +190,10 @@ spec:
           imagePullPolicy: IfNotPresent
 
           securityContext:
-            allowPrivilegeEscalation: false
+            # Required to support SGID via `postdrop` executable
+            # in `/var/mail-state` for Postfix (maildrop + public dirs):
+            # https://github.com/docker-mailserver/docker-mailserver/pull/3625
+            allowPrivilegeEscalation: true
             readOnlyRootFilesystem: false
             runAsUser: 0
             runAsGroup: 0

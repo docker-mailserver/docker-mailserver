@@ -17,7 +17,7 @@ function setup_file() {
 
   # Contains various certs for testing TLS support (read-only):
   export TLS_CONFIG_VOLUME
-  TLS_CONFIG_VOLUME="${PWD}/test/test-files/ssl/${TEST_DOMAIN}/:/config/ssl/:ro"
+  TLS_CONFIG_VOLUME="${PWD}/test/files/ssl/${TEST_DOMAIN}/:/config/ssl/:ro"
 
   # Used for connecting testssl and DMS containers via network name `TEST_DOMAIN`:
   # NOTE: If the network already exists, the test will fail to start
@@ -25,7 +25,7 @@ function setup_file() {
 
   # Pull `testssl.sh` image in advance to avoid it interfering with the `run` captured output.
   # Only interferes (potential test failure) with `assert_output` not `assert_success`?
-  docker pull drwetter/testssl.sh:3.1dev
+  docker pull drwetter/testssl.sh:3.2
 
   # Only used in `_should_support_expected_cipherlists()` to set a storage location for `testssl.sh` JSON output:
   # `${BATS_TMPDIR}` maps to `/tmp`: https://bats-core.readthedocs.io/en/v1.8.2/writing-tests.html#special-variables
@@ -166,7 +166,7 @@ function _collect_cipherlists() {
     --volume "${TLS_CONFIG_VOLUME}" \
     --volume "${RESULTS_PATH}:/output" \
     --workdir "/output" \
-    drwetter/testssl.sh:3.1dev "${TESTSSL_CMD[@]}"
+    drwetter/testssl.sh:3.2 "${TESTSSL_CMD[@]}"
 
   assert_success
 }

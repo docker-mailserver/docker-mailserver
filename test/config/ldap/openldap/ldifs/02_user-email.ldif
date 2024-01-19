@@ -1,0 +1,21 @@
+# NOTE: A standard user account to test against
+dn: uid=some.user,ou=users,dc=example,dc=test
+objectClass: inetOrgPerson
+objectClass: PostfixBookMailAccount
+cn: Some User
+givenName: Some
+surname: User
+userID: some.user
+# Password is: secret
+userPassword: {SSHA}eLtqGpid+hkSVhxvsdTPztv4uapRofGx
+mail: some.user@localhost.localdomain
+# postfix-book.schema:
+mailAlias: postmaster@localhost.localdomain
+mailGroupMember: employees@localhost.localdomain
+mailHomeDirectory: /var/mail/localhost.localdomain/some.user/
+mailStorageDirectory: maildir:/var/mail/localhost.localdomain/some.user/
+# postfix-book.schema generic options:
+mailEnabled: TRUE
+mailUidNumber: 5000
+mailGidNumber: 5000
+mailQuota: 10240
