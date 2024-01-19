@@ -9,7 +9,7 @@
 
 :80 {
   # This is the `/userinfo` endpoint that Dovecot connects to with the OAuth2 setting (default: `introspection_mode = auth`).
-  # Example: curl http://auth.example.test/userinfo -H 'Authorization: Bearer <token here>'
+  # Example: curl http://auth.example.test/userinfo -H 'Authorization: Bearer DMS_YWNjZXNzX3Rva2Vu'
   handle_path /userinfo {
     reverse_proxy localhost:2000
   }
@@ -53,6 +53,9 @@
 
 # /imap/xoauth2
 # Generate IMAP commands for authentication testing
+# Base64 encoded credentials can alternative be done via CLI with:
+# echo -en 'user=${USERNAME}\001auth=Bearer ${ACCESS_TOKEN}\001\001' | base64 -w0; echo
+#
 # Provide `user` and `access_token` values via query string parameters:
 # curl 'http://auth.example.test/imap/xoauth2?user=user1@localhost.localdomain&access_token=DMS_YWNjZXNzX3Rva2Vu'
 # curl 'http://auth.example.test/imap/oauthbearer?user=user1@localhost.localdomain&access_token=DMS_YWNjZXNzX3Rva2Vu'

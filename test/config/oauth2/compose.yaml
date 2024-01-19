@@ -1,0 +1,9 @@
+# Run this with `docker compose up` if needing to use the container outside of tests
+services:
+  caddy-oauth2:
+    image: caddy:2.7
+    container_name: dms-oauth2
+    ports:
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro

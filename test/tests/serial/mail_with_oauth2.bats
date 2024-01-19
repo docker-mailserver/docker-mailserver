@@ -28,7 +28,7 @@ function setup_file() {
   # Setup DMS container
   #
 
-  # Add OAUTH2 configuration so that Dovecot can reach out to our mock provider (CONTAINER2)
+  # Add OAuth2 configuration so that Dovecot can query our mocked identity provider (CONTAINER2)
   local ENV_OAUTH2_CONFIG=(
     --env ENABLE_OAUTH2=1
     --env OAUTH2_INTROSPECTION_URL=http://auth.example.test/userinfo
@@ -48,6 +48,9 @@ function setup_file() {
 
   # Set default implicit container fallback for helpers:
   export CONTAINER_NAME=${CONTAINER1_NAME}
+
+  # An initial connection needs to be made first, otherwise the auth attempts fail
+  _run_in_container_bash 'nc -vz 0.0.0.0 143'
 }
 
 function teardown_file() {
@@ -55,13 +58,12 @@ function teardown_file() {
   docker network rm "${DMS_TEST_NETWORK}"
 }
 
-@test "oauth2: imap connect and authentication works" {
-  # An initial connection needs to be made first, otherwise the auth attempt fails
-  _run_in_container_bash 'nc -vz 0.0.0.0 143'
-
+@test "should authenticate with XOAUTH2 over IMAP" {
   _nc_wrapper 'auth/imap-oauth2-xoauth2.txt' '-w 1 0.0.0.0 143'
   __verify_successful_login 'XOAUTH2'
+}
 
+@test "should authenticate with OAUTHBEARER over IMAP" {
   _nc_wrapper 'auth/imap-oauth2-oauthbearer.txt' '-w 1 0.0.0.0 143'
   __verify_successful_login 'OAUTHBEARER'
 }
