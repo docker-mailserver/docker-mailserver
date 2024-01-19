@@ -12,8 +12,9 @@ hide:
 
 If your Docker host is running multiple IPv4 and IPv6 IP-addresses, it may be beneficial to bind outgoing SMTP connections to specific IP-address / interface.
 
-- When a mail is sent outbound from DMS, it greets the MTA it is connecting to with a EHLO (DMS FQDN) which might be verified against the IP resolved, and that a `PTR` record for that IP resolves an address back to the same IP. A similar check can against the envelope-sender address for SPF that verifies a DNS record like MX / A is valid (_or a similar restriction check from an MTA like [Postfix has with `reject_unknown_sender`][gh-pr::3465::comment-restrictions]_).
-- If DMS connections are inconsistent with the IP used here, these DNS checks are likely to fail.
+- When a mail is sent outbound from DMS, it greets the MTA it is connecting to with a EHLO (DMS FQDN) which might be verified against the IP resolved, and that a `PTR` record for that IP resolves an address back to the same IP.
+- A similar check with SPF can be against the envelope-sender address which may verify a DNS record like MX / A is valid (_or a similar restriction check from an MTA like [Postfix has with `reject_unknown_sender`][gh-pr::3465::comment-restrictions]_).
+- If the IP address is inconsistent for those connections from DMS, these DNS checks are likely to fail.
 
 This can be configured by [overriding the default Postfix configurations][docs::overrides-postfix] DMS provides. Create `postfix-master.cf` and `postfix-main.cf` files for your config volume (`docker-data/dms/config`).
 
