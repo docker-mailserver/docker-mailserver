@@ -109,7 +109,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'normal mail passes fine' {
-  _service_log_should_contain_string 'rspamd' 'F \(no action\)'
+  _service_log_should_contain_string 'rspamd' 'F (no action)'
 
   _print_mail_log_for_msgid 'rspamd-test-email-pass'
   assert_output --partial "stored mail into mailbox 'INBOX'"
@@ -118,7 +118,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'detects and rejects spam' {
-  _service_log_should_contain_string 'rspamd' 'S \(reject\)'
+  _service_log_should_contain_string 'rspamd' 'S (reject)'
   _service_log_should_contain_string 'rspamd' 'reject "Gtube pattern"'
 
   _print_mail_log_of_queue_id_from_msgid 'dms-test-email-spam'
@@ -133,7 +133,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'detects and rejects virus' {
-  _service_log_should_contain_string 'rspamd' 'T \(reject\)'
+  _service_log_should_contain_string 'rspamd' 'T (reject)'
   _service_log_should_contain_string 'rspamd' 'reject "ClamAV FOUND VIRUS "Eicar-Signature"'
 
   _print_mail_log_of_queue_id_from_msgid 'rspamd-test-email-virus'
@@ -225,7 +225,7 @@ function teardown_file() { _default_teardown ; }
   _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.svbin ]]'
   assert_success
 
-  _service_log_should_contain_string 'rspamd' 'S \(add header\)'
+  _service_log_should_contain_string 'rspamd' 'S (add header)'
   _service_log_should_contain_string 'rspamd' 'add header "Gtube pattern"'
 
   _print_mail_log_for_msgid 'rspamd-test-email-header'
