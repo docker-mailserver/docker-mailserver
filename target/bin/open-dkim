@@ -144,6 +144,9 @@ while read -r DKIM_DOMAIN; do
       --directory="/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
   fi
 
+  # fix permissions to use the same user:group as /tmp/docker-mailserver/opendkim/keys
+  chown -R "$(stat -c '%U:%G' /tmp/docker-mailserver/opendkim/keys)" "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
+
   # write to KeyTable if necessary
   KEYTABLEENTRY="${SELECTOR}._domainkey.${DKIM_DOMAIN} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
   if [[ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]]; then

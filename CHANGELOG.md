@@ -2,9 +2,11 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.2.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.3.0...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [v13.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.0)
 
 ### Features
 
@@ -17,9 +19,17 @@ All notable changes to this project will be documented in this file. The format 
     - Enable via the ENV `ENABLE_MTA_STS=1`
     - Supported by major email service providers like Gmail, Yahoo and Outlook.
 
+### Added
+
+- **Docs:**
+  - An example for how to bind outbound SMTP connections to a specific network interface ([#3465](https://github.com/docker-mailserver/docker-mailserver/pull/3465))
+
 ### Updates
 
 - **Tests**:
+  - Revised OAuth2 test ([#3795](https://github.com/docker-mailserver/docker-mailserver/pull/3795))
+  - Replace `wc -l` with `grep -c` ([#3752](https://github.com/docker-mailserver/docker-mailserver/pull/3752))
+  - Revised testing of service process management (supervisord) to be more robust ([#3780](https://github.com/docker-mailserver/docker-mailserver/pull/3780))
   - Refactored mail sending ([#3747](https://github.com/docker-mailserver/docker-mailserver/pull/3747) & [#3772](https://github.com/docker-mailserver/docker-mailserver/pull/3772)):
     - This change is a follow-up to [#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732) from DMS v13.2.
     - `swaks` version is now the latest from Github releases instead of the Debian package.
@@ -27,16 +37,17 @@ All notable changes to this project will be documented in this file. The format 
     - `sending.bash` helper methods were refactored to better integrate `swaks` and accommodate different usage contexts.
     - `test/files/emails/existing/` files were removed similar to previous removal of SMTP auth files as they became redundant with `swaks`.
 - **Internal:**
-  - tests: Replace `wc -l` with `grep -c` ([#3752](https://github.com/docker-mailserver/docker-mailserver/pull/3752))
   - Postfix is now configured with `smtputf8_enable = no` in our default `main.cf` config (_instead of during container startup_). ([#3750](https://github.com/docker-mailserver/docker-mailserver/pull/3750))
 - **Rspamd** ([#3726](https://github.com/docker-mailserver/docker-mailserver/pull/3726)):
-  - symbol scores for SPF, DKIM & DMARC were updated to more closely align with [RFC7489](https://www.rfc-editor.org/rfc/rfc7489#page-24); please note though that complete alignment is undesirable, because other symbols might be added as well, which changes the overall score calculation again, see [this issue](https://github.com/docker-mailserver/docker-mailserver/issues/3690#issuecomment-1866871996)
+  - Symbol scores for SPF, DKIM & DMARC were updated to more closely align with [RFC7489](https://www.rfc-editor.org/rfc/rfc7489#page-24). Please note that complete alignment is undesirable as other symbols may be added as well, which changes the overall score calculation again, see [this issue](https://github.com/docker-mailserver/docker-mailserver/issues/3690#issuecomment-1866871996)
 - **Docs:**
   - Revised the SpamAssassin ENV docs to better communicate configuration and their relation to other ENV settings. ([#3756](https://github.com/docker-mailserver/docker-mailserver/pull/3756))
   - Detailed how mail received is assigned a spam score by Rspamd and processed accordingly ([#3773](https://github.com/docker-mailserver/docker-mailserver/pull/3773))
 
 ### Fixes
 
+- **Setup:**
+  - `setup` CLI - `setup dkim domain` now creates the keys files with the user owning the key directory ([#3783](https://github.com/docker-mailserver/docker-mailserver/pull/3783))
 - **Dovecot:**
   - During container startup for Dovecot Sieve, `.sievec` source files compiled to `.svbin` now have their `mtime` adjusted post setup to ensure it is always older than the associated `.svbin` file. This avoids superfluous error logs for sieve scripts that don't actually need to be compiled again ([#3779](https://github.com/docker-mailserver/docker-mailserver/pull/3779))
 - **Internal:**

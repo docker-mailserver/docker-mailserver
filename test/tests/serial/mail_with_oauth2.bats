@@ -9,7 +9,7 @@ function setup_file() {
   export DMS_TEST_NETWORK='test-network-oauth2'
   export DMS_DOMAIN='example.test'
   export FQDN_MAIL="mail.${DMS_DOMAIN}"
-  export FQDN_OAUTH2="oauth2.${DMS_DOMAIN}"
+  export FQDN_OAUTH2="auth.${DMS_DOMAIN}"
 
   # Link the test containers to separate network:
   # NOTE: If the network already exists, test will fail to start.
@@ -19,20 +19,19 @@ function setup_file() {
   docker run --rm -d --name "${CONTAINER2_NAME}" \
     --hostname "${FQDN_OAUTH2}" \
     --network "${DMS_TEST_NETWORK}" \
-    --volume "${REPOSITORY_ROOT}/test/config/oauth2/:/app/" \
-    docker.io/library/python:latest \
-    python /app/provider.py
+    --volume "${REPOSITORY_ROOT}/test/config/oauth2/Caddyfile:/etc/caddy/Caddyfile:ro" \
+    caddy:2.7
 
-  _run_until_success_or_timeout 20 sh -c "docker logs ${CONTAINER2_NAME} 2>&1 | grep 'Starting server'"
+  _run_until_success_or_timeout 20 bash -c "docker logs ${CONTAINER2_NAME} 2>&1 | grep 'serving initial configuration'"
 
   #
   # Setup DMS container
   #
 
-  # Add OAUTH2 configuration so that Dovecot can reach out to our mock provider (CONTAINER2)
+  # Add OAuth2 configuration so that Dovecot can query our mocked identity provider (CONTAINER2)
   local ENV_OAUTH2_CONFIG=(
     --env ENABLE_OAUTH2=1
-    --env OAUTH2_INTROSPECTION_URL=http://oauth2.example.test/userinfo/
+    --env OAUTH2_INTROSPECTION_URL=http://auth.example.test/userinfo
   )
 
   export CONTAINER_NAME=${CONTAINER1_NAME}
@@ -49,6 +48,9 @@ function setup_file() {
 
   # Set default implicit container fallback for helpers:
   export CONTAINER_NAME=${CONTAINER1_NAME}
+
+  # An initial connection needs to be made first, otherwise the auth attempts fail
+  _run_in_container_bash 'nc -vz 0.0.0.0 143'
 }
 
 function teardown_file() {
@@ -56,11 +58,21 @@ function teardown_file() {
   docker network rm "${DMS_TEST_NETWORK}"
 }
 
+@test "should authenticate with XOAUTH2 over IMAP" {
+  _nc_wrapper 'auth/imap-oauth2-xoauth2.txt' '-w 1 0.0.0.0 143'
+  __verify_successful_login 'XOAUTH2'
+}
 
-@test "oauth2: imap connect and authentication works" {
-  # An initial connection needs to be made first, otherwise the auth attempt fails
-  _run_in_container_bash 'nc -vz 0.0.0.0 143'
+@test "should authenticate with OAUTHBEARER over IMAP" {
+  _nc_wrapper 'auth/imap-oauth2-oauthbearer.txt' '-w 1 0.0.0.0 143'
+  __verify_successful_login 'OAUTHBEARER'
+}
 
-  _nc_wrapper 'auth/imap-oauth2-auth.txt' '-w 1 0.0.0.0 143'
-  assert_output --partial 'Examine completed'
+function __verify_successful_login() {
+  local AUTH_METHOD=${1}
+
+  # Inspect the relevant Dovecot logs to catch failure / success:
+  _run_in_container grep 'dovecot:' /var/log/mail.log
+  refute_output --partial 'oauth2 failed: Introspection failed'
+  assert_output --partial "dovecot: imap-login: Login: user=<user1@localhost.localdomain>, method=${AUTH_METHOD}"
 }

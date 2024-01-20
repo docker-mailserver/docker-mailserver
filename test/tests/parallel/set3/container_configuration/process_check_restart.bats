@@ -11,19 +11,16 @@ function teardown() { _default_teardown ; }
 # Process matching notes:
 # opendkim (/usr/sbin/opendkim) - x2 of the same process are found running (1 is the parent)
 # opendmarc (/usr/sbin/opendmarc)
-# master (/usr/lib/postfix/sbin/master) - Postfix main process (Can take a few seconds running to be ready)
-# NOTE: pgrep or pkill used with `--full` would also match `/usr/sbin/amavisd-new (master)`
+# postfix (/usr/lib/postfix/sbin/master) - Postfix main process (two ancestors, launched via pidproxy python3 script)
 #
-# amavi (/usr/sbin/amavi) - Matches three processes, the main process is `/usr/sbin/amavisd-new (master)`
-# NOTE: `amavisd-new` can only be matched with `--full`, regardless pkill would return `/usr/sbin/amavi`
-#
+# amavisd-new (usr/sbin/amavisd-new)
 # clamd (/usr/sbin/clamd)
 # dovecot (/usr/sbin/dovecot)
 # fetchmail (/usr/bin/fetchmail)
-# fail2ban-server (/usr/bin/python3 /usr/bin/fail2ban-server) - Started by fail2ban-wrapper.sh
+# fail2ban-server (/usr/bin/python3 /usr/bin/fail2ban-server) - NOTE: python3 is due to the shebang
 # mta-sts-daemon (/usr/bin/bin/python3 /usr/bin/mta-sts-daemon)
-# postgrey (postgrey) - NOTE: This process lacks path information to match with `--full` in pgrep / pkill
-# postsrsd (/usr/sbin/postsrsd) - NOTE: Also matches the wrapper: `/bin/bash /usr/local/bin/postsrsd-wrapper.sh`
+# postgrey (postgrey) - NOTE: This process command uses perl via shebang, but unlike python3 the context is missing
+# postsrsd (/usr/sbin/postsrsd)
 # saslauthd (/usr/sbin/saslauthd) - x5 of the same process are found running (1 is a parent of 4)
 
 # Delays:
@@ -31,17 +28,16 @@ function teardown() { _default_teardown ; }
 # dovecot + fail2ban, take approx 1 sec to kill properly
 # opendkim + opendmarc can take up to 6 sec to kill properly
 # clamd + postsrsd sometimes take 1-3 sec to restart after old process is killed.
-# postfix + fail2ban (due to Wrapper scripts) can delay a restart by up to 5 seconds from usage of sleep.
 
 # These processes should always be running:
 CORE_PROCESS_LIST=(
-  master
+  postfix
 )
 
 # These processes can be toggled via ENV:
 # NOTE: clamd handled in separate test case
 ENV_PROCESS_LIST=(
-  amavi
+  amavisd-new
   dovecot
   fail2ban-server
   fetchmail
@@ -89,7 +85,7 @@ ENV_PROCESS_LIST=(
   done
 }
 
-# Average time: 23 seconds (29 with wrapper scripts)
+# Average time: 23 seconds
 @test "(enabled ENV) should restart processes when killed" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
   local CONTAINER_ARGS_ENV_CUSTOM=(
@@ -153,14 +149,18 @@ function _should_restart_when_killed() {
   # Wait until process has been running for at least MIN_PROCESS_AGE:
   # (this allows us to more confidently check the process was restarted)
   _run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}" "${MIN_PROCESS_AGE}"
-  # NOTE: refute_output doesn't have output to compare to when a run failure is due to a timeout
+  # NOTE: refute_output will not have any output to compare against if a `run` failure is caused by a timeout
   assert_success
   assert_output --partial "${PROCESS}"
 
   # Should kill the process successfully:
   # (which should then get restarted by supervisord)
-  _run_in_container pkill --echo "${PROCESS}"
-  assert_output --partial "${PROCESS}"
+  # NOTE: The process name from `pkill --echo` does not always match the equivalent processs name from `pgrep --list-full`.
+  # The oldest process returned (if multiple) should be the top-level process launched by supervisord,
+  # the PID will verify the target process was killed correctly:
+  local PID=$(_exec_in_container pgrep --full --oldest "${PROCESS}")
+  _run_in_container pkill --echo --full "${PROCESS}"
+  assert_output --partial "killed (pid ${PID})"
   assert_success
 
   # Wait until original process is not running:
@@ -176,13 +176,16 @@ function _should_restart_when_killed() {
   assert_output --partial "${PROCESS}"
 }
 
-# NOTE: CONTAINER_NAME is implicit; it should have be set prior to calling.
+# NOTE: CONTAINER_NAME is implicit; it should have been set prior to calling.
 function _check_if_process_is_running() {
   local PROCESS=${1}
   local MIN_SECS_RUNNING
   [[ -n ${2:-} ]] && MIN_SECS_RUNNING=('--older' "${2}")
 
-  local IS_RUNNING=$(docker exec "${CONTAINER_NAME}" pgrep --list-full "${MIN_SECS_RUNNING[@]}" "${PROCESS}")
+  # `--list-full` provides information for matching against (full process path)
+  # `--full` allows matching the process against the full path (required if a process is not the exec command, such as started by python3 command without a shebang)
+  # `--oldest` should select the parent process when there are multiple results, typically the command defined in `supervisor-app.conf`
+  local IS_RUNNING=$(_exec_in_container pgrep --full --list-full "${MIN_SECS_RUNNING[@]}" --oldest "${PROCESS}")
 
   # When no matches are found, nothing is returned. Provide something we can assert on (helpful for debugging):
   if [[ ! ${IS_RUNNING} =~ ${PROCESS} ]]; then
