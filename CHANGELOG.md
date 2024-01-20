@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Updates
 
 - **Tests**:
+  - Revised OAuth2 test ([#3795](https://github.com/docker-mailserver/docker-mailserver/pull/3795))
   - Replace `wc -l` with `grep -c` ([#3752](https://github.com/docker-mailserver/docker-mailserver/pull/3752))
   - Revised testing of service process management (supervisord) to be more robust ([#3780](https://github.com/docker-mailserver/docker-mailserver/pull/3780))
   - Refactored mail sending ([#3747](https://github.com/docker-mailserver/docker-mailserver/pull/3747) & [#3772](https://github.com/docker-mailserver/docker-mailserver/pull/3772)):
