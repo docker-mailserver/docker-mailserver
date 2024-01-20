@@ -228,7 +228,7 @@ function _successful() {
 
 @test "redirects mail to external aliases" {
   _service_log_should_contain_string 'mail' 'Passed CLEAN {RelayedInbound}'
-  assert_output --partial '<user@external.tld> -> <external1@otherdomain.tld>'
+  run bash -c "grep '<user@external.tld> -> <external1@otherdomain.tld>' <<< '${output}'"
   _should_output_number_of_lines 2
   # assert_output --partial 'external.tld=user@example.test> -> <external1@otherdomain.tld>'
 }
