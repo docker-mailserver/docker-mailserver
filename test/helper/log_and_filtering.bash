@@ -94,6 +94,7 @@ function _print_mail_log_of_queue_id_from_msgid() {
   run echo "${QUEUE_ID}"
   assert_line --regexp "^${QUEUE_ID_REGEX}$"
 
+  # Postfix specific logs:
   _filter_service_log 'mail' "${QUEUE_ID}"
 }
 
@@ -104,5 +105,6 @@ function _print_mail_log_for_msgid() {
   local MSG_ID=$(__construct_msgid "${1:?The local-part for MSG_ID was not provided}")
   shift 1
 
+  # Dovecot specific logs:
   _filter_service_log 'mail' "msgid=${MSG_ID}"
 }

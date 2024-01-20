@@ -123,7 +123,7 @@ function _send_email_with_msgid() {
   local MSG_ID=$(__construct_msgid "${1:?The local-part for MSG_ID was not provided}")
   shift 1
 
-  _send_email "${@}" --header "Message-Id: ${MID}"
+  _send_email "${@}" --header "Message-Id: ${MSG_ID}"
 }
 
 # Send a spam e-mail by utilizing GTUBE.

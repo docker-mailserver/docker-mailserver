@@ -58,6 +58,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_not_contain_string 'mail' '\(!\)connect'
 
   # Postfix: https://github.com/docker-mailserver/docker-mailserver/pull/2597
+   # Log line match example: https://github.com/docker-mailserver/docker-mailserver/pull/2598#issuecomment-1141176633
   _service_log_should_not_contain_string 'mail' 'using backwards-compatible default setting'
 
   # Postgrey: https://github.com/docker-mailserver/docker-mailserver/pull/612#discussion_r117635774
