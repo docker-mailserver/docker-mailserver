@@ -22,7 +22,7 @@ function setup_file() {
     --volume "${REPOSITORY_ROOT}/test/config/oauth2/Caddyfile:/etc/caddy/Caddyfile:ro" \
     caddy:2.7
 
-  _run_until_success_or_timeout 20 sh -c "docker logs ${CONTAINER2_NAME} 2>&1 | grep 'serving initial configuration'"
+  _run_until_success_or_timeout 20 bash -c "docker logs ${CONTAINER2_NAME} 2>&1 | grep 'serving initial configuration'"
 
   #
   # Setup DMS container
