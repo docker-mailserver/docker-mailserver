@@ -276,7 +276,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'mail' 'imapsieve: Matched static mailbox rule \[1\]'
   _service_log_should_not_contain_string 'mail' 'imapsieve: Matched static mailbox rule \[2\]'
 
-  _filter_service_log 'mail' '.'
+  _show_complete_mail_log
   for LINE in "${LEARN_SPAM_LINES[@]}"; do
     assert_output --partial "${LINE}"
   done
@@ -289,7 +289,7 @@ function teardown_file() { _default_teardown ; }
 
   _service_log_should_contain_string 'mail' 'imapsieve: Matched static mailbox rule \[2\]'
 
-  _filter_service_log 'mail' '.'
+  _show_complete_mail_log
   for LINE in "${LEARN_HAM_LINES[@]}"; do
     assert_output --partial "${LINE}"
   done

@@ -20,22 +20,24 @@ function _should_output_number_of_lines() {
 #
 # @param ${1} = service name
 # @param ${2} = string to filter by
-# @param ${3} = container name [OPTIONAL]
-#
-# ## Attention
-#
-# The string given to this function is interpreted by `grep -E`, i.e.
-# as a regular expression. In case you use characters that are special
-# in regular expressions, you need to escape them!
+# @param ...  = options given to `grep` (which is used to filter logs)
 function _filter_service_log() {
   local SERVICE=${1:?Service name must be provided}
   local STRING=${2:?String to match must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
-  local FILE="/var/log/supervisor/${SERVICE}.log"
+  shift 2
 
-  # Fallback to alternative log location:
-  [[ -f ${FILE} ]] || FILE="/var/log/mail/${SERVICE}.log"
-  _run_in_container grep -i -E "${STRING}" "${FILE}"
+  local FILE="/var/log/supervisor/${SERVICE}.log"
+  [[ -f ${FILE} ]] || FILE="/var/log/mail/${SERVICE}.log" # Fallback to alternative log location:
+  _run_in_container grep "${@}" "${STRING}" "${FILE}"
+}
+
+# Use this function to print the complete mail log, but use it only where necessary.
+# In most cases, you will rather want to filter the log with
+#
+# 1. _filter_service_log
+# 2. _service_log_should_[not_]contain_string
+function _show_complete_mail_log() {
+  _run_in_container cat /var/log/mail/mail.log
 }
 
 # Like `_filter_service_log` but asserts that the string was found.
