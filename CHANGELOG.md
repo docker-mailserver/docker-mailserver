@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Updates
+
+- **Tests**
+  - further improved helpers for sending e-mails with specific `Message-ID` headers (required when filtering the mail og when multiple e-mails have been sent); associated filtering functions were adjusted or added accordingly
+
 ## [v13.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.0)
 
 ### Features
