@@ -45,16 +45,16 @@ function setup_file() {
 
   # We will send 4 emails:
   #   1. The first one should pass just fine
-  _send_email_with_mid 'pass'
+  _send_email_with_msgid 'pass'
   #   2. The second one should be rejected (Rspamd-specific GTUBE pattern for rejection)
   _send_spam --expect-rejection
   #   3. The third one should be rejected due to a virus (ClamAV EICAR pattern)
   # shellcheck disable=SC2016
-  _send_email_with_mid 'virus' --expect-rejection \
+  _send_email_with_msgid 'virus' --expect-rejection \
     --body 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
   #   4. The fourth one will receive an added header (Rspamd-specific GTUBE pattern for adding a spam header)
   #      ref: https://rspamd.com/doc/gtube_patterns.html
-  _send_email_with_mid 'header' --body "YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
+  _send_email_with_msgid 'header' --body "YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
 
   _run_in_container cat /var/log/mail.log
   assert_success
@@ -120,7 +120,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'S \(reject\)'
   _service_log_should_contain_string 'rspamd' 'reject "Gtube pattern"'
 
-  _print_mail_log_of_queue_id_from_mid 'spam'
+  _print_mail_log_of_queue_id_from_msgid 'spam'
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 Gtube pattern'
   refute_output --partial "stored mail into mailbox 'INBOX'"
@@ -135,7 +135,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'T \(reject\)'
   _service_log_should_contain_string 'rspamd' 'reject "ClamAV FOUND VIRUS "Eicar-Signature"'
 
-  _print_mail_log_of_queue_id_from_mid 'virus'
+  _print_mail_log_of_queue_id_from_msgid 'virus'
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 ClamAV FOUND VIRUS "Eicar-Signature"'
   refute_output --partial "stored mail into mailbox 'INBOX'"

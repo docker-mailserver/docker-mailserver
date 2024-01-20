@@ -102,19 +102,25 @@ function _send_email() {
   return "${RETURN_VALUE}"
 }
 
-# Contruct the message ID for the 'Message-ID' header.
+# Construct the value for a 'Message-ID' header.
+# For tests we use only the local-part to identify mail activity in logs. The rest of the value is fixed.
 #
-# @param ${1} = message ID part before '@' (later used when filtering logs again)
-function __construct_mid() {
-  echo "<${1:?Message-ID prefix is required}@dms-tests>"
+# A Message-ID header value should be in the form of: `<local-part@domain-part>`
+# https://en.wikipedia.org/wiki/Message-ID
+# https://datatracker.ietf.org/doc/html/rfc5322#section-3.6.4
+#
+# @param ${1} = The local-part of a Message-ID header value (`<local-part@domain-part>`)
+function __construct_msgid() {
+  local MSG_ID_LOCALPART=${1:?The local-part for MSG_ID was not provided}
+  echo "<${MSG_ID_LOCALPART}@dms-tests>"
 }
 
-# Like `_send_email` but adds a "Message-Id: ${1}@dms-tests>" header, which
-# allows for filtering logs later.
+# Like `_send_email` but adds a "Message-ID: ${1}@dms-tests>" header,
+# which allows for filtering logs later.
 #
-# @param ${1} = message ID part before '@' (later used when filtering logs again)
-function _send_email_with_mid() {
-  local MID=$(__construct_mid "${1:?Left-hand side of MID missing}")
+# @param ${1} = The local-part of a Message-ID header value (`<local-part@domain-part>`)
+function _send_email_with_msgid() {
+  local MSG_ID=$(__construct_msgid "${1:?The local-part for MSG_ID was not provided}")
   shift 1
 
   _send_email "${@}" --header "Message-Id: ${MID}"
@@ -122,9 +128,9 @@ function _send_email_with_mid() {
 
 # Send a spam e-mail by utilizing GTUBE.
 #
-# Extra arguments given to this function will be supplied by `_send_email_with_mid` directly.
+# Extra arguments given to this function will be supplied by `_send_email_with_msgid` directly.
 function _send_spam() {
-  _send_email_with_mid 'spam' "${@}" \
+  _send_email_with_msgid 'spam' "${@}" \
     --from 'spam@external.tld' \
     --body 'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
 }

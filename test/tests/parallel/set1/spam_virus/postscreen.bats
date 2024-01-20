@@ -57,8 +57,8 @@ function teardown_file() {
   # Configure `send_email()` to send from the mail client container (CONTAINER2_NAME) via ENV override,
   # mail is sent to the DMS server container (CONTAINER1_NAME) via `--server` parameter:
   CONTAINER_NAME=${CONTAINER2_NAME} _send_email --expect-rejection --server "${CONTAINER1_IP}" --port 25 --data 'postscreen.txt'
-  # TODO: Use _send_email_with_mid when proper resolution of domain names is possible:
-  # CONTAINER_NAME=${CONTAINER2_NAME} _send_email_with_mid 'postscreen' --server "${CONTAINER1_IP}" --data 'postscreen.txt'
+  # TODO: Use _send_email_with_msgid when proper resolution of domain names is possible:
+  # CONTAINER_NAME=${CONTAINER2_NAME} _send_email_with_msgid 'postscreen' --server "${CONTAINER1_IP}" --data 'postscreen.txt'
   # _print_mail_log_for_msgid 'postscreen'
   # assert_output --partial "stored mail into mailbox 'INBOX'"
 

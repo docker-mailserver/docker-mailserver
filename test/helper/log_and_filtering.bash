@@ -7,8 +7,8 @@
 
 # shellcheck disable=SC2034,SC2155
 
-# Assert that the number of lines output by a previous command matches the given
-# amount (${1}). `lines` is a special BATS variable updated via `run`.
+# Assert that the number of lines output by a previous command matches the given amount (${1}).
+# `lines` is a special BATS variable updated via `run`.
 #
 # @param ${1} = number of lines that the output should have
 function _should_output_number_of_lines() {
@@ -16,8 +16,7 @@ function _should_output_number_of_lines() {
   assert_equal "${#lines[@]}" "${1:?Number of lines not provided}"
 }
 
-# Filters a service's logs (under `/var/log/supervisor/<SERVICE>.log`) given
-# a specific string.
+# Filters a service's logs (under `/var/log/supervisor/<SERVICE>.log`) given a specific string.
 #
 # @param ${1} = service name
 # @param ${2} = string to filter by
@@ -71,22 +70,23 @@ function _service_log_should_not_contain_string() {
   assert_failure
 }
 
-# Filters the mail log according to MID (Message-ID) and prints lines
-# of the mail log that fit Postfix's queue ID for the given message ID.
+# Filters the mail log by the given MSG_ID (Message-ID) parameter,
+# printing log lines which include the associated Postfix Queue ID.
 #
-# @param ${1} = message ID part before '@'
-function _print_mail_log_of_queue_id_from_mid() {
-  # The unique ID Postfix (and other services) use may be different in length
-  # on different systems. Hence, we use a range to safely capture it.
+# @param ${1} = The local-part of a Message-ID header value (`<local-part@domain-part>`)
+function _print_mail_log_of_queue_id_from_msgid() {
+  # A unique ID Postfix generates for tracking queued mail as it's processed.
+  # The length can vary (as per the postfix docs). Hence, we use a range to safely capture it.
+  # https://github.com/docker-mailserver/docker-mailserver/pull/3747#discussion_r1446679671
   local QUEUE_ID_REGEX='[A-Z0-9]{9,12}'
 
-  local MID=$(__construct_mid "${1:?Left-hand side of MID missing}")
+  local MSG_ID=$(__construct_msgid "${1:?The local-part for MSG_ID was not provided}")
   shift 1
 
   _wait_for_empty_mail_queue_in_container
 
   QUEUE_ID=$(_exec_in_container tac /var/log/mail.log                    \
-    | grep -E "postfix/cleanup.*: ${QUEUE_ID_REGEX}:.*message-id=${MID}" \
+    | grep -E "postfix/cleanup.*: ${QUEUE_ID_REGEX}:.*message-id=${MSG_ID}" \
     | grep -E --only-matching --max-count 1 "${QUEUE_ID_REGEX}" || :)
 
   # We perform plausibility checks on the IDs.
@@ -97,13 +97,12 @@ function _print_mail_log_of_queue_id_from_mid() {
   _filter_service_log 'mail' "${QUEUE_ID}"
 }
 
-# Filters the mail log according to MID (Message-ID) and prints lines
-# of the mail log that fit lines with the pattern `msgid=${1}@dms-test`.
+# A convenience method that filters for Dovecot specific logs with a `msgid` field that matches the MSG_ID input.
 #
-# @param ${1} = message ID part before '@'
+# @param ${1} = The local-part of a Message-ID header value (`<local-part@domain-part>`)
 function _print_mail_log_for_msgid() {
-  local MID=$(__construct_mid "${1:?Left-hand side of MID missing}")
+  local MSG_ID=$(__construct_msgid "${1:?The local-part for MSG_ID was not provided}")
   shift 1
 
-  _filter_service_log 'mail' "msgid=${MID}"
+  _filter_service_log 'mail' "msgid=${MSG_ID}"
 }
