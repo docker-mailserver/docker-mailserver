@@ -72,7 +72,7 @@ function __verify_successful_login() {
   local AUTH_METHOD=${1}
 
   # Inspect the relevant Dovecot logs to catch failure / success:
-  _run_in_container grep 'dovecot:' /var/log/mail.log
+  _service_log_should_contain_string 'mail' 'dovecot:'
   refute_output --partial 'oauth2 failed: Introspection failed'
   assert_output --partial "dovecot: imap-login: Login: user=<user1@localhost.localdomain>, method=${AUTH_METHOD}"
 }
