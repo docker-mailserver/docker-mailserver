@@ -8,8 +8,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Updates
 
-- **Tests**
-  - further improved helpers for sending e-mails with specific `Message-ID` headers (required when filtering the mail og when multiple e-mails have been sent); associated filtering functions were adjusted or added accordingly
+- **Tests:**
+  - Refactored helper methods for sending e-mails with specific `Message-ID` headers and the helpers for retrieving + filtering logs, which together help isolate logs relevant to specific mail when multiple mails have been processed within a single test.
 
 ## [v13.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.0)
 

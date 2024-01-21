@@ -48,14 +48,14 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_not_contain_string 'mail' 'mail system configuration error'
 
   # Unknown error source: https://github.com/docker-mailserver/docker-mailserver/pull/85
-  _service_log_should_not_contain_string 'mail' ': error:'
+  _service_log_should_not_contain_string 'mail' ': Error:'
 
   # Unknown error source: https://github.com/docker-mailserver/docker-mailserver/pull/320
   _service_log_should_not_contain_string 'mail' 'not writable'
-  _service_log_should_not_contain_string 'mail' 'permission denied'
+  _service_log_should_not_contain_string 'mail' 'Permission denied'
 
   # Amavis: https://forum.howtoforge.com/threads/postfix-smtp-error-caused-by-clamav-cant-connect-to-a-unix-socket-var-run-clamav-clamd-ctl.81002/
-  _service_log_should_not_contain_string 'mail' '\(!\)connect'
+  _service_log_should_not_contain_string 'mail' '(!)connect'
 
   # Postfix: https://github.com/docker-mailserver/docker-mailserver/pull/2597
   # Log line match example: https://github.com/docker-mailserver/docker-mailserver/pull/2598#issuecomment-1141176633

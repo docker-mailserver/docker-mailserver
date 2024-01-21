@@ -182,13 +182,14 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
+# TODO: Remove in favor of a common helper method, as described in vmail-id.bats equivalent test-case
 @test "system: Mail log is error free" {
   _service_log_should_not_contain_string 'mail' 'non-null host address bits in'
   _service_log_should_not_contain_string 'mail' 'mail system configuration error'
-  _service_log_should_not_contain_string 'mail' ': error:'
+  _service_log_should_not_contain_string 'mail' ': Error:'
   _service_log_should_not_contain_string 'mail' 'is not writable'
-  _service_log_should_not_contain_string 'mail' 'permission denied'
-  _service_log_should_not_contain_string 'mail' '\(!\)connect'
+  _service_log_should_not_contain_string 'mail' 'Permission denied'
+  _service_log_should_not_contain_string 'mail' '(!)connect'
   _service_log_should_not_contain_string 'mail' 'using backwards-compatible default setting'
   _service_log_should_not_contain_string 'mail' 'connect to 127.0.0.1:10023: Connection refused'
 }

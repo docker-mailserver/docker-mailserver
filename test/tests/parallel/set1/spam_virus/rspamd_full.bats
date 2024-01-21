@@ -124,9 +124,9 @@ function teardown_file() { _default_teardown ; }
   _print_mail_log_of_queue_id_from_msgid 'dms-test-email-spam'
   assert_output --partial 'milter-reject'
   assert_output --partial '5.7.1 Gtube pattern'
-  refute_output --partial "stored mail into mailbox 'INBOX'"
 
   _print_mail_log_for_msgid 'dms-test-email-spam'
+  refute_output --partial "stored mail into mailbox 'INBOX'"
   assert_failure
 
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
@@ -287,7 +287,7 @@ function teardown_file() { _default_teardown ; }
   _nc_wrapper 'nc/rspamd_imap_move_to_inbox.txt' '0.0.0.0 143'
   sleep 1 # wait for the transaction to finish
 
-  _service_log_should_contain_string 'mail' 'imapsieve: Matched static mailbox rule \[2\]'
+  _service_log_should_contain_string 'mail' 'imapsieve: Matched static mailbox rule [2]'
 
   _show_complete_mail_log
   for LINE in "${LEARN_HAM_LINES[@]}"; do

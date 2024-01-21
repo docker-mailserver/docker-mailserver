@@ -31,11 +31,11 @@ function _filter_service_log() {
   _run_in_container grep "${@}" "${STRING}" "${FILE}"
 }
 
-# Use this function to print the complete mail log, but use it only where necessary.
-# In most cases, you will rather want to filter the log with
+# Prints the entirety of the primary mail log.
+# Avoid using this method when you could filter more specific log lines with:
 #
 # 1. _filter_service_log
-# 2. _service_log_should_[not_]contain_string
+# 2. _service_log_should[_not]_contain_string
 function _show_complete_mail_log() {
   _run_in_container cat /var/log/mail/mail.log
 }
@@ -45,12 +45,6 @@ function _show_complete_mail_log() {
 # @param ${1} = service name
 # @param ${2} = string to filter by
 # @param ${3} = container name [OPTIONAL]
-#
-# ## Attention
-#
-# The string given to this function is interpreted by `grep -E`, i.e.
-# as a regular expression. In case you use characters that are special
-# in regular expressions, you need to escape them!
 function _service_log_should_contain_string() {
   _filter_service_log "${@}"
   assert_success
@@ -61,12 +55,6 @@ function _service_log_should_contain_string() {
 # @param ${1} = service name
 # @param ${2} = string to filter by
 # @param ${3} = container name [OPTIONAL]
-#
-# ## Attention
-#
-# The string given to this function is interpreted by `grep -E`, i.e.
-# as a regular expression. In case you use characters that are special
-# in regular expressions, you need to escape them!
 function _service_log_should_not_contain_string() {
   _filter_service_log "${@}"
   assert_failure

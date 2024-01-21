@@ -36,7 +36,7 @@ function teardown_file() { _default_teardown ; }
 # TODO: Remove in favor of a common helper method, as described in vmail-id.bats equivalent test-case
 @test 'Mail log is error free' {
   _service_log_should_not_contain_string 'mail' 'non-null host address bits in'
-  _service_log_should_not_contain_string 'mail' ': error:'
+  _service_log_should_not_contain_string 'mail' ': Error:'
 }
 
 @test '(Manage Sieve) disabled per default' {

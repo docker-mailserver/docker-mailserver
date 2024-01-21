@@ -58,8 +58,8 @@ function teardown_file() {
   # mail is sent to the DMS server container (CONTAINER1_NAME) via `--server` parameter:
   CONTAINER_NAME=${CONTAINER2_NAME} _send_email --expect-rejection --server "${CONTAINER1_IP}" --port 25 --data 'postscreen.txt'
   # TODO: Use _send_email_with_msgid when proper resolution of domain names is possible:
-  # CONTAINER_NAME=${CONTAINER2_NAME} _send_email_with_msgid 'postscreen' --server "${CONTAINER1_IP}" --data 'postscreen.txt'
-  # _print_mail_log_for_msgid 'postscreen'
+  # CONTAINER_NAME=${CONTAINER2_NAME} _send_email_with_msgid 'msgid-postscreen' --server "${CONTAINER1_IP}" --data 'postscreen.txt'
+  # _print_mail_log_for_msgid 'msgid-postscreen'
   # assert_output --partial "stored mail into mailbox 'INBOX'"
 
   _service_log_should_contain_string 'mail' 'PASS NEW'
