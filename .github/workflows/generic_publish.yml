@@ -46,7 +46,7 @@ jobs:
       # NOTE: Until adopting `type=gha` scoped cache exporter (in `docker/build-push-action`),
       # only AMD64 image is expected to be cached, ARM images will build from scratch.
       - name: 'Retrieve image build from build cache'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: cache-buildx-${{ inputs.cache-key }}
