@@ -5,8 +5,7 @@
 # -o pipefail :: exit on error in pipes
 set -eE -u -o pipefail
 
-# shellcheck source=/dev/null
-source /etc/os-release
+VERSION_CODENAME='bookworm'
 
 # shellcheck source=../helpers/log.sh
 source /usr/local/bin/helpers/log.sh
@@ -20,6 +19,9 @@ function _pre_installation_steps() {
   _log 'trace' 'Updating package signatures'
   apt-get "${QUIET}" update
 
+  _log 'trace' 'Upgrading packages'
+  apt-get "${QUIET}" upgrade
+
   _log 'trace' 'Installing packages that are needed early'
   # add packages usually required by apt to
   # - not log unnecessary warnings
@@ -30,22 +32,22 @@ function _pre_installation_steps() {
     systemd-standalone-sysusers # avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953)
   )
   apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
+}
 
+function _add_ppas() {
+  _log 'debug' 'Adding PPAs'
   _log 'trace' 'Adding Rspamd PPA'
   curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
   echo "deb [signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" >/etc/apt/sources.list.d/rspamd.list
 
   _log 'trace' 'Updating package index after adding PPAs'
   apt-get "${QUIET}" update
-
-  _log 'trace' 'Upgrading packages'
-  apt-get "${QUIET}" upgrade
 }
 
 function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
   _log 'trace' 'Installing jaq'
-  curl -sL "https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq && chmod +x /usr/bin/jaq
+  curl -sSfL "https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq && chmod +x /usr/bin/jaq
 
   _log 'trace' 'Installing swaks'
   local SWAKS_VERSION='20240103.0'
@@ -76,16 +78,16 @@ function _install_packages() {
 
   local ANTI_VIRUS_SPAM_PACKAGES=(
     clamav clamav-daemon
-    # spamassassin is used only with amavisd-new and pyzor/razor
-    # are used by spamassasin
+    # spamassassin is used only with amavisd-new, while pyzor + razor are used by spamassasin
     amavisd-new spamassassin pyzor razor
     # the following packages are all for Fail2Ban
+    # https://github.com/docker-mailserver/docker-mailserver/pull/3403#discussion_r1306581431
     fail2ban python3-pyinotify python3-dnspython
     # redis-server belongs to rspamd
     rspamd redis-server
   )
 
-  # predominatly for Amavis support
+  # predominantly for Amavis support
   local CODECS_PACKAGES=(
     altermime arj bzip2
     cabextract cpio file
@@ -116,8 +118,8 @@ function _install_packages() {
     opendmarc libsasl2-modules sasl2-bin
   )
 
-  # these packages are contributed by the community and not part
-  # of DMS' core set of package
+  # These packages support community contributed features.
+  # If they cause too much maintenance burden in future, they are liable for removal.
   local COMMUNITY_PACKAGES=(
     fetchmail getmail6
   )
@@ -173,8 +175,12 @@ function _install_dovecot() {
 
 function _post_installation_steps() {
   _log 'debug' 'Running post-installation steps (cleanup)'
+  _log 'debug' 'Deleting sensitive files (secrets)'
+  rm /etc/postsrsd.secret
+
   _log 'debug' 'Deleting default logwatch cronjob'
   rm /etc/cron.daily/00logwatch
+
   _log 'trace' 'Removing leftovers from APT'
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
