@@ -33,6 +33,13 @@ The most noteworthy change of this release is the update of the container's base
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
 
+### Fixes
+
+- **Dovecot:**
+  - Restrict the auth mechanisms for PassDB configs we manage (oauth2, passwd-file, ldap) ([#3812](https://github.com/docker-mailserver/docker-mailserver/pull/3812))
+    - Prevents misleading auth failures from attempting to authenticate against a PassDB with incompatible auth mechanisms.
+    - When the new OAuth2 feature was enabled, it introduced false-positives with logged auth failures which triggered Fail2Ban to ban the IP.
+
 ## [v13.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.0)
 
 ### Features

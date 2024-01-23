@@ -58,21 +58,59 @@ function teardown_file() {
   docker network rm "${DMS_TEST_NETWORK}"
 }
 
-@test "should authenticate with XOAUTH2 over IMAP" {
-  _nc_wrapper 'auth/imap-oauth2-xoauth2.txt' '-w 1 0.0.0.0 143'
-  __verify_successful_login 'XOAUTH2'
+@test "should authenticate with XOAUTH2" {
+  __should_login_successfully_with 'XOAUTH2'
 }
 
-@test "should authenticate with OAUTHBEARER over IMAP" {
-  _nc_wrapper 'auth/imap-oauth2-oauthbearer.txt' '-w 1 0.0.0.0 143'
-  __verify_successful_login 'OAUTHBEARER'
+@test "should authenticate with OAUTHBEARER" {
+  __should_login_successfully_with 'OAUTHBEARER'
 }
 
-function __verify_successful_login() {
+function __should_login_successfully_with() {
   local AUTH_METHOD=${1}
+  # These values are the auth credentials checked against the Caddy `/userinfo` endpoint:
+  local USER_ACCOUNT='user1@localhost.localdomain'
+  local ACCESS_TOKEN='DMS_YWNjZXNzX3Rva2Vu'
 
+  __verify_auth_with_imap
+  __verify_auth_with_smtp
+}
+
+# Dovecot direct auth verification via IMAP:
+function __verify_auth_with_imap() {
+  # NOTE: Include the `--verbose` option if you're troubleshooting and want to see the protocol exchange messages
+  # NOTE: `--user username:password` is valid for testing `PLAIN` auth mechanism, but you should prefer swaks instead.
+  _run_in_container curl --silent \
+    --login-options "AUTH=${AUTH_METHOD}" --oauth2-bearer "${ACCESS_TOKEN}" --user "${USER_ACCOUNT}" \
+    --url 'imap://localhost:143' -X 'LOGOUT'
+
+  __dovecot_logs_should_verify_success
+}
+
+# Postfix delegates by default to Dovecot via SASL:
+# NOTE: This won't be compatible with LDAP if `ENABLE_SASLAUTHD=1` with `ldap` SASL mechanism:
+function __verify_auth_with_smtp() {
+  # NOTE: `--upload-file` with some mail content seems required for using curl to test OAuth2 authentication.
+  # TODO: Replace with swaks and early exit option when it supports XOAUTH2 + OAUTHBEARER:
+  _run_in_container curl --silent \
+    --login-options "AUTH=${AUTH_METHOD}" --oauth2-bearer "${ACCESS_TOKEN}" --user "${USER_ACCOUNT}" \
+    --url 'smtp://localhost:587' --mail-from "${USER_ACCOUNT}" --mail-rcpt "${USER_ACCOUNT}" --upload-file - <<< 'RFC 5322 content - not important'
+
+  # Postfix specific auth logs:
+  _run_in_container grep 'postfix/submission/smtpd' /var/log/mail.log
+  assert_output --partial "sasl_method=${AUTH_METHOD}, sasl_username=${USER_ACCOUNT}"
+
+  # Dovecot logs should still be checked as it is handling the actual auth process under the hood:
+  __dovecot_logs_should_verify_success
+}
+
+function __dovecot_logs_should_verify_success() {
   # Inspect the relevant Dovecot logs to catch failure / success:
   _run_in_container grep 'dovecot:' /var/log/mail.log
   refute_output --partial 'oauth2 failed: Introspection failed'
-  assert_output --partial "dovecot: imap-login: Login: user=<user1@localhost.localdomain>, method=${AUTH_METHOD}"
+  assert_output --partial "dovecot: imap-login: Login: user=<${USER_ACCOUNT}>, method=${AUTH_METHOD}"
+
+  # If another PassDB is enabled, it should not have been attempted with the XOAUTH2 / OAUTHBEARER mechanisms:
+  # dovecot: auth: passwd-file(${USER_ACCOUNT},127.0.0.1): Password mismatch (SHA1 of given password: d390c1) - trying the next passdb
+  refute_output --partial 'trying the next passdb'
 }

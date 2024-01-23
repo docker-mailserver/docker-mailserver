@@ -38,6 +38,9 @@
   }
 }
 
+# NOTE: This portion of config is only relevant for understanding what happens seamlesssly,
+# DMS tests no longer use raw IMAP commands with netcat, thus none of this is relevant beyond reference for troubleshooting.
+#
 # /imap/xoauth2
 # Generate IMAP commands for authentication testing
 # Base64 encoded credentials can alternative be done via CLI with:

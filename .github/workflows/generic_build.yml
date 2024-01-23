@@ -64,7 +64,7 @@ jobs:
       # When full, the least accessed cache upload is evicted to free up storage.
       # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
       - name: 'Handle Docker build layer cache'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: cache-buildx-${{ steps.derive-image-cache-key.outputs.digest }}
