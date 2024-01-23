@@ -93,7 +93,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'service log exist and contains proper content' {
-  _service_log_should_contain_string 'rspamd' 'rspamd .* is loading configuration'
+  _service_log_should_contain_string_regexp 'rspamd' 'rspamd .* is loading configuration'
   _service_log_should_contain_string 'rspamd' 'lua module clickhouse is disabled in the configuration'
   _service_log_should_contain_string 'rspamd' 'lua module elastic is disabled in the configuration'
   _service_log_should_contain_string 'rspamd' 'lua module neural is disabled in the configuration'

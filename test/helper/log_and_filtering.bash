@@ -45,9 +45,8 @@ function _show_complete_mail_log() {
 #
 # @param ${1} = service name
 # @param ${2} = string to filter by
-# @param ${3} = container name [OPTIONAL]
 function _service_log_should_contain_string() {
-  _filter_service_log "${@}"
+  _filter_service_log "${1}" "${2}" --fixed-strings
   assert_success
 }
 
@@ -55,9 +54,28 @@ function _service_log_should_contain_string() {
 #
 # @param ${1} = service name
 # @param ${2} = string to filter by
-# @param ${3} = container name [OPTIONAL]
 function _service_log_should_not_contain_string() {
-  _filter_service_log "${@}"
+  _filter_service_log "${1}" "${2}" --fixed-strings
+  assert_failure
+}
+
+# Like `_filter_service_log` but asserts that the string was found. Uses regular expressions
+# under the hood for pattern matching.
+#
+# @param ${1} = service name
+# @param ${2} = regular expression to filter by
+function _service_log_should_contain_string_regexp() {
+  _filter_service_log "${1}" "${2}" --extended-regexp
+  assert_success
+}
+
+# Like `_filter_service_log` but asserts that the string was not found. Uses regular expressions
+# under the hood for pattern matching.
+#
+# @param ${1} = service name
+# @param ${2} = regular expression to filter by
+function _service_log_should_not_contain_string_regexp() {
+  _filter_service_log "${1}" "${2}" --extended-regexp
   assert_failure
 }
 

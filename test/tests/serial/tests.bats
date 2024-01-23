@@ -205,7 +205,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "system: amavis decoders installed and available" {
-  _service_log_should_contain_string 'mail' '.*(Internal decoder|Found decoder) for\s+\..*' '-E'
+  _service_log_should_contain_string_regexp 'mail' '.*(Internal decoder|Found decoder) for\s+\..*'
   run bash -c "grep -Eo '(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe)' <<< '${output}' | sort | uniq"
   assert_success
   # Support for doc and zoo removed in buster
