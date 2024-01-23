@@ -75,4 +75,8 @@ function __verify_successful_login() {
   _run_in_container grep 'dovecot:' /var/log/mail.log
   refute_output --partial 'oauth2 failed: Introspection failed'
   assert_output --partial "dovecot: imap-login: Login: user=<user1@localhost.localdomain>, method=${AUTH_METHOD}"
+
+  # If another PassDB is enabled, it should not have been attempted with the XOAUTH2 / OAUTHBEARER mechanisms:
+  # dovecot: auth: passwd-file(john.doe@example.test,127.0.0.1): Password mismatch (SHA1 of given password: d390c1) - trying the next passdb
+  refute_output --partial 'trying the next passdb'
 }
