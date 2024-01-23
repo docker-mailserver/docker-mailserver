@@ -1,4 +1,0 @@
-a0 NOOP See test/config/oauth2/Caddyfile to generate the below XOAUTH2 string
-a1 AUTHENTICATE XOAUTH2 dXNlcj11c2VyMUBsb2NhbGhvc3QubG9jYWxkb21haW4BYXV0aD1CZWFyZXIgRE1TX1lXTmpaWE56WDNSdmEyVnUBAQ==
-a2 EXAMINE INBOX
-a3 LOGOUT
