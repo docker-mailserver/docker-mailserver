@@ -2124,14 +2124,21 @@
   <h1>Email Filtering with Sieve</h1>
 
 <h2 id="user-defined-sieve-filters"><a class="toclink" href="#user-defined-sieve-filters">User-Defined Sieve Filters</a></h2>
-<p><a href="http://sieve.info/">Sieve</a> allows to specify filtering rules for incoming emails that allow for example sorting mails into different folders depending on the title of an email.
-There are global and user specific filters which are filtering the incoming emails in the following order:</p>
+<div class="admonition warning">
+<p class="admonition-title">Advice may be outdated</p>
+<p>This section was contributed by the community some time ago and some configuration examples may be outdated.</p>
+</div>
+<p><a href="http://sieve.info/">Sieve</a> allows to specify filtering rules for incoming emails that allow for example sorting mails into different folders depending on the title of an email.</p>
+<div class="admonition info">
+<p class="admonition-title">Global vs User order</p>
+<p>There are global and user specific filters which are filtering the incoming emails in the following order:</p>
+<p>Global-before -&gt; User specific -&gt; Global-after</p>
+</div>
+<p>Global filters are applied to EVERY incoming mail for EVERY email address.</p>
 <ul>
-<li>Global-before -&gt; User specific -&gt; Global-after</li>
+<li>To specify a global Sieve filter provide a <code>docker-data/dms/config/before.dovecot.sieve</code> or a <code>docker-data/dms/config/after.dovecot.sieve</code> file with your filter rules.</li>
+<li>If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters (e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)</li>
 </ul>
-<p>Global filters are applied to EVERY incoming mail for EVERY email address.
-To specify a global Sieve filter provide a <code>docker-data/dms/config/before.dovecot.sieve</code> or a <code>docker-data/dms/config/after.dovecot.sieve</code> file with your filter rules.
-If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters (e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)</p>
 <p>To specify a user-defined Sieve filter place a <code>.dovecot.sieve</code> file into a virtual user's mail folder (e.g. <code>/var/mail/example.com/user1/home/.dovecot.sieve</code>). If this file exists dovecot will apply the filtering rules.</p>
 <p>It's even possible to install a user provided Sieve filter at startup during users setup: simply include a Sieve file in the <code>docker-data/dms/config/</code> path for each user login that needs a filter. The file name provided should be in the form <code>&lt;user_login&gt;.dovecot.sieve</code>, so for example for <code>user1@example.com</code> you should provide a Sieve file named <code>docker-data/dms/config/user1@example.com.dovecot.sieve</code>.</p>
 <p>An example of a sieve filter that moves mails to a folder <code>INBOX/spam</code> depending on the sender address:</p>
@@ -2164,7 +2171,13 @@ If any filter in this filtering chain discards an incoming mail, the delivery pr
 <div class="highlight"><pre><span></span><code><span class="nb">redirect</span> <span class="s">&quot;user2@not-example.com&quot;</span><span class="p">;</span>
 </code></pre></div>
 </div>
-<p>You can also use external programs to filter or pipe (process) messages by adding executable scripts in <code>docker-data/dms/config/sieve-pipe</code> or <code>docker-data/dms/config/sieve-filter</code>. This can be used in lieu of a local alias file, for instance to forward an email to a webservice. These programs can then be referenced by filename, by all users. Note that the process running the scripts run as a privileged user. For further information see <a href="https://wiki.dovecot.org/Pigeonhole/Sieve/Plugins/Pipe">Dovecot's wiki</a>.</p>
+<p>You can also use external programs to filter or pipe (process) messages by adding executable scripts in <code>docker-data/dms/config/sieve-pipe</code> or <code>docker-data/dms/config/sieve-filter</code>.</p>
+<p>This can be used in lieu of a local alias file, for instance to forward an email to a webservice.</p>
+<ul>
+<li>These programs can then be referenced by filename, by all users.</li>
+<li>Note that the process running the scripts run as a privileged user.</li>
+<li>For further information see <a href="https://doc.dovecot.org/configuration_manual/sieve/plugins/extprograms/#pigeonhole-plugin-extprograms">Dovecot's docs</a>.</li>
+</ul>
 <div class="highlight"><pre><span></span><code><span class="kn">require</span> <span class="p">[</span><span class="s">&quot;vnd.dovecot.pipe&quot;</span><span class="p">];</span>
 <span class="err">pipe</span> <span class="s">&quot;external-program&quot;</span><span class="p">;</span>
 </code></pre></div>
