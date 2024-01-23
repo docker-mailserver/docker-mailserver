@@ -27,7 +27,8 @@ function _filter_service_log() {
   shift 2
 
   local FILE="/var/log/supervisor/${SERVICE}.log"
-  [[ -f ${FILE} ]] || FILE="/var/log/mail/${SERVICE}.log" # Fallback to alternative log location:
+  # Alternative log location fallback:
+  [[ -f ${FILE} ]] || FILE="/var/log/mail/${SERVICE}.log"
   _run_in_container grep "${@}" "${STRING}" "${FILE}"
 }
 
