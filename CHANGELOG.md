@@ -153,6 +153,7 @@ This patch release fixes two bugs that Rspamd users encountered with the `v13.0.
 - **Postfix:**
   - `/etc/postfix/master.cf` has renamed the "smtps" service to "submissions" ([#3235](https://github.com/docker-mailserver/docker-mailserver/pull/3235))
     - This is the modern `/etc/services` name for port 465, aligning with the similar "submission" port 587.
+    - If you have configured Proxy Protocol support with a reverse proxy via `postfix-master.cf` (_as [per our docs guide](https://docker-mailserver.github.io/docker-mailserver/v13.0/examples/tutorials/mailserver-behind-proxy/)_), you will want to update `smtps` to `submissions` there.
   - Postfix now defaults to supporting DSNs (_[Delivery Status Notifications](https://github.com/docker-mailserver/docker-mailserver/pull/3572#issuecomment-1751880574)_) only for authenticated users (_via ports 465 + 587_). This is a security measure to reduce spammer abuse of your DMS instance as a backscatter source. ([#3572](https://github.com/docker-mailserver/docker-mailserver/pull/3572))
     - If you need to modify this change, please let us know by opening an issue / discussion.
     - You can [opt out (_enable DSNs_) via the `postfix-main.cf` override support](https://docker-mailserver.github.io/docker-mailserver/v12.1/config/advanced/override-defaults/postfix/) using the contents: `smtpd_discard_ehlo_keywords =`.
