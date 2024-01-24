@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file. The format 
 
 The most noteworthy change of this release is the update of the container's base image from Debian 11 ("Bullseye") to Debian 12 ("Bookworm"). This update alone involves breaking changes and requires a careful update!
 
+### Added
+
+- **Internal:**
+  - Add warning when DMS was restarted, which is not supported ([#3821](https://github.com/docker-mailserver/docker-mailserver/pull/3821)).
+
 ### Breaking
 
 - **Updated base image to Debian 12** ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
