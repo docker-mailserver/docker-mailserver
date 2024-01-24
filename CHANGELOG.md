@@ -2,16 +2,20 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.3.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.3.1...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)
+
 ### Fixes
 
-**Dovecot:**
+- **Dovecot:**
   - Restrict the auth mechanisms for PassDB configs we manage (oauth2, passwd-file, ldap) ([#3812](https://github.com/docker-mailserver/docker-mailserver/pull/3812))
     - Prevents misleading auth failures from attempting to authenticate against a PassDB with incompatible auth mechanisms.
     - When the new OAuth2 feature was enabled, it introduced false-positives with logged auth failures which triggered Fail2Ban to ban the IP.
+- **Rspamd:**
+  - Ensure correct ownership (`_rspamd:_rspamd`) for the Rspamd DKIM directory + files `/tmp/docker-mailserver/rspamd/dkim/` ([#3813](https://github.com/docker-mailserver/docker-mailserver/pull/3813))
 
 ## [v13.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.0)
 
