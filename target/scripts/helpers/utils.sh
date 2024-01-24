@@ -17,13 +17,25 @@ function _escape_for_sed() {
 # Returns input after filtering out lines that are:
 # empty, white-space, comments (`#` as the first non-whitespace character)
 function _get_valid_lines_from_file() {
-  # Correctly detect missing final newline:
-  # https://stackoverflow.com/questions/38746/how-to-detect-file-ends-in-newline#comment82380232_25749716
-  if [[ $(tail -c1 "${1}" | wc -l) -gt 0 ]]; then
-    _log 'warn' "${1} is missing a final newline. The last line will not be processed!"
-  fi
-
+  _append_final_newline_if_missing "${1}"
   grep --extended-regexp --invert-match "^\s*$|^\s*#" "${1}" || true
+}
+
+function _append_final_newline_if_missing() {
+  # Correctly detect a missing final newline and fix it:
+  # https://stackoverflow.com/questions/38746/how-to-detect-file-ends-in-newline#comment82380232_25749716
+  # https://unix.stackexchange.com/questions/31947/how-to-add-a-newline-to-the-end-of-a-file/441200#441200
+  # https://unix.stackexchange.com/questions/159557/how-to-non-invasively-test-for-write-access-to-a-file
+  if [[ $(tail -c1 "${1}" | wc -l) -gt 0 ]]; then
+    # Avoid fixing when the destination is read-only:
+    if [[ test -w "${1}" ]]; then
+      printf '\n' >> "${1}"
+
+      _log 'warn' "${1} was missing a final newline. This has been fixed."
+    else
+      _log 'warn' "${1} is missing a final newline. The last line will not be processed!"
+    fi
+  fi
 }
 
 # Provide the name of an environment variable to this function
