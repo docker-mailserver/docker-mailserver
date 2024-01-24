@@ -4,14 +4,22 @@ title: 'Advanced | Email Filtering with Sieve'
 
 ## User-Defined Sieve Filters
 
-[Sieve](http://sieve.info/) allows to specify filtering rules for incoming emails that allow for example sorting mails into different folders depending on the title of an email.
-There are global and user specific filters which are filtering the incoming emails in the following order:
+!!! warning "Advice may be outdated"
 
-- Global-before -> User specific -> Global-after
+    This section was contributed by the community some time ago and some configuration examples may be outdated.
+
+[Sieve][sieve-info] allows to specify filtering rules for incoming emails that allow for example sorting mails into different folders depending on the title of an email.
+
+!!! info "Global vs User order"
+
+    There are global and user specific filters which are filtering the incoming emails in the following order:
+
+    Global-before -> User specific -> Global-after
 
 Global filters are applied to EVERY incoming mail for EVERY email address.
-To specify a global Sieve filter provide a `docker-data/dms/config/before.dovecot.sieve` or a `docker-data/dms/config/after.dovecot.sieve` file with your filter rules.
-If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters (e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)
+
+- To specify a global Sieve filter provide a `docker-data/dms/config/before.dovecot.sieve` or a `docker-data/dms/config/after.dovecot.sieve` file with your filter rules.
+- If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters (e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)
 
 To specify a user-defined Sieve filter place a `.dovecot.sieve` file into a virtual user's mail folder (e.g. `/var/mail/example.com/user1/home/.dovecot.sieve`). If this file exists dovecot will apply the filtering rules.
 
@@ -32,6 +40,7 @@ An example of a sieve filter that moves mails to a folder `INBOX/spam` depending
     ```
 
 !!! warning
+
     That folders have to exist beforehand if sieve should move them.
 
 Another example of a sieve filter that forward mails to a different address:
@@ -52,14 +61,25 @@ Just forward all incoming emails and do not save them locally:
     redirect "user2@not-example.com";
     ```
 
-You can also use external programs to filter or pipe (process) messages by adding executable scripts in `docker-data/dms/config/sieve-pipe` or `docker-data/dms/config/sieve-filter`. This can be used in lieu of a local alias file, for instance to forward an email to a webservice. These programs can then be referenced by filename, by all users. Note that the process running the scripts run as a privileged user. For further information see [Dovecot's wiki](https://wiki.dovecot.org/Pigeonhole/Sieve/Plugins/Pipe).
+You can also use external programs to filter or pipe (process) messages by adding executable scripts in `docker-data/dms/config/sieve-pipe` or `docker-data/dms/config/sieve-filter`.
+
+This can be used in lieu of a local alias file, for instance to forward an email to a webservice.
+
+- These programs can then be referenced by filename, by all users.
+- Note that the process running the scripts run as a privileged user.
+- For further information see [Dovecot's docs][dovecot-docs::sieve-pipe].
 
 ```sieve
 require ["vnd.dovecot.pipe"];
 pipe "external-program";
 ```
 
-For more examples or a detailed description of the Sieve language have a look at [the official site](http://sieve.info/examplescripts). Other resources are available on the internet where you can find several [examples](https://support.tigertech.net/sieve#sieve-example-rules-jmp).
+For more examples or a detailed description of the Sieve language have a look at [the official site][sieve-info::examples]. Other resources are available on the internet where you can find several [examples][third-party::sieve-examples].
+
+[dovecot-docs::sieve-pipe]: https://doc.dovecot.org/configuration_manual/sieve/plugins/extprograms/#pigeonhole-plugin-extprograms
+[sieve-info]: http://sieve.info/
+[sieve-info::examples]: http://sieve.info/examplescripts
+[third-party::sieve-examples]: https://support.tigertech.net/sieve#sieve-example-rules-jmp
 
 ## Automatic Sorting Based on Subaddresses
 
