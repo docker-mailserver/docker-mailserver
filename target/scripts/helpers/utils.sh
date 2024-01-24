@@ -17,6 +17,12 @@ function _escape_for_sed() {
 # Returns input after filtering out lines that are:
 # empty, white-space, comments (`#` as the first non-whitespace character)
 function _get_valid_lines_from_file() {
+  # Correctly detect missing final newline:
+  # https://stackoverflow.com/questions/38746/how-to-detect-file-ends-in-newline#comment82380232_25749716
+  if [[ $(tail -c1 "${1}" | wc -l) -gt 0 ]]; then
+    _log 'warn' "${1} is missing a final newline. The last line will not be processed!"
+  fi
+
   grep --extended-regexp --invert-match "^\s*$|^\s*#" "${1}" || true
 }
 
