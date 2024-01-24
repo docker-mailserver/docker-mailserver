@@ -59,6 +59,10 @@ function teardown_file() {
 }
 
 @test "should authenticate with XOAUTH2" {
+  # curl packaged in Debian 12 (and the latest release as of Jan 2024) broke XOAUTH2 support
+  # https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1907100624
+  skip 'unable to test XOAUTH mechanism due to bug since curl 7.80'
+
   __should_login_successfully_with 'XOAUTH2'
 }
 
