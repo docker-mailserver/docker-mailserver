@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.3.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v13.3.1...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
@@ -33,12 +33,16 @@ The most noteworthy change of this release is the update of the container's base
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
 
+## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)
+
 ### Fixes
 
 - **Dovecot:**
   - Restrict the auth mechanisms for PassDB configs we manage (oauth2, passwd-file, ldap) ([#3812](https://github.com/docker-mailserver/docker-mailserver/pull/3812))
     - Prevents misleading auth failures from attempting to authenticate against a PassDB with incompatible auth mechanisms.
     - When the new OAuth2 feature was enabled, it introduced false-positives with logged auth failures which triggered Fail2Ban to ban the IP.
+- **Rspamd:**
+  - Ensure correct ownership (`_rspamd:_rspamd`) for the Rspamd DKIM directory + files `/tmp/docker-mailserver/rspamd/dkim/` ([#3813](https://github.com/docker-mailserver/docker-mailserver/pull/3813))
 
 ## [v13.3.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.0)
 
@@ -180,6 +184,7 @@ This patch release fixes two bugs that Rspamd users encountered with the `v13.0.
 - **Postfix:**
   - `/etc/postfix/master.cf` has renamed the "smtps" service to "submissions" ([#3235](https://github.com/docker-mailserver/docker-mailserver/pull/3235))
     - This is the modern `/etc/services` name for port 465, aligning with the similar "submission" port 587.
+    - If you have configured Proxy Protocol support with a reverse proxy via `postfix-master.cf` (_as [per our docs guide](https://docker-mailserver.github.io/docker-mailserver/v13.0/examples/tutorials/mailserver-behind-proxy/)_), you will want to update `smtps` to `submissions` there.
   - Postfix now defaults to supporting DSNs (_[Delivery Status Notifications](https://github.com/docker-mailserver/docker-mailserver/pull/3572#issuecomment-1751880574)_) only for authenticated users (_via ports 465 + 587_). This is a security measure to reduce spammer abuse of your DMS instance as a backscatter source. ([#3572](https://github.com/docker-mailserver/docker-mailserver/pull/3572))
     - If you need to modify this change, please let us know by opening an issue / discussion.
     - You can [opt out (_enable DSNs_) via the `postfix-main.cf` override support](https://docker-mailserver.github.io/docker-mailserver/v12.1/config/advanced/override-defaults/postfix/) using the contents: `smtpd_discard_ehlo_keywords =`.
