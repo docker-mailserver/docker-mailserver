@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# -eE         :: exit on error (do this in functions as well)
+# -e          :: exit on error (do this in functions as well)
+# -E          :: inherit the ERR trap to functions, command substitutions and sub-shells
 # -u          :: show (and exit) when using unset variables
 # -o pipefail :: exit on error in pipes
 set -eE -u -o pipefail
@@ -32,16 +33,6 @@ function _pre_installation_steps() {
     systemd-standalone-sysusers # avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953)
   )
   apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
-}
-
-function _add_ppas() {
-  _log 'debug' 'Adding PPAs'
-  _log 'trace' 'Adding Rspamd PPA'
-  curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
-  echo "deb [signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" >/etc/apt/sources.list.d/rspamd.list
-
-  _log 'trace' 'Updating package index after adding PPAs'
-  apt-get "${QUIET}" update
 }
 
 function _install_utils() {
@@ -83,8 +74,6 @@ function _install_packages() {
     # the following packages are all for Fail2Ban
     # https://github.com/docker-mailserver/docker-mailserver/pull/3403#discussion_r1306581431
     fail2ban python3-pyinotify python3-dnspython
-    # redis-server belongs to rspamd
-    rspamd redis-server
   )
 
   # predominantly for Amavis support
@@ -173,6 +162,21 @@ function _install_dovecot() {
   apt-get "${QUIET}" --no-install-recommends install libxapian30
 }
 
+function _install_rspamd() {
+  _log 'debug' 'Installing Rspamd'
+  _log 'trace' 'Adding Rspamd PPA'
+  curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
+  echo \
+    "deb [signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" \
+    >/etc/apt/sources.list.d/rspamd.list
+
+  _log 'trace' 'Updating package index after adding PPAs'
+  apt-get "${QUIET}" update
+
+  _log 'trace' 'Installing actual package'
+  apt-get "${QUIET}" install rspamd redis-server
+}
+
 function _post_installation_steps() {
   _log 'debug' 'Running post-installation steps (cleanup)'
   _log 'debug' 'Deleting sensitive files (secrets)'
@@ -196,4 +200,5 @@ _install_utils
 _install_postfix
 _install_packages
 _install_dovecot
+_install_rspamd
 _post_installation_steps
