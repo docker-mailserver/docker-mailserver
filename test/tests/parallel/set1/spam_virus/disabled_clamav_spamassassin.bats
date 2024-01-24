@@ -34,7 +34,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 
   # Amavis module for SA should not be loaded (`SpamControl: scanner SpamAssassin, module Amavis::SpamControl::SpamAssassin`):
-  _service_log_should_contain_string 'mail' 'scanner SpamAssassin'
+  _service_log_should_not_contain_string 'mail' 'scanner SpamAssassin'
 }
 
 @test "SA - should not have been called" {
