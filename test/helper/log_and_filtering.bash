@@ -50,7 +50,7 @@ function _service_log_should_contain_string() {
   assert_success
 }
 
-# Like `_filter_service_log` but asserts that the string was not found.
+# Like `_filter_service_log` but asserts that the string was _not_ found.
 #
 # @param ${1} = service name
 # @param ${2} = string to filter by
@@ -59,8 +59,8 @@ function _service_log_should_not_contain_string() {
   assert_failure
 }
 
-# Like `_filter_service_log` but asserts that the string was found. Uses regular expressions
-# under the hood for pattern matching.
+# Like `_filter_service_log` but asserts that the string was found.
+# Uses regular expressions under the hood for pattern matching.
 #
 # @param ${1} = service name
 # @param ${2} = regular expression to filter by
@@ -69,8 +69,8 @@ function _service_log_should_contain_string_regexp() {
   assert_success
 }
 
-# Like `_filter_service_log` but asserts that the string was not found. Uses regular expressions
-# under the hood for pattern matching.
+# Like `_filter_service_log` but asserts that the string was _not_ found.
+# Uses regular expressions under the hood for pattern matching.
 #
 # @param ${1} = service name
 # @param ${2} = regular expression to filter by

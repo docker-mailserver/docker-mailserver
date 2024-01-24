@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixes
 
-- **Dovecot:**
+**Dovecot:**
   - Restrict the auth mechanisms for PassDB configs we manage (oauth2, passwd-file, ldap) ([#3812](https://github.com/docker-mailserver/docker-mailserver/pull/3812))
     - Prevents misleading auth failures from attempting to authenticate against a PassDB with incompatible auth mechanisms.
     - When the new OAuth2 feature was enabled, it introduced false-positives with logged auth failures which triggered Fail2Ban to ban the IP.
