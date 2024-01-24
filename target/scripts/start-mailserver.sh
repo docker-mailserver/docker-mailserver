@@ -180,8 +180,12 @@ _setup
 _run_user_patches
 _start_daemons
 
-# marker to check if container was restarted
-date >/CONTAINER_START
+if [[ -f /CONTAINER_START ]]; then
+  _log 'warn' "docker-mailserver was restarted, which is not supported. This can lead to unexpected behaviour. Use 'docker compose up --force-recreate' to use a fresh container."
+else
+  # create marker to check if container was restarted
+  date >/CONTAINER_START
+fi
 
 _log 'info' "${HOSTNAME} is up and running"
 
