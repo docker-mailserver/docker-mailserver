@@ -38,8 +38,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'should be identified by Amavis' {
-  _run_in_container grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'Found secondary av scanner ClamAV-clamscan'
 }
 
 @test 'freshclam cron is enabled' {
@@ -53,6 +52,6 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'rejects virus' {
-  _run_in_container_bash "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep '<virus@external.tld> -> <user1@localhost.localdomain>'"
-  assert_success
+  _service_log_should_contain_string 'mail' 'Blocked INFECTED'
+  assert_output --partial '<virus@external.tld> -> <user1@localhost.localdomain>'
 }

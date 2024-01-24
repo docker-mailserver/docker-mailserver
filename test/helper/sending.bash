@@ -1,11 +1,13 @@
 #!/bin/bash
 
-# shellcheck disable=SC2034,SC2155
-
 # ? ABOUT: Functions defined here help with sending emails in tests.
 
 # ! ATTENTION: This file is loaded by `common.sh` - do not load it yourself!
 # ! ATTENTION: This file requires helper functions from `common.sh`!
+# ! ATTENTION: Functions prefixed with `__` are intended for internal use within
+# !            this file (or other helpers) only, not in tests.
+
+# shellcheck disable=SC2034,SC2155
 
 # Sends an e-mail from the container named by the environment variable `CONTAINER_NAME`
 # to the same or another container.
@@ -100,74 +102,35 @@ function _send_email() {
   return "${RETURN_VALUE}"
 }
 
-# Like `_send_email` with two major differences:
+# Construct the value for a 'Message-ID' header.
+# For tests we use only the local-part to identify mail activity in logs. The rest of the value is fixed.
 #
-# 1. this function waits for the mail to be processed; there is no asynchronicity
-#    because filtering the logs in a synchronous way is easier and safer;
-# 2. this function takes the name of a variable and inserts IDs one can later
-#    filter by to check logs.
+# A Message-ID header value should be in the form of: `<local-part@domain-part>`
+# https://en.wikipedia.org/wiki/Message-ID
+# https://datatracker.ietf.org/doc/html/rfc5322#section-3.6.4
 #
-# No. 2 is especially useful in case you send more than one email in a single
-# test file and need to assert certain log entries for each mail individually.
+# @param ${1} = The local-part of a Message-ID header value (`<local-part@domain-part>`)
+function __construct_msgid() {
+  local MSG_ID_LOCALPART=${1:?The local-part for MSG_ID was not provided}
+  echo "<${MSG_ID_LOCALPART}@dms-tests>"
+}
+
+# Like `_send_email` but adds a "Message-ID: ${1}@dms-tests>" header,
+# which allows for filtering logs later.
 #
-# The first argument has to be the name of the variable that the e-mail ID is stored in.
-# The second argument **can** be the flag `--expect-rejection`.
-#
-# - If this flag is supplied, the function does not check whether the whole mail delivery
-#   transaction was successful. Additionally the queue ID will be retrieved differently.
-# - CAUTION: It must still be possible to `grep` for the Message-ID that Postfix
-#   generated in the mail log; otherwise this function fails.
-#
-# The rest of the arguments are the same as `_send_email`.
-#
-# ## Attention
-#
-# This function assumes `CONTAINER_NAME` to be properly set (to the container
-# name the command should be executed in)!
-#
-# ## Safety
-#
-# This functions assumes **no concurrent sending of emails to the same container**!
-# If two clients send simultaneously, there is no guarantee the correct ID is
-# chosen. Sending more than one mail at any given point in time with this function
-# is UNDEFINED BEHAVIOR!
-function _send_email_and_get_id() {
-  # Export the variable denoted by ${1} so everyone has access
-  export "${1:?Mail ID must be set for _send_email_and_get_id}"
-  # Get a "reference" to the content of the variable denoted by ${1} so we can manipulate the content
-  local -n ID_ENV_VAR_REF=${1:?}
-  # Prepare the message ID header here because we will shift away ${1} later
-  local MID="<${1}@dms-tests>"
-  # Get rid of ${1} so only the arguments for swaks remain
+# @param ${1} = The local-part of a Message-ID header value (`<local-part@domain-part>`)
+function _send_email_with_msgid() {
+  local MSG_ID=$(__construct_msgid "${1:?The local-part for MSG_ID was not provided}")
   shift 1
 
-  # The unique ID Postfix (and other services) use may be different in length
-  # on different systems. Hence, we use a range to safely capture it.
-  local QUEUE_ID_REGEX='[A-Z0-9]{9,12}'
-
-  _wait_for_empty_mail_queue_in_container
-  _send_email "${@}" --header "Message-Id: ${MID}"
-  _wait_for_empty_mail_queue_in_container
-
-  # We store Postfix's queue ID first
-  ID_ENV_VAR_REF=$(_exec_in_container tac /var/log/mail.log                    \
-    | grep -E "postfix/cleanup.*: ${QUEUE_ID_REGEX}:.*message-id=${MID}" \
-    | grep -E --only-matching --max-count 1 "${QUEUE_ID_REGEX}" || :)
-  # But we also requre potential Dovecot sieve output, which requires the mesage ID,
-  # so we need to provide the message ID too.
-  ID_ENV_VAR_REF+="|${MID}"
-
-  # Last but not least, we perform plausibility checks on the IDs.
-  assert_not_equal "${ID_ENV_VAR_REF}" ''
-  run echo "${ID_ENV_VAR_REF}"
-  assert_line --regexp "^${QUEUE_ID_REGEX}\|${MID}$"
+  _send_email "${@}" --header "Message-ID: ${MSG_ID}"
 }
 
 # Send a spam e-mail by utilizing GTUBE.
 #
-# Extra arguments given to this function will be supplied by `_send_email_and_get_id` directly.
+# Extra arguments given to this function will be supplied by `_send_email_with_msgid` directly.
 function _send_spam() {
-  _send_email_and_get_id MAIL_ID_SPAM "${@}" \
+  _send_email_with_msgid 'dms-test-email-spam' "${@}" \
     --from 'spam@external.tld' \
     --body 'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
 }

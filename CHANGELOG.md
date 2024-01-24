@@ -33,6 +33,11 @@ The most noteworthy change of this release is the update of the container's base
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
 
+### Updates
+
+- **Tests:**
+  - Refactored helper methods for sending e-mails with specific `Message-ID` headers and the helpers for retrieving + filtering logs, which together help isolate logs relevant to specific mail when multiple mails have been processed within a single test. ([#3786](https://github.com/docker-mailserver/docker-mailserver/pull/3786))
+
 ## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)
 
 ### Fixes
