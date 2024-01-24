@@ -51,10 +51,8 @@ function teardown_file() {
   export CONTAINER_NAME=${CONTAINER1_NAME}
 
   # give Amavis just a bit of time to print out its full debug log
-  run _repeat_in_container_until_success_or_timeout 5 "${CONTAINER_NAME}" grep 'ANTI-SPAM-SA' /var/log/mail/mail.log
+  run _repeat_in_container_until_success_or_timeout 20 "${CONTAINER_NAME}" grep 'SpamControl: init_pre_fork on SpamAssassin done' /var/log/mail/mail.log
   assert_success
-  assert_output --partial 'loaded'
-  refute_output --partial 'NOT loaded'
 }
 
 @test '(Amavis enabled) SA ENV should update Amavis config' {

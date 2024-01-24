@@ -13,7 +13,7 @@ function teardown() { _default_teardown ; }
 # opendmarc (/usr/sbin/opendmarc)
 # postfix (/usr/lib/postfix/sbin/master) - Postfix main process (two ancestors, launched via pidproxy python3 script)
 #
-# amavisd-new (usr/sbin/amavisd-new)
+# amavisd (usr/sbin/amavisd)
 # clamd (/usr/sbin/clamd)
 # dovecot (/usr/sbin/dovecot)
 # fetchmail (/usr/bin/fetchmail)
@@ -37,7 +37,7 @@ CORE_PROCESS_LIST=(
 # These processes can be toggled via ENV:
 # NOTE: clamd handled in separate test case
 ENV_PROCESS_LIST=(
-  amavisd-new
+  amavisd
   dovecot
   fail2ban-server
   fetchmail

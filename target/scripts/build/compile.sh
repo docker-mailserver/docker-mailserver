@@ -17,7 +17,7 @@ function _compile_dovecot_fts_xapian() {
   tar xzvf dovecot-fts-xapian.tar.gz
   cd fts-xapian-1.5.5
   USER=root dh_make -p dovecot-fts-xapian-1.5.5 --single --native --copyright gpl2 -y
-  rm debian/*.ex debian/*.EX
+  rm debian/*.ex
   cp PACKAGES/DEB/control debian/
   cp PACKAGES/DEB/changelog debian/
   cp PACKAGES/DEB/compat debian/
