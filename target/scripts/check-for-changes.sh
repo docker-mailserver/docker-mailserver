@@ -88,7 +88,7 @@ function _reload_amavis() {
   if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]]; then
     # /etc/postfix/vhost was updated, amavis must refresh it's config by
     # reading this file again in case of new domains, otherwise they will be ignored.
-    amavisd-new reload
+    amavisd reload
   fi
 }
 

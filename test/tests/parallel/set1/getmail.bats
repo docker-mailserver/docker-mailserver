@@ -25,9 +25,9 @@ function teardown_file() { _default_teardown ; }
   assert_line 'received = false'
   assert_line 'delivered_to = false'
 
-  _run_in_container stat /usr/local/bin/debug-getmail
+  _run_in_container_bash '[[ -f /usr/local/bin/debug-getmail ]]'
   assert_success
-  _run_in_container stat /usr/local/bin/getmail-cron
+  _run_in_container_bash '[[ -f /usr/local/bin/getmail-cron ]]'
   assert_success
 }
 

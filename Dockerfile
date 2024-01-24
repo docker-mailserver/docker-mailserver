@@ -4,10 +4,10 @@
 # This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG DOVECOT_COMMUNITY_REPO=1
+ARG DOVECOT_COMMUNITY_REPO=0
 ARG LOG_LEVEL=trace
 
-FROM docker.io/debian:11-slim AS stage-base
+FROM docker.io/debian:12-slim AS stage-base
 
 ARG DEBIAN_FRONTEND
 ARG DOVECOT_COMMUNITY_REPO
@@ -29,8 +29,6 @@ COPY target/scripts/build/packages.sh /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
 RUN /bin/bash /build/packages.sh && rm -r /build
-
-
 
 # -----------------------------------------------
 # --- Compile deb packages ----------------------
@@ -130,7 +128,8 @@ COPY \
 
 # hadolint ignore=SC2016
 RUN <<EOF
-  sedfile -i -r 's/^(CRON)=0/\1=1/g' /etc/default/spamassassin
+  # ref: https://github.com/docker-mailserver/docker-mailserver/pull/3403#discussion_r1306282387
+  echo 'CRON=1' >/etc/default/spamassassin
   sedfile -i -r 's/^\$INIT restart/supervisorctl restart amavis/g' /etc/spamassassin/sa-update-hooks.d/amavisd-new
   mkdir /etc/spamassassin/kam/
   curl -sSfLo /etc/spamassassin/kam/kam.sa-channels.mcgrail.com.key https://mcgrail.com/downloads/kam.sa-channels.mcgrail.com.key
@@ -189,7 +188,6 @@ RUN <<EOF
   ln -sf /var/log/mail/fail2ban.log /var/log/fail2ban.log
   # disable sshd jail
   rm /etc/fail2ban/jail.d/defaults-debian.conf
-  mkdir /var/run/fail2ban
 EOF
 
 COPY target/opendkim/opendkim.conf /etc/opendkim.conf
@@ -266,8 +264,9 @@ RUN <<EOF
   sedfile -i -e 's/^\(POLICYHELPER=\).*/\1/' /usr/sbin/invoke-rc.d
   # prevent syslog warning about imklog permissions
   sedfile -i -e 's/^module(load=\"imklog\")/#module(load=\"imklog\")/' /etc/rsyslog.conf
-  # prevent email when /sbin/init or init system is not existing
-  sedfile -i -e 's|invoke-rc.d rsyslog rotate > /dev/null|/usr/bin/supervisorctl signal hup rsyslog >/dev/null|g' /usr/lib/rsyslog/rsyslog-rotate
+  # this change is for our alternative process manager rather than part of
+  # a fix related to the change preceding it.
+  echo -e '\n/usr/bin/supervisorctl signal hup rsyslog >/dev/null' >>/usr/lib/rsyslog/rsyslog-rotate
 EOF
 
 # -----------------------------------------------

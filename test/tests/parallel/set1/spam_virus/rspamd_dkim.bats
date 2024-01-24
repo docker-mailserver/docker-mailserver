@@ -222,7 +222,7 @@ function __check_rsa_keys() {
   # Check the private key matches the specification
   _run_in_container_bash "openssl rsa -in '${BASE_FILE_NAME}.private.txt' -noout -text"
   assert_success
-  assert_line --index 0 "RSA Private-Key: (${KEYSIZE} bit, 2 primes)"
+  assert_line --index 0 "Private-Key: (${KEYSIZE} bit, 2 primes)"
 
   # Check the public key matches the specification
   #
@@ -232,7 +232,7 @@ function __check_rsa_keys() {
   PUBKEY=$(_exec_in_container_bash "grep -o 'p=.*' ${BASE_FILE_NAME}.public.dns.txt")
   _run_in_container_bash "openssl enc -base64 -d <<< ${PUBKEY#p=} | openssl pkey -inform DER -pubin -noout -text"
   assert_success
-  assert_line --index 0 "RSA Public-Key: (${KEYSIZE} bit)"
+  assert_line --index 0 "Public-Key: (${KEYSIZE} bit)"
 }
 
 # Verify that all DKIM key files are present.
