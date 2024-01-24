@@ -39,25 +39,24 @@ function setup_file() {
   #
 
   # LDAP filter queries explained.
-  # NOTE: All LDAP configs for Postfix (with the exception of `ldap-senders.cf`), return the `mail` attribute value of matched results.
-  # This is through the config key `result_attribute`, which the ENV substitution feature can only replace across all configs, not selectively like `query_filter`.
+  # NOTE: All LDAP configs use `result_attribute = mail` for Postfix to return the `mail` attribute value from query matched results.
   # NOTE: The queries below rely specifically upon attributes and classes defined by the schema `postfix-book.ldif`. These are not compatible with all LDAP setups.
 
-  # `mailAlias`` is supported by both classes provided from the schema `postfix-book.ldif`, but `mailEnabled` is only available to `PostfixBookMailAccount` class:
-  local QUERY_ALIAS='(&(mailAlias=%s) (| (objectClass=PostfixBookMailForward) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ))'
+  # `mailAlias` is supported by both classes provided from the schema `postfix-book.ldif`, but `mailEnabled` is only available to `PostfixBookMailAccount` class:
+  local QUERY_ALIASES='(&(mailAlias=%s) (| (objectClass=PostfixBookMailForward) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ))'
 
   # Postfix does domain lookups with the domain of the recipient to check if DMS manages the mail domain.
   # For this lookup `%s` only represents the domain, not a full email address. Hence the match pattern using a wildcard prefix `*@`.
-  # For a breakdown, see QUERY_SENDERS comment.
+  # For a breakdown, see the `QUERY_SENDERS` comment.
   # NOTE: Although `result_attribute = mail` will return each accounts full email address, Postfix will only compare to domain-part.
-  local QUERY_DOMAIN='(| (& (|(mail=*@%s) (mailAlias=*@%s) (mailGroupMember=*@%s)) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ) (&(mailAlias=*@%s)(objectClass=PostfixBookMailForward)) )'
+  local QUERY_DOMAINS='(| (& (|(mail=*@%s) (mailAlias=*@%s) (mailGroupMember=*@%s)) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) ) (&(mailAlias=*@%s)(objectClass=PostfixBookMailForward)) )'
 
   # Simple queries for a single attribute that additionally requires `mailEnabled=TRUE` from the `PostfixBookMailAccount` class:
   # NOTE: `mail` attribute is not unique to `PostfixBookMailAccount`. The `mailEnabled` attribute is to further control valid mail accounts.
   # TODO: For tests, since `mailEnabled` is not relevant (always configured as TRUE currently),
   # a simpler query like `mail=%s` or `mailGroupMember=%s` would be sufficient. The additional constraints could be covered in our docs instead.
-  local QUERY_GROUP='(&(mailGroupMember=%s) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) )'
-  local QUERY_USER='(&(mail=%s) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) )'
+  local QUERY_GROUPS='(&(mailGroupMember=%s) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) )'
+  local QUERY_USERS='(&(mail=%s) (&(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)) )'
 
   # Given the sender address `%s` from Postfix, query LDAP for accounts that meet the search filter,
   # the `result_attribute` is `mail` + `uid` (`userID`) attributes for login names that are authorized to use that sender address.
@@ -93,10 +92,9 @@ function setup_file() {
     --env ACCOUNT_PROVISIONER=LDAP
 
     # Common LDAP ENV:
-    # NOTE: `scripts/startup/setup.d/ldap.sh:_setup_ldap()` uses `_replace_by_env_in_file()` to configure settings (stripping `DOVECOT_` / `LDAP_` prefixes):
+    # NOTE: `scripts/startup/setup.d/ldap.sh:_setup_ldap()` uses helper methods to generate / override LDAP configs (grouped by common ENV prefixes):
     --env LDAP_SERVER_HOST="ldap://${FQDN_LDAP}"
     --env LDAP_SEARCH_BASE='ou=users,dc=example,dc=test'
-    --env LDAP_START_TLS=no
     # Credentials needed for read access to LDAP_SEARCH_BASE:
     --env LDAP_BIND_DN='cn=admin,dc=example,dc=test'
     --env LDAP_BIND_PW='admin'
@@ -113,11 +111,12 @@ function setup_file() {
     --env DOVECOT_TLS=no
 
     # Postfix:
-    --env LDAP_QUERY_FILTER_ALIAS="${QUERY_ALIAS}"
-    --env LDAP_QUERY_FILTER_DOMAIN="${QUERY_DOMAIN}"
-    --env LDAP_QUERY_FILTER_GROUP="${QUERY_GROUP}"
-    --env LDAP_QUERY_FILTER_SENDERS="${QUERY_SENDERS}"
-    --env LDAP_QUERY_FILTER_USER="${QUERY_USER}"
+    --env POSTFIX_ALIASES_QUERY_FILTER="${QUERY_ALIASES}"
+    --env POSTFIX_DOMAINS_QUERY_FILTER="${QUERY_DOMAINS}"
+    --env POSTFIX_GROUPS_QUERY_FILTER="${QUERY_GROUPS}"
+    --env POSTFIX_SENDERS_QUERY_FILTER="${QUERY_SENDERS}"
+    --env POSTFIX_USERS_QUERY_FILTER="${QUERY_USERS}"
+    --env POSTFIX_START_TLS=no
   )
 
   # Extra ENV needed to support specific test-cases:
@@ -199,7 +198,7 @@ function teardown() {
   # REF: https://github.com/docker-mailserver/docker-mailserver/pull/642#issuecomment-313916384
   # NOTE: This account has no `mailAlias` or `mailGroupMember` defined in it's `.ldif`.
   local MAIL_ACCOUNT="some.user.email@${FQDN_LOCALHOST_A}"
-  _run_in_container postmap -q "${MAIL_ACCOUNT}" ldap:/etc/postfix/ldap-users.cf
+  _run_in_container postmap -q "${MAIL_ACCOUNT}" ldap:/etc/postfix/ldap/users.cf
   assert_success
   assert_output "${MAIL_ACCOUNT}"
 }
@@ -210,9 +209,9 @@ function teardown() {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
   local LDAP_CONFIGS_POSTFIX=(
-    /etc/postfix/ldap-users.cf
-    /etc/postfix/ldap-groups.cf
-    /etc/postfix/ldap-aliases.cf
+    /etc/postfix/ldap/users.cf
+    /etc/postfix/ldap/groups.cf
+    /etc/postfix/ldap/aliases.cf
   )
 
   for LDAP_CONFIG in "${LDAP_CONFIGS_POSTFIX[@]}"; do
@@ -230,19 +229,9 @@ function teardown() {
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_POSTFIX[@]}"; do
-    # "${LDAP_SETTING%=*}" is to match only the key portion of the var (helpful for assert_output error messages)
-    # NOTE: `start_tls = no` is a default setting, but the white-space differs when ENV `LDAP_START_TLS` is not set explicitly.
-    _run_in_container grep "${LDAP_SETTING%=*}" /etc/postfix/ldap-users.cf
-    assert_output "${LDAP_SETTING}"
-    assert_success
-
-    _run_in_container grep "${LDAP_SETTING%=*}" /etc/postfix/ldap-groups.cf
-    assert_output "${LDAP_SETTING}"
-    assert_success
-
-    _run_in_container grep "${LDAP_SETTING%=*}" /etc/postfix/ldap-aliases.cf
-    assert_output "${LDAP_SETTING}"
-    assert_success
+    _should_have_matching_setting "${LDAP_SETTING}" /etc/postfix/ldap/users.cf
+    _should_have_matching_setting "${LDAP_SETTING}" /etc/postfix/ldap/groups.cf
+    _should_have_matching_setting "${LDAP_SETTING}" /etc/postfix/ldap/aliases.cf
   done
 }
 
@@ -270,9 +259,7 @@ function teardown() {
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_DOVECOT[@]}"; do
-    _run_in_container grep "${LDAP_SETTING%=*}" /etc/dovecot/dovecot-ldap.conf.ext
-    assert_output "${LDAP_SETTING}"
-    assert_success
+    _should_have_matching_setting "${LDAP_SETTING}" /etc/dovecot/dovecot-ldap.conf.ext
   done
 }
 
@@ -402,20 +389,20 @@ function _should_exist_in_ldap_tables() {
   local DOMAIN_PART="${MAIL_ACCOUNT#*@}"
 
   # Each LDAP config file sets `query_filter` to lookup a key in LDAP (values defined in `.ldif` test files)
-  # `mail` (ldap-users), `mailAlias` (ldap-aliases), `mailGroupMember` (ldap-groups)
+  # `mail` (ldap/users.cf), `mailAlias` (ldap/aliases.cf), `mailGroupMember` (ldap/groups.cf)
   # `postmap` is queried with the mail account address, and the LDAP service should respond with
   # `result_attribute` which is the LDAP `mail` value (should match what we'r'e quering `postmap` with)
 
-  _run_in_container postmap -q "${MAIL_ACCOUNT}" ldap:/etc/postfix/ldap-users.cf
+  _run_in_container postmap -q "${MAIL_ACCOUNT}" ldap:/etc/postfix/ldap/users.cf
   assert_success
   assert_output "${MAIL_ACCOUNT}"
 
   # Check which account has the `postmaster` virtual alias:
-  _run_in_container postmap -q "postmaster@${DOMAIN_PART}" ldap:/etc/postfix/ldap-aliases.cf
+  _run_in_container postmap -q "postmaster@${DOMAIN_PART}" ldap:/etc/postfix/ldap/aliases.cf
   assert_success
   assert_output "${MAIL_ACCOUNT}"
 
-  _run_in_container postmap -q "employees@${DOMAIN_PART}" ldap:/etc/postfix/ldap-groups.cf
+  _run_in_container postmap -q "employees@${DOMAIN_PART}" ldap:/etc/postfix/ldap/groups.cf
   assert_success
   assert_output "${MAIL_ACCOUNT}"
 }
@@ -438,4 +425,17 @@ function _should_successfully_deliver_mail_to() {
 
   # NOTE: Prevents compatibility for running testcases in parallel (for same container) when the count could become racey:
   _count_files_in_directory_in_container "${MAIL_STORAGE_RECIPIENT}" 1
+}
+
+function _should_have_matching_setting() {
+  local KEY_VALUE=${1}
+  local CONFIG_FILE=${2}
+  local KV_DELIMITER=${3:-'='}
+
+  local KEY
+  KEY="${KEY_VALUE%%"${KV_DELIMITER}"*}"
+  # Look up the KEY portion from the target config file and use sed to reduce white-space between key and value:
+  _run_in_container_bash "grep '^${KEY}' '${CONFIG_FILE}' | sed 's/\s*${KV_DELIMITER}\s*/ ${KV_DELIMITER} /'"
+  assert_output "${LDAP_SETTING}"
+  assert_success
 }

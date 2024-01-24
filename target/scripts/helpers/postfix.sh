@@ -69,7 +69,7 @@ function _vhost_collect_postfix_domains() {
 # NOTE: `setup-stack.sh:_setup_ldap` has related logic:
 # - `main.cf:mydestination` setting removes `$mydestination` as an LDAP bugfix.
 # - `main.cf:virtual_mailbox_domains` uses `/etc/postfix/vhost`, but may
-#   conditionally include a 2nd table (ldap:/etc/postfix/ldap-domains.cf).
+#   conditionally include a 2nd table (ldap:/etc/postfix/ldap/domains.cf).
 function _vhost_ldap_support() {
   [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]] && echo "${DOMAINNAME}" >>"${TMP_VHOST}"
 }

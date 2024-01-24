@@ -68,6 +68,9 @@ target/postsrsd/**  text
 *.local             text
 ### Postfix
 *.pcre              text
+### Config Templates feature
+*.base              text
+*.tmpl              text
 
 #################################################
 ###  Tests  #####################################

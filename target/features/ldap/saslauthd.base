@@ -1,0 +1,6 @@
+ldap_bind_dn:     ${BIND_DN}
+ldap_bind_pw:     ${BIND_PW}
+ldap_servers:     ${SERVER_HOST}
+ldap_search_base: ${SEARCH_BASE}
+ldap_filter:      (&(uniqueIdentifier=%u)(mailEnabled=TRUE))
+ldap_referrals:   yes

@@ -1,12 +1,9 @@
-base                = ou=people,dc=example,dc=com
+dn                  = ${BIND_DN}
+dnpass              = ${BIND_PW}
+uris                = ${SERVER_HOST}
+base                = ${SEARCH_BASE}
 default_pass_scheme = SSHA
-dn                  = cn=admin,dc=example,dc=com
-dnpass              = admin
-uris                = ldap://mail.example.com
-tls                 = no
-ldap_version        = 3
 pass_attrs          = uniqueIdentifier=user,userPassword=password
 pass_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
 user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
 user_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
-auth_bind           = no

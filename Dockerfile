@@ -119,14 +119,8 @@ COPY target/dovecot/dovecot-oauth2.conf.ext /etc/dovecot
 # --- LDAP & SpamAssassin's Cron ----------------
 # -----------------------------------------------
 
-COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
-COPY \
-  target/postfix/ldap-users.cf \
-  target/postfix/ldap-groups.cf \
-  target/postfix/ldap-aliases.cf \
-  target/postfix/ldap-domains.cf \
-  target/postfix/ldap-senders.cf \
-  /etc/postfix/
+# LDAP config template support:
+COPY --link target/features/ldap/ /etc/dms/ldap/
 
 # hadolint ignore=SC2016
 RUN <<EOF
