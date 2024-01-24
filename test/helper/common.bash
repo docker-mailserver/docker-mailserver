@@ -18,6 +18,7 @@ function __load_bats_helper() {
   load "${REPOSITORY_ROOT}/test/test_helper/bats-support/load"
   load "${REPOSITORY_ROOT}/test/test_helper/bats-assert/load"
   load "${REPOSITORY_ROOT}/test/helper/sending"
+  load "${REPOSITORY_ROOT}/test/helper/log_and_filtering"
 }
 
 __load_bats_helper
@@ -228,7 +229,6 @@ function _run_until_success_or_timeout() {
 # ! -------------------------------------------------------------------
 # ? >> Functions to wait until a condition is met
 
-
 # Wait until a port is ready.
 #
 # @param ${1} = port
@@ -351,15 +351,6 @@ function _add_mail_account_then_wait_until_ready() {
   _wait_until_account_maildir_exists "${MAIL_ACCOUNT}"
 }
 
-# Assert that the number of lines output by a previous command matches the given
-# amount (${1}). `lines` is a special BATS variable updated via `run`.
-#
-# @param ${1} = number of lines that the output should have
-function _should_output_number_of_lines() {
-  # shellcheck disable=SC2154
-  assert_equal "${#lines[@]}" "${1:?Number of lines not provided}"
-}
-
 # Reloads the postfix service.
 #
 # @param ${1} = container name [OPTIONAL]
@@ -371,7 +362,6 @@ function _reload_postfix() {
   _exec_in_container touch -d '2 seconds ago' /etc/postfix/main.cf
   _exec_in_container postfix reload
 }
-
 
 # Get the IP of the container (${1}).
 #
@@ -411,62 +401,6 @@ function _should_have_content_in_directory() {
 
   _run_in_container_bash "[[ -d ${DIRECTORY} ]] && find ${DIRECTORY} -mindepth 1 -maxdepth 1 ${FIND_OPTIONS} -printf '%f\n'"
   assert_success
-}
-
-# Filters a service's logs (under `/var/log/supervisor/<SERVICE>.log`) given
-# a specific string.
-#
-# @param ${1} = service name
-# @param ${2} = string to filter by
-# @param ${3} = container name [OPTIONAL]
-#
-# ## Attention
-#
-# The string given to this function is interpreted by `grep -E`, i.e.
-# as a regular expression. In case you use characters that are special
-# in regular expressions, you need to escape them!
-function _filter_service_log() {
-  local SERVICE=${1:?Service name must be provided}
-  local STRING=${2:?String to match must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
-  local FILE="/var/log/supervisor/${SERVICE}.log"
-
-  # Fallback to alternative log location:
-  [[ -f ${FILE} ]] || FILE="/var/log/mail/${SERVICE}.log"
-  _run_in_container grep -E "${STRING}" "${FILE}"
-}
-
-# Like `_filter_service_log` but asserts that the string was found.
-#
-# @param ${1} = service name
-# @param ${2} = string to filter by
-# @param ${3} = container name [OPTIONAL]
-#
-# ## Attention
-#
-# The string given to this function is interpreted by `grep -E`, i.e.
-# as a regular expression. In case you use characters that are special
-# in regular expressions, you need to escape them!
-function _service_log_should_contain_string() {
-  local SERVICE=${1:?Service name must be provided}
-  local STRING=${2:?String to match must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${3:-}")
-
-  _filter_service_log "${SERVICE}" "${STRING}"
-  assert_success
-}
-
-# Filters the mail log for lines that belong to a certain email identified
-# by its ID. You can obtain the ID of an email you want to send by using
-# `_send_email_and_get_id`.
-#
-# @param ${1} = email ID
-# @param ${2} = container name [OPTIONAL]
-function _print_mail_log_for_id() {
-  local MAIL_ID=${1:?Mail ID must be provided}
-  local CONTAINER_NAME=$(__handle_container_name "${2:-}")
-
-  _run_in_container grep -E "${MAIL_ID}" /var/log/mail.log
 }
 
 # A simple wrapper for netcat (`nc`). This is useful when sending

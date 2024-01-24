@@ -174,33 +174,28 @@ function _successful() {
 }
 
 @test "delivers mail to existing alias" {
-  _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>'
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 }
 
 @test "delivers mail to existing alias with recipient delimiter" {
-  _run_in_container grep 'to=<user1~test@localhost.localdomain>, orig_to=<alias1~test@localhost.localdomain>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1~test@localhost.localdomain>, orig_to=<alias1~test@localhost.localdomain>'
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 
-  _run_in_container grep 'to=<user1~test@localhost.localdomain>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1~test@localhost.localdomain>'
   refute_output --partial 'status=bounced'
 }
 
 @test "delivers mail to existing catchall" {
-  _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>'
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 }
 
 @test "delivers mail to regexp alias" {
-  _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<test123@localhost.localdomain>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1@localhost.localdomain>, orig_to=<test123@localhost.localdomain>'
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 }
@@ -227,23 +222,20 @@ function _successful() {
 }
 
 @test "rejects mail to unknown user" {
-  _run_in_container grep '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table'
   _should_output_number_of_lines 1
 }
 
 @test "redirects mail to external aliases" {
-  _run_in_container_bash "grep 'Passed CLEAN {RelayedInbound}' /var/log/mail/mail.log | grep -- '-> <external1@otherdomain.tld>'"
-  assert_success
-  assert_output --partial '<user@external.tld> -> <external1@otherdomain.tld>'
+  _service_log_should_contain_string 'mail' 'Passed CLEAN {RelayedInbound}'
+  run bash -c "grep '<user@external.tld> -> <external1@otherdomain.tld>' <<< '${output}'"
   _should_output_number_of_lines 2
   # assert_output --partial 'external.tld=user@example.test> -> <external1@otherdomain.tld>'
 }
 
 # TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
 @test "rejects spam" {
-  _run_in_container grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'Blocked SPAM {NoBounceInbound,Quarantined}'
   assert_output --partial '<spam@external.tld> -> <user1@localhost.localdomain>'
   _should_output_number_of_lines 1
 

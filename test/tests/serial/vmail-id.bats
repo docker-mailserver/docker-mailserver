@@ -24,8 +24,7 @@ function teardown_file() { _default_teardown ; }
   _wait_for_empty_mail_queue_in_container
 
   # Should be successfully sent (received) by Postfix:
-  _run_in_container grep 'to=<user1@localhost.localdomain>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1@localhost.localdomain>'
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 
@@ -41,35 +40,28 @@ function teardown_file() { _default_teardown ; }
 # This test case is shared with tests.bats, but provides context on errors + some minor edits
 # TODO: Could improve in future with keywords from https://github.com/docker-mailserver/docker-mailserver/pull/3550#issuecomment-1738509088
 # Potentially via a helper that allows an optional fixed number of errors to be present if they were intentional
-@test '/var/log/mail/mail.log is error free' {
+@test 'Mail log is error free' {
   # Postfix: https://serverfault.com/questions/934703/postfix-451-4-3-0-temporary-lookup-failure
-  _run_in_container grep 'non-null host address bits in' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' 'non-null host address bits in'
 
   # Postfix delivery failure: https://github.com/docker-mailserver/docker-mailserver/issues/230
-  _run_in_container grep 'mail system configuration error' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' 'mail system configuration error'
 
   # Unknown error source: https://github.com/docker-mailserver/docker-mailserver/pull/85
-  _run_in_container grep -i ': error:' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' ': Error:'
 
   # Unknown error source: https://github.com/docker-mailserver/docker-mailserver/pull/320
-  _run_in_container grep -i 'not writable' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i 'permission denied' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' 'not writable'
+  _service_log_should_not_contain_string 'mail' 'Permission denied'
 
   # Amavis: https://forum.howtoforge.com/threads/postfix-smtp-error-caused-by-clamav-cant-connect-to-a-unix-socket-var-run-clamav-clamd-ctl.81002/
-  _run_in_container grep -i '(!)connect' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' '(!)connect'
 
   # Postfix: https://github.com/docker-mailserver/docker-mailserver/pull/2597
-  _run_in_container grep -i 'using backwards-compatible default setting' /var/log/mail/mail.log
-  assert_failure
+  # Log line match example: https://github.com/docker-mailserver/docker-mailserver/pull/2598#issuecomment-1141176633
+  _service_log_should_not_contain_string 'mail' 'using backwards-compatible default setting'
 
   # Postgrey: https://github.com/docker-mailserver/docker-mailserver/pull/612#discussion_r117635774
-  _run_in_container grep -i 'connect to 127.0.0.1:10023: Connection refused' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' 'connect to 127.0.0.1:10023: Connection refused'
 }
 

@@ -54,7 +54,7 @@ function teardown_file() {
   _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 587'
   _wait_for_empty_mail_queue_in_container
 
-  _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
+  _filter_service_log 'mail' "${LOG_DSN}"
   _should_output_number_of_lines 3
 }
 
@@ -70,15 +70,14 @@ function teardown_file() {
   #
   # Although external requests are discarded, anyone who has requested a DSN
   # will still receive it, but it will come from the sending mail server, not this one.
-  _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' "${LOG_DSN}"
 
   # These ports are excluded via master.cf.
   _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 465'
   _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 587'
   _wait_for_empty_mail_queue_in_container
 
-  _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
+  _service_log_should_contain_string 'mail' "${LOG_DSN}"
   _should_output_number_of_lines 2
 }
 
@@ -92,6 +91,5 @@ function teardown_file() {
 
   # DSN requests are rejected regardless of origin.
   # This is usually a bad idea, as you won't get them either.
-  _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' "${LOG_DSN}"
 }
