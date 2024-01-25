@@ -32,11 +32,15 @@ The most noteworthy change of this release is the update of the container's base
       - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
+- **Environment variables**:
+  - `SA_SPAM_SUBJECT` has been renamed into `SPAM_SUBJECT` to incorporate Rspamd (for which the default settings changed, disabling the `rewrite_subject` action); a notification is logged when using the old `SA_SPAM_SUBJECT` and the value is copied as a fallback ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
 
 ### Updates
 
 - **Tests:**
   - Refactored helper methods for sending e-mails with specific `Message-ID` headers and the helpers for retrieving + filtering logs, which together help isolate logs relevant to specific mail when multiple mails have been processed within a single test. ([#3786](https://github.com/docker-mailserver/docker-mailserver/pull/3786))
+- **Rspamd**:
+  - the `rewrite_subject` action, which was enabled by default, has been disabled; a Sieve script has been added in order to allow subject rewriting agnostic to the underlying anti-spam system ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
 
 ## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)
 
