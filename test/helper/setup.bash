@@ -102,7 +102,6 @@ function _init_with_defaults() {
 
   # The config volume cannot be read-only as some data needs to be written at container startup
   #
-  # - two sed failures (unknown lines)
   # - dovecot-quotas.cf (setup-stack.sh:_setup_dovecot_quotas)
   # - postfix-aliases.cf (setup-stack.sh:_setup_postfix_aliases)
   # TODO: Check how many tests need write access. Consider using `docker create` + `docker cp` for easier cleanup.
