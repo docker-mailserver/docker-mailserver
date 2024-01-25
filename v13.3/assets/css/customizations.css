@@ -16,8 +16,9 @@ If you want to append instead, switch `::before` to `::after`.
   src: url('../fonts/external-link.woff') format('woff');
 }
 
-/* Matches the two nav link classes that start with `http` `href` values, regular docs pages use relative URLs instead. */
-.md-tabs__link[href^="http"]::before, .md-nav__link[href^="http"]::before {
+/* Matches the two nav link classes, but not links with the docs domain (not external) */
+/* https://github.com/docker-mailserver/docker-mailserver/issues/3822 */
+.md-tabs__link[href]:not([href*="docker-mailserver.github.io"])::before, .md-nav__link[href]:not([href*="docker-mailserver.github.io"])::before {
   display: inline-block; /* treat similar to text */
   font-family: 'external-link';
   content:'\0041'; /* represents "A" which our font renders as an icon instead of the "A" glyph */
