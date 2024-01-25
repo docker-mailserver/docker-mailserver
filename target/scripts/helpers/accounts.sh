@@ -19,9 +19,6 @@ function _create_accounts() {
   _create_masters
 
   if [[ -f ${DATABASE_ACCOUNTS} ]]; then
-    _log 'trace' "Checking file line endings"
-    sed -i 's|\r||g' "${DATABASE_ACCOUNTS}"
-
     _log 'trace' "Regenerating postfix user list"
     echo "# WARNING: this file is auto-generated. Modify ${DATABASE_ACCOUNTS} to edit the user list." > /etc/postfix/vmailbox
 
@@ -154,9 +151,6 @@ function _create_masters() {
 
   local DATABASE_DOVECOT_MASTERS='/tmp/docker-mailserver/dovecot-masters.cf'
   if [[ -f ${DATABASE_DOVECOT_MASTERS} ]]; then
-    _log 'trace' "Checking file line endings"
-    sed -i 's|\r||g' "${DATABASE_DOVECOT_MASTERS}"
-
     _log 'trace' "Regenerating dovecot masters list"
 
     chown dovecot:dovecot "${DOVECOT_MASTERDB_FILE}"

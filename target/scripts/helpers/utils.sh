@@ -17,18 +17,33 @@ function _escape_for_sed() {
 # Returns input after filtering out lines that are:
 # empty, white-space, comments (`#` as the first non-whitespace character)
 function _get_valid_lines_from_file() {
+  _convert_crlf_to_lf_if_necessary "${1}"
   _append_final_newline_if_missing "${1}"
+
   grep --extended-regexp --invert-match "^\s*$|^\s*#" "${1}" || true
 }
 
+# This is to sanitize configs from users that unknowingly introduced CRLF:
+function _convert_crlf_to_lf_if_necessary() {
+  if [[ $(file "${1}") =~ 'CRLF' ]]; then
+    _log 'warn' "${1} contains CRLF line-endings."
+
+    if [[ -w "${1}" ]]; then
+      _log 'debug' 'Converting CRLF to LF'
+      sed -i 's|\r||g' "${1}"
+    fi
+  fi
+}
+
+# This is to sanitize configs from users that unknowingly removed the end-of-file LF:
 function _append_final_newline_if_missing() {
   # Correctly detect a missing final newline and fix it:
   # https://stackoverflow.com/questions/38746/how-to-detect-file-ends-in-newline#comment82380232_25749716
   # https://unix.stackexchange.com/questions/31947/how-to-add-a-newline-to-the-end-of-a-file/441200#441200
   # https://unix.stackexchange.com/questions/159557/how-to-non-invasively-test-for-write-access-to-a-file
-  if [[ $(tail -c1 "${1}" | wc -l) -gt 0 ]]; then
+  if [[ $(tail -c1 "${1}" | wc -l) -eq 0 ]]; then
     # Avoid fixing when the destination is read-only:
-    if [[ test -w "${1}" ]]; then
+    if [[ -w "${1}" ]]; then
       printf '\n' >> "${1}"
 
       _log 'warn' "${1} was missing a final newline. This has been fixed."
