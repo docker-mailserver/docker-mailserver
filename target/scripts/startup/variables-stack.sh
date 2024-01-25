@@ -25,6 +25,12 @@ function __environment_variables_backwards_compatibility() {
     _log 'error' "The ENV for which LDAP host to connect to must include the URI scheme ('ldap://', 'ldaps://', 'ldapi://')"
   fi
 
+  if [[ -n ${SA_SPAM_SUBJECT:-} ]]; then
+    _log 'warn' "'SA_SPAM_SUBJECT' has been renamed to 'SPAM_SUBJECT' - this warning will block startup on v15.0.0"
+    _log 'info' "Copying value of 'SA_SPAM_SUBJECT' into 'SPAM_SUBJECT' if 'SPAM_SUBJECT' has not been set explicitly"
+    SPAM_SUBJECT=${SPAM_SUBJECT:-${SA_SPAM_SUBJECT}}
+  fi
+
   # TODO this can be uncommented in a PR handling the HOSTNAME/DOMAINNAME issue
   # TODO see check_for_changes.sh and dns.sh
   # if [[ -n ${OVERRIDE_HOSTNAME:-} ]]
