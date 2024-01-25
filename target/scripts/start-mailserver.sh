@@ -36,6 +36,7 @@ function _register_functions() {
   _register_check_function '_check_improper_restart'
   _register_check_function '_check_hostname'
   _register_check_function '_check_log_level'
+  _register_check_function '_check_spam_prefix'
 
   # ? >> Setup
 
