@@ -14,6 +14,7 @@ function setup_file() {
     --env ENABLE_AMAVIS=1
     --env AMAVIS_LOGLEVEL=2
     --env ENABLE_SPAMASSASSIN=1
+    --env SPAM_SUBJECT='***SPAM*** '
   )
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
