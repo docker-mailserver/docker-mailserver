@@ -16,9 +16,9 @@ If you want to append instead, switch `::before` to `::after`.
   src: url('../fonts/external-link.woff') format('woff');
 }
 
-/* 
-   Since mkdocs-material 9.5.5 broke support in our docs from DMS v13.3.1, we now use our own class name,
-   which has been included for the two external nav links in mkdocs.yml via workaround (insert HTML).
+/*
+  Since mkdocs-material 9.5.5 broke support in our docs from DMS v13.3.1, we now use our own class name,
+  which has been included for the two external nav links in mkdocs.yml via workaround (insert HTML).
 */
 .icon-external-link::before {
   display: inline-block; /* treat similar to text */
