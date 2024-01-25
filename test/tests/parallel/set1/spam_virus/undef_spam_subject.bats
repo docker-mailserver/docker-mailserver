@@ -9,12 +9,12 @@ CONTAINER_NAME=${CONTAINER2_NAME}
 
 function teardown() { _default_teardown ; }
 
-@test "'SA_SPAM_SUBJECT=undef' should update Amavis config" {
+@test "'SPAM_SUBJECT=undef' should update Amavis config" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
-    --env SA_SPAM_SUBJECT='undef'
+    --env SPAM_SUBJECT='undef'
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
@@ -36,7 +36,7 @@ function teardown() { _default_teardown ; }
     --env SA_TAG=-5.0
     --env SA_TAG2=2.0
     --env SA_KILL=3.0
-    --env SA_SPAM_SUBJECT="SPAM: "
+    --env SPAM_SUBJECT="SPAM: "
     --env VIRUSMAILS_DELETE_DELAY=7
     --env ENABLE_SRS=1
     --env ENABLE_MANAGESIEVE=1

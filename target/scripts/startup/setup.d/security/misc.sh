@@ -81,12 +81,12 @@ function __setup__security__spamassassin() {
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
-    if [[ ${SA_SPAM_SUBJECT} == 'undef' ]]; then
+    if [[ -z ${SPAM_SUBJECT} ]]; then
       # shellcheck disable=SC2016
       sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = undef;|g' /etc/amavis/conf.d/20-debian_defaults
     else
       # shellcheck disable=SC2016
-      sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = '"'${SA_SPAM_SUBJECT}'"';|g' /etc/amavis/conf.d/20-debian_defaults
+      sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = '"'${SPAM_SUBJECT}'"';|g' /etc/amavis/conf.d/20-debian_defaults
     fi
 
     # activate short circuits when SA BAYES is certain it has spam or ham.
