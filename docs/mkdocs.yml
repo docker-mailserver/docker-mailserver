@@ -173,5 +173,5 @@ nav:
     - 'General Information': contributing/general.md
     - 'Tests': contributing/tests.md
     - 'Issues and Pull Requests': contributing/issues-and-pull-requests.md
-  - 'DockerHub': https://hub.docker.com/r/mailserver/docker-mailserver/
-  - 'GHCR': https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver
+  - '<span class="icon-external-link"></span>DockerHub': https://hub.docker.com/r/mailserver/docker-mailserver/
+  - '<span class="icon-external-link"></span>GHCR': https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver
