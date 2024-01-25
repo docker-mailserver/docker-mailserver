@@ -73,6 +73,15 @@ function teardown_file() { _default_teardown ; }
   assert_output 'rspamd_milter = inet:localhost:11332'
 }
 
+@test 'Rspamd base configuration is correct' {
+  _run_in_container rspamadm configdump actions
+  assert_success
+  assert_line 'greylist = 4;'
+  assert_line 'reject = 11;'
+  assert_line 'add_header = 6;'
+  refute_line --regexp 'rewrite_subject = [0-9]+;'
+}
+
 @test "contents of '/etc/rspamd/override.d/' are copied" {
   local OVERRIDE_D='/etc/rspamd/override.d'
   _file_exists_in_container "${OVERRIDE_D}/testmodule_complicated.conf"
