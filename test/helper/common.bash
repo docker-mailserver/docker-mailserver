@@ -417,5 +417,13 @@ function _nc_wrapper() {
   _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${FILE}"
 }
 
+# A simple wrapper for a test that checks whether a file exists.
+#
+# @param ${1} = the path to the file inside the container
+function _file_exists_in_container() {
+  _run_in_container_bash "[[ -f ${1} ]]"
+  assert_success
+}
+
 # ? << Miscellaneous helper functions
 # ! -------------------------------------------------------------------

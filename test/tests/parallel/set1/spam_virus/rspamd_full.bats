@@ -75,9 +75,7 @@ function teardown_file() { _default_teardown ; }
 
 @test "contents of '/etc/rspamd/override.d/' are copied" {
   local OVERRIDE_D='/etc/rspamd/override.d'
-
-  _run_in_container_bash "[[ -f ${OVERRIDE_D}/testmodule_complicated.conf ]]"
-  assert_success
+  _file_exists_in_container "${OVERRIDE_D}/testmodule_complicated.conf"
 }
 
 @test 'startup log shows all features as properly enabled' {
@@ -150,8 +148,7 @@ function teardown_file() { _default_teardown ; }
 @test 'custom commands work correctly' {
   # check `testmodule1` which should be disabled
   local MODULE_PATH='/etc/rspamd/override.d/testmodule1.conf'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F '# documentation: https://rspamd.com/doc/modules/testmodule1.html' "${MODULE_PATH}"
   assert_success
   _run_in_container grep -F 'enabled = false;' "${MODULE_PATH}"
@@ -161,8 +158,7 @@ function teardown_file() { _default_teardown ; }
 
   # check `testmodule2` which should be enabled and it should have extra options set
   MODULE_PATH='/etc/rspamd/override.d/testmodule2.conf'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F '# documentation: https://rspamd.com/doc/modules/testmodule2.html' "${MODULE_PATH}"
   assert_success
   _run_in_container grep -F 'enabled = true;' "${MODULE_PATH}"
@@ -181,8 +177,7 @@ function teardown_file() { _default_teardown ; }
 
   # check whether adding a single line writes the line properly in `testmodule4.something`
   MODULE_PATH='/etc/rspamd/override.d/testmodule4.something'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   # shellcheck disable=SC2016
   _run_in_container grep -F 'some very long line with "weird $charact"ers' "${MODULE_PATH}"
   assert_success
@@ -193,37 +188,31 @@ function teardown_file() { _default_teardown ; }
 
   # check whether spaces in front of options are handles properly in `testmodule_complicated`
   MODULE_PATH='/etc/rspamd/override.d/testmodule_complicated.conf'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F '    anOption = anotherValue;' "${MODULE_PATH}"
 
   # check whether controller option was written properly
   MODULE_PATH='/etc/rspamd/override.d/worker-controller.inc'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F 'someOption = someValue42;' "${MODULE_PATH}"
   assert_success
 
   # check whether controller option was written properly
   MODULE_PATH='/etc/rspamd/override.d/worker-proxy.inc'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F 'abcdefg71 = RAAAANdooM;' "${MODULE_PATH}"
   assert_success
 
   # check whether basic options are written properly
   MODULE_PATH='/etc/rspamd/override.d/options.inc'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F 'OhMy = "PraiseBeLinters !";' "${MODULE_PATH}"
   assert_success
 }
 
 @test 'MOVE_SPAM_TO_JUNK works for Rspamd' {
-  _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve ]]'
-  assert_success
-  _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.svbin ]]'
-  assert_success
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/after/spam_to_junk.svbin
 
   _service_log_should_contain_string 'rspamd' 'S (add header)'
   _service_log_should_contain_string 'rspamd' 'add header "Gtube pattern"'
@@ -237,8 +226,7 @@ function teardown_file() { _default_teardown ; }
 
 @test 'RSPAMD_LEARN works' {
   for FILE in learn-{ham,spam}.{sieve,svbin}; do
-    _run_in_container_bash "[[ -f /usr/lib/dovecot/sieve-pipe/${FILE} ]]"
-    assert_success
+    _file_exists_in_container "/usr/lib/dovecot/sieve-pipe/${FILE}"
   done
 
   _run_in_container grep 'mail_plugins.*imap_sieve' /etc/dovecot/conf.d/20-imap.conf
@@ -305,8 +293,7 @@ function teardown_file() { _default_teardown ; }
 
 @test 'hfilter group module is configured correctly' {
   local MODULE_FILE='/etc/rspamd/local.d/hfilter_group.conf'
-  _run_in_container_bash "[[ -f ${MODULE_FILE} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_FILE}"
 
   _run_in_container grep '__TAG__HFILTER_HOSTNAME_UNKNOWN' "${MODULE_FILE}"
   assert_success
@@ -315,8 +302,7 @@ function teardown_file() { _default_teardown ; }
 
 @test 'checks on authenticated users are disabled' {
   local MODULE_FILE='/etc/rspamd/local.d/settings.conf'
-  _run_in_container_bash "[[ -f ${MODULE_FILE} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_FILE}"
 
   _run_in_container grep -E -A 6 'authenticated \{' "${MODULE_FILE}"
   assert_success
