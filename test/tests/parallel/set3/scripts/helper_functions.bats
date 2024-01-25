@@ -90,8 +90,6 @@ SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/
   _convert_crlf_to_lf_if_necessary "${TMP_DMS_CONFIG}"
   run file "${TMP_DMS_CONFIG}"
   refute_output --partial 'CRLF'
-
-  rm "${TMP_DMS_CONFIG}"
 }
 
 @test '(utils.sh) _append_final_newline_if_missing' {
@@ -113,6 +111,4 @@ SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/
   _append_final_newline_if_missing "${TMP_DMS_CONFIG}"
   run bash -c "tail -c 1 '${TMP_DMS_CONFIG}' | wc -l"
   assert_output '1'
-
-  rm "${TMP_DMS_CONFIG}"
 }
