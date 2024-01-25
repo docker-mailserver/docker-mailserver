@@ -127,9 +127,7 @@ function __postfix__setup_override_configuration() {
   local OVERRIDE_CONFIG_POSTFIX_MASTER='/tmp/docker-mailserver/postfix-master.cf'
   if [[ -f ${OVERRIDE_CONFIG_POSTFIX_MASTER} ]]; then
     while read -r LINE; do
-      if [[ ${LINE} =~ ^[0-9a-z] ]]; then
-        postconf -P "${LINE}"
-      fi
+      [[ ${LINE} =~ ^[0-9a-z] ]] && postconf -P "${LINE}"
     done < <(_get_valid_lines_from_file "${OVERRIDE_CONFIG_POSTFIX_MASTER}")
     __postfix__log 'trace' "Adjusted '/etc/postfix/master.cf' according to '${OVERRIDE_CONFIG_POSTFIX_MASTER}'"
   else

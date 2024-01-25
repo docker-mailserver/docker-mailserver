@@ -26,11 +26,13 @@ function _get_valid_lines_from_file() {
 # This is to sanitize configs from users that unknowingly introduced CRLF:
 function _convert_crlf_to_lf_if_necessary() {
   if [[ $(file "${1}") =~ 'CRLF' ]]; then
-    _log 'warn' "${1} contains CRLF line-endings."
+    _log 'warn' "File '${1}' contains CRLF line-endings"
 
-    if [[ -w "${1}" ]]; then
+    if [[ -w ${1} ]]; then
       _log 'debug' 'Converting CRLF to LF'
       sed -i 's|\r||g' "${1}"
+    else
+      _log 'warn' "File '${1}' is not writable - cannot change CRLF to LF"
     fi
   fi
 }
@@ -43,12 +45,12 @@ function _append_final_newline_if_missing() {
   # https://unix.stackexchange.com/questions/159557/how-to-non-invasively-test-for-write-access-to-a-file
   if [[ $(tail -c1 "${1}" | wc -l) -eq 0 ]]; then
     # Avoid fixing when the destination is read-only:
-    if [[ -w "${1}" ]]; then
+    if [[ -w ${1} ]]; then
       printf '\n' >> "${1}"
 
-      _log 'warn' "${1} was missing a final newline. This has been fixed."
+      _log 'info' "File '${1}' was missing a final newline - this has been fixed"
     else
-      _log 'warn' "${1} is missing a final newline. The last line will not be processed!"
+      _log 'warn' "File '${1}' is missing a final newline - it is not writable, hence it was not fixed - the last line will not be processed!"
     fi
   fi
 }
