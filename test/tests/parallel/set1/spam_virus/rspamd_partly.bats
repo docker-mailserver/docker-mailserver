@@ -55,6 +55,7 @@ function teardown_file() { _default_teardown ; }
   assert_line --partial 'Intelligent learning of spam and ham is disabled'
   assert_line --partial 'Greylisting is disabled'
   assert_line --partial 'Disabling Hfilter (group) module'
+  assert_line --partial 'Spam subject is not set'
 }
 
 @test 'antivirus maximum size was not adjusted unnecessarily' {

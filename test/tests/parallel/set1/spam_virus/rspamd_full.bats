@@ -29,6 +29,7 @@ function setup_file() {
     --env RSPAMD_GREYLISTING=1
     --env RSPAMD_HFILTER=1
     --env RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE=7
+    --env SPAM_SUBJECT='[POTENTIAL SPAM] '
   )
 
   cp -r "${TEST_TMP_CONFIG}"/rspamd_full/* "${TEST_TMP_CONFIG}/"
@@ -43,7 +44,7 @@ function setup_file() {
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
 
-  # We will send 4 emails:
+  # We will send 5 emails:
   #   1. The first one should pass just fine
   _send_email_with_msgid 'rspamd-test-email-pass'
   #   2. The second one should be rejected (Rspamd-specific GTUBE pattern for rejection)
@@ -56,6 +57,9 @@ function setup_file() {
   #      ref: https://rspamd.com/doc/gtube_patterns.html
   _send_email_with_msgid 'rspamd-test-email-header' \
     --body "YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
+  #   5. The fifth one will have its subject rewritten, but now spam header is applied.
+  _send_email_with_msgid 'rspamd-test-email-rewrite_subject' \
+    --body "ZJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
 
   _run_in_container cat /var/log/mail.log
   assert_success
@@ -96,6 +100,7 @@ function teardown_file() { _default_teardown ; }
   assert_line --partial 'Enabling greylisting'
   assert_line --partial 'Hfilter (group) module is enabled'
   assert_line --partial "Adjusting score for 'HFILTER_HOSTNAME_UNKNOWN' in Hfilter group module to"
+  assert_line --partial "Spam subject is set - the prefix '[POTENTIAL SPAM] ' will be added to spam e-mails"
   assert_line --partial "Found file '/tmp/docker-mailserver/rspamd/custom-commands.conf' - parsing and applying it"
 }
 
@@ -121,7 +126,7 @@ function teardown_file() { _default_teardown ; }
   _print_mail_log_for_msgid 'rspamd-test-email-pass'
   assert_output --partial "stored mail into mailbox 'INBOX'"
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
 }
 
 @test 'detects and rejects spam' {
@@ -136,7 +141,7 @@ function teardown_file() { _default_teardown ; }
   refute_output --partial "stored mail into mailbox 'INBOX'"
   assert_failure
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
 }
 
 @test 'detects and rejects virus' {
@@ -151,7 +156,7 @@ function teardown_file() { _default_teardown ; }
   refute_output --partial "stored mail into mailbox 'INBOX'"
   assert_failure
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
 }
 
 @test 'custom commands work correctly' {
@@ -229,8 +234,33 @@ function teardown_file() { _default_teardown ; }
   _print_mail_log_for_msgid 'rspamd-test-email-header'
   assert_output --partial "fileinto action: stored mail into mailbox 'Junk'"
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.Junk/new/ 1
+}
+
+@test 'Rewriting subject works when enforcing it via GTUBE' {
+  _service_log_should_contain_string 'rspamd' 'S (rewrite subject)'
+  _service_log_should_contain_string 'rspamd' 'rewrite subject "Gtube pattern"'
+
+  _print_mail_log_for_msgid 'rspamd-test-email-rewrite_subject'
+  assert_output --partial "stored mail into mailbox 'INBOX'"
+
+  # check that the inbox contains the subject-rewritten e-mail
+  _run_in_container_bash "grep --fixed-strings 'Subject: *** SPAM ***' /var/mail/localhost.localdomain/user1/new/*"
+  assert_success
+
+  # check that the inbox contains the normal e-mail (that passes just fine)
+  _run_in_container_bash "grep --fixed-strings 'Subject: test' /var/mail/localhost.localdomain/user1/new/*"
+  assert_success
+}
+
+@test 'SPAM_SUBJECT works' {
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/before/rspamd_spam_subject.sieve
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/before/rspamd_spam_subject.svbin
+
+  # we only have one e-mail in the junk folder, hence using '*' is fine
+  _run_in_container_bash "grep --fixed-strings 'Subject: [POTENTIAL SPAM]' /var/mail/localhost.localdomain/user1/.Junk/new/*"
+  assert_success
 }
 
 @test 'RSPAMD_LEARN works' {
