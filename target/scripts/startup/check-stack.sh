@@ -19,7 +19,7 @@ function _check_improper_restart() {
 
   if [[ -f /CONTAINER_START ]]; then
     _log 'warn' 'This container was (likely) improperly restarted which can result in undefined behavior'
-    _log 'warn' 'Please destroy the container properly and then start DMS again'
+    _log 'warn' "Please use 'docker compose up --force-recreate' or equivalent (view our troubleshooting docs)"
   fi
 }
 
