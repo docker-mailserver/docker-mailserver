@@ -1,5 +1,5 @@
 ---
-title: 'Advanced | Basic OAuth2 Authentication'
+title: 'Account Management | OAuth2 Support'
 ---
 
 ## Introduction
@@ -11,7 +11,7 @@ title: 'Advanced | Basic OAuth2 Authentication'
     Reasoning for this can be found in [#3480][gh-pr::oauth2]. Future iterations on this feature may allow it to become a full account provisioner.
 
 [gh-pr::oauth2]: https://github.com/docker-mailserver/docker-mailserver/pull/3480
-[env::account-provisioner]: ../environment.md#account_provisioner
+[env::account-provisioner]: ../../environment.md#account_provisioner
 
 The present OAuth2 support provides the capability for 3rd-party applications such as Roundcube to authenticate with DMS (dovecot) by using a token obtained from an OAuth2 provider, instead of passing passwords around.
 

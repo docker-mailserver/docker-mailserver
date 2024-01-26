@@ -1,5 +1,5 @@
 ---
-title: 'Advanced | Dovecot master accounts'
+title: 'Account Management | Master Accounts (Dovecot)'
 ---
 
 ## Introduction
