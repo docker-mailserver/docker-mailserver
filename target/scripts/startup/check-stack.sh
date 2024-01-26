@@ -55,8 +55,7 @@ function _check_log_level() {
 
 function _check_spam_prefix() {
   # This check should be independent of ENABLE_POP3 and ENABLE_IMAP
-  if _env_var_expect_zero_or_one MOVE_SPAM_TO_JUNK \
-  && [[ ${MOVE_SPAM_TO_JUNK} -eq 0 ]] \
+  if [[ ${MOVE_SPAM_TO_JUNK} -eq 0 ]] \
   && [[ -z ${SPAM_SUBJECT} ]]; then
     _log 'warn' "'MOVE_SPAM_TO_JUNK=0' and 'SPAM_SUBJECT' is empty - make sure this is intended: spam e-mails might not be immediately recognizable in this configuration"
   fi
