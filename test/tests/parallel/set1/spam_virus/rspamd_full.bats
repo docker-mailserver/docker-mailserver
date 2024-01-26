@@ -255,8 +255,8 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'SPAM_SUBJECT works' {
-  _file_exists_in_container /usr/lib/dovecot/sieve-global/before/rspamd_spam_subject.sieve
-  _file_exists_in_container /usr/lib/dovecot/sieve-global/before/rspamd_spam_subject.svbin
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/before/spam_subject.sieve
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/before/spam_subject.svbin
 
   # we only have one e-mail in the junk folder, hence using '*' is fine
   _run_in_container_bash "grep --fixed-strings 'Subject: [POTENTIAL SPAM]' /var/mail/localhost.localdomain/user1/.Junk/new/*"
