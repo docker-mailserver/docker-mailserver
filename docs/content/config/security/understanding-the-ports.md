@@ -145,7 +145,7 @@ Unlike with HTTP where a web browser client communicates directly with the serve
 
 Other machines that facilitate a connection that generally aren't taken into account can exist between a client and server, such as those where your connection passes through your ISP provider are capable of compromising a `cleartext` connection through interception.
 
-[docs-accounts]: ../user-management.md#accounts
+[docs-accounts]: ../account-management/overview.md#accounts
 [docs-relays]: ../advanced/mail-forwarding/relay-hosts.md
 [iana-services-465]: https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=465
 [starttls-policy-list]: https://github.com/EFForg/starttls-everywhere#email-security-database-starttls-policy-list

@@ -132,6 +132,7 @@ nav:
   - 'Configuration':
     - 'Environment Variables': config/environment.md
     - 'Account Management':
+      - 'Overview': config/account-management/overview.md
       - 'Provisioner':
         - 'File Based': config/account-management/provisioner/file.md
         - 'LDAP Service': config/account-management/provisioner/ldap.md
