@@ -95,8 +95,9 @@ function _setup_apply_fixes_after_configuration() {
   _log 'debug' 'Removing files and directories from older versions'
   rm -rf /var/mail-state/spool-postfix/{dev,etc,lib,pid,usr,private/auth}
 
+  _rspamd_get_envs
   # /tmp/docker-mailserver/rspamd/dkim
-  _log 'debug' "Ensuring ${RSPAMD_DMS_DKIM_D} is owned by '_rspamd:_rspamd'"
+  _log 'debug' "Ensuring '${RSPAMD_DMS_DKIM_D}' is owned by '_rspamd:_rspamd'"
   chown -R _rspamd:_rspamd "${RSPAMD_DMS_DKIM_D}"
 }
 
