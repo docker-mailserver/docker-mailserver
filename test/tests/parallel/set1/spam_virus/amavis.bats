@@ -14,6 +14,9 @@ function setup_file() {
     --env ENABLE_AMAVIS=1
     --env AMAVIS_LOGLEVEL=2
     --env ENABLE_SPAMASSASSIN=1
+    --env SA_TAG=-5.0
+    --env SA_TAG2=2.0
+    --env SA_KILL=3.0
     --env SPAM_SUBJECT='***SPAM*** '
   )
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
@@ -42,10 +45,9 @@ function teardown_file() {
   _run_in_container grep -F '127.0.0.1:10025' /etc/postfix/master.cf
   assert_success
 
-  _run_in_container_bash '[[ -f /etc/cron.d/amavisd-new.disabled ]]'
-  assert_failure
-  _run_in_container_bash '[[ -f /etc/cron.d/amavisd-new ]]'
+  _run_in_container_bash '[[ ! -f /etc/cron.d/amavisd-new.disabled ]]'
   assert_success
+  _file_exists_in_container /etc/cron.d/amavisd-new
 }
 
 @test '(Amavis enabled) SA integration should be active' {
@@ -56,29 +58,25 @@ function teardown_file() {
   assert_success
 }
 
-@test '(Amavis enabled) SA ENV should update Amavis config' {
+@test '(Amavis enabled) ENV should update Amavis config' {
   export CONTAINER_NAME=${CONTAINER1_NAME}
-
   local AMAVIS_DEFAULTS_FILE='/etc/amavis/conf.d/20-debian_defaults'
-  # shellcheck disable=SC2016
-  _run_in_container grep '\$sa_tag_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
-  assert_success
-  assert_output --partial '= 2.0'
 
-  # shellcheck disable=SC2016
-  _run_in_container grep '\$sa_tag2_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
+  _run_in_container grep 'sa_tag_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
   assert_success
-  assert_output --partial '= 6.31'
+  assert_output --partial 'sa_tag_level_deflt = -5.0;'
 
-  # shellcheck disable=SC2016
-  _run_in_container grep '\$sa_kill_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
+  _run_in_container grep 'sa_tag2_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
   assert_success
-  assert_output --partial '= 10.0'
+  assert_output --partial '$sa_tag2_level_deflt = 2.0;'
 
-  # shellcheck disable=SC2016
-  _run_in_container grep '\$sa_spam_subject_tag' "${AMAVIS_DEFAULTS_FILE}"
+  _run_in_container grep 'sa_kill_level_deflt' "${AMAVIS_DEFAULTS_FILE}"
   assert_success
-  assert_output --partial "= '***SPAM*** ';"
+  assert_output --partial '$sa_kill_level_deflt = 3.0;'
+
+  _run_in_container grep 'sa_spam_subject_tag' "${AMAVIS_DEFAULTS_FILE}"
+  assert_success
+  assert_output --partial '$sa_spam_subject_tag = undef;'
 }
 
 @test '(Amavis disabled) configuration should be correct' {
@@ -92,8 +90,7 @@ function teardown_file() {
   _run_in_container grep -F '127.0.0.1:10025' /etc/postfix/master.cf
   assert_failure
 
-  _run_in_container_bash '[[ -f /etc/cron.d/amavisd-new.disabled ]]'
+  _file_exists_in_container /etc/cron.d/amavisd-new.disabled
+  _run_in_container_bash '[[ ! -f /etc/cron.d/amavisd-new ]]'
   assert_success
-  _run_in_container_bash '[[ -f /etc/cron.d/amavisd-new ]]'
-  assert_failure
 }
