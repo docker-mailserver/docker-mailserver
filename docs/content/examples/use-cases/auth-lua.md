@@ -156,7 +156,7 @@ If working with HTTP in Lua, setting `debug = true;` when initiating `dovecot.ht
 
 Note that Lua runs compiled bytecode, and that scripts will be compiled when they are initially started. Once compiled, the bytecode is cached and changes in the Lua script will not be processed automatically. Dovecot will reload its configuration and clear its cached Lua bytecode when running `docker exec CONTAINER_NAME dovecot reload`. A (changed) Lua script will be compiled to bytecode the next time it is executed after running the Dovecot reload command.
 
-[docs::auth-ldap]: ../../config/advanced/auth-ldap.md
+[docs::auth-ldap]: ../../config/account-management/provisioner/ldap.md
 [docs::dovecot-override-configuration]: ../../config/advanced/override-defaults/dovecot.md#override-configuration
 [docs::dovecot-add-configuration]: ../../config/advanced/override-defaults/dovecot.md#add-configuration
 [docs::faq-alter-running-dms-instance-without-container-relaunch]: ../../faq.md#how-to-alter-a-running-dms-instance-without-relaunching-the-container

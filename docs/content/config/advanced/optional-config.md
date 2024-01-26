@@ -97,8 +97,8 @@ This is a list of all configuration files and directories which are optional, au
 - **user-patches.sh:** this file will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started. (Docs: [FAQ - How to adjust settings with the `user-patches.sh` script][docs-faq-userpatches])
 - **rspamd/custom-commands.conf:** list of simple commands to adjust Rspamd modules in an easy way (Docs: [Rspamd][docs-rspamd-commands])
 
-[docs-accounts-quota]: ../../config/user-management.md#quotas
-[docs-aliases-regex]: ../../config/user-management.md#configuring-regexp-aliases
+[docs-accounts-quota]: ../../config/account-management/provisioner/file.md#quotas
+[docs-aliases-regex]: ../../config/account-management/provisioner/file.md#configuring-regexp-aliases
 [docs-dkim]: ../../config/best-practices/dkim_dmarc_spf.md#dkim
 [docs-fail2ban]: ../../config/security/fail2ban.md
 [docs-faq-spamrules]: ../../faq.md#how-can-i-manage-my-custom-spamassassin-rules

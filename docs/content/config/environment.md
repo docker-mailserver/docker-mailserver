@@ -57,7 +57,7 @@ Configures the provisioning source of user accounts (including aliases) for user
     - User accounts must be provisioned to receive mail via one of the supported `ACCOUNT_PROVISIONER` providers.
     - User provisioning via OIDC is planned for the future, see [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713).
 
-[docs::auth::oauth2-config-guide]: ./advanced/auth-oauth2.md
+[docs::auth::oauth2-config-guide]: ./account-management/supplementary/oauth2.md
 
 - **empty** => use FILE
 - LDAP => use LDAP authentication
