@@ -10,7 +10,34 @@ Anchor heading links stubbed out below.
 
 ### Aliases
 
+You may read [Postfix's documentation on virtual aliases][postfix-docs-alias] first.
+
+An alias is a full email address that will either be:
+
+- Delivered to an existing account
+- Redirected to one or more other email addresses
+
+### Address Tags (Extension Delimiters) as an alternative to Aliases
+
+Postfix supports so-called address tags, in the form of plus (+) tags - i.e. `address+tag@example.com` will end up at `address@example.com`.
+
+This is configured by default and the (configurable!) separator is set to `+`. For more info, see [Postfix's official documentation][postfix-docs-extension-delimiters].
+
+!!! note
+
+    If you do decide to change the configurable separator, you must add the same line to *both* `docker-data/dms/config/postfix-main.cf` and `docker-data/dms/config/dovecot.cf`, because Dovecot is acting as the delivery agent. For example, to switch to `-`, add:
+
+    ```cf
+    recipient_delimiter = -
+    ```
+
+[postfix-docs-alias]: http://www.postfix.org/VIRTUAL_README.html#virtual_alias
+[postfix-docs-extension-delimiters]: http://www.postfix.org/postconf.5.html#recipient_delimiter
+
 ### Quotas
+
+- `imap-quota` is enabled and allow clients to query their mailbox usage.
+- Dovecot quotas are compatible with LDAP, **but it's not implemented** (_PRs are welcome!_).
 
 ## Technical Overview
 
