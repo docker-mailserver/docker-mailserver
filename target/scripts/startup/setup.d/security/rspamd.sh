@@ -21,7 +21,6 @@ function _setup_rspamd() {
     __rspamd__setup_greylisting
     __rspamd__setup_hfilter_group
     __rspamd__setup_check_authenticated
-    __rspamd__setup_spam_subject
     _rspamd_handle_user_modules_adjustments   # must run last
 
     # only performing checks, no further setup handled from here onwards
@@ -302,55 +301,6 @@ function __rspamd__setup_check_authenticated() {
     sed -i -E \
       '/DMS::SED_TAG::1::START/{:a;N;/DMS::SED_TAG::1::END/!ba};/authenticated/d' \
       "${MODULE_FILE}"
-  fi
-}
-
-# If `SPAM_SUBJECT` is not empty, we create a Sieve script that alters the `Subject`
-# header, in order to prepend a user-defined string.
-function __rspamd__setup_spam_subject() {
-  if [[ -z ${SPAM_SUBJECT} ]]
-  then
-    __rspamd__log 'debug' 'Spam subject is not set - no prefix will be added to spam e-mails'
-  else
-    __rspamd__log 'debug' "Spam subject is set - the prefix '${SPAM_SUBJECT}' will be added to spam e-mails"
-
-    __rspamd__log 'trace' "Enabling '+editheader' Sieve extension"
-    # check whether sieve_global_extensions is disabled (and enabled it if so)
-    sed -i -E 's|#(sieve_global_extensions.*)|\1|' /etc/dovecot/conf.d/90-sieve.conf
-    # then append the extension
-    sedfile -i -E 's|(sieve_global_extensions.*)|\1 +editheader|' /etc/dovecot/conf.d/90-sieve.conf
-
-    # This directory contains Sieve scripts that are executed before user-defined Sieve
-    # scripts run.
-    local DOVECOT_SIEVE_GLOBAL_BEFORE_DIR='/usr/lib/dovecot/sieve-global/before'
-    local DOVECOT_SIEVE_FILE='rspamd_spam_subject'
-    readonly DOVECOT_SIEVE_GLOBAL_BEFORE_DIR DOVECOT_SIEVE_FILE
-
-    mkdir -p "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}"
-    # ref: https://superuser.com/a/1502589
-    cat >"${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}.sieve" << EOF
-require ["editheader","variables"];
-
-if header :contains "X-Spam" "Yes"
-{
-    # Match the entire subject ...
-    if header :matches "Subject" "*" {
-        # ... to get it in a match group that can then be stored in a variable:
-        set "subject" "\${1}";
-    }
-
-    # We can't "replace" a header, but we can delete (all instances of) it and
-    # re-add (a single instance of) it:
-    deleteheader "Subject";
-
-    # Note that the header is added ":last" (so it won't appear before possible
-    # "Received" headers).
-    addheader :last "Subject" "${SPAM_SUBJECT}\${subject}";
-}
-EOF
-
-    sievec "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}.sieve"
-    chown dovecot:root "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}."{sieve,svbin}
   fi
 }
 

@@ -49,6 +49,7 @@ function _register_functions() {
     _register_setup_function '_setup_dovecot_sieve'
     _register_setup_function '_setup_dovecot_dhparam'
     _register_setup_function '_setup_dovecot_quota'
+    _register_setup_function '_setup_spam_subject'
     _register_setup_function '_setup_spam_to_junk'
     _register_setup_function '_setup_spam_mark_as_read'
   fi
