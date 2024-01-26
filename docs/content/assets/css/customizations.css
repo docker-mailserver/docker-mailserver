@@ -16,12 +16,16 @@ If you want to append instead, switch `::before` to `::after`.
   src: url('../fonts/external-link.woff') format('woff');
 }
 
-/* Matches the two nav link classes that start with `http` `href` values, regular docs pages use relative URLs instead. */
-.md-tabs__link[href^="http"]::before, .md-nav__link[href^="http"]::before {
+/*
+  Since mkdocs-material 9.5.5 broke support in our docs from DMS v13.3.1, we now use our own class name,
+  which has been included for the two external nav links in mkdocs.yml via workaround (insert HTML).
+*/
+.icon-external-link::before {
   display: inline-block; /* treat similar to text */
   font-family: 'external-link';
   content:'\0041'; /* represents "A" which our font renders as an icon instead of the "A" glyph */
   font-size: 80%; /* icon is a little too big by default, scale it down */
+  margin-right: 4px;
 }
 
 /* ============================================================================================================= */
@@ -98,3 +102,8 @@ div.md-content article.md-content__inner a.toclink code {
 .highlight.no-copy .md-clipboard { display: none; }
 
 /* ============================================================================================================= */
+
+/* Make the left-sidebar nav categories better distinguished from page links (bold text) */
+.md-nav__item--nested > .md-nav__link {
+  font-weight: 700;
+}
