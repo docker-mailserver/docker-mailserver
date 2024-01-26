@@ -131,7 +131,13 @@ nav:
   - 'Usage': usage.md
   - 'Configuration':
     - 'Environment Variables': config/environment.md
-    - 'User Management': config/user-management.md
+    - 'Account Management':
+      - 'Provisioner':
+        - 'File Based': config/account-management/provisioner/file.md
+        - 'LDAP Service': config/account-management/provisioner/ldap.md
+      - 'Supplementary':
+        - 'OAuth2 Authentication': config/account-management/supplementary/oauth2.md
+        - 'Dovecot Master Accounts': config/account-management/supplementary/master-accounts.md
     - 'Best Practices':
       - 'Auto-discovery': config/best-practices/autodiscover.md
       - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
@@ -153,8 +159,6 @@ nav:
           - 'Dovecot': config/advanced/override-defaults/dovecot.md
           - 'Postfix': config/advanced/override-defaults/postfix.md
           - 'Modifications via Script': config/advanced/override-defaults/user-patches.md
-        - 'LDAP Authentication': config/advanced/auth-ldap.md
-        - 'OAuth2 Authentication': config/advanced/auth-oauth2.md
         - 'Email Filtering with Sieve': config/advanced/mail-sieve.md
         - 'Email Gathering with Fetchmail': config/advanced/mail-fetchmail.md
         - 'Email Gathering with Getmail': config/advanced/mail-getmail.md
@@ -166,7 +170,6 @@ nav:
         - 'Kubernetes': config/advanced/kubernetes.md
         - 'IPv6': config/advanced/ipv6.md
         - 'Podman': config/advanced/podman.md
-        - 'Dovecot Master Accounts': config/advanced/dovecot-master-accounts.md
   - 'Examples':
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
