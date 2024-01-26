@@ -4,18 +4,19 @@ title: 'Account Management | Master Accounts (Dovecot)'
 
 ## Introduction
 
-A dovecot master account is able to login as any configured user. This is useful for administrative tasks like hot backups.
+A master account is able to login as any configured user. This is useful for administrative tasks like hot backups.
 
 ## Configuration
 
-It is possible to create, update, delete and list dovecot master accounts using `setup.sh`. See `setup.sh help` for usage.
+It is possible to create, update, delete and list master accounts using `setup`. See `setup help` for usage.
 
 This feature is presently [not supported with LDAP](https://github.com/docker-mailserver/docker-mailserver/pull/2535).
 
 ## Logging in
 
-Once a master account is configured, it is possible to connect to any users mailbox using this account. Log in over POP3/IMAP using the following credential scheme:
+Once a master account is configured, it is possible to connect to any users mailbox using this account.
 
-Username: `<EMAIL ADDRESS>*<MASTER ACCOUNT NAME>`
+Log in over POP3/IMAP using the following credential scheme:
 
-Password: `<MASTER ACCOUNT PASSWORD>`
+- Username: `<EMAIL ADDRESS>*<MASTER ACCOUNT NAME>`
+- Password: `<MASTER ACCOUNT PASSWORD>`
