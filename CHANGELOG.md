@@ -48,6 +48,10 @@ The most noteworthy change of this release is the update of the container's base
 - **Rspamd**:
   - The `rewrite_subject` action, is now disabled by default. It has been replaced with the new `SPAM_SUBJECT` environment variable, which implements the functionality via a Sieve script instead in favor of being anti-spam service agnostic ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
 
+### Fixes
+
+- DMS config files that are parsed line by line are now more robust to parse by detecting and fixing line-endings ([#3819](https://github.com/docker-mailserver/docker-mailserver/pull/3819))
+
 ## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)
 
 ### Fixes
