@@ -45,8 +45,7 @@ function teardown_file() {
   _run_in_container grep -F '127.0.0.1:10025' /etc/postfix/master.cf
   assert_success
 
-  _run_in_container_bash '[[ ! -f /etc/cron.d/amavisd-new.disabled ]]'
-  assert_success
+  _file_does_not_exist_in_container /etc/cron.d/amavisd-new.disabled
   _file_exists_in_container /etc/cron.d/amavisd-new
 }
 
@@ -93,6 +92,5 @@ function teardown_file() {
   assert_failure
 
   _file_exists_in_container /etc/cron.d/amavisd-new.disabled
-  _run_in_container_bash '[[ ! -f /etc/cron.d/amavisd-new ]]'
-  assert_success
+  _file_does_not_exist_in_container /etc/cron.d/amavisd-new
 }
