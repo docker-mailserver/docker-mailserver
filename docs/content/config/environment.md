@@ -646,7 +646,7 @@ Controls the spam score threshold for triggering an action on mail that has a hi
     If emails are quarantined, they are compressed and stored at a location:
 
     - Default: `/var/lib/amavis/virusmails/`
-    - When the [`/var/mail-state/` volume][docs-dms-state-volume] is present: `/var/mail-state/lib-amavis/virusmails/`
+    - When the [`/var/mail-state/` volume][docs::dms-volumes-state] is present: `/var/mail-state/lib-amavis/virusmails/`
 
     !!! tip
 
@@ -1056,4 +1056,4 @@ you to replace both instead of just the envelope sender.
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates
 [docs-tls-selfsigned]: ./security/ssl.md#self-signed-certificates
 [docs-accounts-quota]: ./user-management.md#quotas
-[docs-dms-state-volume]: ./config/advanced/optional-config.md#volumes-state
+[docs::dms-volumes-state]: ./advanced/optional-config.md#volumes-state

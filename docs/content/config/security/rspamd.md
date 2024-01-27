@@ -85,7 +85,7 @@ DMS does not set a default password for the controller worker. You may want to d
 
 When Rspamd is enabled, we implicitly also start an instance of Redis in the container:
 
-- Redis is configured to persist its data via RDB snapshots to disk in the directory `/var/lib/redis` (_or the [`/var/mail-state/`][docs-dms-state-volume] volume when present_).
+- Redis is configured to persist its data via RDB snapshots to disk in the directory `/var/lib/redis` (_or the [`/var/mail-state/`][docs::dms-volumes-state] volume when present_).
 - With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.
 
 Redis uses `/etc/redis/redis.conf` for configuration:
@@ -151,7 +151,7 @@ DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/lo
 
 ### Manually
 
-!!! question "What is [`docker-data/dms/config/`][docs-dms-config-volume]?"
+!!! question "What is [`docker-data/dms/config/`][docs::dms-volumes-config]?"
 
 If you want to overwrite the default settings and / or provide your own settings, you can place files at `docker-data/dms/config/rspamd/override.d/`. Files from this directory are copied to `/etc/rspamd/override.d/` during startup. These files [forcibly override][rspamd-docs-override-dir] Rspamd and DMS default settings.
 
@@ -258,5 +258,5 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [Abusix]: https://abusix.com/
 [abusix-rspamd-integration]: https://docs.abusix.com/abusix-mail-intelligence/gbG8EcJ3x3fSUv8cMZLiwA/getting-started/dmw9dcwSGSNQiLTssFAnBW#rspamd
 
-[docs-dms-config-volume]: ../advanced/optional-config.md#volumes-config
-[docs-dms-state-volume]: ../advanced/optional-config.md#volumes-state
+[docs::dms-volumes-config]: ../advanced/optional-config.md#volumes-config
+[docs::dms-volumes-state]: ../advanced/optional-config.md#volumes-state

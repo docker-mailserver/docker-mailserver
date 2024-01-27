@@ -378,7 +378,7 @@ Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` 
 
 !!! example 
 
-    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs-dms-state-volume] mounted.
+    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs::dms-volumes-state] mounted.
 
     ```conf
     # m h dom mon dow command
@@ -392,7 +392,7 @@ The following configuration works nicely:
 
 ??? example
 
-    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs-dms-state-volume] mounted.
+    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs::dms-volumes-state] mounted.
 
     Create a _system_ cron file:
 
@@ -481,7 +481,7 @@ $spam_quarantine_to       = "quarantine\@example.com";
 ```
 
 [fail2ban-customize]: ./config/security/fail2ban.md
-[docs-dms-state-volume]: ./config/advanced/optional-config.md#volumes-state
+[docs::dms-volumes-state]: ./config/advanced/optional-config.md#volumes-state
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
