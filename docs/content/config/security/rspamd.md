@@ -155,8 +155,8 @@ If you want to overwrite the default settings and / or provide your own settings
 
     Note that when also [using the `custom-commands.conf` file](#with-the-help-of-a-custom-file), files in `override.d` may be overwritten in case you adjust them manually and with the help of the file.
 
+[docs-dms-config-volume]: ../advanced/optional-config.md#volumes-config
 [rspamd-docs-override-dir]: https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
-[docs-dms-config-volume]: ../../faq.md#what-about-the-docker-datadmsconfig-directory
 [rspamd-docs-config-directories]: https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 
 ### With the Help of a Custom File
