@@ -376,20 +376,23 @@ The default setup `@local_domains_acl = ( ".$mydomain" );` does not match subdom
 
 Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` and `MOVE_SPAM_TO_JUNK=1` and add a _user_ cron like the following:
 
-```conf
-# This assumes you're having `environment: ONE_DIR=1` in the `mailserver.env`,
-# with a consolidated config in `/var/mail-state`
-#
-# m h dom mon dow command
-# Everyday 2:00AM, learn spam from a specific user
-0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
-```
+!!! example 
+
+    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs-dms-state-volume] mounted.
+
+    ```conf
+    # m h dom mon dow command
+    # Everyday 2:00AM, learn spam from a specific user
+    0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+    ```
 
 With `docker-compose` you can more easily use the internal instance of `cron` within DMS. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which DMS is running, and avoids errors if the mail server is not running.
 
 The following configuration works nicely:
 
 ??? example
+
+    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs-dms-state-volume] mounted.
 
     Create a _system_ cron file:
 
@@ -404,9 +407,6 @@ The following configuration works nicely:
     Edit the system cron file `nano ./docker-data/dms/cron/sa-learn`, and set an appropriate configuration:
 
     ```conf
-    # This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
-    # with a consolidated config in `/var/mail-state`
-    #
     # '> /dev/null' to send error notifications from 'stderr' to 'postmaster@example.com'
     #
     # m h dom mon dow user command
@@ -481,6 +481,7 @@ $spam_quarantine_to       = "quarantine\@example.com";
 ```
 
 [fail2ban-customize]: ./config/security/fail2ban.md
+[docs-dms-state-volume]: ./config/advanced/optional-config.md#volumes-state
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md

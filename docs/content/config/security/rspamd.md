@@ -83,9 +83,15 @@ DMS does not set a default password for the controller worker. You may want to d
 
 ### Persistence with Redis
 
-When Rspamd is enabled, we implicitly also start an instance of Redis in the container. Redis is configured to persist its data via RDB snapshots to disk in the directory `/var/lib/redis` (_which is a symbolic link to `/var/mail-state/lib-redis/` when [`ONE_DIR=1`](../environment.md#one_dir) and a volume is mounted to `/var/mail-state/`_). With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.
+When Rspamd is enabled, we implicitly also start an instance of Redis in the container:
 
-Redis uses `/etc/redis/redis.conf` for configuration. We adjust this file when enabling the internal Redis service. If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV [`ENABLE_RSPAMD_REDIS=0`](../environment.md#enable_rspamd_redis) (_link also details required changes to the DMS Rspamd config_).
+- Redis is configured to persist its data via RDB snapshots to disk in the directory `/var/lib/redis` (_or the [`/var/mail-state/`][docs-dms-state-volume] volume when present_).
+- With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.
+
+Redis uses `/etc/redis/redis.conf` for configuration:
+
+- We adjust this file when enabling the internal Redis service.
+- If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV [`ENABLE_RSPAMD_REDIS=0`](../environment.md#enable_rspamd_redis) (_link also details required changes to the DMS Rspamd config_).
 
 ### Web Interface
 
@@ -155,7 +161,6 @@ If you want to overwrite the default settings and / or provide your own settings
 
     Note that when also [using the `custom-commands.conf` file](#with-the-help-of-a-custom-file), files in `override.d` may be overwritten in case you adjust them manually and with the help of the file.
 
-[docs-dms-config-volume]: ../advanced/optional-config.md#volumes-config
 [rspamd-docs-override-dir]: https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 [rspamd-docs-config-directories]: https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 
@@ -197,7 +202,7 @@ You can also have comments (the line starts with `#`) and blank lines in `custom
 
 You want to start using Rspamd? Rspamd is disabled by default, so you need to set the following environment variables:
 
-```cf
+```env
 ENABLE_RSPAMD=1
 ENABLE_OPENDKIM=0
 ENABLE_OPENDMARC=0
@@ -252,3 +257,6 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 
 [Abusix]: https://abusix.com/
 [abusix-rspamd-integration]: https://docs.abusix.com/abusix-mail-intelligence/gbG8EcJ3x3fSUv8cMZLiwA/getting-started/dmw9dcwSGSNQiLTssFAnBW#rspamd
+
+[docs-dms-config-volume]: ../advanced/optional-config.md#volumes-config
+[docs-dms-state-volume]: ../advanced/optional-config.md#volumes-state

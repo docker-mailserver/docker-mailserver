@@ -127,9 +127,9 @@ expand_keys = true;
 
 EOF
 
-    # Here we adjust the Redis default configuration that we supply to Redis
-    # when starting it. Note that `/var/lib/redis/` is linked to
-    # `/var/mail-state/redis/` (for persisting it) if `ONE_DIR=1`.
+    # Here we adjust the Redis default configuration that we supply to Redis when starting it.
+    # NOTE: `/var/lib/redis/` is symlinked to `/var/mail-state/redis/` when DMS is started
+    # with a volume mounted to `/var/mail-state/` for data persistence.
     sedfile -i -E                              \
       -e 's|^(bind).*|\1 127.0.0.1|g'          \
       -e 's|^(daemonize).*|\1 no|g'            \

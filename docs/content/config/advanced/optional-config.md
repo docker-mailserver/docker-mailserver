@@ -38,7 +38,7 @@ Run-time specific state lives here, but so does some data you may want to keep i
     - ClamAV signature updates.
     - Redis storage for Rspamd.
 
-!!! info "When you run DMS with the ENV variable `ONE_DIR=1` (default)"
+!!! info "When a volume is mounted to `/var/mail-state/`"
 
     - Service run-time data is [consolidated into the `/var/mail-state/` directory][mail-state-folders]. Otherwise the original locations vary and would need to be mounted individually.
     - The original locations are updated with symlinks to redirect to their new path in `/var/mail-state/` (_eg: `/var/lib/redis` => `/var/mail-state/lib-redis/`_).
