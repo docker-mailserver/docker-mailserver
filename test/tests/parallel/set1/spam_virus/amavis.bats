@@ -74,6 +74,8 @@ function teardown_file() {
   assert_success
   assert_output --partial '$sa_kill_level_deflt = 3.0;'
 
+  # This feature is handled by our SPAM_SUBJECT ENV through a sieve script instead.
+  # Thus the feature here should always be disabled via the 'undef' value.
   _run_in_container grep 'sa_spam_subject_tag' "${AMAVIS_DEFAULTS_FILE}"
   assert_success
   assert_output --partial '$sa_spam_subject_tag = undef;'
