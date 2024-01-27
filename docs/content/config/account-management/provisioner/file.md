@@ -36,6 +36,9 @@ alias1@example.com user1@example.com
 alias2@example.com external-account@gmail.com
 ```
 
+Multiple recipients can be added to one alias, but is not officially supported.
+https://github.com/orgs/docker-mailserver/discussions/3805#discussioncomment-8215417
+
 ### Configuring RegExp Aliases
 
 - Additional regexp aliases can be configured by placing them into `docker-data/dms/config/postfix-regexp.cf`.

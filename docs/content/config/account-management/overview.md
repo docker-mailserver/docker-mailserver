@@ -4,7 +4,7 @@
 
 `ACCOUNT_PROVISIONER` and supplementary pages referenced here.
 
-Anchor heading links stubbed out below.
+An account has an email address `local-part@domain-part`.
 
 ### Accounts
 
@@ -17,7 +17,11 @@ An alias is a full email address that will either be:
 - Delivered to an existing account
 - Redirected to one or more other email addresses
 
-### Address Tags (Extension Delimiters) as an alternative to Aliases
+Known issues
+Alias and Account names cannot overlap
+Wildcard and need to alias each real account.. (no longer supported?)
+
+### Sub-addressing (aka Plus Addressing / Extension Tags)
 
 Postfix supports so-called address tags, in the form of plus (+) tags - i.e. `address+tag@example.com` will end up at `address@example.com`.
 
@@ -38,6 +42,9 @@ This is configured by default and the (configurable!) separator is set to `+`. F
 
 - `imap-quota` is enabled and allow clients to query their mailbox usage.
 - Dovecot quotas are compatible with LDAP, **but it's not implemented** (_PRs are welcome!_).
+
+Known issues
+default feature enabled, dovecot creates dummy accounts to workaround alias limitation.
 
 ## Technical Overview
 
