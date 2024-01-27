@@ -23,14 +23,13 @@ jobs:
       # Restore workflow context #
       # ======================== #
 
-      # The official Github Action for downloading artifacts does not support multi-workflow
+      # Retrieve the artifact uploaded from `docs-preview-prepare.yml` workflow run that triggered this deployment
       - name: 'Download build artifact'
-        uses: dawidd6/action-download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
+          name: preview-build
           github_token: ${{ secrets.GITHUB_TOKEN }}
           run_id: ${{ github.event.workflow_run.id }}
-          workflow: docs-preview-prepare.yml
-          name: preview-build
 
       - name: 'Extract build artifact'
         run: tar -xf artifact.tar.zst
