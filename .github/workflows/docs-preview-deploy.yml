@@ -28,8 +28,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: preview-build
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          run_id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: 'Extract build artifact'
         run: tar -xf artifact.tar.zst
