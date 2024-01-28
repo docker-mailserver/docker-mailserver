@@ -112,18 +112,23 @@ function _populate_relayhost_map() {
   chown root:root /etc/postfix/relayhost_map
   chmod 0600 /etc/postfix/relayhost_map
 
+  _multiple_relayhosts
+
+  postconf 'sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map'
+}
+
+function _multiple_relayhosts() {
   # Matches lines that are not comments or only white-space:
   local MATCH_VALID='^\s*[^#[:space:]]'
 
-  # This config is mostly compatible with `/etc/postfix/relayhost_map`, but additionally supports
-  # not providing a relay host for a sender domain to opt-out of RELAY_HOST? (2nd half of function)
   if [[ -f ${DATABASE_RELAYHOSTS} ]]; then
     _log 'trace' "Adding relay mappings from ${DATABASE_RELAYHOSTS}"
 
     # Match two values with some white-space between them (eg: `@example.test [relay.service.test]:465`):
     local MATCH_VALUE_PAIR='\S*\s+\S'
 
-    # Copy over lines which are not a comment *and* have a destination.
+    # Copy over lines which are not a comment *and* have a relay destination.
+    # Extra condition is due to legacy support (due to opt-out feature), otherwise `_get_valid_lines_from_file()` would be valid.
     sed -n -r "/${MATCH_VALID}${MATCH_VALUE_PAIR}/p" "${DATABASE_RELAYHOSTS}" >> /etc/postfix/relayhost_map
   fi
 
@@ -146,20 +151,22 @@ function _populate_relayhost_map() {
   local PRINT_DOMAIN_PART_ACCOUNTS='s/^[^@|]*@([^\|]+)\|.*$/\1/p'
   local PRINT_DOMAIN_PART_VIRTUAL='s/^\s*[^@[:space:]]*@(\S+)\s.*/\1/p'
 
+  # Configures each `DOMAIN_PART` to send outbound mail through the default `RELAY_HOST` + `RELAY_PORT`
+  # (by adding an entry in `/etc/postfix/relayhost_map`) provided it:
+  # - `/etc/postfix/relayhost_map` doesn't already have it as an existing entry.
+  # - `postfix-relaymap.cf` has no explicit opt-out (DOMAIN_PART key exists, but with no relayhost value assigned)
   {
     _list_domain_parts "${PRINT_DOMAIN_PART_ACCOUNTS}" /tmp/docker-mailserver/postfix-accounts.cf
     _list_domain_parts "${PRINT_DOMAIN_PART_VIRTUAL}" /tmp/docker-mailserver/postfix-virtual.cf
   } | sort -u | while read -r DOMAIN_PART; do
-    # DOMAIN_PART not already present in `/etc/postfix/relayhost_map`, and not listed as a relay opt-out domain in `postfix-relaymap.cf`
-    # `^@${DOMAIN_PART}\b` - To check for existing entry, the `\b` avoids accidental partial matches on similar domain parts.
-    # `^\s*@${DOMAIN_PART}\s*$` - Matches line with only a domain part (eg: @example.test) to avoid including a mapping for those domains to the RELAY_HOST.
-    if ! grep -q -e "^@${DOMAIN_PART}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN_PART}\s*$" "${DATABASE_RELAYHOSTS}"; then
+    local MATCH_EXISTING_ENTRY="^@${DOMAIN_PART}\b"
+    local MATCH_OPT_OUT_LINE="^\s*@${DOMAIN_PART}\s*$"
+
+    if ! grep -q -e "${MATCH_EXISTING_ENTRY}" /etc/postfix/relayhost_map && ! grep -qs -e "${MATCH_OPT_OUT_LINE}" "${DATABASE_RELAYHOSTS}"; then
       _log 'trace' "Adding relay mapping for ${DOMAIN_PART}"
       echo "@${DOMAIN_PART}    $(_env_relay_host)" >> /etc/postfix/relayhost_map
     fi
   done
-
-  postconf 'sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map'
 }
 
 function _relayhost_configure_postfix() {
