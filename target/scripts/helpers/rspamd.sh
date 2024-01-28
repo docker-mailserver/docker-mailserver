@@ -15,14 +15,19 @@ function __do_as_rspamd_user() {
 # they cannot be modified. Use this function when you require common directory
 # names, file names, etc.
 function _rspamd_get_envs() {
-  readonly RSPAMD_LOCAL_D='/etc/rspamd/local.d'
-  readonly RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
+  # If the variables are already set, we cannot set them again as they are declared
+  # with `readonly`. Checking whether one is declared suffices, because either all
+  # are declared at once, or none.
+  if [[ ! -v RSPAMD_LOCAL_D ]]; then
+    readonly RSPAMD_LOCAL_D='/etc/rspamd/local.d'
+    readonly RSPAMD_OVERRIDE_D='/etc/rspamd/override.d'
 
-  readonly RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
-  readonly RSPAMD_DMS_DKIM_D="${RSPAMD_DMS_D}/dkim"
-  readonly RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d"
+    readonly RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
+    readonly RSPAMD_DMS_DKIM_D="${RSPAMD_DMS_D}/dkim"
+    readonly RSPAMD_DMS_OVERRIDE_D="${RSPAMD_DMS_D}/override.d"
 
-  readonly RSPAMD_DMS_CUSTOM_COMMANDS_F="${RSPAMD_DMS_D}/custom-commands.conf"
+    readonly RSPAMD_DMS_CUSTOM_COMMANDS_F="${RSPAMD_DMS_D}/custom-commands.conf"
+  fi
 }
 
 # Parses `RSPAMD_DMS_CUSTOM_COMMANDS_F` and executed the directives given by the file.
