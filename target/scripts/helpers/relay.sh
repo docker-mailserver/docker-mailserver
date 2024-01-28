@@ -60,10 +60,9 @@ function _env_relay_host() {
 # Responsible for `postfix-sasl-password.cf` support:
 # `/etc/postfix/sasl_passwd` example at end of file.
 function _relayhost_sasl() {
-  if [[ ! -f /tmp/docker-mailserver/postfix-sasl-password.cf ]] \
-    && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]
-  then
-    _log 'warn' "Missing relay-host mapped credentials provided via ENV, or from postfix-sasl-password.cf"
+  local DATABASE_SASL_PASSWD='/tmp/docker-mailserver/postfix-sasl-password.cf'
+  if [[ ! -f ${DATABASE_SASL_PASSWD} ]] && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]; then
+    _log 'warn' "Missing relay-host mapped credentials provided via ENV, or from ${DATABASE_SASL_PASSWD}"
     return 1
   fi
 
@@ -74,7 +73,6 @@ function _relayhost_sasl() {
   chown root:root /etc/postfix/sasl_passwd
   chmod 0600 /etc/postfix/sasl_passwd
 
-  local DATABASE_SASL_PASSWD='/tmp/docker-mailserver/postfix-sasl-password.cf'
   if [[ -f ${DATABASE_SASL_PASSWD} ]]; then
     # Add domain-specific auth from config file:
     _get_valid_lines_from_file "${DATABASE_SASL_PASSWD}" >> /etc/postfix/sasl_passwd
@@ -107,6 +105,8 @@ function _relayhost_sasl() {
 # TODO: With `sender_dependent_default_transport_maps`, we can extract out the excluded domains and route them through a separate transport.
 # while deprecating that support in favor of a transport config, similar to what is offered currently via sasl_passwd and relayhost_map.
 function _populate_relayhost_map() {
+  local DATABASE_RELAYHOSTS='/tmp/docker-mailserver/postfix-relaymap.cf'
+
   # Create the relayhost_map config file:
   : >/etc/postfix/relayhost_map
   chown root:root /etc/postfix/relayhost_map
@@ -117,14 +117,14 @@ function _populate_relayhost_map() {
 
   # This config is mostly compatible with `/etc/postfix/relayhost_map`, but additionally supports
   # not providing a relay host for a sender domain to opt-out of RELAY_HOST? (2nd half of function)
-  if [[ -f /tmp/docker-mailserver/postfix-relaymap.cf ]]; then
-    _log 'trace' "Adding relay mappings from postfix-relaymap.cf"
+  if [[ -f ${DATABASE_RELAYHOSTS} ]]; then
+    _log 'trace' "Adding relay mappings from ${DATABASE_RELAYHOSTS}"
 
     # Match two values with some white-space between them (eg: `@example.test [relay.service.test]:465`):
     local MATCH_VALUE_PAIR='\S*\s+\S'
 
     # Copy over lines which are not a comment *and* have a destination.
-    sed -n -r "/${MATCH_VALID}${MATCH_VALUE_PAIR}/p" /tmp/docker-mailserver/postfix-relaymap.cf >>/etc/postfix/relayhost_map
+    sed -n -r "/${MATCH_VALID}${MATCH_VALUE_PAIR}/p" "${DATABASE_RELAYHOSTS}" >> /etc/postfix/relayhost_map
   fi
 
   # Everything below here is to parse `postfix-accounts.cf` and `postfix-virtual.cf`,
@@ -153,7 +153,7 @@ function _populate_relayhost_map() {
     # DOMAIN_PART not already present in `/etc/postfix/relayhost_map`, and not listed as a relay opt-out domain in `postfix-relaymap.cf`
     # `^@${DOMAIN_PART}\b` - To check for existing entry, the `\b` avoids accidental partial matches on similar domain parts.
     # `^\s*@${DOMAIN_PART}\s*$` - Matches line with only a domain part (eg: @example.test) to avoid including a mapping for those domains to the RELAY_HOST.
-    if ! grep -q -e "^@${DOMAIN_PART}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN_PART}\s*$" /tmp/docker-mailserver/postfix-relaymap.cf; then
+    if ! grep -q -e "^@${DOMAIN_PART}\b" /etc/postfix/relayhost_map && ! grep -qs -e "^\s*@${DOMAIN_PART}\s*$" "${DATABASE_RELAYHOSTS}"; then
       _log 'trace' "Adding relay mapping for ${DOMAIN_PART}"
       echo "@${DOMAIN_PART}    $(_env_relay_host)" >> /etc/postfix/relayhost_map
     fi
