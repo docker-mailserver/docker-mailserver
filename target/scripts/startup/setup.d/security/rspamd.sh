@@ -289,16 +289,12 @@ function __rspamd__setup_hfilter_group() {
 # https://www.rspamd.com/doc/modules/neural.html). This module is experimental 
 # but can enhance anti-spam scoring possibly.
 function __rspamd__setup_neural() {
-  local MODULE_FILE="${RSPAMD_LOCAL_D}/neural.conf"
-  readonly MODULE_FILE
-  local MODULE_FILE_2="${RSPAMD_LOCAL_D}/neural_group.conf"
-  readonly MODULE_FILE_2
   if _env_var_expect_zero_or_one 'RSPAMD_NEURAL' && [[ ${RSPAMD_NEURAL} -eq 1 ]]; then
-    __rspamd__log 'debug' 'neural module is enabled'
+    __rspamd__log 'debug' 'Disabling Neural module'
   else
-    __rspamd__log 'debug' 'Disabling neural (group) module'
-    rm -f "${MODULE_FILE}"
-    rm -f "${MODULE_FILE_2}"
+    __rspamd__log 'debug' 'Neural module is disabled'
+    rm -f "${RSPAMD_LOCAL_D}/neural.conf"
+    rm -f "${RSPAMD_LOCAL_D}/neural_group.conf"
   fi
 }
 
