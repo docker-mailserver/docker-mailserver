@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.5">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -2544,8 +2544,16 @@
 <p>The proxy worker operates in <a href="https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode">self-scan mode</a>. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-custom-settings-overriding-settings">overriding the configuration by DMS</a>.</p>
 <p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setups where you already have an authentication provider in front of the Rspamd webpage, you may want to <a href="#with-the-help-of-a-custom-file">set the <code>secure_ip</code> option to <code>"0.0.0.0/0"</code> for the controller worker</a> to disable password authentication inside Rspamd completely.</p>
 <h3 id="persistence-with-redis"><a class="toclink" href="#persistence-with-redis">Persistence with Redis</a></h3>
-<p>When Rspamd is enabled, we implicitly also start an instance of Redis in the container. Redis is configured to persist its data via RDB snapshots to disk in the directory <code>/var/lib/redis</code> (<em>which is a symbolic link to <code>/var/mail-state/lib-redis/</code> when <a href="../../environment/#one_dir"><code>ONE_DIR=1</code></a> and a volume is mounted to <code>/var/mail-state/</code></em>). With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.</p>
-<p>Redis uses <code>/etc/redis/redis.conf</code> for configuration. We adjust this file when enabling the internal Redis service. If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV <a href="../../environment/#enable_rspamd_redis"><code>ENABLE_RSPAMD_REDIS=0</code></a> (<em>link also details required changes to the DMS Rspamd config</em>).</p>
+<p>When Rspamd is enabled, we implicitly also start an instance of Redis in the container:</p>
+<ul>
+<li>Redis is configured to persist its data via RDB snapshots to disk in the directory <code>/var/lib/redis</code> (<em>or the <a href="../../advanced/optional-config/#volumes-state"><code>/var/mail-state/</code></a> volume when present</em>).</li>
+<li>With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.</li>
+</ul>
+<p>Redis uses <code>/etc/redis/redis.conf</code> for configuration:</p>
+<ul>
+<li>We adjust this file when enabling the internal Redis service.</li>
+<li>If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV <a href="../../environment/#enable_rspamd_redis"><code>ENABLE_RSPAMD_REDIS=0</code></a> (<em>link also details required changes to the DMS Rspamd config</em>).</li>
+</ul>
 <h3 id="web-interface"><a class="toclink" href="#web-interface">Web Interface</a></h3>
 <p>Rspamd provides a <a href="https://rspamd.com/webui/">web interface</a>, which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.</p>
 <p><img alt="Rspamd Web Interface" src="https://rspamd.com/img/webui.png" /></p>
@@ -2579,7 +2587,7 @@
 <p>DMS brings sane default settings for Rspamd. They are located at <code>/etc/rspamd/local.d/</code> inside the container (or <code>target/rspamd/local.d/</code> in the repository).</p>
 <h3 id="manually"><a class="toclink" href="#manually">Manually</a></h3>
 <div class="admonition question">
-<p class="admonition-title">What is <a href="../../../faq/#what-about-the-docker-datadmsconfig-directory"><code>docker-data/dms/config/</code></a>?</p>
+<p class="admonition-title">What is <a href="../../advanced/optional-config/#volumes-config"><code>docker-data/dms/config/</code></a>?</p>
 </div>
 <p>If you want to overwrite the default settings and / or provide your own settings, you can place files at <code>docker-data/dms/config/rspamd/override.d/</code>. Files from this directory are copied to <code>/etc/rspamd/override.d/</code> during startup. These files <a href="https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories">forcibly override</a> Rspamd and DMS default settings.</p>
 <div class="admonition question">
@@ -2721,7 +2729,7 @@ disable-module<span class="w"> </span>chartable
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.c18c5fb9.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>

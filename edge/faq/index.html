@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.5">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -2150,39 +2150,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#special-directories" class="md-nav__link">
-    <span class="md-ellipsis">
-      Special Directories
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Special Directories">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#what-about-the-docker-datadmsconfig-directory" class="md-nav__link">
-    <span class="md-ellipsis">
-      What About the docker-data/dms/config/ Directory?
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#what-about-the-docker-datadmsmail-state-directory" class="md-nav__link">
-    <span class="md-ellipsis">
-      What About the docker-data/dms/mail-state/ Directory?
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#spamassasin" class="md-nav__link">
     <span class="md-ellipsis">
       SpamAssasin
@@ -2724,39 +2691,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#special-directories" class="md-nav__link">
-    <span class="md-ellipsis">
-      Special Directories
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Special Directories">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#what-about-the-docker-datadmsconfig-directory" class="md-nav__link">
-    <span class="md-ellipsis">
-      What About the docker-data/dms/config/ Directory?
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#what-about-the-docker-datadmsmail-state-directory" class="md-nav__link">
-    <span class="md-ellipsis">
-      What About the docker-data/dms/mail-state/ Directory?
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#spamassasin" class="md-nav__link">
     <span class="md-ellipsis">
       SpamAssasin
@@ -3085,13 +3019,6 @@ supervisorctl<span class="w"> </span>update
 <li><a href="https://www.mail-tester.com/">mail-tester</a> can test your deliverability.</li>
 <li><a href="https://www.helloinbox.email/">helloinbox</a> provides a checklist of things to improve your deliverability.</li>
 </ul>
-<h3 id="special-directories"><a class="toclink" href="#special-directories">Special Directories</a></h3>
-<h4 id="what-about-the-docker-datadmsconfig-directory"><a class="toclink" href="#what-about-the-docker-datadmsconfig-directory">What About the <code>docker-data/dms/config/</code> Directory?</a></h4>
-<p>This documentation and all example configuration files in the GitHub repository use <code>docker-data/dms/config/</code> to refer to the directory in the host that is mounted (e.g. via a bind mount) to <code>/tmp/docker-mailserver/</code> inside the container.</p>
-<p>Most configuration files for Postfix, Dovecot, etc. are persisted here. <a href="../config/advanced/optional-config/">Optional configuration</a> is stored here as well.</p>
-<h4 id="what-about-the-docker-datadmsmail-state-directory"><a class="toclink" href="#what-about-the-docker-datadmsmail-state-directory">What About the <code>docker-data/dms/mail-state/</code> Directory?</a></h4>
-<p>This documentation and all example configuration files in the GitHub repository use <code>docker-data/dms/mail-state/</code> to refer to the directory in the host that is mounted (e.g. via a bind mount) to <code>/var/mail-state/</code> inside the container.</p>
-<p>When you run DMS with the ENV variable <code>ONE_DIR=1</code> (default), this directory will provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated. Service data is <a href="https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33">relocated to the <code>mail-state</code> folder</a> for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd &amp; Redis.</p>
 <h3 id="spamassasin"><a class="toclink" href="#spamassasin">SpamAssasin</a></h3>
 <h4 id="how-can-i-manage-my-custom-spamassassin-rules"><a class="toclink" href="#how-can-i-manage-my-custom-spamassassin-rules">How can I manage my custom SpamAssassin rules?</a></h4>
 <p>Anti-spam rules are managed in <code>docker-data/dms/config/spamassassin-rules.cf</code>.</p>
@@ -3100,17 +3027,19 @@ supervisorctl<span class="w"> </span>update
 <p>The default setup <code>@local_domains_acl = ( ".$mydomain" );</code> does not match subdomains. To match subdomains, you can override the <code>@local_domains_acl</code> directive in the amavis user config file <code>50-user</code> with <code>@local_domains_maps = (".");</code> to match any sort of domain template.</p>
 <h4 id="how-can-i-make-spamassassin-better-recognize-spam"><a class="toclink" href="#how-can-i-make-spamassassin-better-recognize-spam">How can I make SpamAssassin better recognize spam?</a></h4>
 <p>Put received spams in <code>.Junk/</code> imap folder using <code>SPAMASSASSIN_SPAM_TO_INBOX=1</code> and <code>MOVE_SPAM_TO_JUNK=1</code> and add a <em>user</em> cron like the following:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># This assumes you&#39;re having `environment: ONE_DIR=1` in the `mailserver.env`,</span>
-<span class="c1"># with a consolidated config in `/var/mail-state`</span>
-<span class="c1">#</span>
-<span class="c1"># m h dom mon dow command</span>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p><strong>NOTE:</strong> This example assumes you have a <a href="../config/advanced/optional-config/#volumes-state"><code>/var/mail-state</code> volume</a> mounted.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># m h dom mon dow command</span>
 <span class="c1"># Everyday 2:00AM, learn spam from a specific user</span>
 <span class="na">0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin</span>
 </code></pre></div>
+</div>
 <p>With <code>docker-compose</code> you can more easily use the internal instance of <code>cron</code> within DMS. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which DMS is running, and avoids errors if the mail server is not running.</p>
 <p>The following configuration works nicely:</p>
 <details class="example">
 <summary>Example</summary>
+<p><strong>NOTE:</strong> This example assumes you have a <a href="../config/advanced/optional-config/#volumes-state"><code>/var/mail-state</code> volume</a> mounted.</p>
 <p>Create a <em>system</em> cron file:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># in the compose.yaml root directory</span>
 mkdir<span class="w"> </span>-p<span class="w"> </span>./docker-data/dms/cron
@@ -3119,10 +3048,7 @@ chown<span class="w"> </span>root:root<span class="w"> </span>./docker-data/dms/
 chmod<span class="w"> </span><span class="m">0644</span><span class="w"> </span>./docker-data/dms/cron/sa-learn
 </code></pre></div>
 <p>Edit the system cron file <code>nano ./docker-data/dms/cron/sa-learn</code>, and set an appropriate configuration:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># This assumes you&#39;re having `environment: ONE_DIR=1` in the env-mailserver,</span>
-<span class="c1"># with a consolidated config in `/var/mail-state`</span>
-<span class="c1">#</span>
-<span class="c1"># &#39;&gt; /dev/null&#39; to send error notifications from &#39;stderr&#39; to &#39;postmaster@example.com&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># &#39;&gt; /dev/null&#39; to send error notifications from &#39;stderr&#39; to &#39;postmaster@example.com&#39;</span>
 <span class="c1">#</span>
 <span class="c1"># m h dom mon dow user command</span>
 <span class="c1">#</span>
@@ -3245,7 +3171,7 @@ chmod<span class="w"> </span><span class="m">0644</span><span class="w"> </span>
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.c18c5fb9.min.js"></script>
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.5">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#directories" class="md-skip">
+        <a href="#volumes" class="md-skip">
           Skip to content
         </a>
       
@@ -989,6 +989,53 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Volumes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Volumes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#volumes-mail" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mail Storage Volume
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volumes-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      State Volume
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volumes-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs Volume
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volumes-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Config Volume
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Config Volume">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#directories" class="md-nav__link">
     <span class="md-ellipsis">
       Directories
@@ -996,13 +1043,23 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#files" class="md-nav__link">
     <span class="md-ellipsis">
       Files
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2059,6 +2116,53 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Volumes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Volumes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#volumes-mail" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mail Storage Volume
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volumes-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      State Volume
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volumes-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs Volume
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volumes-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Config Volume
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Config Volume">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#directories" class="md-nav__link">
     <span class="md-ellipsis">
       Directories
@@ -2066,13 +2170,23 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#files" class="md-nav__link">
     <span class="md-ellipsis">
       Files
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2109,8 +2223,53 @@
 
   <h1>Optional Configuration</h1>
 
-<p>This is a list of all configuration files and directories which are optional or automatically generated in your <a href="../../../faq/#what-about-the-docker-datadmsconfig-directory"><code>docker-data/dms/config/</code></a> directory.</p>
-<h2 id="directories"><a class="toclink" href="#directories">Directories</a></h2>
+<h2 id="volumes"><a class="toclink" href="#volumes">Volumes</a></h2>
+<p>DMS has several locations in the container which may be worth persisting externally via <a href="https://docs.docker.com/storage/volumes/">Docker Volumes</a>.</p>
+<ul>
+<li>Often you will want to prefer <a href="https://docs.docker.com/storage/bind-mounts/">bind mount volumes</a> for easy access to files at a local location on your filesystem.</li>
+<li>As a convention for our docs and example configs, the local location has the common prefix <code>docker-data/dms/</code> for grouping these related volumes.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Reference - Volmes for DMS</p>
+<p>Our docs may refer to these DMS specific volumes only by name, or the host/container path for brevity.</p>
+<ul>
+<li><a href="#volumes-config">Config</a>: <code>docker-data/dms/config/</code> =&gt; <code>/tmp/docker-mailserver/</code></li>
+<li><a href="#volumes-mail">Mail Storage</a>: <code>docker-data/dms/mail-data/</code> =&gt; <code>/var/mail/</code></li>
+<li><a href="#volumes-state">State</a>: <code>docker-data/dms/mail-state/</code> =&gt; <code>/var/mail-state/</code></li>
+<li><a href="#volumes-logs">Logs</a>: <code>docker-data/dms/mail-logs/</code> =&gt; <code>/var/log/mail/</code></li>
+</ul>
+</div>
+<h3 id="volumes-mail"><a class="toclink" href="#volumes-mail">Mail Storage Volume</a></h3>
+<p>This is the location where mail is delivered to your mailboxes.</p>
+<h3 id="volumes-state"><a class="toclink" href="#volumes-state">State Volume</a></h3>
+<p>Run-time specific state lives here, but so does some data you may want to keep if a failure event occurs (<em>crash, power loss</em>).</p>
+<div class="admonition example">
+<p class="admonition-title">Examples of relevant data</p>
+<ul>
+<li>The Postfix queue (eg: mail pending delivery attempt)</li>
+<li>Fail2Ban blocks.</li>
+<li>ClamAV signature updates.</li>
+<li>Redis storage for Rspamd.</li>
+</ul>
+</div>
+<div class="admonition info">
+<p class="admonition-title">When a volume is mounted to <code>/var/mail-state/</code></p>
+<ul>
+<li>Service run-time data is <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v13.3.1/target/scripts/startup/setup.d/mail_state.sh#L13-L33">consolidated into the <code>/var/mail-state/</code> directory</a>. Otherwise the original locations vary and would need to be mounted individually.</li>
+<li>The original locations are updated with symlinks to redirect to their new path in <code>/var/mail-state/</code> (<em>eg: <code>/var/lib/redis</code> =&gt; <code>/var/mail-state/lib-redis/</code></em>).</li>
+</ul>
+<p>Supported services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd &amp; Redis, Fetchmail, Getmail, LogRotate, PostSRSd, MTA-STS.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Sometimes it is helpful to disable this volume when troubleshooting to verify if the data stored here is in a bad state (<em>eg: caused by a failure event</em>).</p>
+</div>
+<h3 id="volumes-log"><a class="toclink" href="#volumes-log">Logs Volume</a></h3>
+<p>This can be a useful volume to persist for troubleshooting needs for the full set of log files.</p>
+<h3 id="volumes-config"><a class="toclink" href="#volumes-config">Config Volume</a></h3>
+<p>Most configuration files for Postfix, Dovecot, etc. are persisted here.</p>
+<p>This is a list of all configuration files and directories which are optional, automatically generated / updated by our <code>setup</code> CLI, or other internal scripts.</p>
+<h4 id="directories"><a class="toclink" href="#directories">Directories</a></h4>
 <ul>
 <li><strong>sieve-filter:</strong> directory for sieve filter scripts. (Docs: <a href="../mail-sieve/">Sieve</a>)</li>
 <li><strong>sieve-pipe:</strong> directory for sieve pipe scripts. (Docs: <a href="../mail-sieve/">Sieve</a>)</li>
@@ -2118,7 +2277,7 @@
 <li><strong>ssl:</strong> SSL Certificate directory if <code>SSL_TYPE</code> is set to <code>self-signed</code> or <code>custom</code>. (Docs: <a href="../../security/ssl/">SSL</a>)</li>
 <li><strong>rspamd:</strong> Override directory for custom settings when using Rspamd (Docs: <a href="../../security/rspamd/#manually">Rspamd</a>)</li>
 </ul>
-<h2 id="files"><a class="toclink" href="#files">Files</a></h2>
+<h4 id="files"><a class="toclink" href="#files">Files</a></h4>
 <ul>
 <li><strong>{user_email_address}.dovecot.sieve:</strong> User specific Sieve filter file. (Docs: <a href="../mail-sieve/">Sieve</a>)</li>
 <li><strong>before.dovecot.sieve:</strong> Global Sieve filter file, applied prior to the <code>${login}.dovecot.sieve</code> filter. (Docs: <a href="../mail-sieve/">Sieve</a>)</li>
@@ -2210,7 +2369,7 @@
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.c18c5fb9.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>

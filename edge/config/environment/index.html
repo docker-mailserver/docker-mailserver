@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.5">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -630,15 +630,6 @@
   <a href="#dms_vmail_gid" class="md-nav__link">
     <span class="md-ellipsis">
       DMS_VMAIL_GID
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#one_dir" class="md-nav__link">
-    <span class="md-ellipsis">
-      ONE_DIR
     </span>
   </a>
   
@@ -3445,15 +3436,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#one_dir" class="md-nav__link">
-    <span class="md-ellipsis">
-      ONE_DIR
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#account_provisioner" class="md-nav__link">
     <span class="md-ellipsis">
       ACCOUNT_PROVISIONER
@@ -4805,11 +4787,6 @@
 <h5 id="dms_vmail_gid"><a class="toclink" href="#dms_vmail_gid">DMS_VMAIL_GID</a></h5>
 <p>Default: 5000</p>
 <p>The Group ID assigned to the static vmail group for <code>/var/mail</code> (<em>Mail storage managed by Dovecot</em>).</p>
-<h5 id="one_dir"><a class="toclink" href="#one_dir">ONE_DIR</a></h5>
-<ul>
-<li>0 =&gt; state in default directories.</li>
-<li><strong>1</strong> =&gt; consolidate all states into a single directory (<code>/var/mail-state</code>) to allow persistence using docker volumes. See the <a href="../../faq/#what-about-docker-datadmsmail-state-folder-varmail-state-internally">related FAQ entry</a> for more information.</li>
-</ul>
 <h5 id="account_provisioner"><a class="toclink" href="#account_provisioner">ACCOUNT_PROVISIONER</a></h5>
 <p>Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (<em>Postfix and Dovecot</em>).</p>
 <div class="admonition tip">
@@ -5332,10 +5309,10 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <li><a href="https://www.ijs.si/software/amavisd/amavisd-new-docs.html#quarantine">It will be quarantined</a> regardless of the <code>SA_KILL</code> action to perform.</li>
 <li>With <code>D_PASS</code> the delivered mail also appends an <code>X-Quarantine-ID</code> mail header. The ID value of this header is part of the quarantined file name.</li>
 </ul>
-<p>If emails are quarantined, they are compressed and stored at a location dependent on the <a href="#one_dir"><code>ONE_DIR</code></a> setting:</p>
+<p>If emails are quarantined, they are compressed and stored at a location:</p>
 <ul>
-<li><code>ONE_DIR=1</code> (default): <code>/var/mail-state/lib-amavis/virusmails/</code></li>
-<li><code>ONE_DIR=0</code>: <code>/var/lib/amavis/virusmails/</code></li>
+<li>Default: <code>/var/lib/amavis/virusmails/</code></li>
+<li>When the <a href="../advanced/optional-config/#volumes-state"><code>/var/mail-state/</code> volume</a> is present: <code>/var/mail-state/lib-amavis/virusmails/</code></li>
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -5767,7 +5744,7 @@ you to replace both instead of just the envelope sender.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c18c5fb9.min.js"></script>
+      <script src="../../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>
