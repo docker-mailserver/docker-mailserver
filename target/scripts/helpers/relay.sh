@@ -4,9 +4,9 @@
 # Description:
 # This helper is responsible for configuring outbound SMTP (delivery) through relay-hosts.
 #
-# When mail is sent from Postfix, it is considered relaying to that destination (or the next hop).
-# By default delivery external of the container would be direct to the MTA of the recipient address (destination).
-# Alternatively mail can be indirectly delivered to the destination by routing through a different MTA (relay-host service).
+# When mail is sent to Postfix and the destination is not a domain DMS manages, this requires relaying to that destination (or the next hop).
+# By default outbound mail delivery would be direct to the MTA of the recipient address (destination).
+# Alternatively mail can be delivered indirectly to that destination by routing through a different MTA (relay-host service).
 #
 # This helper is only concerned with relaying mail from authenticated submission (ports 587 + 465).
 # Thus it does not deal with `relay_domains` (which routes through `relay_transport` transport, default: `master.cf:relay`),
@@ -37,22 +37,23 @@
 # `postfix reload` or `supervisorctl restart postfix` should be run to properly apply config (which it is).
 # Otherwise use another table type such as `hash` and run `postmap` on the table after modification.
 #
-# WARNING: Databases (tables above) are rebuilt during change detection. There is a minor chance of
-# a lookup occurring during a rebuild of these files that may affect or delay delivery?
+# WARNING: Databases (tables above) are rebuilt during change detection.
+# There is a minor chance of a lookup occurring during a rebuild of these files that may affect or delay delivery?
 # TODO: Should instead perform an atomic operation with a temporary file + `mv` to replace?
 # Or switch back to using `hash` table type if plaintext access is not needed (unless retaining file for postmap).
 # Either way, plaintext copy is likely accessible if using our supported configs for providing them to the container.
 
 
-# NOTE: Present support has enforced wrapping the relay host with `[]` (prevents DNS MX record lookup),
-# which restricts what is supported by RELAY_HOST, although you usually do want to provide MX host directly.
-# NOTE: Present support expects to always append a port with an implicit default of `25`.
-# NOTE: DEFAULT_RELAY_HOST imposes neither restriction.
+# NOTE: Present support has enforced wrapping the `RELAY_HOST` value with `[]` (prevents DNS MX record lookup),
+# shouldn't be an issue as you typically do want to provide the MX host directly? This was presumably for config convenience.
+# NOTE: Present support expects to always append a port (_with an implicit default of `25`_).
+# NOTE: The `DEFAULT_RELAY_HOST` ENV imposes neither restriction.
 #
-# TODO: RELAY_PORT should be optional, it will use the transport default port (`postconf smtp_tcp_port`),
+# TODO: `RELAY_PORT` should be optional (Postfix would fallback to the transports default port (`postconf smtp_tcp_port`),
 # That shouldn't be a breaking change, as long as the mapping is maintained correctly.
-# TODO: RELAY_HOST should consider dropping `[]` and require the user to include that?
-# Future refactor for _populate_relayhost_map may warrant dropping these two ENV in favor of DEFAULT_RELAY_HOST?
+# TODO: `RELAY_HOST` should consider dropping the implicit `[]` and require the user to include that?
+#
+# A future refactor of `_populate_relayhost_map()` may warrant dropping those two ENV in favor of `DEFAULT_RELAY_HOST`?
 function _env_relay_host() {
   echo "[${RELAY_HOST}]:${RELAY_PORT:-25}"
 }
