@@ -127,9 +127,7 @@ function _postfix_dovecot_changes() {
   # - postfix-sasl-password.cf used by _relayhost_sasl
   # - _populate_relayhost_map relies on:
   #   - postfix-relaymap.cf
-  #   - postfix-accounts.cf + postfix-virtual.cf (both will be dropped in future)
-  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf      ]] \
-  || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf       ]] \
+  if [[ ${VHOST_UPDATED} -eq 1 ]] \
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-relaymap.cf      ]] \
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-sasl-password.cf ]]
   then

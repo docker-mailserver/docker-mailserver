@@ -94,16 +94,23 @@ function _relayhost_sasl() {
 # Responsible for `postfix-relaymap.cf` support:
 # `/etc/postfix/relayhost_map` example at end of file.
 #
-# Present support uses a table lookup for sender address or domain mapping to relay-hosts,
-# Populated via `postfix-relaymap.cf `, which also features a non-standard way to exclude implicitly added internal domains from the feature.
-# It also maps all known sender domains (from configs postfix-accounts + postfix-virtual.cf) to the same ENV configured relay-host.
+# `postfix-relaymap.cf` represents table syntax expected for `/etc/postfix/relayhost_map`, except that it adds an opt-out parsing feature.
+# All known mail domains managed by DMS (/etc/postfix/vhost) are implicitly configured to use `RELAY_HOST` + `RELAY_PORT` as the default relay.
+# This approach is effectively equivalent to using `main.cf:relayhost`, but with an excessive workaround to support the explicit opt-out feature.
 #
-# TODO: The account + virtual config parsing and appending to /etc/postfix/relayhost_map seems to be an excessive `main.cf:relayhost`
-# implementation, rather than leveraging that for the same purpose and selectively overriding only when needed with `/etc/postfix/relayhost_map`.
-# If the issue was to opt-out select domains, if avoiding a default relay-host was not an option, then mapping those sender domains or addresses
-# to a separate transport (which can drop the `relayhost` setting) would be more appropriate.
-# TODO: With `sender_dependent_default_transport_maps`, we can extract out the excluded domains and route them through a separate transport.
-# while deprecating that support in favor of a transport config, similar to what is offered currently via sasl_passwd and relayhost_map.
+# TODO: Refactor this feature support so that in `main.cf`:
+# - Relay all outbound mail through an external MTA by default (works without credentials):
+#   `relayhost = ${DEFAULT_RELAY_HOST}`
+# - Opt-in to relaying - Selectively relay outbound mail by sender/domain to an external MTA (relayhost can vary):
+#   `sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map`
+# - Opt-out from relaying - Selectively prevent outbound mail from relaying via separate transport mappings (where relayhost is not configured):
+#   By sender: `sender_dependent_default_transport_maps = texthash:/etc/postfix/sender_transport_map` (the current opt-out feature could utilize this instead)
+#   By recipient (has precedence): `transport_maps = texthash:/etc/postfix/recipient_transport_map`
+#
+# Support for relaying via port 465 or equivalent requires additional config support (as needed for 465 vs 587 transports extending smtpd)
+# - Default relay transport is configured by `relay_transport`, with default transport port configured by `smtp_tcp_port`.
+# - The `relay` transport itself extends from `smtp` transport. More than one can be configured with separate settings via `master.cf`.
+
 function _populate_relayhost_map() {
   local DATABASE_RELAYHOSTS='/tmp/docker-mailserver/postfix-relaymap.cf'
 
@@ -113,6 +120,7 @@ function _populate_relayhost_map() {
   chmod 0600 /etc/postfix/relayhost_map
 
   _multiple_relayhosts
+  _legacy_support
 
   postconf 'sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map'
 }
@@ -131,42 +139,28 @@ function _multiple_relayhosts() {
     # Extra condition is due to legacy support (due to opt-out feature), otherwise `_get_valid_lines_from_file()` would be valid.
     sed -n -r "/${MATCH_VALID}${MATCH_VALUE_PAIR}/p" "${DATABASE_RELAYHOSTS}" >> /etc/postfix/relayhost_map
   fi
+}
 
-  # Everything below here is to parse `postfix-accounts.cf` and `postfix-virtual.cf`,
-  # extracting out the domain parts (value of email address after `@`), and then
-  # adding those as mappings to ENV configured RELAY_HOST for lookup in `/etc/postfix/relayhost_map`.
-  # Provided `postfix-relaymap.cf` didn't exclude any of the domains,
-  # and they don't already exist within `/etc/postfix/relayhost_map`.
-  #
-  # TODO: Breaking change. Replace this lower half and remove the opt-out feature from `postfix-relaymap.cf`.
-  # Leverage `main.cf:relayhost` for setting a default relayhost as it was prior to this feature addition.
-  # Any sender domains or addresses that need to opt-out of that default relay-host can either
-  # map to a different relay-host, or use a separate transport (needs feature support added).
+# Implicitly force configure all domains DMS manages to be relayed that haven't yet been configured or provided an explicit opt-out.
+# This would normally be handled via an opt-in approach, or through `main.cf:relayhost` with an opt-out approach (sender_dependent_default_transport_maps)
+function _legacy_support() {
+  local DATABASE_VHOST='/etc/postfix/vhost'
 
-  # Args: <PRINT_DOMAIN_PART_> <config filepath>
-  function _list_domain_parts() {
-    [[ -f $2 ]] && sed -n -r "/${MATCH_VALID}/ ${1}" "${2}"
-  }
-  # Matches and outputs (capture group via `/\1/p`) the domain part (value of address after `@`) in the config file.
-  local PRINT_DOMAIN_PART_ACCOUNTS='s/^[^@|]*@([^\|]+)\|.*$/\1/p'
-  local PRINT_DOMAIN_PART_VIRTUAL='s/^\s*[^@[:space:]]*@(\S+)\s.*/\1/p'
-
-  # Configures each `DOMAIN_PART` to send outbound mail through the default `RELAY_HOST` + `RELAY_PORT`
+  # Configures each `SENDER_DOMAIN` to send outbound mail through the default `RELAY_HOST` + `RELAY_PORT`
   # (by adding an entry in `/etc/postfix/relayhost_map`) provided it:
   # - `/etc/postfix/relayhost_map` doesn't already have it as an existing entry.
-  # - `postfix-relaymap.cf` has no explicit opt-out (DOMAIN_PART key exists, but with no relayhost value assigned)
-  {
-    _list_domain_parts "${PRINT_DOMAIN_PART_ACCOUNTS}" /tmp/docker-mailserver/postfix-accounts.cf
-    _list_domain_parts "${PRINT_DOMAIN_PART_VIRTUAL}" /tmp/docker-mailserver/postfix-virtual.cf
-  } | sort -u | while read -r DOMAIN_PART; do
-    local MATCH_EXISTING_ENTRY="^@${DOMAIN_PART}\b"
-    local MATCH_OPT_OUT_LINE="^\s*@${DOMAIN_PART}\s*$"
+  # - `postfix-relaymap.cf` has no explicit opt-out (SENDER_DOMAIN key exists, but with no relayhost value assigned)
+  #
+  # NOTE: /etc/postfix/vhost represents managed mail domains sourced from `postfix-accounts.cf` and `postfix-virtual.cf`.
+  while read -r SENDER_DOMAIN; do
+    local MATCH_EXISTING_ENTRY="^@${SENDER_DOMAIN}\b"
+    local MATCH_OPT_OUT_LINE="^\s*@${SENDER_DOMAIN}\s*$"
 
     if ! grep -q -e "${MATCH_EXISTING_ENTRY}" /etc/postfix/relayhost_map && ! grep -qs -e "${MATCH_OPT_OUT_LINE}" "${DATABASE_RELAYHOSTS}"; then
-      _log 'trace' "Adding relay mapping for ${DOMAIN_PART}"
-      echo "@${DOMAIN_PART}    $(_env_relay_host)" >> /etc/postfix/relayhost_map
+      _log 'trace' "Configuring ${SENDER_DOMAIN} for the default relayhost '${RELAY_HOST}'"
+      echo "@${SENDER_DOMAIN}    $(_env_relay_host)" >> /etc/postfix/relayhost_map
     fi
-  done
+  done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
 }
 
 function _relayhost_configure_postfix() {
