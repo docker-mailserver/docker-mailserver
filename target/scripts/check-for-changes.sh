@@ -132,7 +132,7 @@ function _postfix_dovecot_changes() {
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-sasl-password.cf ]]
   then
     _log_with_date 'trace' 'Regenerating relay config (Postfix)'
-    _rebuild_relayhost
+    _process_relayhost_configs
   fi
 
   # Regenerate system + virtual account aliases via `helpers/aliases.sh`:

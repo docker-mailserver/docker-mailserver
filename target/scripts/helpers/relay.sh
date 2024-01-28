@@ -62,7 +62,10 @@ function _env_relay_host() {
 # `/etc/postfix/sasl_passwd` example at end of file.
 function _relayhost_sasl() {
   local DATABASE_SASL_PASSWD='/tmp/docker-mailserver/postfix-sasl-password.cf'
-  if [[ ! -f ${DATABASE_SASL_PASSWD} ]] && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]; then
+
+  # Only relevant when required credential sources are provided:
+  if [[ ! -f ${DATABASE_SASL_PASSWD} ]] \
+  && [[ -z ${RELAY_USER} || -z ${RELAY_PASSWORD} ]]; then
     _log 'warn' "Missing relay-host mapped credentials provided via ENV, or from ${DATABASE_SASL_PASSWD}"
     return 1
   fi
@@ -82,14 +85,20 @@ function _relayhost_sasl() {
     postconf 'smtp_sender_dependent_authentication = yes'
   fi
 
-  # Add an authenticated relay host defined via ENV config:
-  if [[ -n ${RELAY_USER} ]] && [[ -n ${RELAY_PASSWORD} ]]; then
-    echo "$(_env_relay_host)    ${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
+  # Support authentication to a primary relayhost (when configured with credentials via ENV):
+  if [[ -n ${DEFAULT_RELAY_HOST} || -n ${RELAY_HOST} ]] \
+  && [[ -n ${RELAY_USER} && -n ${RELAY_PASSWORD} ]]; then
+    echo "${DEFAULT_RELAY_HOST:-$(_env_relay_host)}    ${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
   fi
 
-  # Technically if only a single relay host is configured, a `static` lookup table could be used instead?:
-  # postconf "smtp_sasl_password_maps = static:${RELAY_USER}:${RELAY_PASSWORD}"
-  postconf 'smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd'
+  # Enable credential lookup + SASL authentication to relayhost:
+  # - `noanonymous` enforces authentication requirement
+  # - `encrypt` enforces requirement for a secure connection (prevents sending credentials over cleartext, aka mandatory TLS)
+  postconf \
+    'smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd' \
+    'smtp_sasl_auth_enable = yes' \
+    'smtp_sasl_security_options = noanonymous' \
+    'smtp_tls_security_level = encrypt'
 }
 
 # Responsible for `postfix-relaymap.cf` support:
@@ -113,8 +122,6 @@ function _relayhost_sasl() {
 # - The `relay` transport itself extends from `smtp` transport. More than one can be configured with separate settings via `master.cf`.
 
 function _populate_relayhost_map() {
-  local DATABASE_RELAYHOSTS='/tmp/docker-mailserver/postfix-relaymap.cf'
-
   # Create the relayhost_map config file:
   : >/etc/postfix/relayhost_map
   chown root:root /etc/postfix/relayhost_map
@@ -127,12 +134,11 @@ function _populate_relayhost_map() {
 }
 
 function _multiple_relayhosts() {
-  # Matches lines that are not comments or only white-space:
-  local MATCH_VALID='^\s*[^#[:space:]]'
-
   if [[ -f ${DATABASE_RELAYHOSTS} ]]; then
     _log 'trace' "Adding relay mappings from ${DATABASE_RELAYHOSTS}"
 
+    # Matches lines that are not comments or only white-space:
+    local MATCH_VALID='^\s*[^#[:space:]]'
     # Match two values with some white-space between them (eg: `@example.test [relay.service.test]:465`):
     local MATCH_VALUE_PAIR='\S*\s+\S'
 
@@ -146,6 +152,11 @@ function _multiple_relayhosts() {
 # This would normally be handled via an opt-in approach, or through `main.cf:relayhost` with an opt-out approach (sender_dependent_default_transport_maps)
 function _legacy_support() {
   local DATABASE_VHOST='/etc/postfix/vhost'
+
+  # Only relevant when `RELAY_HOST` is configured:
+  if [[ -z ${RELAY_HOST} ]]; then
+    return 1
+  fi
 
   # Configures each `SENDER_DOMAIN` to send outbound mail through the default `RELAY_HOST` + `RELAY_PORT`
   # (by adding an entry in `/etc/postfix/relayhost_map`) provided it:
@@ -164,13 +175,6 @@ function _legacy_support() {
   done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
 }
 
-function _relayhost_configure_postfix() {
-  postconf \
-    'smtp_sasl_auth_enable = yes' \
-    'smtp_sasl_security_options = noanonymous' \
-    'smtp_tls_security_level = encrypt'
-}
-
 function _setup_relayhost() {
   _log 'debug' 'Setting up Postfix Relay Hosts'
 
@@ -179,23 +183,23 @@ function _setup_relayhost() {
     postconf "relayhost = ${DEFAULT_RELAY_HOST}"
   fi
 
-  if [[ -n ${RELAY_HOST} ]]; then
-    _log 'trace' "Setting up relay hosts (default: ${RELAY_HOST})"
-
-    _relayhost_sasl
-    _populate_relayhost_map
-
-    _relayhost_configure_postfix
-  fi
+  _process_relayhost_configs
 }
 
-function _rebuild_relayhost() {
-  if [[ -n ${RELAY_HOST} ]]; then
-    _relayhost_sasl
-    _populate_relayhost_map
-  fi
-}
+# Called during initial container setup, or by change detection event:
+function _process_relayhost_configs() {
+  local DATABASE_RELAYHOSTS='/tmp/docker-mailserver/postfix-relaymap.cf'
 
+  # One of these must configure a relayhost for the feature to relevant:
+  if [[ ! -f ${DATABASE_RELAYHOSTS} ]] \
+  && [[ -z ${DEFAULT_RELAY_HOST} ]] \
+  && [[ -z ${RELAY_HOST} ]]; then
+    return 1
+  fi
+
+  _relayhost_sasl
+  _populate_relayhost_map
+}
 
 #
 # Config examples for reference
