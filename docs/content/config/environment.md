@@ -45,11 +45,6 @@ Default: 5000
 
 The Group ID assigned to the static vmail group for `/var/mail` (_Mail storage managed by Dovecot_).
 
-##### ONE_DIR
-
-- 0 => state in default directories.
-- **1** => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes. See the [related FAQ entry][docs-faq-onedir] for more information.
-
 ##### ACCOUNT_PROVISIONER
 
 Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (_Postfix and Dovecot_).
@@ -648,10 +643,10 @@ Controls the spam score threshold for triggering an action on mail that has a hi
     - [It will be quarantined][amavis-docs::quarantine] regardless of the `SA_KILL` action to perform.
     - With `D_PASS` the delivered mail also appends an `X-Quarantine-ID` mail header. The ID value of this header is part of the quarantined file name.
 
-    If emails are quarantined, they are compressed and stored at a location dependent on the [`ONE_DIR`](#one_dir) setting:
+    If emails are quarantined, they are compressed and stored at a location:
 
-    - `ONE_DIR=1` (default): `/var/mail-state/lib-amavis/virusmails/`
-    - `ONE_DIR=0`: `/var/lib/amavis/virusmails/`
+    - Default: `/var/lib/amavis/virusmails/`
+    - When the [`/var/mail-state/` volume][docs::dms-volumes-state] is present: `/var/mail-state/lib-amavis/virusmails/`
 
     !!! tip
 
@@ -1056,9 +1051,9 @@ you to replace both instead of just the envelope sender.
 - password for default relay user
 
 [docs-rspamd]: ./security/rspamd.md
-[docs-faq-onedir]: ../faq.md#what-about-docker-datadmsmail-state-folder-varmail-state-internally
 [docs-tls]: ./security/ssl.md
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates
 [docs-tls-selfsigned]: ./security/ssl.md#self-signed-certificates
 [docs-accounts-quota]: ./user-management.md#quotas
+[docs::dms-volumes-state]: ./advanced/optional-config.md#volumes-state

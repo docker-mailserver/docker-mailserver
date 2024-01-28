@@ -40,6 +40,9 @@ The most noteworthy change of this release is the update of the container's base
 
 ### Updates
 
+- **Environment Variables:**
+  - `ONE_DIR` has been removed (legacy ENV) ([#3840](https://github.com/docker-mailserver/docker-mailserver/pull/3840))
+    - It's only functionality remaining was to opt-out of run-time state consolidation with `ONE_DIR=0` (_when a volume was already mounted to `/var/mail-state`_).
 - **Tests:**
   - Refactored helper methods for sending e-mails with specific `Message-ID` headers and the helpers for retrieving + filtering logs, which together help isolate logs relevant to specific mail when multiple mails have been processed within a single test. ([#3786](https://github.com/docker-mailserver/docker-mailserver/pull/3786))
 
