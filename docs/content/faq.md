@@ -360,20 +360,6 @@ DMS does not manage those concerns, verify they are not causing your delivery pr
 - [mail-tester](https://www.mail-tester.com/) can test your deliverability.
 - [helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
 
-### Special Directories
-
-#### What About the `docker-data/dms/config/` Directory?
-
-This documentation and all example configuration files in the GitHub repository use `docker-data/dms/config/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/tmp/docker-mailserver/` inside the container.
-
-Most configuration files for Postfix, Dovecot, etc. are persisted here. [Optional configuration][docs-optional-configuration] is stored here as well.
-
-#### What About the `docker-data/dms/mail-state/` Directory?
-
-This documentation and all example configuration files in the GitHub repository use `docker-data/dms/mail-state/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/var/mail-state/` inside the container.
-
-When you run DMS with the ENV variable `ONE_DIR=1` (default), this directory will provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated. Service data is [relocated to the `mail-state` folder][mail-state-folders] for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd & Redis.
-
 ### SpamAssasin
 
 #### How can I manage my custom SpamAssassin rules?
@@ -390,20 +376,23 @@ The default setup `@local_domains_acl = ( ".$mydomain" );` does not match subdom
 
 Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` and `MOVE_SPAM_TO_JUNK=1` and add a _user_ cron like the following:
 
-```conf
-# This assumes you're having `environment: ONE_DIR=1` in the `mailserver.env`,
-# with a consolidated config in `/var/mail-state`
-#
-# m h dom mon dow command
-# Everyday 2:00AM, learn spam from a specific user
-0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
-```
+!!! example 
+
+    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs::dms-volumes-state] mounted.
+
+    ```conf
+    # m h dom mon dow command
+    # Everyday 2:00AM, learn spam from a specific user
+    0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+    ```
 
 With `docker-compose` you can more easily use the internal instance of `cron` within DMS. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which DMS is running, and avoids errors if the mail server is not running.
 
 The following configuration works nicely:
 
 ??? example
+
+    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs::dms-volumes-state] mounted.
 
     Create a _system_ cron file:
 
@@ -418,9 +407,6 @@ The following configuration works nicely:
     Edit the system cron file `nano ./docker-data/dms/cron/sa-learn`, and set an appropriate configuration:
 
     ```conf
-    # This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
-    # with a consolidated config in `/var/mail-state`
-    #
     # '> /dev/null' to send error notifications from 'stderr' to 'postmaster@example.com'
     #
     # m h dom mon dow user command
@@ -495,10 +481,10 @@ $spam_quarantine_to       = "quarantine\@example.com";
 ```
 
 [fail2ban-customize]: ./config/security/fail2ban.md
+[docs::dms-volumes-state]: ./config/advanced/optional-config.md#volumes-state
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
-[docs-optional-configuration]: ./config/advanced/optional-config.md
 [docs::env::sa_env]: ./config/environment.md#spamassassin
 [docs::env::sa_kill]: ./config/environment.md#sa_kill
 [github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
@@ -510,4 +496,3 @@ $spam_quarantine_to       = "quarantine\@example.com";
 [github-issue-1639]: https://github.com/docker-mailserver/docker-mailserver/issues/1639
 [github-issue-1792]: https://github.com/docker-mailserver/docker-mailserver/pull/1792
 [hanscees-userpatches]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh
-[mail-state-folders]: https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33

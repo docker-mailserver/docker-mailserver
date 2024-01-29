@@ -55,6 +55,7 @@ function teardown_file() { _default_teardown ; }
   assert_line --partial 'Intelligent learning of spam and ham is disabled'
   assert_line --partial 'Greylisting is disabled'
   assert_line --partial 'Disabling Hfilter (group) module'
+  assert_line --partial 'Spam subject is not set'
 }
 
 @test 'antivirus maximum size was not adjusted unnecessarily' {
@@ -64,8 +65,7 @@ function teardown_file() { _default_teardown ; }
 
 @test 'learning is properly disabled' {
   for FILE in learn-{ham,spam}.{sieve,svbin}; do
-    _run_in_container_bash "[[ -f /usr/lib/dovecot/sieve-pipe/${FILE} ]]"
-    assert_failure
+    _file_does_not_exist_in_container "/usr/lib/dovecot/sieve-pipe/${FILE}"
   done
 
   _run_in_container grep 'mail_plugins.*imap_sieve' /etc/dovecot/conf.d/20-imap.conf
@@ -83,14 +83,13 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'hfilter group module configuration is deleted' {
-  _run_in_container_bash '[[ -f /etc/rspamd/local.d/hfilter_group.conf ]]'
+  _file_does_not_exist_in_container /etc/rspamd/local.d/hfilter_group.conf
   assert_failure
 }
 
 @test 'checks on authenticated users are enabled' {
   local MODULE_FILE='/etc/rspamd/local.d/settings.conf'
-  _run_in_container_bash "[[ -f ${MODULE_FILE} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_FILE}"
 
   _run_in_container grep -E 'authenticated \{' "${MODULE_FILE}"
   assert_failure
