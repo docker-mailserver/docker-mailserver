@@ -125,5 +125,3 @@ service imap-login {
 
 !!! note
     Port `10993` is used here to avoid conflicts with internal systems like `postscreen` and `amavis` as they will exchange messages on the default port and obviously have a different origin then compared to the proxy.
-
-[docs-optionalconfig]: ../../config/advanced/optional-config.md

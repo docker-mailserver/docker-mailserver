@@ -634,7 +634,7 @@ This setup only comes with one caveat: The domain has to be configured on anothe
 
     Use self-signed certificates only for testing purposes!
 
-This feature requires you to provide the following files into your [`docker-data/dms/config/ssl/` directory][docs-optional-config] (_internal location: `/tmp/docker-mailserver/ssl/`_):
+This feature requires you to provide the following files into your [`docker-data/dms/config/ssl/` directory][docs::dms-volumes-config] (_internal location: `/tmp/docker-mailserver/ssl/`_):
 
 - `<FQDN>-key.pem`
 - `<FQDN>-cert.pem`
@@ -876,7 +876,7 @@ By default DMS uses [`ffdhe4096`][ffdhe4096-src] from [IETF RFC 7919][ietf::rfc:
 Despite this, if you must use non-standard DH parameters or you would like to swap `ffdhe4096` for a different group (eg `ffdhe2048`); Add your own PEM encoded DH params file via a volume to `/tmp/docker-mailserver/dhparams.pem`. This will replace DH params for both Dovecot and Postfix services during container startup.
 
 [docs-env::ssl-type]: ../environment.md#ssl_type
-[docs-optional-config]: ../advanced/optional-config.md
+[docs::dms-volumes-config]: ../advanced/optional-config.md#volumes-config
 [docs-faq-baredomain]: ../../faq.md#can-i-use-a-nakedbare-domain-ie-no-hostname
 
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml

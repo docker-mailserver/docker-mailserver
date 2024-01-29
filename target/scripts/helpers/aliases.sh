@@ -12,11 +12,6 @@ function _handle_postfix_virtual_config() {
   local DATABASE_VIRTUAL=/tmp/docker-mailserver/postfix-virtual.cf
 
   if [[ -f ${DATABASE_VIRTUAL} ]]; then
-    # fixing old virtual user file
-    if grep -q ",$" "${DATABASE_VIRTUAL}"; then
-      sed -i -e "s|, |,|g" -e "s|,$||g" "${DATABASE_VIRTUAL}"
-    fi
-
     cp -f "${DATABASE_VIRTUAL}" /etc/postfix/virtual
   else
     _log 'debug' "'${DATABASE_VIRTUAL}' not provided - no mail alias/forward created"

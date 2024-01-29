@@ -24,6 +24,11 @@ The most noteworthy change of this release is the update of the container's base
     - The script now uses `/etc/os-release` to determine the release name of Debian
     - Removed custom installations of Fail2Ban, getmail6 and Rspamd
     - Updated packages lists and added comments for maintainability
+- OpenDMARC upgrade: `v1.4.0` => `v1.4.2` ([#3841](https://github.com/docker-mailserver/docker-mailserver/pull/3841))
+  - Previous versions of OpenDMARC would place incoming mail from domains announcing `p=quarantaine` (_that fail the DMARC check_) into the [Postfix "hold" queue](https://www.postfix.org/QSHAPE_README.html#hold_queue) until administrative intervention.
+  - [OpenDMARC v1.4.2 has disabled that feature by default](https://github.com/trusteddomainproject/OpenDMARC/issues/105), but it can be enabled again by adding the setting `HoldQuarantinedMessages true` to [`/etc/opendmarc.conf`](https://github.com/docker-mailserver/docker-mailserver/blob/v13.3.1/target/opendmarc/opendmarc.conf) (_provided from DMS_).
+    - [Our `user-patches.sh` feature](https://docker-mailserver.github.io/docker-mailserver/latest/config/advanced/override-defaults/user-patches/) provides a convenient approach to updating that config file.
+    - Please let us know if you disagree with the upstream default being carried with DMS, or the value of providing alternative configuration support within DMS.
 - **Postfix:**
   - Postfix upgrade from 3.5 to 3.7 ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
     - `compatibility_level` was raised from `2` to `3.6`
@@ -35,11 +40,29 @@ The most noteworthy change of this release is the update of the container's base
 - **rsyslog:**
   - rsyslog now defaults to “high precision timestamps” which may affect other programs that analyze `mail.log`. If you like to keep the old more human readable time format, you can use `sedfile -i '1i $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat' /etc/rsyslog.conf` in your [`user-patches.sh`](https://docker-mailserver.github.io/docker-mailserver/latest/config/advanced/override-defaults/user-patches/) file.
   - rsyslog now creates fewer log files. The files `/var/log/mail.{info,warn,err}` are no longer created. These files contained messages from the local mail transport agent (MTA), split up by priority. As `/var/log/mail.log` contains all mail related messages, these files (and their rotated counterparts) can be deleted safely.
+- **Environment Variables**:
+  - `SA_SPAM_SUBJECT` has been renamed into `SPAM_SUBJECT` to become anti-spam service agnostic. ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
+    - As this functionality is now handled in Dovecot via a Sieve script instead of the respective anti-spam service during Postfix processing, this feature will only apply to mail stored in Dovecot. If you have relied on this feature in a different context, it will no longer be available.
+    - Rspamd previously handled this functionality via the `rewrite_subject` action which as now been disabled by default in favor of the new approach with `SPAM_SUBJECT`.
+    - `SA_SPAM_SUBJECT` is now deprecated and will log a warning if used. The value is copied as a fallback to `SPAM_SUBJECT`.
+    - The default has changed to not prepend any prefix to the subject unless configured to do so. If you relied on the implicit prefix, you will now need to provide one explicitly.
+    - `undef` was previously supported as an opt-out with `SA_SPAM_SUBJECT`. This is no longer valid, the equivalent opt-out value is now an empty value (_or rather the omission of this ENV being configured_).
+    - The feature to include [`_SCORE_` tag](https://spamassassin.apache.org/full/4.0.x/doc/Mail_SpamAssassin_Conf.html#rewrite_header-subject-from-to-STRING) in your value to be replaced by the associated spam score is no longer available.
 
 ### Updates
 
+- **Environment Variables:**
+  - `ONE_DIR` has been removed (legacy ENV) ([#3840](https://github.com/docker-mailserver/docker-mailserver/pull/3840))
+    - It's only functionality remaining was to opt-out of run-time state consolidation with `ONE_DIR=0` (_when a volume was already mounted to `/var/mail-state`_).
 - **Tests:**
   - Refactored helper methods for sending e-mails with specific `Message-ID` headers and the helpers for retrieving + filtering logs, which together help isolate logs relevant to specific mail when multiple mails have been processed within a single test. ([#3786](https://github.com/docker-mailserver/docker-mailserver/pull/3786))
+- **Rspamd**:
+  - The `rewrite_subject` action, is now disabled by default. It has been replaced with the new `SPAM_SUBJECT` environment variable, which implements the functionality via a Sieve script instead in favor of being anti-spam service agnostic ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
+
+### Fixes
+
+- DMS config files that are parsed line by line are now more robust to parse by detecting and fixing line-endings ([#3819](https://github.com/docker-mailserver/docker-mailserver/pull/3819))
+- Variables related to Rspamd are declared as `readonly`, which would cause warnings in the log when being re-declared; we now guard against this issue ([#3837](https://github.com/docker-mailserver/docker-mailserver/pull/3837))
 
 ## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)
 
