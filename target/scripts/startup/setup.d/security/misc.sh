@@ -81,13 +81,9 @@ function __setup__security__spamassassin() {
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
-    if [[ ${SA_SPAM_SUBJECT} == 'undef' ]]; then
-      # shellcheck disable=SC2016
-      sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = undef;|g' /etc/amavis/conf.d/20-debian_defaults
-    else
-      # shellcheck disable=SC2016
-      sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = '"'${SA_SPAM_SUBJECT}'"';|g' /etc/amavis/conf.d/20-debian_defaults
-    fi
+    # disable rewriting the subject as this is handles by _setup_spam_subject (which uses Dovecot Sieve)
+    # shellcheck disable=SC2016
+    sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = undef;|g' /etc/amavis/conf.d/20-debian_defaults
 
     # activate short circuits when SA BAYES is certain it has spam or ham.
     if [[ ${SA_SHORTCIRCUIT_BAYES_SPAM} -eq 1 ]]; then
@@ -242,6 +238,57 @@ function __setup__security__amavis() {
     if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
       _log 'warn' 'Spamassassin will not work when Amavis is disabled. Enable Amavis to fix it.'
     fi
+  fi
+}
+
+# If `SPAM_SUBJECT` is not empty, we create a Sieve script that alters the `Subject`
+# header, in order to prepend a user-defined string.
+function _setup_spam_subject() {
+  if [[ -z ${SPAM_SUBJECT} ]]
+  then
+    _log 'debug' 'Spam subject is not set - no prefix will be added to spam e-mails'
+  else
+    _log 'debug' "Spam subject is set - the prefix '${SPAM_SUBJECT}' will be added to spam e-mails"
+
+    _log 'trace' "Enabling '+editheader' Sieve extension"
+    # check whether sieve_global_extensions is disabled (and enabled it if so)
+    sed -i -E 's|#(sieve_global_extensions.*)|\1|' /etc/dovecot/conf.d/90-sieve.conf
+    # then append the extension
+    sedfile -i -E 's|(sieve_global_extensions.*)|\1 +editheader|' /etc/dovecot/conf.d/90-sieve.conf
+
+    _log 'trace' "Adding global (before) Sieve script for subject rewrite"
+    # This directory contains Sieve scripts that are executed before user-defined Sieve
+    # scripts run.
+    local DOVECOT_SIEVE_GLOBAL_BEFORE_DIR='/usr/lib/dovecot/sieve-global/before'
+    local DOVECOT_SIEVE_FILE='spam_subject'
+    readonly DOVECOT_SIEVE_GLOBAL_BEFORE_DIR DOVECOT_SIEVE_FILE
+
+    mkdir -p "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}"
+    # ref: https://superuser.com/a/1502589
+    cat >"${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}.sieve" << EOF
+require ["editheader","variables"];
+
+if anyof (header :contains "X-Spam-Flag" "YES",
+          header :contains "X-Spam" "Yes")
+{
+    # Match the entire subject ...
+    if header :matches "Subject" "*" {
+        # ... to get it in a match group that can then be stored in a variable:
+        set "subject" "\${1}";
+    }
+
+    # We can't "replace" a header, but we can delete (all instances of) it and
+    # re-add (a single instance of) it:
+    deleteheader "Subject";
+
+    # Note that the header is added ":last" (so it won't appear before possible
+    # "Received" headers).
+    addheader :last "Subject" "${SPAM_SUBJECT}\${subject}";
+}
+EOF
+
+    sievec "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}.sieve"
+    chown dovecot:root "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}."{sieve,svbin}
   fi
 }
 
