@@ -246,16 +246,17 @@ function __setup__security__amavis() {
 function _setup_spam_subject() {
   if [[ -z ${SPAM_SUBJECT} ]]
   then
-    __rspamd__log 'debug' 'Spam subject is not set - no prefix will be added to spam e-mails'
+    _log 'debug' 'Spam subject is not set - no prefix will be added to spam e-mails'
   else
-    __rspamd__log 'debug' "Spam subject is set - the prefix '${SPAM_SUBJECT}' will be added to spam e-mails"
+    _log 'debug' "Spam subject is set - the prefix '${SPAM_SUBJECT}' will be added to spam e-mails"
 
-    __rspamd__log 'trace' "Enabling '+editheader' Sieve extension"
+    _log 'trace' "Enabling '+editheader' Sieve extension"
     # check whether sieve_global_extensions is disabled (and enabled it if so)
     sed -i -E 's|#(sieve_global_extensions.*)|\1|' /etc/dovecot/conf.d/90-sieve.conf
     # then append the extension
     sedfile -i -E 's|(sieve_global_extensions.*)|\1 +editheader|' /etc/dovecot/conf.d/90-sieve.conf
 
+    _log 'trace' "Adding global (before) Sieve script for subject rewrite"
     # This directory contains Sieve scripts that are executed before user-defined Sieve
     # scripts run.
     local DOVECOT_SIEVE_GLOBAL_BEFORE_DIR='/usr/lib/dovecot/sieve-global/before'
