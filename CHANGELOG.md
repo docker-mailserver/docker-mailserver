@@ -32,6 +32,9 @@ The most noteworthy change of this release is the update of the container's base
       - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
+- **rsyslog:**
+  - rsyslog now defaults to “high precision timestamps” which may affect other programs that analyze `mail.log`. If you like to keep the old more human readable time format, you can use `sedfile -i '1i $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat' /etc/rsyslog.conf` in your [`user-patches.sh`](https://docker-mailserver.github.io/docker-mailserver/latest/config/advanced/override-defaults/user-patches/) file.
+  - rsyslog now creates fewer log files. The files `/var/log/mail.{info,warn,err}` are no longer created. These files contained messages from the local mail transport agent (MTA), split up by priority. As `/var/log/mail.log` contains all mail related messages, these files (and their rotated counterparts) can be deleted safely.
 
 ### Updates
 
