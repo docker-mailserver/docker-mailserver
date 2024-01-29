@@ -37,6 +37,14 @@ The most noteworthy change of this release is the update of the container's base
       - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
+- **Environment Variables**:
+  - `SA_SPAM_SUBJECT` has been renamed into `SPAM_SUBJECT` to become anti-spam service agnostic. ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
+    - As this functionality is now handled in Dovecot via a Sieve script instead of the respective anti-spam service during Postfix processing, this feature will only apply to mail stored in Dovecot. If you have relied on this feature in a different context, it will no longer be available.
+    - Rspamd previously handled this functionality via the `rewrite_subject` action which as now been disabled by default in favor of the new approach with `SPAM_SUBJECT`.
+    - `SA_SPAM_SUBJECT` is now deprecated and will log a warning if used. The value is copied as a fallback to `SPAM_SUBJECT`.
+    - The default has changed to not prepend any prefix to the subject unless configured to do so. If you relied on the implicit prefix, you will now need to provide one explicitly.
+    - `undef` was previously supported as an opt-out with `SA_SPAM_SUBJECT`. This is no longer valid, the equivalent opt-out value is now an empty value (_or rather the omission of this ENV being configured_).
+    - The feature to include [`_SCORE_` tag](https://spamassassin.apache.org/full/4.0.x/doc/Mail_SpamAssassin_Conf.html#rewrite_header-subject-from-to-STRING) in your value to be replaced by the associated spam score is no longer available.
 
 ### Updates
 
@@ -45,6 +53,8 @@ The most noteworthy change of this release is the update of the container's base
     - It's only functionality remaining was to opt-out of run-time state consolidation with `ONE_DIR=0` (_when a volume was already mounted to `/var/mail-state`_).
 - **Tests:**
   - Refactored helper methods for sending e-mails with specific `Message-ID` headers and the helpers for retrieving + filtering logs, which together help isolate logs relevant to specific mail when multiple mails have been processed within a single test. ([#3786](https://github.com/docker-mailserver/docker-mailserver/pull/3786))
+- **Rspamd**:
+  - The `rewrite_subject` action, is now disabled by default. It has been replaced with the new `SPAM_SUBJECT` environment variable, which implements the functionality via a Sieve script instead in favor of being anti-spam service agnostic ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
 
 ### Fixes
 

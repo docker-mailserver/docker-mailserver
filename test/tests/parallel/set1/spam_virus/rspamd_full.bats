@@ -29,6 +29,7 @@ function setup_file() {
     --env RSPAMD_GREYLISTING=1
     --env RSPAMD_HFILTER=1
     --env RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE=7
+    --env SPAM_SUBJECT='[POTENTIAL SPAM] '
   )
 
   cp -r "${TEST_TMP_CONFIG}"/rspamd_full/* "${TEST_TMP_CONFIG}/"
@@ -43,7 +44,7 @@ function setup_file() {
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
 
-  # We will send 4 emails:
+  # We will send 5 emails:
   #   1. The first one should pass just fine
   _send_email_with_msgid 'rspamd-test-email-pass'
   #   2. The second one should be rejected (Rspamd-specific GTUBE pattern for rejection)
@@ -56,6 +57,9 @@ function setup_file() {
   #      ref: https://rspamd.com/doc/gtube_patterns.html
   _send_email_with_msgid 'rspamd-test-email-header' \
     --body "YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
+  #   5. The fifth one will have its subject rewritten, but now spam header is applied.
+  _send_email_with_msgid 'rspamd-test-email-rewrite_subject' \
+    --body "ZJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
 
   _run_in_container cat /var/log/mail.log
   assert_success
@@ -73,11 +77,18 @@ function teardown_file() { _default_teardown ; }
   assert_output 'rspamd_milter = inet:localhost:11332'
 }
 
+@test 'Rspamd base configuration is correct' {
+  _run_in_container rspamadm configdump actions
+  assert_success
+  assert_line 'greylist = 4;'
+  assert_line 'reject = 11;'
+  assert_line 'add_header = 6;'
+  refute_line --regexp 'rewrite_subject = [0-9]+;'
+}
+
 @test "contents of '/etc/rspamd/override.d/' are copied" {
   local OVERRIDE_D='/etc/rspamd/override.d'
-
-  _run_in_container_bash "[[ -f ${OVERRIDE_D}/testmodule_complicated.conf ]]"
-  assert_success
+  _file_exists_in_container "${OVERRIDE_D}/testmodule_complicated.conf"
 }
 
 @test 'startup log shows all features as properly enabled' {
@@ -89,6 +100,7 @@ function teardown_file() { _default_teardown ; }
   assert_line --partial 'Enabling greylisting'
   assert_line --partial 'Hfilter (group) module is enabled'
   assert_line --partial "Adjusting score for 'HFILTER_HOSTNAME_UNKNOWN' in Hfilter group module to"
+  assert_line --partial "Spam subject is set - the prefix '[POTENTIAL SPAM] ' will be added to spam e-mails"
   assert_line --partial "Found file '/tmp/docker-mailserver/rspamd/custom-commands.conf' - parsing and applying it"
 }
 
@@ -114,7 +126,7 @@ function teardown_file() { _default_teardown ; }
   _print_mail_log_for_msgid 'rspamd-test-email-pass'
   assert_output --partial "stored mail into mailbox 'INBOX'"
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
 }
 
 @test 'detects and rejects spam' {
@@ -129,7 +141,7 @@ function teardown_file() { _default_teardown ; }
   refute_output --partial "stored mail into mailbox 'INBOX'"
   assert_failure
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
 }
 
 @test 'detects and rejects virus' {
@@ -144,14 +156,13 @@ function teardown_file() { _default_teardown ; }
   refute_output --partial "stored mail into mailbox 'INBOX'"
   assert_failure
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
 }
 
 @test 'custom commands work correctly' {
   # check `testmodule1` which should be disabled
   local MODULE_PATH='/etc/rspamd/override.d/testmodule1.conf'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F '# documentation: https://rspamd.com/doc/modules/testmodule1.html' "${MODULE_PATH}"
   assert_success
   _run_in_container grep -F 'enabled = false;' "${MODULE_PATH}"
@@ -161,8 +172,7 @@ function teardown_file() { _default_teardown ; }
 
   # check `testmodule2` which should be enabled and it should have extra options set
   MODULE_PATH='/etc/rspamd/override.d/testmodule2.conf'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F '# documentation: https://rspamd.com/doc/modules/testmodule2.html' "${MODULE_PATH}"
   assert_success
   _run_in_container grep -F 'enabled = true;' "${MODULE_PATH}"
@@ -181,8 +191,7 @@ function teardown_file() { _default_teardown ; }
 
   # check whether adding a single line writes the line properly in `testmodule4.something`
   MODULE_PATH='/etc/rspamd/override.d/testmodule4.something'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   # shellcheck disable=SC2016
   _run_in_container grep -F 'some very long line with "weird $charact"ers' "${MODULE_PATH}"
   assert_success
@@ -193,37 +202,31 @@ function teardown_file() { _default_teardown ; }
 
   # check whether spaces in front of options are handles properly in `testmodule_complicated`
   MODULE_PATH='/etc/rspamd/override.d/testmodule_complicated.conf'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F '    anOption = anotherValue;' "${MODULE_PATH}"
 
   # check whether controller option was written properly
   MODULE_PATH='/etc/rspamd/override.d/worker-controller.inc'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F 'someOption = someValue42;' "${MODULE_PATH}"
   assert_success
 
   # check whether controller option was written properly
   MODULE_PATH='/etc/rspamd/override.d/worker-proxy.inc'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F 'abcdefg71 = RAAAANdooM;' "${MODULE_PATH}"
   assert_success
 
   # check whether basic options are written properly
   MODULE_PATH='/etc/rspamd/override.d/options.inc'
-  _run_in_container_bash "[[ -f ${MODULE_PATH} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_PATH}"
   _run_in_container grep -F 'OhMy = "PraiseBeLinters !";' "${MODULE_PATH}"
   assert_success
 }
 
 @test 'MOVE_SPAM_TO_JUNK works for Rspamd' {
-  _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve ]]'
-  assert_success
-  _run_in_container_bash '[[ -f /usr/lib/dovecot/sieve-global/after/spam_to_junk.svbin ]]'
-  assert_success
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/after/spam_to_junk.svbin
 
   _service_log_should_contain_string 'rspamd' 'S (add header)'
   _service_log_should_contain_string 'rspamd' 'add header "Gtube pattern"'
@@ -231,14 +234,38 @@ function teardown_file() { _default_teardown ; }
   _print_mail_log_for_msgid 'rspamd-test-email-header'
   assert_output --partial "fileinto action: stored mail into mailbox 'Junk'"
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 1
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.Junk/new/ 1
+}
+
+@test 'Rewriting subject works when enforcing it via GTUBE' {
+  _service_log_should_contain_string 'rspamd' 'S (rewrite subject)'
+  _service_log_should_contain_string 'rspamd' 'rewrite subject "Gtube pattern"'
+
+  _print_mail_log_for_msgid 'rspamd-test-email-rewrite_subject'
+  assert_output --partial "stored mail into mailbox 'INBOX'"
+
+  # check that the inbox contains the subject-rewritten e-mail
+  _run_in_container_bash "grep --fixed-strings 'Subject: *** SPAM ***' /var/mail/localhost.localdomain/user1/new/*"
+  assert_success
+
+  # check that the inbox contains the normal e-mail (that passes just fine)
+  _run_in_container_bash "grep --fixed-strings 'Subject: test' /var/mail/localhost.localdomain/user1/new/*"
+  assert_success
+}
+
+@test 'SPAM_SUBJECT works' {
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/before/spam_subject.sieve
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/before/spam_subject.svbin
+
+  # we only have one e-mail in the junk folder, hence using '*' is fine
+  _run_in_container_bash "grep --fixed-strings 'Subject: [POTENTIAL SPAM]' /var/mail/localhost.localdomain/user1/.Junk/new/*"
+  assert_success
 }
 
 @test 'RSPAMD_LEARN works' {
   for FILE in learn-{ham,spam}.{sieve,svbin}; do
-    _run_in_container_bash "[[ -f /usr/lib/dovecot/sieve-pipe/${FILE} ]]"
-    assert_success
+    _file_exists_in_container "/usr/lib/dovecot/sieve-pipe/${FILE}"
   done
 
   _run_in_container grep 'mail_plugins.*imap_sieve' /etc/dovecot/conf.d/20-imap.conf
@@ -305,8 +332,7 @@ function teardown_file() { _default_teardown ; }
 
 @test 'hfilter group module is configured correctly' {
   local MODULE_FILE='/etc/rspamd/local.d/hfilter_group.conf'
-  _run_in_container_bash "[[ -f ${MODULE_FILE} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_FILE}"
 
   _run_in_container grep '__TAG__HFILTER_HOSTNAME_UNKNOWN' "${MODULE_FILE}"
   assert_success
@@ -315,8 +341,7 @@ function teardown_file() { _default_teardown ; }
 
 @test 'checks on authenticated users are disabled' {
   local MODULE_FILE='/etc/rspamd/local.d/settings.conf'
-  _run_in_container_bash "[[ -f ${MODULE_FILE} ]]"
-  assert_success
+  _file_exists_in_container "${MODULE_FILE}"
 
   _run_in_container grep -E -A 6 'authenticated \{' "${MODULE_FILE}"
   assert_success

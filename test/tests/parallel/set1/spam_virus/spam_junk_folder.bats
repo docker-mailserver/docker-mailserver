@@ -34,7 +34,7 @@ function teardown() { _default_teardown ; }
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
-    --env SA_SPAM_SUBJECT="SPAM: "
+    --env SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MOVE_SPAM_TO_JUNK=0
     --env PERMIT_DOCKER=container
@@ -55,7 +55,7 @@ function teardown() { _default_teardown ; }
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
-    --env SA_SPAM_SUBJECT="SPAM: "
+    --env SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MOVE_SPAM_TO_JUNK=1
     --env PERMIT_DOCKER=container
@@ -77,7 +77,7 @@ function teardown() { _default_teardown ; }
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
-    --env SA_SPAM_SUBJECT="SPAM: "
+    --env SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MARK_SPAM_AS_READ=1
     --env PERMIT_DOCKER=container
