@@ -38,7 +38,8 @@ function _pre_installation_steps() {
 function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
   _log 'trace' 'Installing jaq'
-  curl -sSfL "https://github.com/01mf02/jaq/releases/latest/download/jaq-v1.2.0-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq && chmod +x /usr/bin/jaq
+  local JAQ_TAG='v1.3.0'
+  curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-${JAQ_TAG}-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq && chmod +x /usr/bin/jaq
 
   _log 'trace' 'Installing swaks'
   local SWAKS_VERSION='20240103.0'
