@@ -166,7 +166,8 @@ function _legacy_support() {
     local MATCH_EXISTING_ENTRY="^@${SENDER_DOMAIN}\s+"
     local MATCH_OPT_OUT_LINE="^\s*@${SENDER_DOMAIN}\s*$"
 
-    if ! grep -q -e "${MATCH_EXISTING_ENTRY}" /etc/postfix/relayhost_map && ! grep -qs -e "${MATCH_OPT_OUT_LINE}" "${DATABASE_RELAYHOSTS}"; then
+    # NOTE: `-E` is required for `\s+` syntax to avoid escaping `+`
+    if ! grep -q -E "${MATCH_EXISTING_ENTRY}" /etc/postfix/relayhost_map && ! grep -qs "${MATCH_OPT_OUT_LINE}" "${DATABASE_RELAYHOSTS}"; then
       _log 'trace' "Configuring '${SENDER_DOMAIN}' for the default relayhost '${RELAY_HOST}'"
       echo "@${SENDER_DOMAIN}    $(_env_relay_host)" >> /etc/postfix/relayhost_map
     fi
