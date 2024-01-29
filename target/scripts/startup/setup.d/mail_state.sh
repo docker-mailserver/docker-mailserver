@@ -7,7 +7,7 @@ function _setup_save_states() {
 
   STATEDIR='/var/mail-state'
 
-  if [[ ${ONE_DIR} -eq 1 ]] && [[ -d ${STATEDIR} ]]; then
+  if [[ -d ${STATEDIR} ]]; then
     _log 'debug' "Consolidating all state onto ${STATEDIR}"
 
     # Always enabled features:
@@ -111,9 +111,7 @@ function _setup_save_states() {
     # Ref: https://github.com/docker-mailserver/docker-mailserver/pull/3625
     chmod 730 "${STATEDIR}/spool-postfix/maildrop"
     chmod 710 "${STATEDIR}/spool-postfix/public"
-  elif [[ ${ONE_DIR} -eq 1 ]]; then
-    _log 'warn' "'ONE_DIR=1' but no volume was mounted to '${STATEDIR}'"
   else
-    _log 'debug' 'Not consolidating state (because it has been disabled)'
+    _log 'debug' "'${STATEDIR}' is not present; Not consolidating state"
   fi
 }
