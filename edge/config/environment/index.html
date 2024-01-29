@@ -977,6 +977,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#spam_subject" class="md-nav__link">
+    <span class="md-ellipsis">
+      SPAM_SUBJECT
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1215,15 +1224,6 @@
   <a href="#sa_kill" class="md-nav__link">
     <span class="md-ellipsis">
       SA_KILL
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sa_spam_subject" class="md-nav__link">
-    <span class="md-ellipsis">
-      SA_SPAM_SUBJECT
     </span>
   </a>
   
@@ -3777,6 +3777,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#spam_subject" class="md-nav__link">
+    <span class="md-ellipsis">
+      SPAM_SUBJECT
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4015,15 +4024,6 @@
   <a href="#sa_kill" class="md-nav__link">
     <span class="md-ellipsis">
       SA_KILL
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sa_spam_subject" class="md-nav__link">
-    <span class="md-ellipsis">
-      SA_SPAM_SUBJECT
     </span>
   </a>
   
@@ -4791,7 +4791,7 @@
 <p>Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (<em>Postfix and Dovecot</em>).</p>
 <div class="admonition tip">
 <p class="admonition-title">OAuth2 Support</p>
-<p>Presently DMS supports OAuth2 only as an supplementary authentication method. </p>
+<p>Presently DMS supports OAuth2 only as an supplementary authentication method.</p>
 <ul>
 <li>A third-party service must provide a valid token for the user which Dovecot validates with the authentication service provider. To enable this feature reference the <a href="../advanced/auth-oauth2/">OAuth2 configuration example guide</a>.</li>
 <li>User accounts must be provisioned to receive mail via one of the supported <code>ACCOUNT_PROVISIONER</code> providers.</li>
@@ -5059,6 +5059,13 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 <li><code>X-Spam-Flag: YES</code> (<em>added by SpamAssassin - requires <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></a></em>)</li>
 </ul>
 </div>
+<h5 id="spam_subject"><a class="toclink" href="#spam_subject">SPAM_SUBJECT</a></h5>
+<p>This variable defines a prefix for e-mails tagged with the <code>X-Spam: Yes</code> (Rspamd) or <code>X-Spam-Flag: YES</code> (SpamAssassin/Amavis) header.</p>
+<p>Default: empty (no prefix will be added to e-mails)</p>
+<details class="example">
+<summary>Including trailing white-space</summary>
+<p>Add trailing white-space by quote wrapping the value: <code>SPAM_SUBJECT='[SPAM] '</code></p>
+</details>
 <h4 id="rspamd"><a class="toclink" href="#rspamd">Rspamd</a></h4>
 <h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
 <p>Enable or disable <a href="../security/rspamd/">Rspamd</a>.</p>
@@ -5229,7 +5236,7 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <ul>
 <li><a href="#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK=1</code></a></li>
 <li><a href="#mark_spam_as_read"><code>MARK_SPAM_AS_READ=1</code></a></li>
-<li><a href="#sa_spam_subject"><code>SA_SPAM_SUBJECT</code></a></li>
+<li><a href="#spam_subject"><code>SPAM_SUBJECT</code></a></li>
 </ul>
 </div>
 <h5 id="sa_tag"><a class="toclink" href="#sa_tag">SA_TAG</a></h5>
@@ -5264,8 +5271,8 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <div class="admonition info">
 <p class="admonition-title">Interaction with other ENV</p>
 <ul>
-<li><a href="#sa_spam_subject"><code>SA_SPAM_SUBJECT</code></a> modifies the mail subject to better communicate spam mail to the user.</li>
-<li><a href="#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK=1</code></a>: The mail is still delivered, but to the recipient(s) junk folder instead. This feature reduces the usefulness of <code>SA_SPAM_SUBJECT</code>.</li>
+<li><a href="#spam_subject"><code>SPAM_SUBJECT</code></a> modifies the mail subject to better communicate spam mail to the user.</li>
+<li><a href="#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK=1</code></a>: The mail is still delivered, but to the recipient(s) junk folder instead. This feature reduces the usefulness of <code>SPAM_SUBJECT</code>.</li>
 </ul>
 </div>
 <h5 id="sa_kill"><a class="toclink" href="#sa_kill">SA_KILL</a></h5>
@@ -5320,20 +5327,6 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <div class="highlight"><pre><span></span><code>find<span class="w"> </span>/var/lib/amavis/virusmails<span class="w"> </span>-type<span class="w"> </span>f
 </code></pre></div>
 </div>
-</details>
-<h5 id="sa_spam_subject"><a class="toclink" href="#sa_spam_subject">SA_SPAM_SUBJECT</a></h5>
-<p>Adds a prefix to the subject header when mail is marked as spam (<em>via <a href="#sa_tag2"><code>SA_TAG2</code></a></em>).</p>
-<ul>
-<li><strong><code>'***SPAM*** '</code></strong> =&gt; A string value to use as a mail subject prefix.</li>
-<li><code>undef</code> =&gt; Opt-out of modifying the subject for mail marked as spam.</li>
-</ul>
-<details class="example">
-<summary>Including trailing white-space</summary>
-<p>Add trailing white-space by quote wrapping the value: <code>SA_SPAM_SUBJECT='[SPAM] '</code></p>
-</details>
-<details class="example">
-<summary>Including the associated spam score</summary>
-<p>The <a href="https://spamassassin.apache.org/full/4.0.x/doc/Mail_SpamAssassin_Conf.html#rewrite_header-subject-from-to-STRING"><code>_SCORE_</code> tag</a> will be substituted with the SpamAssassin score: <code>SA_SPAM_SUBJECT=***SPAM(_SCORE_)***</code>.</p>
 </details>
 <h5 id="sa_shortcircuit_bayes_spam"><a class="toclink" href="#sa_shortcircuit_bayes_spam">SA_SHORTCIRCUIT_BAYES_SPAM</a></h5>
 <ul>
