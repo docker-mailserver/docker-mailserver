@@ -47,18 +47,20 @@ function _vhost_collect_postfix_domains() {
   if [[ -f ${DATABASE_ACCOUNTS} ]]; then
     while IFS=$'|' read -r FIRST_FIELD _; do
       # It is expected valid lines have the format local-part@domain-part:
-      DOMAIN=$(echo "${FIRST_FIELD}" | cut -d @ -f2)
+      DOMAIN=$(cut -d '@' -f 2 <<< "${FIRST_FIELD}")
 
       echo "${DOMAIN}" >>"${TMP_VHOST}"
     done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
   fi
 
+  # TODO: Consider if virtual aliases should be configured to the same vhost file:
+  # https://github.com/docker-mailserver/docker-mailserver/issues/2813#issuecomment-1272394563
   # Extract domains from virtual alias config:
   # Aliases may have the forms: 'local-part@domain-part', only 'local-part', or '@domain-part' (wildcard catch-all)
   if [[ -f ${DATABASE_VIRTUAL} ]]; then
     while read -r FIRST_FIELD _; do
-      UNAME=$(echo "${FIRST_FIELD}" | cut -d @ -f1)
-      DOMAIN=$(echo "${FIRST_FIELD}" | cut -d @ -f2)
+      UNAME=$(cut -d '@' -f 1 <<< "${FIRST_FIELD}")
+      DOMAIN=$(cut -d '@' -f 2 <<< "${FIRST_FIELD}")
 
       # Only add valid domain-parts found:
       # The '@' is optional for an alias key (eg: "user1     other@domain.tld"),

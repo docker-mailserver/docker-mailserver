@@ -88,7 +88,7 @@ function _relayhost_sasl() {
   # Support authentication to a primary relayhost (when configured with credentials via ENV):
   if [[ -n ${DEFAULT_RELAY_HOST} || -n ${RELAY_HOST} ]] \
   && [[ -n ${RELAY_USER} && -n ${RELAY_PASSWORD} ]]; then
-    echo "${DEFAULT_RELAY_HOST:-$(_env_relay_host)}    ${RELAY_USER}:${RELAY_PASSWORD}" >> /etc/postfix/sasl_passwd
+    echo "${DEFAULT_RELAY_HOST:-$(_env_relay_host)}    ${RELAY_USER}:${RELAY_PASSWORD}" >>/etc/postfix/sasl_passwd
   fi
 
   # Enable credential lookup + SASL authentication to relayhost:
@@ -154,9 +154,7 @@ function _legacy_support() {
   local DATABASE_VHOST='/etc/postfix/vhost'
 
   # Only relevant when `RELAY_HOST` is configured:
-  if [[ -z ${RELAY_HOST} ]]; then
-    return 1
-  fi
+  [[ -z ${RELAY_HOST} ]] && return 1
 
   # Configures each `SENDER_DOMAIN` to send outbound mail through the default `RELAY_HOST` + `RELAY_PORT`
   # (by adding an entry in `/etc/postfix/relayhost_map`) provided it:
@@ -165,11 +163,11 @@ function _legacy_support() {
   #
   # NOTE: /etc/postfix/vhost represents managed mail domains sourced from `postfix-accounts.cf` and `postfix-virtual.cf`.
   while read -r SENDER_DOMAIN; do
-    local MATCH_EXISTING_ENTRY="^@${SENDER_DOMAIN}\b"
+    local MATCH_EXISTING_ENTRY="^@${SENDER_DOMAIN}\s+"
     local MATCH_OPT_OUT_LINE="^\s*@${SENDER_DOMAIN}\s*$"
 
     if ! grep -q -e "${MATCH_EXISTING_ENTRY}" /etc/postfix/relayhost_map && ! grep -qs -e "${MATCH_OPT_OUT_LINE}" "${DATABASE_RELAYHOSTS}"; then
-      _log 'trace' "Configuring ${SENDER_DOMAIN} for the default relayhost '${RELAY_HOST}'"
+      _log 'trace' "Configuring '${SENDER_DOMAIN}' for the default relayhost '${RELAY_HOST}'"
       echo "@${SENDER_DOMAIN}    $(_env_relay_host)" >> /etc/postfix/relayhost_map
     fi
   done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
