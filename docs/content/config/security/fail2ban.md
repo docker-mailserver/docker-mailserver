@@ -33,7 +33,7 @@ DMS will automatically ban IP addresses of hosts that have generated 6 failed at
 
 ### Custom Files
 
-!!! question "What is [`docker-data/dms/config/`][docs-dms-config-volume]?"
+!!! question "What is [`docker-data/dms/config/`][docs::dms-volumes-config]?"
 
 This following configuration files inside the `docker-data/dms/config/` volume will be copied inside the container during startup
 
@@ -44,7 +44,7 @@ This following configuration files inside the `docker-data/dms/config/` volume w
     - with this file, you can adjust F2B behavior in general
     - there is an example provided [in our repository on GitHub][github-file-f2bconfig]
 
-[docs-dms-config-volume]: ../../faq.md#what-about-the-docker-datadmsconfig-directory
+[docs::dms-volumes-config]: ../advanced/optional-config.md#volumes-config
 [github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf
 [github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf
 

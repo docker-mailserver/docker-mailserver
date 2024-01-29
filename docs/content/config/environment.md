@@ -45,18 +45,13 @@ Default: 5000
 
 The Group ID assigned to the static vmail group for `/var/mail` (_Mail storage managed by Dovecot_).
 
-##### ONE_DIR
-
-- 0 => state in default directories.
-- **1** => consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes. See the [related FAQ entry][docs-faq-onedir] for more information.
-
 ##### ACCOUNT_PROVISIONER
 
 Configures the provisioning source of user accounts (including aliases) for user queries and authentication by services managed by DMS (_Postfix and Dovecot_).
 
 !!! tip "OAuth2 Support"
 
-    Presently DMS supports OAuth2 only as an supplementary authentication method. 
+    Presently DMS supports OAuth2 only as an supplementary authentication method.
 
     - A third-party service must provide a valid token for the user which Dovecot validates with the authentication service provider. To enable this feature reference the [OAuth2 configuration example guide][docs::auth::oauth2-config-guide].
     - User accounts must be provisioned to receive mail via one of the supported `ACCOUNT_PROVISIONER` providers.
@@ -359,6 +354,16 @@ Enable to treat received spam as "read" (_avoids notification to MUA client of n
     - `X-Spam: Yes` (_added by Rspamd_)
     - `X-Spam-Flag: YES` (_added by SpamAssassin - requires [`SPAMASSASSIN_SPAM_TO_INBOX=1`](#spamassassin_spam_to_inbox)_)
 
+##### SPAM_SUBJECT
+
+This variable defines a prefix for e-mails tagged with the `X-Spam: Yes` (Rspamd) or `X-Spam-Flag: YES` (SpamAssassin/Amavis) header.
+
+Default: empty (no prefix will be added to e-mails)
+
+??? example "Including trailing white-space"
+
+    Add trailing white-space by quote wrapping the value: `SPAM_SUBJECT='[SPAM] '`
+
 #### Rspamd
 
 ##### ENABLE_RSPAMD
@@ -567,7 +572,7 @@ Changes the interval in which log files are rotated.
 
     - [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk)
     - [`MARK_SPAM_AS_READ=1`](#mark_spam_as_read)
-    - [`SA_SPAM_SUBJECT`](#sa_spam_subject)
+    - [`SPAM_SUBJECT`](#spam_subject)
 
 ##### SA_TAG
 
@@ -607,8 +612,8 @@ When a spam score is high enough, mark mail as spam (_Appends the mail header: `
 
 !!! info "Interaction with other ENV"
 
-    - [`SA_SPAM_SUBJECT`](#sa_spam_subject) modifies the mail subject to better communicate spam mail to the user.
-    - [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk): The mail is still delivered, but to the recipient(s) junk folder instead. This feature reduces the usefulness of `SA_SPAM_SUBJECT`.
+    - [`SPAM_SUBJECT`](#spam_subject) modifies the mail subject to better communicate spam mail to the user.
+    - [`MOVE_SPAM_TO_JUNK=1`](#move_spam_to_junk): The mail is still delivered, but to the recipient(s) junk folder instead. This feature reduces the usefulness of `SPAM_SUBJECT`.
 
 ##### SA_KILL
 
@@ -648,10 +653,10 @@ Controls the spam score threshold for triggering an action on mail that has a hi
     - [It will be quarantined][amavis-docs::quarantine] regardless of the `SA_KILL` action to perform.
     - With `D_PASS` the delivered mail also appends an `X-Quarantine-ID` mail header. The ID value of this header is part of the quarantined file name.
 
-    If emails are quarantined, they are compressed and stored at a location dependent on the [`ONE_DIR`](#one_dir) setting:
+    If emails are quarantined, they are compressed and stored at a location:
 
-    - `ONE_DIR=1` (default): `/var/mail-state/lib-amavis/virusmails/`
-    - `ONE_DIR=0`: `/var/lib/amavis/virusmails/`
+    - Default: `/var/lib/amavis/virusmails/`
+    - When the [`/var/mail-state/` volume][docs::dms-volumes-state] is present: `/var/mail-state/lib-amavis/virusmails/`
 
     !!! tip
 
@@ -663,23 +668,6 @@ Controls the spam score threshold for triggering an action on mail that has a hi
 
 [amavis-docs::actions]: https://www.ijs.si/software/amavisd/amavisd-new-docs.html#actions
 [amavis-docs::quarantine]: https://www.ijs.si/software/amavisd/amavisd-new-docs.html#quarantine
-
-##### SA_SPAM_SUBJECT
-
-Adds a prefix to the subject header when mail is marked as spam (_via [`SA_TAG2`](#sa_tag2)_).
-
-- **`'***SPAM*** '`** => A string value to use as a mail subject prefix.
-- `undef` => Opt-out of modifying the subject for mail marked as spam.
-
-??? example "Including trailing white-space"
-
-    Add trailing white-space by quote wrapping the value: `SA_SPAM_SUBJECT='[SPAM] '`
-
-??? example "Including the associated spam score"
-
-    The [`_SCORE_` tag][sa-docs::score-tag] will be substituted with the SpamAssassin score: `SA_SPAM_SUBJECT=***SPAM(_SCORE_)***`.
-
-[sa-docs::score-tag]: https://spamassassin.apache.org/full/4.0.x/doc/Mail_SpamAssassin_Conf.html#rewrite_header-subject-from-to-STRING
 
 ##### SA_SHORTCIRCUIT_BAYES_SPAM
 
@@ -1056,9 +1044,9 @@ you to replace both instead of just the envelope sender.
 - password for default relay user
 
 [docs-rspamd]: ./security/rspamd.md
-[docs-faq-onedir]: ../faq.md#what-about-docker-datadmsmail-state-folder-varmail-state-internally
 [docs-tls]: ./security/ssl.md
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates
 [docs-tls-selfsigned]: ./security/ssl.md#self-signed-certificates
 [docs-accounts-quota]: ./user-management.md#quotas
+[docs::dms-volumes-state]: ./advanced/optional-config.md#volumes-state

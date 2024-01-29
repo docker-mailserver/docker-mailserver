@@ -345,7 +345,7 @@ volumes:
 ```
 
 [docs-accounts-add]: ../user-management.md#adding-a-new-account
-[docs-volumes-config]: ../advanced/optional-config.md
+[docs-volumes-config]: ../advanced/optional-config.md#volumes-config
 [docs-env-opendkim]: ../environment.md#enable_opendkim
 [docs-env-rspamd]: ../environment.md#enable_rspamd
 [docs-rspamd-config-dropin]: ../security/rspamd.md#manually
