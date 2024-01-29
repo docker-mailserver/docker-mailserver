@@ -291,7 +291,7 @@ function __rspamd__setup_hfilter_group() {
 function __rspamd__setup_neural() {
   if _env_var_expect_zero_or_one 'RSPAMD_NEURAL' && [[ ${RSPAMD_NEURAL} -eq 1 ]]; then
     __rspamd__log 'debug' 'Enabling Neural module'
-    __rspamd__log 'warn' 'The Neural module is still experimental (in Rspamd)'
+    __rspamd__log 'warn' 'The Neural module is still experimental (in Rspamd) and hence not tested in DMS'
   else
     __rspamd__log 'debug' 'Neural module is disabled'
     rm -f "${RSPAMD_LOCAL_D}/neural.conf"
