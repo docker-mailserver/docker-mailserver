@@ -144,7 +144,7 @@ function _install_dovecot() {
   # when building for another architecture.
   if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]] && [[ "$(uname --machine)" == "x86_64" ]]; then
     _log 'trace' 'Using Dovecot community repository'
-    curl https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
+    curl -sSfL https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
     gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
     # VERSION_CODENAME sourced from /etc/os-release
     echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/${VERSION_CODENAME} ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/dovecot.list
