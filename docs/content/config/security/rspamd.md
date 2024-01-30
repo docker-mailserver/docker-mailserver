@@ -65,7 +65,6 @@ Since the score is `-2.80`, nothing will happen and the e-mail is not classified
 
 1. At a score of 4, the e-mail is to be _greylisted_;
 2. At a score of 6, the e-mail is _marked with a header_ (`X-Spam: Yes`);
-3. At a score of 7, the e-mail will additionally have their _subject re-written_ (appending a prefix like `[SPAM]`);
 4. At a score of 11, the e-mail is outright _rejected_.
 
 ---
