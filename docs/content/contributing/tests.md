@@ -51,7 +51,7 @@ Parallel tests are further partitioned into smaller sets. If your system has the
 To run the test suite, you will need to:
 
 1. [Install Docker][get-docker]
-2. Install `jq` and (GNU) `parallel` (under Ubuntu, use `sudo apt-get -y install jq parallel`)
+2. Install `jq` , (GNU) `parallel` and `file` (under Ubuntu, use `sudo apt-get -y install jq parallel file`)
 3. Execute `git submodule update --init --recursive` if you haven't already initialized the git submodules
 
 ### Executing Test(s)
