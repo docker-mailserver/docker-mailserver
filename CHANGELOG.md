@@ -21,7 +21,6 @@ The most noteworthy change of this release is the update of the container's base
     - Notable minor version bump: `postfix 3.5.23 => 3.7.9`
     - Notable minor version bump + downgrade: `dovecot 2.3.13 => 2.3.19` (_Previous release provided `2.3.21` via community repo, `2.3.19` is now the default_)
   - Updates to `packages.sh`:
-    - The script now uses `/etc/os-release` to determine the release name of Debian
     - Removed custom installations of Fail2Ban, getmail6 and Rspamd
     - Updated packages lists and added comments for maintainability
 - OpenDMARC upgrade: `v1.4.0` => `v1.4.2` ([#3841](https://github.com/docker-mailserver/docker-mailserver/pull/3841))
