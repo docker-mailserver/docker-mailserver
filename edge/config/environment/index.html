@@ -1850,13 +1850,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#default-relay-host" class="md-nav__link">
+  <a href="#relay-host" class="md-nav__link">
     <span class="md-ellipsis">
-      Default Relay Host
+      Relay Host
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Default Relay Host">
+    <nav class="md-nav" aria-label="Relay Host">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1867,21 +1867,6 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multi-domain-relay-hosts" class="md-nav__link">
-    <span class="md-ellipsis">
-      Multi-domain Relay Hosts
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Multi-domain Relay Hosts">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#relay_host" class="md-nav__link">
@@ -1900,6 +1885,21 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relay-host-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relay Host Credentials
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relay Host Credentials">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#relay_user" class="md-nav__link">
@@ -4650,13 +4650,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#default-relay-host" class="md-nav__link">
+  <a href="#relay-host" class="md-nav__link">
     <span class="md-ellipsis">
-      Default Relay Host
+      Relay Host
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Default Relay Host">
+    <nav class="md-nav" aria-label="Relay Host">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -4667,21 +4667,6 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multi-domain-relay-hosts" class="md-nav__link">
-    <span class="md-ellipsis">
-      Multi-domain Relay Hosts
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Multi-domain Relay Hosts">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#relay_host" class="md-nav__link">
@@ -4700,6 +4685,21 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relay-host-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relay Host Credentials
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relay Host Credentials">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#relay_user" class="md-nav__link">
@@ -5646,35 +5646,83 @@ you to replace both instead of just the envelope sender.</p>
 <li><strong>empty</strong> =&gt; Derived from <a href="#override_hostname"><code>OVERRIDE_HOSTNAME</code></a>, <code>$DOMAINNAME</code> (internal), or the container's hostname</li>
 <li>Set this if auto-detection fails, isn't what you want, or you wish to have a separate container handle DSNs</li>
 </ul>
-<h4 id="default-relay-host"><a class="toclink" href="#default-relay-host">Default Relay Host</a></h4>
+<h4 id="relay-host"><a class="toclink" href="#relay-host">Relay Host</a></h4>
+<div class="admonition tip">
+<p class="admonition-title"><code>RELAY_HOST</code> vs <code>DEFAULT_RELAY_HOST</code></p>
+<p><code>DEFAULT_RELAY_HOST</code> is encouraged, but presently does not support sender domain opt-out (<code>setup relay exclude-domain</code>).</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Opt-in for relay host support</p>
+<p>If you only want to enable relay for specific sender domains, use can use opt-in via <code>setup relay add-domain</code>.</p>
+</div>
 <h5 id="default_relay_host"><a class="toclink" href="#default_relay_host">DEFAULT_RELAY_HOST</a></h5>
+<p>Configures a default relay host.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
 <ul>
-<li><strong>empty</strong> =&gt; don't set default relayhost setting in main.cf</li>
-<li>default host and port to relay all mail through.
-    Format: <code>[example.com]:587</code> (don't forget the brackets if you need this to
-    be compatible with <code>$RELAY_USER</code> and <code>$RELAY_PASSWORD</code>, explained below).</li>
+<li>All mail sent outbound from DMS will be relayed through the configured host, unless sender-dependent relayhost maps have been configured (<em>which have precedence</em>).</li>
+<li>The host value may optionally be wrapped in brackets (<em>skips DNS query for MX record</em>): <code>[mail.example.com]:587</code> vs <code>example.com:587</code></li>
 </ul>
-<h4 id="multi-domain-relay-hosts"><a class="toclink" href="#multi-domain-relay-hosts">Multi-domain Relay Hosts</a></h4>
+</div>
+<div class="admonition abstract">
+<p class="admonition-title">Technical Details</p>
+<p>Configures the Postfix <code>main.cf</code> setting: <a href="https://www.postfix.org/postconf.5.html#relayhost"><code>relayhost</code></a></p>
+</div>
 <h5 id="relay_host"><a class="toclink" href="#relay_host">RELAY_HOST</a></h5>
+<p>Configures a default relay host.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
 <ul>
-<li><strong>empty</strong> =&gt; don't configure relay host</li>
-<li>default host to relay mail through</li>
+<li>This is a legacy ENV. It is however required for the opt-out feature of <code>postfix-relaymap.cf</code> to work.</li>
+<li>When configured, all known mail domains managed by DMS will be configured to relay outbound mail, just like <code>DEFAULT_RELAY_HOST</code>.</li>
 </ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Expects a value like <code>mail.example.com</code>. Internally this will be wrapped to <code>[mail.example.com]</code>, so it should resolve to the MTA directly.</p>
+<p>Do not use with <code>DEFAULT_RELAY_HOST</code>. <code>RELAY_HOST</code> has precedence as it is configured with <code>sender_dependent_relayhost_maps</code>.</p>
+</div>
+<div class="admonition abstract">
+<p class="admonition-title">Technical Details</p>
+<p>This feature is configured internally using the:</p>
+<ul>
+<li>Postfix setting with config: <a href="https://www.postfix.org/postconf.5.html#sender_dependent_relayhost_maps"><code>sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map</code></a></li>
+<li>DMS Config volume support via: <code>postfix-relaymap.cf</code> (<em>generates <code>/etc/postfix/relayhost_map</code></em>)</li>
+</ul>
+</div>
 <h5 id="relay_port"><a class="toclink" href="#relay_port">RELAY_PORT</a></h5>
-<ul>
-<li><strong>empty</strong> =&gt; 25</li>
-<li>default port to relay mail through</li>
-</ul>
+<p>Default =&gt; 25</p>
+<p>Support for configuring a different port than 25 for <code>RELAY_HOST</code> to use.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Requires <code>RELAY_HOST</code>.</p>
+</div>
+<h4 id="relay-host-credentials"><a class="toclink" href="#relay-host-credentials">Relay Host Credentials</a></h4>
+<div class="admonition warning">
+<p class="admonition-title">Configuring relay host credentials make outbound authentication mandatory</p>
+<p>Presently when <code>RELAY_USER</code> + <code>RELAY_PASSWORD</code> or <code>postfix-sasl-password.cf</code> are configured, all outbound mail traffic is configured to require a secure connection established and forbids the omission of credentials.</p>
+<p>Additional feature work is required to only enforce these requirements on mail sent through a configured relay host.</p>
+</div>
 <h5 id="relay_user"><a class="toclink" href="#relay_user">RELAY_USER</a></h5>
-<ul>
-<li><strong>empty</strong> =&gt; no default</li>
-<li>default relay username (if no specific entry exists in postfix-sasl-password.cf)</li>
-</ul>
 <h5 id="relay_password"><a class="toclink" href="#relay_password">RELAY_PASSWORD</a></h5>
+<p>Provide the credentials to use with <code>RELAY_HOST</code> or <code>DEFAULT_RELAY_HOST</code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Alternative credentials config</p>
+<p>You may prefer to use <code>setup relay add-auth</code> to avoid exposure of secrets in ENV.</p>
 <ul>
-<li><strong>empty</strong> =&gt; no default</li>
-<li>password for default relay user</li>
+<li>With the CLI command you must provide each sender domain relay credentials.</li>
+<li>Alternatively manually edit <code>postfix-sasl-password.cf</code> with the correct relayhost entry (<em><code>DEFAULT_RELAY_HOST</code> value or as defined in <code>/etc/postfix/relayhost_map</code></em>) to provide credentials per relayhost configured.</li>
 </ul>
+</div>
+<div class="admonition abstract">
+<p class="admonition-title">Technical Details</p>
+<p>Credentials for relay hosts are configured internally using the:</p>
+<ul>
+<li>Postfix setting with config: <a href="https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps"><code>smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd</code></a></li>
+<li>DMS Config volume support via: <code>postfix-sasl-password.cf</code> (<em>generates <code>/etc/postfix/sasl_passwd</code></em>)</li>
+</ul>
+<p>This file has relay hosts that must match the <code>host:port</code> of <code>/etc/postfix/relayhost_map</code> or <code>main.cf:relayhost</code>. DMS support handles this for you.</p>
+</div>
 
 
 
