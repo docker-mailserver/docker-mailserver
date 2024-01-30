@@ -37,6 +37,13 @@ The most noteworthy change of this release is the update of the container's base
       - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
+- **Features:**
+  - The relay host feature was refactored ([#3845](https://github.com/docker-mailserver/docker-mailserver/pull/3845))
+    - The only breaking change this should introduce is with the Change Detection service (`check-for-changes.sh`).
+    - When credentials are configured for relays, change events that trigger the relayhost logic now reapply the relevant Postfix settings:
+      - `smtp_sasl_auth_enable = yes` (_SASL auth to outbound MTA connections is enabled_)
+      - `smtp_sasl_security_options = noanonymous` (_credentials are mandatory for outbound mail delivery_)
+      - `smtp_tls_security_level = encrypt` (_the outbound MTA connection must always be secure due to credentials sent_)
 - **Environment Variables**:
   - `SA_SPAM_SUBJECT` has been renamed into `SPAM_SUBJECT` to become anti-spam service agnostic. ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
     - As this functionality is now handled in Dovecot via a Sieve script instead of the respective anti-spam service during Postfix processing, this feature will only apply to mail stored in Dovecot. If you have relied on this feature in a different context, it will no longer be available.
@@ -60,6 +67,10 @@ The most noteworthy change of this release is the update of the container's base
 
 - DMS config files that are parsed line by line are now more robust to parse by detecting and fixing line-endings ([#3819](https://github.com/docker-mailserver/docker-mailserver/pull/3819))
 - Variables related to Rspamd are declared as `readonly`, which would cause warnings in the log when being re-declared; we now guard against this issue ([#3837](https://github.com/docker-mailserver/docker-mailserver/pull/3837))
+- Relay host feature refactored ([#3845](https://github.com/docker-mailserver/docker-mailserver/pull/3845))
+  - `DEFAULT_RELAY_HOST` ENV can now also use the `RELAY_USER` + `RELAY_PASSWORD` ENV for supplying credentials.
+  - `RELAY_HOST` ENV no longer enforces configuring outbound SMTP to require credentials. Like `DEFAULT_RELAY_HOST` it can now configure a relay where credentials are optional.
+  - Restarting DMS should not be required when configuring relay hosts without these ENV, but solely via `setup relay ...`, as change detection events now apply relevant Postfix setting changes for supporting credentials too.
 
 ## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)
 

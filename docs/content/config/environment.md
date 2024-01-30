@@ -1012,36 +1012,90 @@ you to replace both instead of just the envelope sender.
 - **empty** => Derived from [`OVERRIDE_HOSTNAME`](#override_hostname), `$DOMAINNAME` (internal), or the container's hostname
 - Set this if auto-detection fails, isn't what you want, or you wish to have a separate container handle DSNs
 
-#### Default Relay Host
+#### Relay Host
+
+!!! tip "`RELAY_HOST` vs `DEFAULT_RELAY_HOST`"
+
+    `DEFAULT_RELAY_HOST` is encouraged, but presently does not support sender domain opt-out (`setup relay exclude-domain`).
+
+!!! tip "Opt-in for relay host support"
+
+    If you only want to enable relay for specific sender domains, use can use opt-in via `setup relay add-domain`.
 
 ##### DEFAULT_RELAY_HOST
 
-- **empty** => don't set default relayhost setting in main.cf
-- default host and port to relay all mail through.
-    Format: `[example.com]:587` (don't forget the brackets if you need this to
-    be compatible with `$RELAY_USER` and `$RELAY_PASSWORD`, explained below).
+Configures a default relay host.
 
-#### Multi-domain Relay Hosts
+!!! info
+
+    - All mail sent outbound from DMS will be relayed through the configured host, unless sender-dependent relayhost maps have been configured (_which have precedence_).
+    - The host value may optionally be wrapped in brackets (_skips DNS query for MX record_): `[mail.example.com]:587` vs `example.com:587`
+
+!!! abstract "Technical Details"
+
+    Configures the Postfix `main.cf` setting: [`relayhost`][postfix-config::relayhost]
 
 ##### RELAY_HOST
 
-- **empty** => don't configure relay host
-- default host to relay mail through
+Configures a default relay host.
+
+!!! info
+
+    - This is a legacy ENV. It is however required for the opt-out feature of `postfix-relaymap.cf` to work.
+    - When configured, all known mail domains managed by DMS will be configured to relay outbound mail, just like `DEFAULT_RELAY_HOST`.
+
+!!! note
+
+    Expects a value like `mail.example.com`. Internally this will be wrapped to `[mail.example.com]`, so it should resolve to the MTA directly.
+
+    Do not use with `DEFAULT_RELAY_HOST`. `RELAY_HOST` has precedence as it is configured with `sender_dependent_relayhost_maps`.
+
+!!! abstract "Technical Details"
+
+    This feature is configured internally using the:
+
+    - Postfix setting with config: [`sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map`][postfix-config::relayhost_maps]
+    - DMS Config volume support via: `postfix-relaymap.cf` (_generates `/etc/postfix/relayhost_map`_)
 
 ##### RELAY_PORT
 
-- **empty** => 25
-- default port to relay mail through
+Default => 25
+
+Support for configuring a different port than 25 for `RELAY_HOST` to use.
+
+!!! note
+
+    Requires `RELAY_HOST`.
+
+#### Relay Host Credentials
+
+!!! warning "Configuring relay host credentials make outbound authentication mandatory"
+
+    Presently when `RELAY_USER` + `RELAY_PASSWORD` or `postfix-sasl-password.cf` are configured, all outbound mail traffic is configured to require a secure connection established and forbids the omission of credentials.
+    
+    Additional feature work is required to only enforce these requirements on mail sent through a configured relay host.
 
 ##### RELAY_USER
 
-- **empty** => no default
-- default relay username (if no specific entry exists in postfix-sasl-password.cf)
-
 ##### RELAY_PASSWORD
 
-- **empty** => no default
-- password for default relay user
+Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
+
+!!! tip "Alternative credentials config"
+
+    You may prefer to use `setup relay add-auth` to avoid exposure of secrets in ENV.
+
+    - With the CLI command you must provide each sender domain relay credentials.
+    - Alternatively manually edit `postfix-sasl-password.cf` with the correct relayhost entry (_`DEFAULT_RELAY_HOST` value or as defined in `/etc/postfix/relayhost_map`_) to provide credentials per relayhost configured.
+
+!!! abstract "Technical Details"
+
+    Credentials for relay hosts are configured internally using the:
+
+    - Postfix setting with config: [`smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd`][postfix-config::sasl_passwd]
+    - DMS Config volume support via: `postfix-sasl-password.cf` (_generates `/etc/postfix/sasl_passwd`_)
+
+    This file has relay hosts that must match the `host:port` of `/etc/postfix/relayhost_map` or `main.cf:relayhost`. DMS support handles this for you.
 
 [docs-rspamd]: ./security/rspamd.md
 [docs-tls]: ./security/ssl.md
@@ -1050,3 +1104,6 @@ you to replace both instead of just the envelope sender.
 [docs-tls-selfsigned]: ./security/ssl.md#self-signed-certificates
 [docs-accounts-quota]: ./user-management.md#quotas
 [docs::dms-volumes-state]: ./advanced/optional-config.md#volumes-state
+[postfix-config::relayhost]: https://www.postfix.org/postconf.5.html#relayhost
+[postfix-config::relayhost_maps]: https://www.postfix.org/postconf.5.html#sender_dependent_relayhost_maps
+[postfix-config::sasl_passwd]: https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
