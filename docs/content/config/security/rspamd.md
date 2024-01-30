@@ -32,6 +32,10 @@ With these variables, you can enable Rspamd itself, and you can enable / disable
 
 ## The Default Configuration
 
+### Other Anti-Spam-Services
+
+DMS packs other anti-spam services, like SpamAssassin or Amavis, next to Rspamd. There exist services, like ClamAV (`ENABLE_CLAMAV`), that Rspamd can utilize to improve the scanning. Except for ClamAV, we recommend disabling **all other** anti-spam services when using Rspamd. The [basic configuration shown below](#a-very-basic-configuration) provides a good starting point.
+
 ### Mode of Operation
 
 !!! tip "Attention"
