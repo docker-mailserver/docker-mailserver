@@ -45,9 +45,9 @@ function _vhost_collect_postfix_domains() {
 
   # Extract domains from mail accounts:
   if [[ -f ${DATABASE_ACCOUNTS} ]]; then
-    while IFS=$'|' read -r FIRST_FIELD _; do
+    while IFS=$'|' read -r MAIL_ACCOUNT _; do
       # It is expected valid lines have the format local-part@domain-part:
-      DOMAIN=$(cut -d '@' -f 2 <<< "${FIRST_FIELD}")
+      DOMAIN=$(cut -d '@' -f 2 <<< "${MAIL_ACCOUNT}")
 
       echo "${DOMAIN}" >>"${TMP_VHOST}"
     done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
@@ -58,9 +58,9 @@ function _vhost_collect_postfix_domains() {
   # Extract domains from virtual alias config:
   # Aliases may have the forms: 'local-part@domain-part', only 'local-part', or '@domain-part' (wildcard catch-all)
   if [[ -f ${DATABASE_VIRTUAL} ]]; then
-    while read -r FIRST_FIELD _; do
-      UNAME=$(cut -d '@' -f 1 <<< "${FIRST_FIELD}")
-      DOMAIN=$(cut -d '@' -f 2 <<< "${FIRST_FIELD}")
+    while read -r ALIAS_FIELD _; do
+      UNAME=$(cut -d '@' -f 1 <<< "${ALIAS_FIELD}")
+      DOMAIN=$(cut -d '@' -f 2 <<< "${ALIAS_FIELD}")
 
       # Only add valid domain-parts found:
       # The '@' is optional for an alias key (eg: "user1     other@domain.tld"),
