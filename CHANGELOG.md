@@ -37,6 +37,14 @@ The most noteworthy change of this release is the update of the container's base
       - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
+- **rsyslog:**
+  - Debian 12 adjusted the `rsyslog` configuration for the default file template from `RSYSLOG_TraditionalFileFormat` to `RSYSLOG_FileFormat` (_upstream default since 2012_). This change may affect you if you have any monitoring / analysis of log output (_eg: `mail.log` / `docker logs`_).
+    - The two formats are roughly equivalent to [RFC 3164](https://www.rfc-editor.org/rfc/rfc3164)) and [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424#section-1) respectively.
+    - A notable difference is the change to [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html#appendix-A) timestamps (_a strict subset of ISO 8601_). The [previous non-standardized timestamp format was defined in RFC 3164](https://www.rfc-editor.org/rfc/rfc3164.html#section-4.1.2) as `Mmm dd hh:mm:ss`.
+    - To revert this change you can add `sedfile -i '1i module(load="builtin:omfile" template="RSYSLOG_TraditionalFileFormat")' /etc/rsyslog.conf` via [our `user-patches.sh` feature](https://docker-mailserver.github.io/docker-mailserver/v14.0/config/advanced/override-defaults/user-patches/).
+  - Rsyslog now creates fewer log files:
+    - The files `/var/log/mail/mail.{info,warn,err}` are no longer created. These files represented `/var/log/mail.log` filtered into separate priority levels. As `/var/log/mail.log` contains all mail related messages, these files (_and their rotated counterparts_) can be deleted safely.
+    - `/var/log/messages`, `/var/log/debug` and several other log files not relevant to DMS were configured by default by Debian previously. These are not part of the `/var/log/mail/` volume mount, so should not impact anyone.
 - **Features:**
   - The relay host feature was refactored ([#3845](https://github.com/docker-mailserver/docker-mailserver/pull/3845))
     - The only breaking change this should introduce is with the Change Detection service (`check-for-changes.sh`).
