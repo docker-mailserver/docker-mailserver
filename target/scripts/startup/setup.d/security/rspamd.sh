@@ -187,7 +187,6 @@ function __rspamd__setup_default_modules() {
   local DISABLE_MODULES=(
     clickhouse
     elastic
-    neural
     reputation
     spamassassin
     url_redirector
@@ -296,6 +295,7 @@ function __rspamd__setup_neural() {
     __rspamd__log 'debug' 'Neural module is disabled'
     rm -f "${RSPAMD_LOCAL_D}/neural.conf"
     rm -f "${RSPAMD_LOCAL_D}/neural_group.conf"
+    __rspamd__helper__enable_disable_module 'neural' 'false'
   fi
 }
 
