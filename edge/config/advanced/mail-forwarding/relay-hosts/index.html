@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#introduction" class="md-skip">
+        <a href="#what-is-a-relay-host" class="md-skip">
           Skip to content
         </a>
       
@@ -1330,55 +1330,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#introduction" class="md-nav__link">
+  <a href="#what-is-a-relay-host" class="md-nav__link">
     <span class="md-ellipsis">
-      Introduction
+      What is a Relay Host?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#basic-configuration" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Basic Configuration
+      Configuration
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#advanced-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       Advanced Configuration
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Advanced Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sender-dependent-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      Sender-dependent Authentication
-    </span>
-  </a>
-  
 </li>
         
           <li class="md-nav__item">
-  <a href="#sender-dependent-relay-host" class="md-nav__link">
+  <a href="#technical-details" class="md-nav__link">
     <span class="md-ellipsis">
-      Sender-dependent Relay Host
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#excluding-sender-domains" class="md-nav__link">
-    <span class="md-ellipsis">
-      Excluding Sender Domains
+      Technical Details
     </span>
   </a>
   
@@ -2097,55 +2079,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#introduction" class="md-nav__link">
+  <a href="#what-is-a-relay-host" class="md-nav__link">
     <span class="md-ellipsis">
-      Introduction
+      What is a Relay Host?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#basic-configuration" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Basic Configuration
+      Configuration
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#advanced-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       Advanced Configuration
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Advanced Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sender-dependent-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      Sender-dependent Authentication
-    </span>
-  </a>
-  
 </li>
         
           <li class="md-nav__item">
-  <a href="#sender-dependent-relay-host" class="md-nav__link">
+  <a href="#technical-details" class="md-nav__link">
     <span class="md-ellipsis">
-      Sender-dependent Relay Host
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#excluding-sender-domains" class="md-nav__link">
-    <span class="md-ellipsis">
-      Excluding Sender Domains
+      Technical Details
     </span>
   </a>
   
@@ -2189,59 +2153,135 @@
 
   <h1>Relay Hosts</h1>
 
-<h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
-<p>Rather than having Postfix deliver mail directly, you can configure Postfix to send mail via another mail relay (smarthost). Examples include <a href="https://www.mailgun.com/">Mailgun</a>, <a href="https://sendgrid.com/">Sendgrid</a> and <a href="https://aws.amazon.com/ses/">AWS SES</a>.</p>
-<p>Depending on the domain of the sender, you may want to send via a different relay, or authenticate in a different way.</p>
-<h2 id="basic-configuration"><a class="toclink" href="#basic-configuration">Basic Configuration</a></h2>
-<p>Basic configuration is done via environment variables:</p>
+<h2 id="what-is-a-relay-host"><a class="toclink" href="#what-is-a-relay-host">What is a Relay Host?</a></h2>
+<p>An SMTP relay service (<em>aka relay host / <a href="https://en.wikipedia.org/wiki/Smart_host">smarthost</a></em>) is an MTA that relays (<em>forwards</em>) mail on behalf of third-parties (<em>it does not manage the mail domains</em>).</p>
 <ul>
-<li><code>RELAY_HOST</code>: <em>default host to relay mail through, <code>empty</code> (aka '', or no ENV set) will disable this feature</em></li>
-<li><code>RELAY_PORT</code>: <em>port on default relay, defaults to port 25</em></li>
-<li><code>RELAY_USER</code>: <em>username for the default relay</em></li>
-<li><code>RELAY_PASSWORD</code>: <em>password for the default user</em></li>
+<li>Instead of DMS handling SMTP delivery directly itself (<em>via Postfix</em>), it can be configured to delegate delivery by sending all outbound mail through a relay service.</li>
+<li>Examples of popular mail relay services: <a href="https://aws.amazon.com/ses/">AWS SES</a>, <a href="https://www.mailgun.com/">Mailgun</a>, <a href="https://www.mailjet.com">Mailjet</a>, <a href="https://sendgrid.com/">SendGrid</a></li>
 </ul>
-<p>Setting these environment variables will cause mail for all sender domains to be routed via the specified host, authenticating with the user/password combination.</p>
+<div class="admonition info">
+<p class="admonition-title">When can a relay service can be helpful?</p>
+<ul>
+<li>Your network provider has blocked outbound connections on port 25 (<em>required for direct delivery</em>).</li>
+<li>To improve delivery success via better established reputation (trust) of a relay service.</li>
+</ul>
+</div>
+<h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
+<p>All mail sent outbound from DMS (<em>where the sender address is a DMS account or a virtual alias</em>) will be relayed through the configured relay host.</p>
+<div class="admonition info">
+<p class="admonition-title">Configuration via ENV</p>
+<p>Configure the default relayhost with either of these ENV:</p>
+<ul>
+<li>Preferable (<em>LDAP compatible</em>): <code>DEFAULT_RELAY_HOST</code> (eg: <code>[mail.relay-service.com]:25</code>)</li>
+<li><code>RELAY_HOST</code> (eg: <code>mail.relay-service.com</code>) + <code>RELAY_PORT</code> (default: 25)</li>
+</ul>
+<p>Most relay services also require authentication configured:</p>
+<ul>
+<li><code>RELAY_USER</code> + <code>RELAY_PASSWORD</code> provides credentials for authenticating with the default relayhost.</li>
+</ul>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>For users of the previous <code>AWS_SES_*</code> variables: please update your configuration to use these new variables, no other configuration is required.</p>
+<p class="admonition-title">Providing secrets via ENV</p>
+<p>While ENV is convenient, the risk of exposing secrets is higher.</p>
+<p><code>setup relay add-auth</code> is a better alternative, which manages the credentials via a config file.</p>
 </div>
-<h2 id="advanced-configuration"><a class="toclink" href="#advanced-configuration">Advanced Configuration</a></h2>
-<h3 id="sender-dependent-authentication"><a class="toclink" href="#sender-dependent-authentication">Sender-dependent Authentication</a></h3>
-<p>Sender dependent authentication is done in <code>docker-data/dms/config/postfix-sasl-password.cf</code>. You can create this file manually, or use:</p>
-<div class="highlight"><pre><span></span><code>setup.sh<span class="w"> </span>relay<span class="w"> </span>add-auth<span class="w"> </span>&lt;domain&gt;<span class="w"> </span>&lt;username&gt;<span class="w"> </span><span class="o">[</span>&lt;password&gt;<span class="o">]</span>
-</code></pre></div>
-<p>An example configuration file looks like this:</p>
-<div class="highlight"><pre><span></span><code>@domain1.com           relay_user_1:password_1
-@domain2.com           relay_user_2:password_2
-</code></pre></div>
-<p>If there is no other configuration, this will cause Postfix to deliver email through the relay specified in <code>RELAY_HOST</code> env variable, authenticating as <code>relay_user_1</code> when sent from <code>domain1.com</code> and authenticating as <code>relay_user_2</code> when sending from <code>domain2.com</code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>To activate the configuration you must either restart the container, or you can also trigger an update by modifying a mail account.</p>
 </div>
-<h3 id="sender-dependent-relay-host"><a class="toclink" href="#sender-dependent-relay-host">Sender-dependent Relay Host</a></h3>
-<p>Sender dependent relay hosts are configured in <code>docker-data/dms/config/postfix-relaymap.cf</code>. You can create this file manually, or use:</p>
-<div class="highlight"><pre><span></span><code>setup.sh<span class="w"> </span>relay<span class="w"> </span>add-domain<span class="w"> </span>&lt;domain&gt;<span class="w"> </span>&lt;host&gt;<span class="w"> </span><span class="o">[</span>&lt;port&gt;<span class="o">]</span>
-</code></pre></div>
-<p>An example configuration file looks like this:</p>
-<div class="highlight"><pre><span></span><code>@domain1.com        [relay1.org]:587
-@domain2.com        [relay2.org]:2525
-</code></pre></div>
-<p>Combined with the previous configuration in <code>docker-data/dms/config/postfix-sasl-password.cf</code>, this will cause Postfix to deliver mail sent from <code>domain1.com</code> via <code>relay1.org:587</code>, authenticating as <code>relay_user_1</code>, and mail sent from <code>domain2.com</code> via <code>relay2.org:2525</code> authenticating as <code>relay_user_2</code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You still have to define <code>RELAY_HOST</code> to activate the feature</p>
+<details class="tip">
+<summary>Excluding specific sender domains from relay</summary>
+<p>You can opt-out with: <code>setup relay exclude-domain &lt;domain&gt;</code></p>
+<p>Outbound mail from senders of that domain will be sent normally (<em>instead of through the configured <code>RELAY_HOST</code></em>).</p>
+<div class="admonition warning">
+<p class="admonition-title">When any relay host credentials are configured</p>
+<p>It will still be expected that mail is sent over a secure connection with credentials provided.</p>
+<p>Thus this opt-out feature is rarely practical.</p>
 </div>
-<h3 id="excluding-sender-domains"><a class="toclink" href="#excluding-sender-domains">Excluding Sender Domains</a></h3>
-<p>If you want mail sent from some domains to be delivered directly, you can exclude them from being delivered via the default relay by adding them to <code>docker-data/dms/config/postfix-relaymap.cf</code> with no destination. You can also do this via:</p>
-<div class="highlight"><pre><span></span><code>setup.sh<span class="w"> </span>relay<span class="w"> </span>exclude-domain<span class="w"> </span>&lt;domain&gt;
+</details>
+<h3 id="advanced-configuration"><a class="toclink" href="#advanced-configuration">Advanced Configuration</a></h3>
+<p>When mail is sent, there is support to change the relay service or the credentials configured based on the sender address domain used.</p>
+<p>We provide this support via two config files:</p>
+<ul>
+<li>Sender-dependent Relay Host: <code>docker-data/dms/config/postfix-relaymap.cf</code></li>
+<li>Sender-dependent Authentication: <code>docker-data/dms/config/postfix-sasl-password.cf</code></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Configure with our <code>setup relay</code> commands</p>
+<p>While you can edit those configs directly, DMS provides these helpful config management commands:</p>
+<div class="highlight"><pre><span></span><code><span class="c"># Configure a sender domain to use a specific relay host:</span>
+setup relay add-domain <span class="s">&lt;domain&gt; &lt;host&gt; [&lt;port&gt;]</span>
+
+<span class="c"># Configure relay host credentials for a sender domain to use:</span>
+setup relay add-auth <span class="s">&lt;domain&gt; &lt;username&gt; [&lt;password&gt;]</span>
+
+<span class="c"># Optionally avoid relaying from senders of this domain:</span>
+<span class="c"># NOTE: Only supported when configured with the `RELAY_HOST` ENV!</span>
+setup relay exclude-domain <span class="s">&lt;domain&gt;</span>
 </code></pre></div>
-<p>Extending the configuration file from above:</p>
-<div class="highlight"><pre><span></span><code>@domain1.com        [relay1.org]:587
-@domain2.com        [relay2.org]:2525
-@domain3.com
+</div>
+<div class="admonition example">
+<p class="admonition-title">Config file: <code>postfix-sasl-password.cf</code></p>
+<div class="highlight"><span class="filename">docker-data/dms/config/postfix-sasl-password.cf</span><pre><span></span><code><span class="s">@domain1.com        mailgun-user</span><span class="p">:</span>secret
+<span class="s">@domain2.com        sendgrid-user</span><span class="p">:</span>secret
+
+<span class="c"># NOTE: This must have an exact match with the relay host in `postfix-relaymap.cf`,</span>
+<span class="c"># `/etc/postfix/relayhost_map`, or the `DEFAULT_RELAY_HOST` ENV.</span>
+<span class="c"># NOTE: Not supported via our setup CLI, but valid config for Postfix.</span>
+<span class="s">[email-smtp.us-west-2.amazonaws.com]</span><span class="p">:</span><span class="m">2587</span> aws-user<span class="p">:</span>secret
 </code></pre></div>
-<p>This will cause email sent from <code>domain3.com</code> to be delivered directly.</p>
+<p>When Postfix needs to lookup credentials for mail sent outbound, the above config will:</p>
+<ul>
+<li>Authenticate as <code>mailgun-user</code> for mail sent with a sender belonging to <code>@domain1.com</code></li>
+<li>Authenticate as <code>sendgrid-user</code> for mail sent with a sender belonging to <code>@domain2.com</code></li>
+<li>Authenticate as <code>aws-user</code> for mail sent through a configured AWS SES relay host (any sender domain).</li>
+</ul>
+</div>
+<div class="admonition example">
+<p class="admonition-title">Config file: <code>postfix-relaymap.cf</code></p>
+<div class="highlight"><span class="filename">docker-data/dms/config/postfix-relaymap.cf</span><pre><span></span><code><span class="s">@domain1.com        [smtp.mailgun.org]</span><span class="p">:</span><span class="m">587</span>
+<span class="s">@domain2.com        [smtp.sendgrid.net]</span><span class="p">:</span><span class="m">2525</span>
+
+<span class="c"># Opt-out of relaying:</span>
+<span class="s">@domain3.com</span>
+</code></pre></div>
+<p>When Postfix sends mail outbound from these sender domains, the above config will:</p>
+<ul>
+<li>Relay mail through <code>[smtp.mailgun.org]:587</code> when mail is sent from a sender of <code>@domain1.com</code></li>
+<li>Relay mail through <code>[smtp.sendgrid.net]:2525</code> when mail is sent from a sender of <code>@domain1.com</code></li>
+<li>Mail with a sender from <code>@domain3.com</code> is not sent through a relay (<em><strong>Only applicable</strong> when using <code>RELAY_HOST</code></em>)</li>
+</ul>
+</div>
+<h3 id="technical-details"><a class="toclink" href="#technical-details">Technical Details</a></h3>
+<ul>
+<li>Both the supported ENV and config files for this feature have additional details covered in our ENV docs <a href="../../../environment/#relay-host">Relay Host section</a>.</li>
+<li>For troubleshooting, a <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3842#issuecomment-1913380639">minimal <code>compose.yaml</code> config with several DMS instances</a> demonstrates this feature for local testing.</li>
+<li><a href="https://github.com/docker-mailserver/docker-mailserver/issues/3607">Subscribe to this tracking issue</a> for future improvements intended for this feature.</li>
+</ul>
+<div class="admonition abstract">
+<p class="admonition-title">Postfix Settings</p>
+<p>Internally this feature is implemented in DMS by <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v14.0.0/target/scripts/helpers/relay.sh"><code>relay.sh</code></a>.</p>
+<p>The <code>relay.sh</code> script manages configuring these Postfix settings:</p>
+<div class="highlight"><pre><span></span><code><span class="c"># Send all outbound mail through this relay service:</span>
+relayhost <span class="s">= [smtp.relay-service.com]</span><span class="p">:</span><span class="m">587</span>
+
+<span class="c"># Credentials to use:</span>
+smtp_sasl_password_maps <span class="s">= texthash</span><span class="p">:</span><span class="s">/etc/postfix/sasl_passwd</span>
+<span class="c"># Alternative table type examples which do not require a separate file:</span>
+<span class="c">#smtp_sasl_password_maps = static:john.doe@relay-service.com:secret</span>
+<span class="c">#smtp_sasl_password_maps = inline:{ [smtp.relay-service.com]:587=john.doe@relay-service.com:secret }</span>
+
+<span class="c">## Authentication support:</span>
+<span class="c"># Required to provide credentials to the relay service:</span>
+smtp_sasl_auth_enable <span class="s">= yes</span>
+<span class="c"># Enforces requiring credentials when sending mail outbound:</span>
+smtp_sasl_security_options <span class="s">= noanonymous</span>
+<span class="c"># Enforces a secure connection (TLS required) to the relay service:</span>
+smtp_tls_security_level <span class="s">= encrypt</span>
+
+<span class="c">## Support for advanced requirements:</span>
+<span class="c"># Relay service(s) to use instead of direct delivery for specific sender domains:</span>
+sender_dependent_relayhost_maps <span class="s">= texthash</span><span class="p">:</span><span class="s">/etc/postfix/relayhost_map</span>
+<span class="c"># Support credentials to a relay service(s) that vary by relay host used or sender domain:</span>
+smtp_sender_dependent_authentication <span class="s">= yes</span>
+</code></pre></div>
+</div>
 
 
 

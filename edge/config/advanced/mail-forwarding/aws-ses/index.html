@@ -2028,23 +2028,38 @@
 
   <h1>AWS SES</h1>
 
-<p><a href="https://aws.amazon.com/ses/">Amazon SES (Simple Email Service)</a> is intended to provide a simple way for cloud based applications to send email and receive email. For the purposes of this project only sending email via SES is supported.  Older versions of docker-mailserver used <code>AWS_SES_HOST</code> and <code>AWS_SES_USERPASS</code> to configure sending, this has changed and the setup is managed through <a href="../relay-hosts/">Configure Relay Hosts</a>.</p>
-<p>You will need to create some <a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html">Amazon SES SMTP credentials</a>. The SMTP credentials you create will be used to populate the <code>RELAY_USER</code> and <code>RELAY_PASSWORD</code> environment variables.</p>
-<p>The <code>RELAY_HOST</code> should match your <a href="https://docs.aws.amazon.com/general/latest/gr/ses.html">AWS SES region</a>, the <code>RELAY_PORT</code> will be 587.</p>
-<p>If all of your email is being forwarded through AWS SES, <code>DEFAULT_RELAY_HOST</code> should be set accordingly.</p>
-<p>Example:
-<div class="highlight"><pre><span></span><code>DEFAULT_RELAY_HOST=[email-smtp.us-west-2.amazonaws.com]:587
-</code></pre></div></p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you set up <a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-authentication-dkim-easy.html">AWS Easy DKIM</a> you can safely skip setting up DKIM as the AWS SES will take care of signing your outgoing email.</p>
-</div>
-<p>To verify proper operation, send an email to some external account of yours and inspect the mail headers. You will also see the connection to SES in the mail logs. For example:</p>
-<div class="highlight"><pre><span></span><code><span class="go">May 23 07:09:36 mail postfix/smtp[692]: Trusted TLS connection established to email-smtp.us-east-1.amazonaws.com[107.20.142.169]:25:</span>
-<span class="go">TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits)</span>
-<span class="go">May 23 07:09:36 mail postfix/smtp[692]: 8C82A7E7: to=&lt;someone@example.com&gt;, relay=email-smtp.us-east-1.amazonaws.com[107.20.142.169]:25,</span>
-<span class="go">delay=0.35, delays=0/0.02/0.13/0.2, dsn=2.0.0, status=sent (250 Ok 01000154dc729264-93fdd7ea-f039-43d6-91ed-653e8547867c-000000)</span>
+<p><a href="https://aws.amazon.com/ses/">Amazon SES (Simple Email Service)</a> provides a simple way for cloud based applications to send and receive email.</p>
+<div class="admonition example">
+<p class="admonition-title">Configuration via ENV</p>
+<p><a href="../relay-hosts/">Configure a relay host in DMS</a> to forward all your mail through AWS SES:</p>
+<ul>
+<li><code>RELAY_HOST</code> should match your <a href="https://docs.aws.amazon.com/general/latest/gr/ses.html">AWS SES region</a>.</li>
+<li><code>RELAY_PORT</code> should be set to <a href="https://docs.aws.amazon.com/ses/latest/dg/smtp-connect.html">one of the supported AWS SES SMTP ports</a> (<em>eg: 587 for STARTTLS</em>).</li>
+<li><code>RELAY_USER</code> and <code>RELAY_PASSWORD</code> should be set to your <a href="https://docs.aws.amazon.com/ses/latest/dg/smtp-credentials.html">Amazon SES SMTP credentials</a>.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="na">RELAY_HOST</span><span class="o">=</span><span class="s">email-smtp.us-west-2.amazonaws.com</span>
+<span class="na">RELAY_PORT</span><span class="o">=</span><span class="s">587</span>
+<span class="c1"># Alternative to RELAY_HOST + RELAY_PORT which is compatible with LDAP:</span>
+<span class="na">DEFAULT_RELAY_HOST</span><span class="o">=</span><span class="s">[email-smtp.us-west-2.amazonaws.com]:587</span>
+
+<span class="na">RELAY_USER</span><span class="o">=</span><span class="s">aws-user</span>
+<span class="na">RELAY_PASSWORD</span><span class="o">=</span><span class="s">secret</span>
 </code></pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you have set up <a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-authentication-dkim-easy.html">AWS Easy DKIM</a>, you can safely skip setting up DKIM as AWS SES will take care of signing your outbound mail.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Verify the relay host is configured correctly</p>
+<p>To verify proper operation, send an email to some external account of yours and inspect the mail headers.</p>
+<p>You will also see the connection to SES in the mail logs:</p>
+<div class="highlight"><pre><span></span><code><span class="go">postfix/smtp[692]: Trusted TLS connection established to email-smtp.us-west-1.amazonaws.com[107.20.142.169]:25:</span>
+<span class="go">  TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits)</span>
+<span class="go">postfix/smtp[692]: 8C82A7E7: to=&lt;someone@example.com&gt;, relay=email-smtp.us-west-1.amazonaws.com[107.20.142.169]:25,</span>
+<span class="go">  delay=0.35, delays=0/0.02/0.13/0.2, dsn=2.0.0, status=sent (250 Ok 01000154dc729264-93fdd7ea-f039-43d6-91ed-653e8547867c-000000)</span>
+</code></pre></div>
+</div>
 
 
 
