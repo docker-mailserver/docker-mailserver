@@ -2,82 +2,116 @@
 title: 'Mail Forwarding | Relay Hosts'
 ---
 
-## Introduction
+## What is a Relay Host?
 
-Rather than having Postfix deliver mail directly, you can configure Postfix to send mail via another mail relay (smarthost). Examples include [Mailgun](https://www.mailgun.com/), [Sendgrid](https://sendgrid.com/) and [AWS SES](https://aws.amazon.com/ses/).
+An SMTP relay service (_aka relay host / [smarthost][wikipedia::smarthost]_) is an MTA that relays (_forwards_) mail on behalf of third-parties (_it does not manage the mail domains_).
 
-Depending on the domain of the sender, you may want to send via a different relay, or authenticate in a different way.
+- Instead of DMS handling SMTP delivery directly itself (_via Postfix_), it can be configured to delegate delivery by sending all outbound mail through a relay service.
+- Examples of popular mail relay services: [AWS SES][smarthost::aws-ses], [Mailgun][smarthost::mailgun], [Mailjet][smarthost::mailjet], [SendGrid][smarthost::sendgrid]
 
-## Basic Configuration
+!!! info "When can a relay service can be helpful?"
 
-Basic configuration is done via environment variables:
+    - Your network provider has blocked outbound connections on port 25 (_required for direct delivery_).
+    - To improve delivery success via better established reputation (trust) of a relay service.
 
-- `RELAY_HOST`: _default host to relay mail through, `empty` (aka '', or no ENV set) will disable this feature_
-- `RELAY_PORT`: _port on default relay, defaults to port 25_
-- `RELAY_USER`: _username for the default relay_
-- `RELAY_PASSWORD`: _password for the default user_
+## Configuration
 
-Setting these environment variables will cause mail for all sender domains to be routed via the specified host, authenticating with the user/password combination.
+All mail sent outbound from DMS (_where the sender address is a DMS account or a virtual alias_) will be relayed through the configured relay host.
 
-!!! warning
-    For users of the previous `AWS_SES_*` variables: please update your configuration to use these new variables, no other configuration is required.
+For technical details on both supported ENV and config files, see the [Relay Host section][docs::env-relay] of our ENV docs.
 
-## Advanced Configuration
+!!! info "Configuration via ENV"
 
-### Sender-dependent Authentication
+    Configure the default relayhost with either of these ENV:
 
-Sender dependent authentication is done in `docker-data/dms/config/postfix-sasl-password.cf`. You can create this file manually, or use:
+    - `RELAY_HOST` (eg: `mail.relay-service.com`) + `RELAY_PORT` (default: 25)
+    - `DEFAULT_RELAY_HOST` (eg: `[mail.relay-service.com]:25`)
 
-```sh
-setup.sh relay add-auth <domain> <username> [<password>]
-```
+    Most relay services also require authentication configured:
 
-An example configuration file looks like this:
+    - `RELAY_USER` + `RELAY_PASSWORD` provides credentials for authenticating with the default relayhost.
 
-```txt
-@domain1.com           relay_user_1:password_1
-@domain2.com           relay_user_2:password_2
-```
+    !!! warning "Providing secrets via ENV"
 
-If there is no other configuration, this will cause Postfix to deliver email through the relay specified in `RELAY_HOST` env variable, authenticating as `relay_user_1` when sent from `domain1.com` and authenticating as `relay_user_2` when sending from `domain2.com`.
+        While ENV is convenient, the risk of exposing secrets is higher.
 
-!!! note
-    To activate the configuration you must either restart the container, or you can also trigger an update by modifying a mail account.
+        `setup relay add-auth` is a better alternative, which manages the credentials via a config file.
 
-### Sender-dependent Relay Host
+??? tip "Excluding specific sender domains from relay"
 
-Sender dependent relay hosts are configured in `docker-data/dms/config/postfix-relaymap.cf`. You can create this file manually, or use:
+    You can opt-out with: `setup relay exclude-domain <domain>`
 
-```sh
-setup.sh relay add-domain <domain> <host> [<port>]
-```
+    Outbound mail from senders of that domain will be sent normally (_instead of through the configured `RELAY_HOST`_).
 
-An example configuration file looks like this:
+    !!! warning "When any relay host credentials are configured"
 
-```txt
-@domain1.com        [relay1.org]:587
-@domain2.com        [relay2.org]:2525
-```
+        It will still be expected that mail is sent over a secure connection with credentials provided.
 
-Combined with the previous configuration in `docker-data/dms/config/postfix-sasl-password.cf`, this will cause Postfix to deliver mail sent from `domain1.com` via `relay1.org:587`, authenticating as `relay_user_1`, and mail sent from `domain2.com` via `relay2.org:2525` authenticating as `relay_user_2`.
+        Thus this opt-out feature is rarely practical.
 
-!!! note
-    You still have to define `RELAY_HOST` to activate the feature
+### Advanced Configuration
 
-### Excluding Sender Domains
+When mail is sent, there is support to change the relay service or the credentials configured based on the sender address domain used.
 
-If you want mail sent from some domains to be delivered directly, you can exclude them from being delivered via the default relay by adding them to `docker-data/dms/config/postfix-relaymap.cf` with no destination. You can also do this via:
+We provide this support via two config files:
 
-```sh
-setup.sh relay exclude-domain <domain>
-```
+- Sender-dependent Relay Host: `docker-data/dms/config/postfix-relaymap.cf`
+- Sender-dependent Authentication: `docker-data/dms/config/postfix-sasl-password.cf`
 
-Extending the configuration file from above:
+!!! tip "Configure with our `setup relay` commands"
 
-```txt
-@domain1.com        [relay1.org]:587
-@domain2.com        [relay2.org]:2525
-@domain3.com
-```
+    While you can edit those configs directly, DMS provides these helpful config management commands:
 
-This will cause email sent from `domain3.com` to be delivered directly.
+    ```cli-syntax
+    # Configure a sender domain to use a specific relay host:
+    setup relay add-domain <domain> <host> [<port>]
+
+    # Configure relay host credentials for a sender domain to use:
+    setup relay add-auth <domain> <username> [<password>]
+
+    # Optionally avoid relaying from senders of this domain:
+    # NOTE: Only supported when configured with the `RELAY_HOST` ENV!
+    setup relay exclude-domain <domain>
+    ```
+
+!!! example "Config file: `postfix-sasl-password.cf`"
+
+    ```cf-extra title="docker-data/dms/config/postfix-sasl-password.cf"
+    @domain1.com        mailgun-user:secret
+    @domain2.com        sendgrid-user:secret
+
+    # NOTE: This must have an exact match with the relay host in `postfix-relaymap.cf`,
+    # `/etc/postfix/relayhost_map`, or the `DEFAULT_RELAY_HOST` ENV.
+    # NOTE: Not supported via our setup CLI, but valid config for Postfix.
+    [email-smtp.us-west-2.amazonaws.com]:2587 aws-user:secret
+    ```
+
+    When Postfix needs to lookup credentials for mail sent outbound, the above config will:
+
+    - Authenticate as `mailgun-user` for mail sent with a sender belonging to `@domain1.com`
+    - Authenticate as `sendgrid-user` for mail sent with a sender belonging to `@domain2.com`
+    - Authenticate as `aws-user` for mail sent through a configured AWS SES relay host (any sender domain).
+
+!!! example "Config file: `postfix-relaymap.cf`"
+
+    ```cf-extra title="docker-data/dms/config/postfix-relaymap.cf"
+    @domain1.com        [smtp.mailgun.org]:587
+    @domain2.com        [smtp.sendgrid.net]:2525
+
+    # Opt-out of relaying:
+    @domain3.com
+    ```
+
+    When Postfix sends mail outbound from these sender domains, the above config will:
+
+    - Relay mail through `[smtp.mailgun.org]:587` when mail is sent from a sender of `@domain1.com`
+    - Relay mail through `[smtp.sendgrid.net]:2525` when mail is sent from a sender of `@domain1.com`
+    - Mail with a sender from `@domain3.com` is not sent through a relay (_**Only applicable** when using `RELAY_HOST`_)
+
+[smarthost::mailgun]: https://www.mailgun.com/
+[smarthost::mailjet]: https://www.mailjet.com
+[smarthost::sendgrid]: https://sendgrid.com/
+[smarthost::aws-ses]: https://aws.amazon.com/ses/
+[wikipedia::smarthost]: https://en.wikipedia.org/wiki/Smart_host
+
+[docs::env-relay]: ../../environment.md#relay-host
