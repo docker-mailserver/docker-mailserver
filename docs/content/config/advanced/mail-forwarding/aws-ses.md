@@ -15,7 +15,7 @@ title: 'Mail Forwarding | AWS SES'
     ```env
     RELAY_HOST=email-smtp.us-west-2.amazonaws.com
     RELAY_PORT=587
-    # Alternative to RELAY_HOST + RELAY_PORT:
+    # Alternative to RELAY_HOST + RELAY_PORT which is compatible with LDAP:
     DEFAULT_RELAY_HOST=[email-smtp.us-west-2.amazonaws.com]:587
 
     RELAY_USER=aws-user

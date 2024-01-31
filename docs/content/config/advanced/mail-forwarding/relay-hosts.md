@@ -22,8 +22,8 @@ All mail sent outbound from DMS (_where the sender address is a DMS account or a
 
     Configure the default relayhost with either of these ENV:
 
+    - Preferable (_LDAP compatible_): `DEFAULT_RELAY_HOST` (eg: `[mail.relay-service.com]:25`)
     - `RELAY_HOST` (eg: `mail.relay-service.com`) + `RELAY_PORT` (default: 25)
-    - `DEFAULT_RELAY_HOST` (eg: `[mail.relay-service.com]:25`)
 
     Most relay services also require authentication configured:
 

@@ -1020,6 +1020,8 @@ Supported ENV for the [Relay Host][docs::relay-host] feature.
 
     This is advised unless you need support for sender domain opt-out (via `setup relay exclude-domain`).
 
+    The implementation for `RELAY_HOST` is not compatible with LDAP.
+
 !!! tip "Opt-in for relay host support"
 
     Enable relaying only for specific sender domains instead by using `setup relay add-domain`.
