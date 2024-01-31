@@ -104,6 +104,13 @@ markdown_extensions:
           lang: cfg
         - name: env
           lang: properties
+        # We only show PHP snippets, requires config change to work:
+        # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown-extensions/#highlight
+        # https://facelessuser.github.io/pymdown-extensions/extensions/highlight/#extended-pygments-lexer-options
+        - name: php
+          lang: php
+          options:
+            startinline: true
         # A variant that sometimes has nicer syntax highlighting:
         - name: cf-extra
           lang: linuxconfig

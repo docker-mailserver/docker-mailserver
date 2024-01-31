@@ -27,6 +27,7 @@ This example assumes you have:
 
     === "1. Docker Mailserver"
         Edit the following values in `mailserver.env`:
+
         ```env
         # -----------------------------------------------
         # --- OAUTH2 Section ----------------------------
