@@ -185,18 +185,18 @@ You can also have comments (the line starts with `#`) and blank lines in `custom
 Do you want to start using Rspamd? Rspamd is disabled by default, so you need to set the following environment variables:
 
 ```ini
-# When enabling Rspamd, you _can_ also enable ClamAV
 ENABLE_RSPAMD=1
+# ClamAV is compatible with Rspamd. Optionally enable it for anti-virus support:
 ENABLE_CLAMAV=1
 
-# All other anti-spam services should be disabled when using Rspamd
+# Rspamd replaces the functionality of all these anti-spam services, disable them:
 ENABLE_OPENDKIM=0
 ENABLE_OPENDMARC=0
 ENABLE_POLICYD_SPF=0
 ENABLE_AMAVIS=0
 ENABLE_SPAMASSASSIN=0
 
-# When you do set `RSPAMD_GREYLISTING=1`, also disable Postgrey
+# Provided you've set `RSPAMD_GREYLISTING=1`, also disable Postgrey:
 ENABLE_POSTGREY=0
 ```
 
@@ -242,22 +242,21 @@ We recommend mounting the files directly into the container, as they are rather 
 
 While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of other software, we recommend integrating _Abusix_ only into a single piece of software running in your mail server - everything else would be excessive and wasting queries. Moreover, we recommend the integration into suitable filtering software and not Postfix itself, as software like Postscreen or Rspamd can properly evaluate the return codes and other configuration.
 
-[www::rspamd-homepage]: https://rspamd.com/
-[www::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/rspamd/local.d/actions.conf
-[www::rspamd-docs-bayes]: https://rspamd.com/doc/configuration/statistic.html
-[www::rspamd-docs-proxy-self-scan-mode]: https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode
-[www::rspamd-docs-web-interface]: https://rspamd.com/webui/
-[www::rspamd-docs-modules]: https://rspamd.com/doc/modules/
+[rspamd-web]: https://rspamd.com/
+[rspamd-docs::bayes]: https://rspamd.com/doc/configuration/statistic.html
+[rspamd-docs::proxy-self-scan-mode]: https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode
+[rspamd-docs::web-interface]: https://rspamd.com/webui/
+[rspamd-docs::modules]: https://rspamd.com/doc/modules/
+[rspamd-docs::override-dir]: https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
+[rspamd-docs::config-directories]: https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
+[rspamd-docs::basic-options]: https://rspamd.com/doc/configuration/options.html
+
 [www::rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&comment=119818
+[abusix-web]: https://abusix.com/
+[abusix-docs::rspamd-integration]: https://docs.abusix.com/abusix-mail-intelligence/gbG8EcJ3x3fSUv8cMZLiwA/getting-started/dmw9dcwSGSNQiLTssFAnBW#rspamd
 
-[www::rspamd-docs-override-dir]: https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
-[www::rspamd-docs-config-directories]: https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
-[www::rspamd-docs-basic-options]: https://rspamd.com/doc/configuration/options.html
-
-[www::abusix]: https://abusix.com/
-[www::abusix-rspamd-integration]: https://docs.abusix.com/abusix-mail-intelligence/gbG8EcJ3x3fSUv8cMZLiwA/getting-started/dmw9dcwSGSNQiLTssFAnBW#rspamd
-
-[repo::dms-default-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd
+[dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/blob/v14.0.0/target/rspamd/local.d/actions.conf
+[dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd
 
 [docs::spam-to-junk]: ../environment.md#move_spam_to_junk
 [docs::dkim-dmarc-spf]: ../best-practices/dkim_dmarc_spf.md
