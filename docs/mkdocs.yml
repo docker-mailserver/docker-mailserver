@@ -89,6 +89,7 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
+      # Configures an alias (name) to a supported syntax (lang):
       extend_pygments_lang:
         - name: yml
           lang: yaml
@@ -98,8 +99,13 @@ markdown_extensions:
           lang: cfg
         - name: env
           lang: properties
-        # Not helpful with Python Pygments lexer highlighting, but we might change to a JS highlighter in future
-        # Ideally, this type of codefence might also have word-wrap enabled (CSS: {white-space: pre-wrap})
+        # A variant that sometimes has nicer syntax highlighting:
+        - name: cf-extra
+          lang: linuxconfig
+        - name: cli-syntax
+          lang: linuxconfig
+        # These formats aren't supported by Python Pygments lexer,
+        # but we use them when the context is appropriate.
         - name: log
           lang: shell-session
         - name: fetchmailrc

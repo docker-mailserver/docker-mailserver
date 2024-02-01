@@ -49,17 +49,7 @@ function _check_for_changes() {
 
     local CHANGED
     CHANGED=$(_get_changed_files "${CHKSUM_FILE}" "${CHKSUM_FILE}.new")
-
-    # Handle any changes
-    _ssl_changes
-    _postfix_dovecot_changes
-    _rspamd_changes
-
-    _log_with_date 'debug' 'Reloading services due to detected changes'
-
-    [[ ${ENABLE_AMAVIS} -eq 1 ]] && _reload_amavis
-    _reload_postfix
-    [[ ${SMTP_ONLY} -ne 1 ]] && dovecot reload
+    _handle_changes
 
     _remove_lock
     _log_with_date 'debug' 'Completed handling of detected change'
@@ -67,6 +57,29 @@ function _check_for_changes() {
     # mark changes as applied
     mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
   fi
+}
+
+function _handle_changes() {
+  # Variable to identify any config updates dependent upon vhost changes.
+  local VHOST_UPDATED=0
+  # These two configs are the source for /etc/postfix/vhost (managed mail domains)
+  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-(accounts|virtual).cf ]]; then
+    _log_with_date 'trace' 'Regenerating vhosts (Postfix)'
+    # Regenerate via `helpers/postfix.sh`:
+    _create_postfix_vhost
+
+    VHOST_UPDATED=1
+  fi
+
+  _ssl_changes
+  _postfix_dovecot_changes
+  _rspamd_changes
+
+  _log_with_date 'debug' 'Reloading services due to detected changes'
+
+  [[ ${ENABLE_AMAVIS} -eq 1 ]] && _reload_amavis
+  _reload_postfix
+  [[ ${SMTP_ONLY} -ne 1 ]] && dovecot reload
 }
 
 function _get_changed_files() {
@@ -85,9 +98,9 @@ function _get_changed_files() {
 }
 
 function _reload_amavis() {
-  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]]; then
-    # /etc/postfix/vhost was updated, amavis must refresh it's config by
-    # reading this file again in case of new domains, otherwise they will be ignored.
+  # /etc/postfix/vhost was updated, amavis must refresh it's config by
+  # reading this file again in case of new domains, otherwise they will be ignored.
+  if [[ ${VHOST_UPDATED} -eq 1 ]]; then
     amavisd reload
   fi
 }
@@ -114,28 +127,18 @@ function _postfix_dovecot_changes() {
   # - postfix-sasl-password.cf used by _relayhost_sasl
   # - _populate_relayhost_map relies on:
   #   - postfix-relaymap.cf
-  #   - postfix-accounts.cf + postfix-virtual.cf (both will be dropped in future)
-  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf      ]] \
-  || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf       ]] \
+  if [[ ${VHOST_UPDATED} -eq 1 ]] \
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-relaymap.cf      ]] \
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-sasl-password.cf ]]
   then
     _log_with_date 'trace' 'Regenerating relay config (Postfix)'
-    _rebuild_relayhost
+    _process_relayhost_configs
   fi
 
   # Regenerate system + virtual account aliases via `helpers/aliases.sh`:
   [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]] && _handle_postfix_virtual_config
   [[ ${CHANGED} =~ ${DMS_DIR}/postfix-regexp.cf  ]] && _handle_postfix_regexp_config
   [[ ${CHANGED} =~ ${DMS_DIR}/postfix-aliases.cf ]] && _handle_postfix_aliases_config
-
-  # Regenerate `/etc/postfix/vhost` (managed mail domains) via `helpers/postfix.sh`:
-  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-accounts.cf ]] \
-  || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf  ]]
-  then
-    _log_with_date 'trace' 'Regenerating vhosts (Postfix)'
-    _create_postfix_vhost
-  fi
 
   # Legacy workaround handled here, only seems necessary for _create_accounts:
   # - `helpers/accounts.sh` logic creates folders/files with wrong ownership.

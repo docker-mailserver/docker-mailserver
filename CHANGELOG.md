@@ -36,6 +36,21 @@ The most noteworthy change of this release is the update of the container's base
       - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
+- **rsyslog:**
+  - Debian 12 adjusted the `rsyslog` configuration for the default file template from `RSYSLOG_TraditionalFileFormat` to `RSYSLOG_FileFormat` (_upstream default since 2012_). This change may affect you if you have any monitoring / analysis of log output (_eg: `mail.log` / `docker logs`_).
+    - The two formats are roughly equivalent to [RFC 3164](https://www.rfc-editor.org/rfc/rfc3164)) and [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424#section-1) respectively.
+    - A notable difference is the change to [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html#appendix-A) timestamps (_a strict subset of ISO 8601_). The [previous non-standardized timestamp format was defined in RFC 3164](https://www.rfc-editor.org/rfc/rfc3164.html#section-4.1.2) as `Mmm dd hh:mm:ss`.
+    - To revert this change you can add `sedfile -i '1i module(load="builtin:omfile" template="RSYSLOG_TraditionalFileFormat")' /etc/rsyslog.conf` via [our `user-patches.sh` feature](https://docker-mailserver.github.io/docker-mailserver/v14.0/config/advanced/override-defaults/user-patches/).
+  - Rsyslog now creates fewer log files:
+    - The files `/var/log/mail/mail.{info,warn,err}` are no longer created. These files represented `/var/log/mail.log` filtered into separate priority levels. As `/var/log/mail.log` contains all mail related messages, these files (_and their rotated counterparts_) can be deleted safely.
+    - `/var/log/messages`, `/var/log/debug` and several other log files not relevant to DMS were configured by default by Debian previously. These are not part of the `/var/log/mail/` volume mount, so should not impact anyone.
+- **Features:**
+  - The relay host feature was refactored ([#3845](https://github.com/docker-mailserver/docker-mailserver/pull/3845))
+    - The only breaking change this should introduce is with the Change Detection service (`check-for-changes.sh`).
+    - When credentials are configured for relays, change events that trigger the relayhost logic now reapply the relevant Postfix settings:
+      - `smtp_sasl_auth_enable = yes` (_SASL auth to outbound MTA connections is enabled_)
+      - `smtp_sasl_security_options = noanonymous` (_credentials are mandatory for outbound mail delivery_)
+      - `smtp_tls_security_level = encrypt` (_the outbound MTA connection must always be secure due to credentials sent_)
 - **Environment Variables**:
   - `SA_SPAM_SUBJECT` has been renamed into `SPAM_SUBJECT` to become anti-spam service agnostic. ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
     - As this functionality is now handled in Dovecot via a Sieve script instead of the respective anti-spam service during Postfix processing, this feature will only apply to mail stored in Dovecot. If you have relied on this feature in a different context, it will no longer be available.
@@ -54,11 +69,17 @@ The most noteworthy change of this release is the update of the container's base
   - Refactored helper methods for sending e-mails with specific `Message-ID` headers and the helpers for retrieving + filtering logs, which together help isolate logs relevant to specific mail when multiple mails have been processed within a single test. ([#3786](https://github.com/docker-mailserver/docker-mailserver/pull/3786))
 - **Rspamd**:
   - The `rewrite_subject` action, is now disabled by default. It has been replaced with the new `SPAM_SUBJECT` environment variable, which implements the functionality via a Sieve script instead in favor of being anti-spam service agnostic ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
+  - `RSPAMD_NEURAL` was added and is disabled by default. If switched on it wil enable the experimental Rspamd Neural network module to add a layer of analysis to spam detection using neural network technology.  ([3833](https://github.com/docker-mailserver/docker-mailserver/pull/3833))
 
 ### Fixes
 
 - DMS config files that are parsed line by line are now more robust to parse by detecting and fixing line-endings ([#3819](https://github.com/docker-mailserver/docker-mailserver/pull/3819))
 - Variables related to Rspamd are declared as `readonly`, which would cause warnings in the log when being re-declared; we now guard against this issue ([#3837](https://github.com/docker-mailserver/docker-mailserver/pull/3837))
+- Relay host feature refactored ([#3845](https://github.com/docker-mailserver/docker-mailserver/pull/3845))
+  - `DEFAULT_RELAY_HOST` ENV can now also use the `RELAY_USER` + `RELAY_PASSWORD` ENV for supplying credentials.
+  - `RELAY_HOST` ENV no longer enforces configuring outbound SMTP to require credentials. Like `DEFAULT_RELAY_HOST` it can now configure a relay where credentials are optional.
+  - Restarting DMS should not be required when configuring relay hosts without these ENV, but solely via `setup relay ...`, as change detection events now apply relevant Postfix setting changes for supporting credentials too.
+- Rspamd configuration: Add a missing comma in `local_networks` so that all internal IP addresses are actually considered as internal ([#3862](https://github.com/docker-mailserver/docker-mailserver/pull/3862))
 
 ## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)
 
