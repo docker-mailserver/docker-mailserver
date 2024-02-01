@@ -20,6 +20,7 @@ function _setup_rspamd() {
     __rspamd__setup_learning
     __rspamd__setup_greylisting
     __rspamd__setup_hfilter_group
+    __rspamd__setup_neural
     __rspamd__setup_check_authenticated
     _rspamd_handle_user_modules_adjustments   # must run last
 
@@ -186,7 +187,6 @@ function __rspamd__setup_default_modules() {
   local DISABLE_MODULES=(
     clickhouse
     elastic
-    neural
     reputation
     spamassassin
     url_redirector
@@ -282,6 +282,23 @@ function __rspamd__setup_hfilter_group() {
     rm -f "${MODULE_FILE}"
   fi
 }
+
+
+# This function handles setup of the neural module (see
+# https://www.rspamd.com/doc/modules/neural.html). This module is experimental
+# but can enhance anti-spam scoring possibly.
+function __rspamd__setup_neural() {
+  if _env_var_expect_zero_or_one 'RSPAMD_NEURAL' && [[ ${RSPAMD_NEURAL} -eq 1 ]]; then
+    __rspamd__log 'debug' 'Enabling Neural module'
+    __rspamd__log 'warn' 'The Neural module is still experimental (in Rspamd) and hence not tested in DMS'
+  else
+    __rspamd__log 'debug' 'Neural module is disabled'
+    rm -f "${RSPAMD_LOCAL_D}/neural.conf"
+    rm -f "${RSPAMD_LOCAL_D}/neural_group.conf"
+    __rspamd__helper__enable_disable_module 'neural' 'false'
+  fi
+}
+
 
 # If 'RSPAMD_CHECK_AUTHENTICATED' is enabled, then content checks for all users, i.e.
 # also for authenticated users, are performed.
