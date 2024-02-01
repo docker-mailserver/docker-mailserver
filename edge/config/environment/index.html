@@ -1064,6 +1064,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#rspamd_neural" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_NEURAL
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3864,6 +3873,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#rspamd_neural" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_NEURAL
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -5131,6 +5149,13 @@ expand_keys = true;
 <h5 id="rspamd_hfilter_hostname_unknown_score"><a class="toclink" href="#rspamd_hfilter_hostname_unknown_score">RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE</a></h5>
 <p>Can be used to control the score when the <a href="#rspamd_hfilter"><code>HFILTER_HOSTNAME_UNKNOWN</code> symbol</a> applies. A higher score is more punishing. Setting it to 15 (the default score for rejecting an e-mail) is equivalent to rejecting the email when the check fails.</p>
 <p>Default: 6 (which corresponds to the <code>add_header</code> action)</p>
+<h5 id="rspamd_neural"><a class="toclink" href="#rspamd_neural">RSPAMD_NEURAL</a></h5>
+<p>Can be used to enable or disable the <a href="https://www.rspamd.com/doc/modules/neural.html">Neural network module</a>. This is an experimental anti-spam weigh method using three neuaral networks in the configuration added here. As far as we can tell it trains itsself by using other modules to find out what spam is. It will take a while (a week or more) to train its first neural network. The config trains new networks all the time and discards of old networks. 
+Since it is experimental it is switched of by default.</p>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
 <h4 id="reports"><a class="toclink" href="#reports">Reports</a></h4>
 <h5 id="pflogsumm_trigger"><a class="toclink" href="#pflogsumm_trigger">PFLOGSUMM_TRIGGER</a></h5>
 <p>Enables regular Postfix log summary ("pflogsumm") mail reports.</p>
