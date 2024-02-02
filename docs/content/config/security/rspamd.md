@@ -184,7 +184,7 @@ You can also have comments (the line starts with `#`) and blank lines in `custom
 
 Do you want to start using Rspamd? Rspamd is disabled by default, so you need to set the following environment variables:
 
-```ini
+```env
 ENABLE_RSPAMD=1
 # ClamAV is compatible with Rspamd. Optionally enable it for anti-virus support:
 ENABLE_CLAMAV=1
