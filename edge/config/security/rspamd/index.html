@@ -884,6 +884,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#other-anti-spam-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Anti-Spam-Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#mode-of-operation" class="md-nav__link">
     <span class="md-ellipsis">
       Mode of Operation
@@ -2278,6 +2287,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#other-anti-spam-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Anti-Spam-Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#mode-of-operation" class="md-nav__link">
     <span class="md-ellipsis">
       Mode of Operation
@@ -2496,8 +2514,8 @@
   <h1>Rspamd</h1>
 
 <h2 id="about"><a class="toclink" href="#about">About</a></h2>
-<p>Rspamd is a <a href="https://rspamd.com/">"fast, free and open-source spam filtering system"</a>. DMS integrates Rspamd like any other service. We provide a very simple but easy to maintain setup of Rspamd.</p>
-<p>If you want to have a look at the default configuration files for Rspamd that DMS packs, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd"><code>target/rspamd/</code> inside the repository</a>. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
+<p>Rspamd is a ["fast, free and open-source spam filtering system"][www::rspamd-homepage]. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd.</p>
+<p>If you want to take a look at the default configuration files for Rspamd that DMS packs, navigate to [<code>target/rspamd/</code> inside the repository][repo::dms-default-configuration]. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
 <h2 id="related-environment-variables"><a class="toclink" href="#related-environment-variables">Related Environment Variables</a></h2>
 <p>The following environment variables are related to Rspamd:</p>
 <ol>
@@ -2514,41 +2532,42 @@
 </ol>
 <p>With these variables, you can enable Rspamd itself, and you can enable / disable certain features related to Rspamd.</p>
 <h2 id="the-default-configuration"><a class="toclink" href="#the-default-configuration">The Default Configuration</a></h2>
+<h3 id="other-anti-spam-services"><a class="toclink" href="#other-anti-spam-services">Other Anti-Spam-Services</a></h3>
+<p>DMS packs other anti-spam services, like SpamAssassin or Amavis, next to Rspamd. There exist services, like ClamAV (<code>ENABLE_CLAMAV</code>), that Rspamd can utilize to improve the scanning. Except for ClamAV, we recommend disabling <strong>all other</strong> anti-spam services when using Rspamd. The <a href="#a-very-basic-configuration">basic configuration shown below</a> provides a good starting point.</p>
 <h3 id="mode-of-operation"><a class="toclink" href="#mode-of-operation">Mode of Operation</a></h3>
 <div class="admonition tip">
 <p class="admonition-title">Attention</p>
 <p>Read this section carefully if you want to understand how Rspamd is integrated into DMS and how it works (on a surface level).</p>
 </div>
 <p>Rspamd is integrated as a milter into DMS. When enabled, Postfix's <code>main.cf</code> configuration file includes the parameter <code>rspamd_milter = inet:localhost:11332</code>, which is added to <code>smtpd_milters</code>. As a milter, Rspamd can inspect incoming and outgoing e-mails.</p>
-<p>Each mail is assigned what Rspamd calls symbols: when an e-mail matches a specific criterion, the mail receives a symbol. Afterwards, Rspamd applies a <em>spam score</em> (as usual with anti-spam software) to the e-mail.</p>
+<p>Each mail is assigned what Rspamd calls symbols: when an e-mail matches a specific criterion, the e-mail receives a symbol. Afterward, Rspamd applies a <em>spam score</em> (as usual with anti-spam software) to the e-mail.</p>
 <ul>
 <li>The score itself is calculated by adding the values of the individual symbols applied earlier. The higher the spam score is, the more likely the e-mail is spam.</li>
-<li>Symbol values can be negative (i.e., these symbols indicate the mail is legitimate, maybe because <a href="../../best-practices/dkim_dmarc_spf/">SPF and DKIM</a> are verified successfully) or the symbol can be positive (i.e., these symbols indicate the e-mail is spam, maybe because the e-mail contains a lot of links).</li>
+<li>Symbol values can be negative (i.e., these symbols indicate the mail is legitimate, maybe because <a href="../../best-practices/dkim_dmarc_spf/">SPF and DKIM</a> are verified successfully). On the other hand, symbol scores can be positive (i.e., these symbols indicate the e-mail is spam, perhaps because the e-mail contains numerous links).</li>
 </ul>
-<p>Rspamd then adds (a few) headers to the e-mail based on the spam score. Most important are <code>X-Spamd-Result</code>, which contains an overview of which symbols were applied. It could look like this:</p>
+<p>Rspamd then adds (a few) headers to the e-mail based on the spam score. Most important is <code>X-Spamd-Result</code>, which contains an overview of which symbols were applied. It could look like this:</p>
 <div class="highlight"><pre><span></span><code>X-Spamd-Result     default: False [-2.80 / 11.00]; R_SPF_NA(1.50)[no SPF record]; R_DKIM_ALLOW(-1.00)[example.com:s=dtag1]; DWL_DNSWL_LOW(-1.00)[example.com:dkim]; RWL_AMI_LASTHOP(-1.00)[192.0.2.42:from]; DMARC_POLICY_ALLOW(-1.00)[example.com,none]; RWL_MAILSPIKE_EXCELLENT(-0.40)[192.0.2.42:from]; FORGED_SENDER(0.30)[noreply@example.com,some-reply-address@bounce.example.com]; RCVD_IN_DNSWL_LOW(-0.10)[192.0.2.42:from]; MIME_GOOD(-0.10)[multipart/mixed,multipart/related,multipart/alternative,text/plain]; MIME_TRACE(0.00)[0:+,1:+,2:+,3:+,4:~,5:~,6:~]; RCVD_COUNT_THREE(0.00)[3]; RCPT_COUNT_ONE(0.00)[1]; REPLYTO_DN_EQ_FROM_DN(0.00)[]; ARC_NA(0.00)[]; TO_MATCH_ENVRCPT_ALL(0.00)[]; RCVD_TLS_LAST(0.00)[]; DKIM_TRACE(0.00)[example.com:+]; HAS_ATTACHMENT(0.00)[]; TO_DN_NONE(0.00)[]; FROM_NEQ_ENVFROM(0.00)[noreply@example.com,some-reply-address@bounce.example.com]; FROM_HAS_DN(0.00)[]; REPLYTO_DOM_NEQ_FROM_DOM(0.00)[]; PREVIOUSLY_DELIVERED(0.00)[receiver@anotherexample.com]; ASN(0.00)[asn:3320, ipnet:192.0.2.0/24, country:DE]; MID_RHS_MATCH_FROM(0.00)[]; MISSING_XM_UA(0.00)[]; HAS_REPLYTO(0.00)[some-reply-address@dms-reply.example.com]
 </code></pre></div>
 <p>And then there is a corresponding <code>X-Rspamd-Action</code> header, which shows the overall result and the action that is taken. In our example, it would be:</p>
 <div class="highlight"><pre><span></span><code>X-Rspamd-Action    no action
 </code></pre></div>
-<p>Since the score is <code>-2.80</code>, nothing will happen and the e-mail is not classified as spam. Our custom <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/rspamd/local.d/actions.conf"><code>actions.conf</code></a> defines what to do at certain scores:</p>
+<p>Since the score is <code>-2.80</code>, nothing will happen and the e-mail is not classified as spam. Our custom [<code>actions.conf</code>][www::rspamd-actions-config] defines what to do at certain scores:</p>
 <ol>
 <li>At a score of 4, the e-mail is to be <em>greylisted</em>;</li>
 <li>At a score of 6, the e-mail is <em>marked with a header</em> (<code>X-Spam: Yes</code>);</li>
-<li>At a score of 7, the e-mail will additionally have their <em>subject re-written</em> (appending a prefix like <code>[SPAM]</code>);</li>
 <li>At a score of 11, the e-mail is outright <em>rejected</em>.</li>
 </ol>
 <hr />
-<p>There is more to spam analysis than meets the eye: we have not covered the <a href="https://rspamd.com/doc/configuration/statistic.html">Bayes training and filters</a> here, nor have we talked about <a href="../../environment/#move_spam_to_junk">Sieve rules for e-mails that are marked as spam</a>.</p>
+<p>There is more to spam analysis than meets the eye: we have not covered the [Bayes training and filters][www::rspamd-docs-bayes] here, nor have we discussed <a href="../../environment/#move_spam_to_junk">Sieve rules for e-mails that are marked as spam</a>.</p>
 <p>Even the calculation of the score with the individual symbols has been presented to you in a simplified manner. But with the knowledge from above, you're equipped to read on and use Rspamd confidently. Keep on reading to understand the integration even better - you will want to know about your anti-spam software, not only to keep the bad e-mail out, but also to make sure the good e-mail arrive properly!</p>
 <h3 id="workers"><a class="toclink" href="#workers">Workers</a></h3>
-<p>The proxy worker operates in <a href="https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode">self-scan mode</a>. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-custom-settings-overriding-settings">overriding the configuration by DMS</a>.</p>
+<p>The proxy worker operates in [self-scan mode][www::rspamd-docs-proxy-self-scan-mode]. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-custom-settings-overriding-settings">overriding the configuration by DMS</a>.</p>
 <p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setups where you already have an authentication provider in front of the Rspamd webpage, you may want to <a href="#with-the-help-of-a-custom-file">set the <code>secure_ip</code> option to <code>"0.0.0.0/0"</code> for the controller worker</a> to disable password authentication inside Rspamd completely.</p>
 <h3 id="persistence-with-redis"><a class="toclink" href="#persistence-with-redis">Persistence with Redis</a></h3>
 <p>When Rspamd is enabled, we implicitly also start an instance of Redis in the container:</p>
 <ul>
 <li>Redis is configured to persist its data via RDB snapshots to disk in the directory <code>/var/lib/redis</code> (<em>or the <a href="../../advanced/optional-config/#volumes-state"><code>/var/mail-state/</code></a> volume when present</em>).</li>
-<li>With the volume mount the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.</li>
+<li>With the volume mount, the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.</li>
 </ul>
 <p>Redis uses <code>/etc/redis/redis.conf</code> for configuration:</p>
 <ul>
@@ -2556,10 +2575,10 @@
 <li>If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV <a href="../../environment/#enable_rspamd_redis"><code>ENABLE_RSPAMD_REDIS=0</code></a> (<em>link also details required changes to the DMS Rspamd config</em>).</li>
 </ul>
 <h3 id="web-interface"><a class="toclink" href="#web-interface">Web Interface</a></h3>
-<p>Rspamd provides a <a href="https://rspamd.com/webui/">web interface</a>, which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.</p>
+<p>Rspamd provides a [web interface][www::rspamd-docs-web-interface], which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.</p>
 <p><img alt="Rspamd Web Interface" src="https://rspamd.com/img/webui.png" /></p>
 <h3 id="dns"><a class="toclink" href="#dns">DNS</a></h3>
-<p>DMS does not supply custom values for DNS servers to Rspamd. If you need to use custom DNS servers, which could be required when using <a href="#rbls-realtime-blacklists-dnsbls-dns-based-blacklists">DNS-based black/whitelists</a>, you need to adjust <a href="https://rspamd.com/doc/configuration/options.html"><code>options.inc</code></a> yourself.</p>
+<p>DMS does not supply custom values for DNS servers to Rspamd. If you need to use custom DNS servers, which could be required when using <a href="#rbls-realtime-blacklists-dnsbls-dns-based-blacklists">DNS-based black/whitelists</a>, you need to adjust [<code>options.inc</code>][www::rspamd-docs-basic-options] yourself.</p>
 <div class="admonition tip">
 <p class="admonition-title">Making DNS Servers Configurable</p>
 <p>If you want to see an environment variable (like <code>RSPAMD_DNS_SERVERS</code>) to support custom DNS servers for Rspamd being added to DMS, please raise a feature request issue.</p>
@@ -2572,13 +2591,13 @@
 <h3 id="logs"><a class="toclink" href="#logs">Logs</a></h3>
 <p>You can find the Rspamd logs at <code>/var/log/mail/rspamd.log</code>, and the corresponding logs for <a href="#persistence-with-redis">Redis</a>, if it is enabled, at <code>/var/log/supervisor/rspamd-redis.log</code>. We recommend inspecting these logs (with <code>docker exec -it &lt;CONTAINER NAME&gt; less /var/log/mail/rspamd.log</code>) in case Rspamd does not work as expected.</p>
 <h3 id="modules"><a class="toclink" href="#modules">Modules</a></h3>
-<p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
+<p>You can find a list of all Rspamd modules [on their website][www::rspamd-docs-modules].</p>
 <h4 id="disabled-by-default"><a class="toclink" href="#disabled-by-default">Disabled By Default</a></h4>
 <p>DMS disables certain modules (<code>clickhouse</code>, <code>elastic</code>, <code>neural</code>, <code>reputation</code>, <code>spamassassin</code>, <code>url_redirector</code>, <code>metric_exporter</code>) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.</p>
 <h4 id="anti-virus-clamav"><a class="toclink" href="#anti-virus-clamav">Anti-Virus (ClamAV)</a></h4>
 <p>You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable <code>ENABLE_CLAMAV=1</code>.</p>
 <h4 id="rbls-real-time-blacklists-dnsbls-dns-based-blacklists"><a class="toclink" href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists">RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)</a></h4>
-<p>The <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a> is enabled by default. As a consequence, Rspamd will perform DNS lookups to a variety of blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body [<a href="https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&amp;comment=119818">source</a>].</p>
+<p>The <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a> is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body [<a href="https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&amp;comment=119818">source</a>].</p>
 <div class="admonition danger">
 <p class="admonition-title">Rspamd and DNS Block Lists</p>
 <p>When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.</p>
@@ -2590,16 +2609,16 @@
 <div class="admonition question">
 <p class="admonition-title">What is <a href="../../advanced/optional-config/#volumes-config"><code>docker-data/dms/config/</code></a>?</p>
 </div>
-<p>If you want to overwrite the default settings and / or provide your own settings, you can place files at <code>docker-data/dms/config/rspamd/override.d/</code>. Files from this directory are copied to <code>/etc/rspamd/override.d/</code> during startup. These files <a href="https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories">forcibly override</a> Rspamd and DMS default settings.</p>
+<p>If you want to overwrite the default settings or provide your settings, you can place files at <code>docker-data/dms/config/rspamd/override.d/</code>. Files from this directory are copied to <code>/etc/rspamd/override.d/</code> during startup. These files [forcibly override][www::rspamd-docs-override-dir] Rspamd and DMS default settings.</p>
 <div class="admonition question">
-<p class="admonition-title">What is the <a href="https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories"><code>local.d</code> directory and how does it compare to <code>override.d</code></a>?</p>
+<p class="admonition-title">What is the [<code>local.d</code> directory and how does it compare to <code>override.d</code>][www::rspamd-docs-config-directories]?</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Clashing Overrides</p>
 <p>Note that when also <a href="#with-the-help-of-a-custom-file">using the <code>custom-commands.conf</code> file</a>, files in <code>override.d</code> may be overwritten in case you adjust them manually and with the help of the file.</p>
 </div>
 <h3 id="with-the-help-of-a-custom-file"><a class="toclink" href="#with-the-help-of-a-custom-file">With the Help of a Custom File</a></h3>
-<p>DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called <code>custom-commands.conf</code> into <code>docker-data/dms/config/rspamd/</code>. If this file is present, DMS will evaluate it. The structure is <em>very</em> simple. Each line in the file looks like this:</p>
+<p>DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called <code>custom-commands.conf</code> into <code>docker-data/dms/config/rspamd/</code>. If this file is present, DMS will evaluate it. The structure is simple, as each line in the file looks like this:</p>
 <div class="highlight"><pre><span></span><code>COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
 </code></pre></div>
 <p>where <code>COMMAND</code> can be:</p>
@@ -2609,7 +2628,7 @@
 <li><code>set-option-for-module</code>: sets the value for option <code>ARGUMENT2</code> to <code>ARGUMENT3</code> inside module <code>ARGUMENT1</code></li>
 <li><code>set-option-for-controller</code>: set the value of option <code>ARGUMENT1</code> to <code>ARGUMENT2</code> for the controller worker</li>
 <li><code>set-option-for-proxy</code>: set the value of option <code>ARGUMENT1</code> to <code>ARGUMENT2</code> for the proxy worker</li>
-<li><code>set-common-option</code>: set the option <code>ARGUMENT1</code> that <a href="https://rspamd.com/doc/configuration/options.html">defines basic Rspamd behavior</a> to value <code>ARGUMENT2</code></li>
+<li><code>set-common-option</code>: set the option <code>ARGUMENT1</code> that [defines basic Rspamd behavior][www::rspamd-docs-basic-options] to value <code>ARGUMENT2</code></li>
 <li><code>add-line</code>: this will add the complete line after <code>ARGUMENT1</code> (with all characters) to the file <code>/etc/rspamd/override.d/&lt;ARGUMENT1&gt;</code></li>
 </ol>
 <div class="admonition example">
@@ -2626,20 +2645,27 @@
 </div>
 <h2 id="examples-advanced-configuration"><a class="toclink" href="#examples-advanced-configuration">Examples &amp; Advanced Configuration</a></h2>
 <h3 id="a-very-basic-configuration"><a class="toclink" href="#a-very-basic-configuration">A Very Basic Configuration</a></h3>
-<p>You want to start using Rspamd? Rspamd is disabled by default, so you need to set the following environment variables:</p>
+<p>Do you want to start using Rspamd? Rspamd is disabled by default, so you need to set the following environment variables:</p>
 <div class="highlight"><pre><span></span><code><span class="na">ENABLE_RSPAMD</span><span class="o">=</span><span class="s">1</span>
+<span class="c1"># ClamAV is compatible with Rspamd. Optionally enable it for anti-virus support:</span>
+<span class="na">ENABLE_CLAMAV</span><span class="o">=</span><span class="s">1</span>
+
+<span class="c1"># Rspamd replaces the functionality of all these anti-spam services, disable them:</span>
 <span class="na">ENABLE_OPENDKIM</span><span class="o">=</span><span class="s">0</span>
 <span class="na">ENABLE_OPENDMARC</span><span class="o">=</span><span class="s">0</span>
 <span class="na">ENABLE_POLICYD_SPF</span><span class="o">=</span><span class="s">0</span>
 <span class="na">ENABLE_AMAVIS</span><span class="o">=</span><span class="s">0</span>
 <span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span>
+
+<span class="c1"># Provided you&#39;ve set `RSPAMD_GREYLISTING=1`, also disable Postgrey:</span>
+<span class="na">ENABLE_POSTGREY</span><span class="o">=</span><span class="s">0</span>
 </code></pre></div>
 <p>This will enable Rspamd and disable services you don't need when using Rspamd.</p>
 <h3 id="adjusting-and-extending-the-very-basic-configuration"><a class="toclink" href="#adjusting-and-extending-the-very-basic-configuration">Adjusting and Extending The Very Basic Configuration</a></h3>
-<p>Rspamd is running, but you want or need to adjust it? First, create a file named <code>custom-commands.conf</code> under <code>docker-data/dms/config/rspamd</code> (which translates to <code>/tmp/docker-mailserver/rspamd/</code> inside the container). Then add you changes:</p>
+<p>Rspamd is running, but you want or need to adjust it? First, create a file named <code>custom-commands.conf</code> under <code>docker-data/dms/config/rspamd</code> (which translates to <code>/tmp/docker-mailserver/rspamd/</code> inside the container). Then add your changes:</p>
 <ol>
-<li>Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will need to adjust the controller worker: <code>set-option-for-controller secure_ip "0.0.0.0/0"</code>.</li>
-<li>You additionally want to enable the auto-spam-learning for the Bayes module? No problem: <code>set-option-for-module classifier-bayes autolearn true</code>.</li>
+<li>Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will have to adjust the controller worker: <code>set-option-for-controller secure_ip "0.0.0.0/0"</code>.</li>
+<li>Do you additionally want to enable the auto-spam-learning for the Bayes module? No problem: <code>set-option-for-module classifier-bayes autolearn true</code>.</li>
 <li>But the chartable module gets on your nerves? Easy: <code>disable-module chartable</code>.</li>
 </ol>
 <details class="example">
@@ -2659,14 +2685,14 @@ disable-module<span class="w"> </span>chartable
 <h3 id="dkim-signing"><a class="toclink" href="#dkim-signing">DKIM Signing</a></h3>
 <p>There is a dedicated <a href="../../best-practices/dkim_dmarc_spf/#dkim">section for setting up DKIM with Rspamd in our documentation</a>.</p>
 <h3 id="abusix-integration"><a class="toclink" href="#abusix-integration"><em>Abusix</em> Integration</a></h3>
-<p>This subsection gives information about the integration of <a href="https://abusix.com/">Abusix</a>, "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:</p>
+<p>This subsection provides information about the integration of [Abusix][www::abusix], "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:</p>
 <ol>
 <li><a href="https://app.abusix.com/signup">Create an account</a></li>
 <li>Retrieve your API key</li>
-<li>Navigate to the <a href="https://docs.abusix.com/abusix-mail-intelligence/gbG8EcJ3x3fSUv8cMZLiwA/getting-started/dmw9dcwSGSNQiLTssFAnBW#rspamd">"Getting Started" documentation for Rspamd</a> and follow the steps described there</li>
+<li>Navigate to the ["Getting Started" documentation for Rspamd][www::abusix-rspamd-integration] and follow the steps described there</li>
 <li>Make sure to change <code>&lt;APIKEY&gt;</code> to your private API key</li>
 </ol>
-<p>We recommend mounting the files directly into the container, as they are rather big and not manageable with the <a href="#with-the-help-of-a-custom-file">modules script</a>. If mounted to the correct location, Rspamd will automatically pick them up.</p>
+<p>We recommend mounting the files directly into the container, as they are rather big and not manageable with our <a href="#with-the-help-of-a-custom-file"><code>custom-command.conf</code> script</a>. If mounted to the correct location, Rspamd will automatically pick them up.</p>
 <p>While <em>Abusix</em> can be integrated into Postfix, Postscreen and a multitude of other software, we recommend integrating <em>Abusix</em> only into a single piece of software running in your mail server - everything else would be excessive and wasting queries. Moreover, we recommend the integration into suitable filtering software and not Postfix itself, as software like Postscreen or Rspamd can properly evaluate the return codes and other configuration.</p>
 
 
