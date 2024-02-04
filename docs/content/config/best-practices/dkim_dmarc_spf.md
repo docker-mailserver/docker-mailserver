@@ -82,7 +82,7 @@ You should have:
 
     When the DMS FQDN is `mail.example.com` or `example.com`, by default this command will generate DKIM keys for `example.com` as the primary domain for your users mail accounts (eg: `hello@example.com`).
 
-    The DKIM generation does not have support to query LDAP for additionanl mail domains it should know about. If the primary mail domain is not sufficient, then you must explicitly specify any extra domains via the `domain` option:
+    The DKIM generation does not have support to query LDAP for additional mail domains it should know about. If the primary mail domain is not sufficient, then you must explicitly specify any extra domains via the `domain` option:
 
     ```sh
     # ENABLE_OPENDKIM=1 (default):
