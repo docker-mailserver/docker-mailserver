@@ -177,7 +177,9 @@ function _create_keys() {
       exit 1
     else
       _log 'info' "Overwriting existing files as the '--force' option was supplied"
-      rm "${PUBLIC_KEY_FILE}" "${PUBLIC_KEY_DNS_FILE}" "${PRIVATE_KEY_FILE}"
+      [[ -f ${PUBLIC_KEY_FILE} ]] && rm "${PUBLIC_KEY_FILE}"
+      [[ -f ${PUBLIC_KEY_DNS_FILE} ]] && rm "${PUBLIC_KEY_DNS_FILE}"
+      [[ -f ${PRIVATE_KEY_FILE} ]] && rm "${PRIVATE_KEY_FILE}"
     fi
   fi
 
