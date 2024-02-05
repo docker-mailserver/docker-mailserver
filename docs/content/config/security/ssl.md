@@ -408,7 +408,7 @@ The following example is the [basic setup][acme-companion::basic-setup] you need
 
     - `LETSENCRYPT_TEST=true`: _Recommended during initial setup_. Otherwise the default production endpoint has a [rate limit of 5 duplicate certificates per week][letsencrypt::limits]. Overrides `ACME_CA_URI` to use the _Let's Encrypt_ staging endpoint.
     - `LETSENCRYPT_EMAIL`: For when you don't use `DEFAULT_EMAIL` on `acme-companion`, or want to assign a different email contact for this container.
-    - `LETSENCRYPT_KEYSIZE`: Allows you to configure the type (RSA or ECDSA) and size of the private key for your certificate. Default is RSA 4096.
+    - `LETSENCRYPT_KEYSIZE`: Allows you to configure the type (RSA or ECDSA) and size of the private key for your certificate. Default is RSA 4096, but RSA 2048 is recommended.
     - `LETSENCRYPT_RESTART_CONTAINER=true`: When the certificate is renewed, the entire container will be restarted to ensure the new certificate is used.
 
     [`acme-companion` ENV for default settings][acme-companion::env-config] that apply to all containers using `LETSENCRYPT_HOST`:
@@ -450,8 +450,8 @@ The following example is the [basic setup][acme-companion::basic-setup] you need
     # Optional variables:
     LETSENCRYPT_mail_TEST=true
     LETSENCRYPT_mail_EMAIL='admin@example.com'
-    # RSA-4096 => `4096`, ECDSA-256 => `ec-256`:
-    LETSENCRYPT_mail_KEYSIZE=4096
+    # Supported values are `2048`, `3072` and `4096` for RSA keys, and `ec-256` or `ec-384` for elliptic curve keys.
+    LETSENCRYPT_mail_KEYSIZE=2048
     ```
 
     Unlike with the equivalent ENV for containers, [changes to this file will **not** be detected automatically][acme-companion::standalone-changes]. You would need to wait until the next renewal check by `acme-companion` (_every hour by default_), restart `acme-companion`, or [manually invoke the _service loop_][acme-companion::service-loop]:
@@ -488,7 +488,7 @@ For Caddy v2 you can specify the `key_type` in your server's global settings, wh
   http_port 80
   https_port 443
   default_sni example.com
-  key_type rsa4096
+  key_type rsa2048
 }
 ```
 
