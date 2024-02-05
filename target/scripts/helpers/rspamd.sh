@@ -5,9 +5,51 @@
 # Perform a specific command as the Rspamd user (`_rspamd`). This is useful
 # in case you want to have correct permissions on newly created files or if
 # you want to check whether Rspamd can perform a specific action.
+#
+# @flag ${1} = '--quiet' to indicate whether log should be disabled [OPTIONAL]
 function __do_as_rspamd_user() {
-  _log 'trace' "Running '${*}' as user '_rspamd'"
-  su _rspamd -s /bin/bash -c "${*}"
+  if [[ ${1:-} != '--quiet' ]]; then
+    _log 'trace' "Running '${*}' as user '_rspamd'"
+  else
+    shift 1
+  fi
+
+  su _rspamd -s /bin/bash -c "${*} 2>${__RSPAMD_ERR_LOG_FILE:-/dev/null}"
+}
+
+# Create a temporary log file (with `mktemp`) that one can filter to search
+# for error messages. This is required as `rspamadm` sometimes prints an error
+# but does not exit with an error.
+#
+# The file created is managed in the ENV `__RSPAMD_ERR_LOG_FILE`. This ENV is
+# meant for internal usage; do not use it on your scripts. The log file is cleaned
+# up when the script exits.
+function __create_rspamd_err_log() {
+  _log 'trace' "Creating Rspamd error log"
+  trap 'rm -f "${__RSPAMD_ERR_LOG_FILE}"' EXIT # cleanup when we exit
+  __RSPAMD_ERR_LOG_FILE=$(__do_as_rspamd_user --quiet mktemp)
+}
+
+# Print the Rspamd temporary error log. This will succeed only when the log has been
+# created before.
+function __print_rspamd_err_log() {
+  [[ -v __RSPAMD_ERR_LOG_FILE ]] && __do_as_rspamd_user cat "${__RSPAMD_ERR_LOG_FILE}"
+}
+
+# Print the Rspamd temporary error log. We use `grep` but with "fixed strings", which
+# means the message you provide is evaluated as-is, not as a regular expression. This
+# will succeed only when the log has been created before.
+#
+# @param ${1} = message to filter by
+function __filter_rspamd_err_log() {
+  if [[ -v __RSPAMD_ERR_LOG_FILE ]]; then
+    __do_as_rspamd_user grep \
+      --quiet \
+      --ignore-case \
+      --fixed-strings \
+      "${1:?A message for filtering is required}" \
+      "${__RSPAMD_ERR_LOG_FILE}"
+  fi
 }
 
 # Calling this function brings common Rspamd-related environment variables
