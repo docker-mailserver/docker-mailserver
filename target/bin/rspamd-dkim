@@ -183,6 +183,8 @@ function _create_keys() {
     fi
   fi
 
+  __create_rspamd_err_log
+
   # shellcheck disable=SC2310
   if __do_as_rspamd_user rspamadm \
       dkim_keygen                 \
@@ -190,12 +192,14 @@ function _create_keys() {
       -d "${DOMAIN}"              \
       "${KEYTYPE_OPTIONS[@]}"     \
       -k "${PRIVATE_KEY_FILE}"    \
-      >"${PUBLIC_KEY_FILE}"
+      >"${PUBLIC_KEY_FILE}"       \
+    && ! __filter_rspamd_err_log 'Permission denied' # we also need to check the log for error messages
   then
       _log 'info' 'Successfully created DKIM keys'
       _log 'debug' "Public key written to '${PUBLIC_KEY_FILE}'"
       _log 'debug' "Private key written to '${PRIVATE_KEY_FILE}'"
   else
+    __print_rspamd_err_log
     _exit_with_error 'Creating keys failed'
   fi
 }
