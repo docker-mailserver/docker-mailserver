@@ -2772,7 +2772,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <ul>
 <li><code>LETSENCRYPT_TEST=true</code>: <em>Recommended during initial setup</em>. Otherwise the default production endpoint has a <a href="https://letsencrypt.org/docs/rate-limits/">rate limit of 5 duplicate certificates per week</a>. Overrides <code>ACME_CA_URI</code> to use the <em>Let's Encrypt</em> staging endpoint.</li>
 <li><code>LETSENCRYPT_EMAIL</code>: For when you don't use <code>DEFAULT_EMAIL</code> on <code>acme-companion</code>, or want to assign a different email contact for this container.</li>
-<li><code>LETSENCRYPT_KEYSIZE</code>: Allows you to configure the type (RSA or ECDSA) and size of the private key for your certificate. Default is RSA 4096.</li>
+<li><code>LETSENCRYPT_KEYSIZE</code>: Allows you to configure the type (RSA or ECDSA) and size of the private key for your certificate. Default is RSA 4096, but RSA 2048 is recommended.</li>
 <li><code>LETSENCRYPT_RESTART_CONTAINER=true</code>: When the certificate is renewed, the entire container will be restarted to ensure the new certificate is used.</li>
 </ul>
 <p><a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Container-configuration.md"><code>acme-companion</code> ENV for default settings</a> that apply to all containers using <code>LETSENCRYPT_HOST</code>:</p>
@@ -2809,8 +2809,8 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <span class="c1"># Optional variables:</span>
 <span class="nv">LETSENCRYPT_mail_TEST</span><span class="o">=</span><span class="nb">true</span>
 <span class="nv">LETSENCRYPT_mail_EMAIL</span><span class="o">=</span><span class="s1">&#39;admin@example.com&#39;</span>
-<span class="c1"># RSA-4096 =&gt; `4096`, ECDSA-256 =&gt; `ec-256`:</span>
-<span class="nv">LETSENCRYPT_mail_KEYSIZE</span><span class="o">=</span><span class="m">4096</span>
+<span class="c1"># Supported values are `2048`, `3072` and `4096` for RSA keys, and `ec-256` or `ec-384` for elliptic curve keys.</span>
+<span class="nv">LETSENCRYPT_mail_KEYSIZE</span><span class="o">=</span><span class="m">2048</span>
 </code></pre></div>
 <p>Unlike with the equivalent ENV for containers, <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md#picking-up-changes-to-letsencrypt_user_data">changes to this file will <strong>not</strong> be detected automatically</a>. You would need to wait until the next renewal check by <code>acme-companion</code> (<em>every hour by default</em>), restart <code>acme-companion</code>, or <a href="https://github.com/nginx-proxy/acme-companion/blob/main/docs/Container-utilities.md">manually invoke the <em>service loop</em></a>:</p>
 <p><code class="highlight">docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>nginx-proxy-acme<span class="w"> </span>/app/signal_le_service</code></p>
@@ -2835,7 +2835,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
   http_port 80
   https_port 443
   default_sni example.com
-  key_type rsa4096
+  key_type rsa2048
 }
 </code></pre></div>
 <p>If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:</p>
