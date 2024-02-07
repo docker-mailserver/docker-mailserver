@@ -144,7 +144,7 @@ COPY target/postgrey/postgrey /etc/default/postgrey
 RUN <<EOF
   mkdir /var/run/postgrey
   chown postgrey:postgrey /var/run/postgrey
-  curl -Lsfo /etc/postgrey/whitelist_clients https://postgrey.schweikert.ch/pub/postgrey_whitelist_clients
+  curl -Lsfo /etc/postgrey/whitelist_clients https://raw.githubusercontent.com/schweikert/postgrey/master/postgrey_whitelist_clients
 EOF
 
 COPY target/amavis/conf.d/* /etc/amavis/conf.d/
