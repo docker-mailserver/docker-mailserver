@@ -75,7 +75,9 @@ The most noteworthy change of this release is the update of the container's base
 
 ### Fixes
 
-- DMS config files that are parsed line by line are now more robust to parse by detecting and fixing line-endings ([#3819](https://github.com/docker-mailserver/docker-mailserver/pull/3819))
+- DMS config:
+  - Files that are parsed line by line are now more robust to parse by detecting and fixing line-endings ([#3819](https://github.com/docker-mailserver/docker-mailserver/pull/3819))
+  - The override config `postfix-main.cf` now retains custom parameters intended for use with `postfix-master.cf` ([#3880](https://github.com/docker-mailserver/docker-mailserver/pull/3880))
 - Variables related to Rspamd are declared as `readonly`, which would cause warnings in the log when being re-declared; we now guard against this issue ([#3837](https://github.com/docker-mailserver/docker-mailserver/pull/3837))
 - Relay host feature refactored ([#3845](https://github.com/docker-mailserver/docker-mailserver/pull/3845))
   - `DEFAULT_RELAY_HOST` ENV can now also use the `RELAY_USER` + `RELAY_PASSWORD` ENV for supplying credentials.
