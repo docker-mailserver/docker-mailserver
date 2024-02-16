@@ -48,6 +48,9 @@ function _setup_save_states() {
         _log 'trace' "Moving ${SERVICEFILE} to ${DEST}"
         # Empty volume was mounted, or new content from enabling a feature ENV:
         mv "${SERVICEFILE}" "${DEST}"
+        # Apply SELinux security context to match the state directory, so access
+        # is not restricted to the current running container:
+        chcon -R --reference="${STATEDIR}" "${DEST}" 2>/dev/null || true
       fi
 
       # Symlink the original file in the container ($SERVICEFILE) to be
@@ -69,6 +72,9 @@ function _setup_save_states() {
         _log 'trace' "Moving contents of ${SERVICEDIR} to ${DEST}"
         # Empty volume was mounted, or new content from enabling a feature ENV:
         mv "${SERVICEDIR}" "${DEST}"
+        # Apply SELinux security context to match the state directory, so access
+        # is not restricted to the current running container:
+        chcon -R --reference="${STATEDIR}" "${DEST}" 2>/dev/null || true
       fi
 
       # Symlink the original path in the container ($SERVICEDIR) to be
