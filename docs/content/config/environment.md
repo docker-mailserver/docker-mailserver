@@ -212,7 +212,7 @@ Configures the handling of creating mails with forged sender addresses.
 
 ##### ENABLE_SRS
 
-Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
+Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/main/README.rst) for further explanation.
 
 - **0** => Disabled
 - 1 => Enabled

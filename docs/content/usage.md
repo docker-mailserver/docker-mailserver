@@ -2,7 +2,7 @@
 title: Usage
 ---
 
-This pages explains how to get started with DMS. The guide uses Docker Compose as a reference. In our examples, a volume mounts the host location [`docker-data/dms/config/`][docs::dms-volumes-config] to `/tmp/docker-mailserver/` inside the container.
+This page explains how to get started with DMS. The guide uses Docker Compose as a reference. In our examples, a volume mounts the host location [`docker-data/dms/config/`][docs::dms-volumes-config] to `/tmp/docker-mailserver/` inside the container.
 
 [docs::dms-volumes-config]: ./config/advanced/optional-config.md#volumes-config
 
