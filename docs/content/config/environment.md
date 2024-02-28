@@ -545,6 +545,12 @@ Changes the interval in which log files are rotated.
 
     This variable can also determine the interval for Postfix's log summary reports, see [`PFLOGSUMM_TRIGGER`](#pflogsumm_trigger).
 
+##### LOGROTATE_COUNT
+
+Defines how many files are kept by logrotate.
+
+- **4** => Number of files
+
 #### SpamAssassin
 
 ##### ENABLE_SPAMASSASSIN
