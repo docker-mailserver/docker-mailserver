@@ -109,7 +109,7 @@ function __rspamd__setup_logfile() {
   compress
   copytruncate
   delaycompress
-  rotate 4
+  rotate ${LOGROTATE_COUNT}
   ${LOGROTATE_INTERVAL}
 }
 EOF

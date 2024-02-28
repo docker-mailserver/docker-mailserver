@@ -19,13 +19,19 @@ function _setup_logrotate() {
     _dms_panic__invalid_value 'LOGROTATE_INTERVAL' 'Setup -> Logrotate'
   fi
 
+  if [[ ${LOGROTATE_COUNT} =~ ^[0-9]+$ ]]; then
+    _log 'trace' "Logrotate count set to ${LOGROTATE_COUNT}"
+  else
+    _dms_panic__invalid_value 'LOGROTATE_COUNT' 'Setup -> Logrotate'
+  fi
+
   cat >/etc/logrotate.d/maillog << EOF
 /var/log/mail/mail.log
 {
   compress
   copytruncate
   delaycompress
-  rotate 4
+  rotate ${LOGROTATE_COUNT}
   ${LOGROTATE_INTERVAL}
 }
 EOF
