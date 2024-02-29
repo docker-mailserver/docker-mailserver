@@ -204,14 +204,13 @@ function __setup__security__fail2ban() {
     fi
 
     echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
-
-    _log 'trace' 'Configuring fail2ban logrotate rotate count and interval'
-    sedfile -i "s|rotate 4$|rotate ${LOGROTATE_COUNT}|" /etc/logrotate.d/fail2ban
-    sedfile -i "s|weekly$|${LOGROTATE_INTERVAL}|"       /etc/logrotate.d/fail2ban
   else
     _log 'debug' 'Fail2Ban is disabled'
     rm -f /etc/logrotate.d/fail2ban
   fi
+  _log 'trace' 'Configuring fail2ban logrotate rotate count and interval'
+  sedfile -i "s|rotate 4$|rotate ${LOGROTATE_COUNT}|" /etc/logrotate.d/fail2ban
+  sedfile -i "s|weekly$|${LOGROTATE_INTERVAL}|"       /etc/logrotate.d/fail2ban
 }
 
 function __setup__security__amavis() {
