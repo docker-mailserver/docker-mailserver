@@ -100,6 +100,15 @@ DMS does not supply custom values for DNS servers to Rspamd. If you need to use 
 
     If you want to see an environment variable (like `RSPAMD_DNS_SERVERS`) to support custom DNS servers for Rspamd being added to DMS, please raise a feature request issue.
 
+!!! warning
+
+    Rspamd heavily relies on a functioning DNS. In case your DNS does not work, you will encounter issues in the form of
+
+    1. e-mails being marked as spam when they actually are not spam;
+    2. e-mails being rejected because Rspamd is confident that the e-mails are spam, when they actually are not spam.
+
+    An example here are the SPF, DKIM and DMARC checks, all of which are based on DNS records. These checks have a symbol for DNS temporary errors, with a non-zero weight - i.e., they will increase the spam score of the e-mail. This is undesirable, especially because mechanisms like SPF, DKIM and DMARC are frequently used to avoid spam.
+
 !!! danger
 
     While we do not provide values for custom DNS servers by default, we set `soft_reject_on_timeout = true;` by default. This setting will cause a soft reject if a task (presumably a DNS request) timeout takes place.
