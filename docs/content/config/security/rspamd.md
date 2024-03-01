@@ -102,12 +102,9 @@ DMS does not supply custom values for DNS servers to Rspamd. If you need to use 
 
 !!! warning
 
-    Rspamd heavily relies on a functioning DNS. In case your DNS does not work, you will encounter issues in the form of
+    Rspamd heavily relies on a properly working DNS server that it can use to resolve DNS queries. If your DNS server is misconfigured, you will encounter issues when Rspamd queries DNS to assess if mail is spam. Legitimate mail is then unintentionally marked as spam or worse, rejected entirely.
 
-    1. e-mails being marked as spam when they actually are not spam;
-    2. e-mails being rejected because Rspamd is confident that the e-mails are spam, when they actually are not spam.
-
-    An example here are the SPF, DKIM and DMARC checks, all of which are based on DNS records. These checks have a symbol for DNS temporary errors, with a non-zero weight - i.e., they will increase the spam score of the e-mail. This is undesirable, especially because mechanisms like SPF, DKIM and DMARC are frequently used to avoid spam.
+    When Rspamd is deciding if mail is spam, it will check DNS records for SPF, DKIM and DMARC. Each of those has an associated symbol for DNS temporary errors with a non-zero weight assigned. That weight contributes towards the spam score assessed by Rspamd which is normally desirable - provided your network DNS is functioning correctly, otherwise when DNS is broken all mail is biased towards spam due to these failed DNS lookups.
 
 !!! danger
 
