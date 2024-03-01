@@ -189,14 +189,17 @@ function __setup__security__fail2ban() {
     _log 'debug' 'Enabling and configuring Fail2Ban'
 
     if [[ -e /tmp/docker-mailserver/fail2ban-fail2ban.cf ]]; then
+      _log 'trace' 'Custom fail2ban-fail2ban.cf found'
       cp /tmp/docker-mailserver/fail2ban-fail2ban.cf /etc/fail2ban/fail2ban.local
     fi
 
     if [[ -e /tmp/docker-mailserver/fail2ban-jail.cf ]]; then
+      _log 'trace' 'Custom fail2ban-jail.cf found'
       cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.d/user-jail.local
     fi
 
     if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]; then
+      _log 'trace' "Setting fail2ban blocktype to 'drop'"
       echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
     fi
 
@@ -205,6 +208,9 @@ function __setup__security__fail2ban() {
     _log 'debug' 'Fail2Ban is disabled'
     rm -f /etc/logrotate.d/fail2ban
   fi
+  _log 'trace' 'Configuring fail2ban logrotate rotate count and interval'
+  sedfile -i "s|rotate 4$|rotate ${LOGROTATE_COUNT}|" /etc/logrotate.d/fail2ban
+  sedfile -i "s|weekly$|${LOGROTATE_INTERVAL}|"       /etc/logrotate.d/fail2ban
 }
 
 function __setup__security__amavis() {
