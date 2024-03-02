@@ -4,9 +4,9 @@ title: 'Security | Rspamd'
 
 ## About
 
-Rspamd is a ["fast, free and open-source spam filtering system"][www::rspamd-homepage]. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd.
+Rspamd is a ["fast, free and open-source spam filtering system"][rspamd-web]. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd.
 
-If you want to take a look at the default configuration files for Rspamd that DMS packs, navigate to [`target/rspamd/` inside the repository][repo::dms-default-configuration]. Please consult the [section "The Default Configuration"](#the-default-configuration) section down below for a written overview.
+If you want to take a look at the default configuration files for Rspamd that DMS packs, navigate to [`target/rspamd/` inside the repository][dms-repo::default-rspamd-configuration]. Please consult the [section "The Default Configuration"](#the-default-configuration) section down below for a written overview.
 
 ## Related Environment Variables
 
@@ -56,7 +56,7 @@ And then there is a corresponding `X-Rspamd-Action` header, which shows the over
 X-Rspamd-Action    no action
 ```
 
-Since the score is `-2.80`, nothing will happen and the e-mail is not classified as spam. Our custom [`actions.conf`][www::rspamd-actions-config] defines what to do at certain scores:
+Since the score is `-2.80`, nothing will happen and the e-mail is not classified as spam. Our custom [`actions.conf`][dms-repo::rspamd-actions-config] defines what to do at certain scores:
 
 1. At a score of 4, the e-mail is to be _greylisted_;
 2. At a score of 6, the e-mail is _marked with a header_ (`X-Spam: Yes`);
@@ -64,13 +64,13 @@ Since the score is `-2.80`, nothing will happen and the e-mail is not classified
 
 ---
 
-There is more to spam analysis than meets the eye: we have not covered the [Bayes training and filters][www::rspamd-docs-bayes] here, nor have we discussed [Sieve rules for e-mails that are marked as spam][docs::spam-to-junk].
+There is more to spam analysis than meets the eye: we have not covered the [Bayes training and filters][rspamd-docs::bayes] here, nor have we discussed [Sieve rules for e-mails that are marked as spam][docs::spam-to-junk].
 
 Even the calculation of the score with the individual symbols has been presented to you in a simplified manner. But with the knowledge from above, you're equipped to read on and use Rspamd confidently. Keep on reading to understand the integration even better - you will want to know about your anti-spam software, not only to keep the bad e-mail out, but also to make sure the good e-mail arrive properly!
 
 ### Workers
 
-The proxy worker operates in [self-scan mode][www::rspamd-docs-proxy-self-scan-mode]. This simplifies the setup as we do not require a normal worker. You can easily change this though by [overriding the configuration by DMS](#providing-custom-settings-overriding-settings).
+The proxy worker operates in [self-scan mode][rspamd-docs::proxy-self-scan-mode]. This simplifies the setup as we do not require a normal worker. You can easily change this though by [overriding the configuration by DMS](#providing-custom-settings-overriding-settings).
 
 DMS does not set a default password for the controller worker. You may want to do that yourself. In setups where you already have an authentication provider in front of the Rspamd webpage, you may want to [set the `secure_ip ` option to `"0.0.0.0/0"` for the controller worker](#with-the-help-of-a-custom-file) to disable password authentication inside Rspamd completely.
 
@@ -88,17 +88,23 @@ Redis uses `/etc/redis/redis.conf` for configuration:
 
 ### Web Interface
 
-Rspamd provides a [web interface][www::rspamd-docs-web-interface], which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.
+Rspamd provides a [web interface][rspamd-docs::web-interface], which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.
 
 ![Rspamd Web Interface](https://rspamd.com/img/webui.png)
 
 ### DNS
 
-DMS does not supply custom values for DNS servers to Rspamd. If you need to use custom DNS servers, which could be required when using [DNS-based black/whitelists](#rbls-realtime-blacklists-dnsbls-dns-based-blacklists), you need to adjust [`options.inc`][www::rspamd-docs-basic-options] yourself.
+DMS does not supply custom values for DNS servers to Rspamd. If you need to use custom DNS servers, which could be required when using [DNS-based black/whitelists](#rbls-realtime-blacklists-dnsbls-dns-based-blacklists), you need to adjust [`options.inc`][rspamd-docs::basic-options] yourself.
 
 !!! tip "Making DNS Servers Configurable"
 
     If you want to see an environment variable (like `RSPAMD_DNS_SERVERS`) to support custom DNS servers for Rspamd being added to DMS, please raise a feature request issue.
+
+!!! warning
+
+    Rspamd heavily relies on a properly working DNS server that it can use to resolve DNS queries. If your DNS server is misconfigured, you will encounter issues when Rspamd queries DNS to assess if mail is spam. Legitimate mail is then unintentionally marked as spam or worse, rejected entirely.
+
+    When Rspamd is deciding if mail is spam, it will check DNS records for SPF, DKIM and DMARC. Each of those has an associated symbol for DNS temporary errors with a non-zero weight assigned. That weight contributes towards the spam score assessed by Rspamd which is normally desirable - provided your network DNS is functioning correctly, otherwise when DNS is broken all mail is biased towards spam due to these failed DNS lookups.
 
 !!! danger
 
@@ -112,7 +118,7 @@ You can find the Rspamd logs at `/var/log/mail/rspamd.log`, and the correspondin
 
 ### Modules
 
-You can find a list of all Rspamd modules [on their website][www::rspamd-docs-modules].
+You can find a list of all Rspamd modules [on their website][rspamd-docs::modules].
 
 #### Disabled By Default
 
@@ -140,9 +146,9 @@ DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/lo
 
 !!! question "What is [`docker-data/dms/config/`][docs::dms-volumes-config]?"
 
-If you want to overwrite the default settings or provide your settings, you can place files at `docker-data/dms/config/rspamd/override.d/`. Files from this directory are copied to `/etc/rspamd/override.d/` during startup. These files [forcibly override][www::rspamd-docs-override-dir] Rspamd and DMS default settings.
+If you want to overwrite the default settings or provide your settings, you can place files at `docker-data/dms/config/rspamd/override.d/`. Files from this directory are copied to `/etc/rspamd/override.d/` during startup. These files [forcibly override][rspamd-docs::override-dir] Rspamd and DMS default settings.
 
-!!! question "What is the [`local.d` directory and how does it compare to `override.d`][www::rspamd-docs-config-directories]?"
+!!! question "What is the [`local.d` directory and how does it compare to `override.d`][rspamd-docs::config-directories]?"
 
 !!! warning "Clashing Overrides"
 
@@ -163,7 +169,7 @@ where `COMMAND` can be:
 3. `set-option-for-module`: sets the value for option `ARGUMENT2` to `ARGUMENT3` inside module `ARGUMENT1`
 4. `set-option-for-controller`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the controller worker
 5. `set-option-for-proxy`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the proxy worker
-6. `set-common-option`: set the option `ARGUMENT1` that [defines basic Rspamd behavior][www::rspamd-docs-basic-options] to value `ARGUMENT2`
+6. `set-common-option`: set the option `ARGUMENT1` that [defines basic Rspamd behavior][rspamd-docs::basic-options] to value `ARGUMENT2`
 7. `add-line`: this will add the complete line after `ARGUMENT1` (with all characters) to the file `/etc/rspamd/override.d/<ARGUMENT1>`
 
 !!! example "An Example Is [Shown Down Below](#adjusting-and-extending-the-very-basic-configuration)"
@@ -231,11 +237,11 @@ There is a dedicated [section for setting up DKIM with Rspamd in our documentati
 
 ### _Abusix_ Integration
 
-This subsection provides information about the integration of [Abusix][www::abusix], "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:
+This subsection provides information about the integration of [Abusix][abusix-web], "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:
 
 1. [Create an account](https://app.abusix.com/signup)
 2. Retrieve your API key
-3. Navigate to the ["Getting Started" documentation for Rspamd][www::abusix-rspamd-integration] and follow the steps described there
+3. Navigate to the ["Getting Started" documentation for Rspamd][abusix-docs::rspamd-integration] and follow the steps described there
 4. Make sure to change `<APIKEY>` to your private API key
 
 We recommend mounting the files directly into the container, as they are rather big and not manageable with our [`custom-command.conf` script](#with-the-help-of-a-custom-file). If mounted to the correct location, Rspamd will automatically pick them up.
