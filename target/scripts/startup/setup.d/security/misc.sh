@@ -209,8 +209,8 @@ function __setup__security__fail2ban() {
     rm -f /etc/logrotate.d/fail2ban
   fi
   _log 'trace' 'Configuring fail2ban logrotate rotate count and interval'
-  sedfile -i "s|rotate 4$|rotate ${LOGROTATE_COUNT}|" /etc/logrotate.d/fail2ban
-  sedfile -i "s|weekly$|${LOGROTATE_INTERVAL}|"       /etc/logrotate.d/fail2ban
+  [[ ${LOGROTATE_COUNT} -ne 4 ]]          && sedfile -i "s|rotate 4$|rotate ${LOGROTATE_COUNT}|" /etc/logrotate.d/fail2ban
+  [[ ${LOGROTATE_INTERVAL} != "weekly" ]] && sedfile -i "s|weekly$|${LOGROTATE_INTERVAL}|"       /etc/logrotate.d/fail2ban
 }
 
 function __setup__security__amavis() {
