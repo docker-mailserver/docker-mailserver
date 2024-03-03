@@ -18,9 +18,10 @@ function _setup_getmail() {
         CONFIGS=1
         ID=$(cut -d '-' -f 3 <<< "${FILE}" | cut -d '.' -f 1)
         local GETMAIL_CONFIG="${GETMAILRC}/getmailrc-${ID}"
-        cat /etc/getmailrc_general >"${GETMAIL_CONFIG}"
+
+        cat /etc/getmailrc_general                                 >"${GETMAIL_CONFIG}"
         echo -e "message_log = /var/log/mail/getmail-${ID}.log\n" >>"${GETMAIL_CONFIG}"
-        cat "${FILE}" >>"${GETMAIL_CONFIG}"
+        cat "${FILE}"                                             >>"${GETMAIL_CONFIG}"
       fi
     done
 
