@@ -49,7 +49,7 @@ function teardown() { _default_teardown ; }
   _should_receive_spam_at '/var/mail/localhost.localdomain/user1/new/'
 }
 
-@test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into Junk folder" {
+@test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into folder with \Junk attribute" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
   local CUSTOM_SETUP_ARGUMENTS=(
@@ -62,12 +62,16 @@ function teardown() { _default_teardown ; }
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _run_in_container sed -i -e 's/mailbox Junk/mailbox Spam/' /etc/dovecot/conf.d/15-mailboxes.conf
+  assert_success
+  _run_in_container dovecot reload
+  assert_success
 
   _should_send_spam_message
   _should_be_received_by_amavis 'Passed SPAM {RelayedTaggedInbound,Quarantined}'
 
   # Should move delivered spam to Junk folder
-  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Junk/new/'
+  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Spam/new/'
 }
 
 # NOTE: Same as test for `CONTAINER3_NAME`, only differing by ENV `MARK_SPAM_AS_READ=1` + `_should_receive_spam_at` location
