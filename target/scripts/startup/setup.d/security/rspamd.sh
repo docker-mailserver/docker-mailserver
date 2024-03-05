@@ -130,11 +130,11 @@ EOF
 
     # We do not use `{{HOSTNAME}}` but only `{{COMPRES}}` to better support
     # Kubernetes, see https://github.com/orgs/docker-mailserver/discussions/3922
-    cat >"${RSPAMD_LOCAL_D}/history_redis.conf" << "EOF" 
+    cat >"${RSPAMD_LOCAL_D}/history_redis.conf" << "EOF"
 # documentation: https://rspamd.com/doc/modules/history_redis.html
 
 key_prefix = "rs_history{{COMPRESS}}";
-  
+
 EOF
 
     # Here we adjust the Redis default configuration that we supply to Redis when starting it.
