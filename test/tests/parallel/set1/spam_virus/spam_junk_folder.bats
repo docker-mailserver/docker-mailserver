@@ -52,6 +52,8 @@ function teardown() { _default_teardown ; }
 @test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into Junk mailbox" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
+  _init_with_defaults
+
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
@@ -60,12 +62,11 @@ function teardown() { _default_teardown ; }
     --env MOVE_SPAM_TO_JUNK=1
     --env PERMIT_DOCKER=container
   )
-  _init_with_defaults
+
+  # Adjust 'Junk' mailbox name to verify special-use flag delivers to modified mailbox folder name
+  mv "${TEST_TMP_CONFIG}/junk-mailbox/user-patches.sh" "${TEST_TMP_CONFIG}/"
+
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
-  _run_in_container sed -i -e 's/mailbox Junk/mailbox Spam/' /etc/dovecot/conf.d/15-mailboxes.conf
-  assert_success
-  _run_in_container dovecot reload
-  assert_success
 
   _should_send_spam_message
   _should_be_received_by_amavis 'Passed SPAM {RelayedTaggedInbound,Quarantined}'
