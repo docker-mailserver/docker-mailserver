@@ -49,7 +49,7 @@ function teardown() { _default_teardown ; }
   _should_receive_spam_at '/var/mail/localhost.localdomain/user1/new/'
 }
 
-@test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into folder with \Junk attribute" {
+@test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into Junk mailbox" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
   local CUSTOM_SETUP_ARGUMENTS=(
@@ -70,7 +70,7 @@ function teardown() { _default_teardown ; }
   _should_send_spam_message
   _should_be_received_by_amavis 'Passed SPAM {RelayedTaggedInbound,Quarantined}'
 
-  # Should move delivered spam to Junk folder
+  # Should move delivered spam to the Junk mailbox (adjusted to be located at '.Spam/')
   _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Spam/new/'
 }
 
