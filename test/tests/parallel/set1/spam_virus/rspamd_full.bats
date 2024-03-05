@@ -86,6 +86,18 @@ function teardown_file() { _default_teardown ; }
   refute_line --regexp 'rewrite_subject = [0-9]+;'
 }
 
+@test 'Rspamd Redis configuration is correct' {
+  _run_in_container rspamadm configdump redis
+  assert_success
+  assert_line 'expand_keys = true;'
+  assert_line 'servers = "127.0.0.1:6379";'
+
+  _run_in_container rspamadm configdump history_redis
+  assert_success
+  assert_line 'compress = true;'
+  assert_line 'key_prefix = "rs_history{{COMPRESS}}";'
+}
+
 @test "contents of '/etc/rspamd/override.d/' are copied" {
   local OVERRIDE_D='/etc/rspamd/override.d'
   _file_exists_in_container "${OVERRIDE_D}/testmodule_complicated.conf"
