@@ -52,7 +52,7 @@ The most noteworthy change of this release is the update of the container's base
       - `smtp_sasl_security_options = noanonymous` (_credentials are mandatory for outbound mail delivery_)
       - `smtp_tls_security_level = encrypt` (_the outbound MTA connection must always be secure due to credentials sent_)
 - **Environment Variables**:
-  - `SA_SPAM_SUBJECT` has been renamed into `SPAM_SUBJECT` to become anti-spam service agnostic. ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
+  - `SA_SPAM_SUBJECT` has been renamed into `SPAM_SUBJECT` to become anti-spam service agnostic. ([#3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
     - As this functionality is now handled in Dovecot via a Sieve script instead of the respective anti-spam service during Postfix processing, this feature will only apply to mail stored in Dovecot. If you have relied on this feature in a different context, it will no longer be available.
     - Rspamd previously handled this functionality via the `rewrite_subject` action which as now been disabled by default in favor of the new approach with `SPAM_SUBJECT`.
     - `SA_SPAM_SUBJECT` is now deprecated and will log a warning if used. The value is copied as a fallback to `SPAM_SUBJECT`.
@@ -61,6 +61,8 @@ The most noteworthy change of this release is the update of the container's base
     - The feature to include [`_SCORE_` tag](https://spamassassin.apache.org/full/4.0.x/doc/Mail_SpamAssassin_Conf.html#rewrite_header-subject-from-to-STRING) in your value to be replaced by the associated spam score is no longer available.
 - **Supervisord**:
   - `supervisor-app.conf` renamed to `dms-services.conf`
+- **Rspamd**:
+  - the Redis history key has been changed in order to not incorporate the hostname of the container (which is desirable in Kubernetes environments) ([#3927](https://github.com/docker-mailserver/docker-mailserver/pull/3927))
 
 ### Added
 
