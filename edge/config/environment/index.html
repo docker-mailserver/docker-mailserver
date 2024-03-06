@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.12">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.13">
     
     
       
@@ -5074,10 +5074,10 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 <p>Note: More information at <a href="https://dovecot.org/doc/dovecot-example.conf">https://dovecot.org/doc/dovecot-example.conf</a></p>
 <h5 id="move_spam_to_junk"><a class="toclink" href="#move_spam_to_junk">MOVE_SPAM_TO_JUNK</a></h5>
 <ul>
-<li>0 =&gt; Spam messages will be delivered in the mailbox.</li>
-<li><strong>1</strong> =&gt; Spam messages will be delivered in the <code>Junk</code> folder.</li>
+<li>0 =&gt; Spam messages will be delivered to the inbox.</li>
+<li><strong>1</strong> =&gt; Spam messages will be delivered to the Junk mailbox.</li>
 </ul>
-<p>Routes mail identified as spam into the recipient(s) Junk folder (<em>via a Dovecot Sieve script</em>).</p>
+<p>Routes mail identified as spam into the recipient(s) Junk mailbox (<em>a specialized folder for junk associated to the <a href="../../examples/use-cases/imap-folders/">special-use flag <code>\Junk</code></a>, handled via a Dovecot sieve script internally</em>).</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>Mail is received as spam when it has been marked with either header:</p>
