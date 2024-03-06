@@ -63,7 +63,7 @@ function teardown() { _default_teardown ; }
     --env PERMIT_DOCKER=container
   )
 
-  # Adjust 'Junk' mailbox name to verify special-use flag delivers to modified mailbox folder name
+  # Adjust 'Junk' mailbox name to verify delivery to Junk mailbox based on special-use flag instead of mailbox's name
   mv "${TEST_TMP_CONFIG}/junk-mailbox/user-patches.sh" "${TEST_TMP_CONFIG}/"
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
