@@ -244,7 +244,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'add header "Gtube pattern"'
 
   _print_mail_log_for_msgid 'rspamd-test-email-header'
-  assert_output --partial "fileinto action: stored mail into mailbox 'Junk'"
+  assert_output --partial "fileinto action: stored mail into mailbox [SPECIAL-USE \\Junk]"
 
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.Junk/new/ 1

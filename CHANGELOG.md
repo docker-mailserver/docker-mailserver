@@ -36,6 +36,10 @@ The most noteworthy change of this release is the update of the container's base
       - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
+- **Dovecot**
+  - The "Junk" mailbox (folder) is now referenced by it's [special-use flag `\Junk`](https://docker-mailserver.github.io/docker-mailserver/v13.3/examples/use-cases/imap-folders/) instead of an explicit mailbox. ([#3925](https://github.com/docker-mailserver/docker-mailserver/pull/3925))
+    - This provides compatibility for the Junk mailbox when it's folder name differs (_eg: Renamed to "Spam"_).
+    - Potential breakage if your deployment modifies our `spam_to_junk.sieve` sieve script (_which is created during container startup when ENV `MOVE_SPAM_TO_JUNK=1`_) that handles storing spam mail into a users "Junk" mailbox folder.
 - **rsyslog:**
   - Debian 12 adjusted the `rsyslog` configuration for the default file template from `RSYSLOG_TraditionalFileFormat` to `RSYSLOG_FileFormat` (_upstream default since 2012_). This change may affect you if you have any monitoring / analysis of log output (_eg: `mail.log` / `docker logs`_).
     - The two formats are roughly equivalent to [RFC 3164](https://www.rfc-editor.org/rfc/rfc3164)) and [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424#section-1) respectively.
