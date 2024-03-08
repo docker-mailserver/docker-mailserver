@@ -454,11 +454,6 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
         993: "mailserver/mailserver:993::PROXY"
         ```
 
-    === "HAProxy"
-
-        !!! help "HAProxy"
-            With [HAProxy][dockerhub-haproxy], the configuration should look similar to the above. If you know what it actually looks like, add an example here. :smiley:
-
     === "Traefik"
 
         On Traefik's side, the configuration is very simple.
@@ -655,6 +650,9 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 [dockerhub-haproxy]: https://hub.docker.com/_/haproxy
 [Kubernetes-nginx]: https://kubernetes.github.io/ingress-nginx
 [Kubernetes-nginx-expose]: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services
+[Kubernetes-network-service]: https://kubernetes.io/docs/concepts/services-networking/service
+[Kubernetes-nodes]: https://kubernetes.io/docs/concepts/architecture/nodes[Kubernetes-network-service]: https://kubernetes.io/docs/concepts/services-networking/service
 [Kubernetes-network-external-ip]: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
+[Kubernetes-nodes]: https://kubernetes.io/docs/concepts/architecture/nodes
 [Kubernetes-proxy-service]: https://github.com/kubernetes/contrib/tree/master/for-demos/proxy-to-service
 [Kubernetes-service-source-ip]: https://kubernetes.io/docs/tutorials/services/source-ip
