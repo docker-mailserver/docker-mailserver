@@ -651,7 +651,6 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 [Kubernetes-nginx]: https://kubernetes.github.io/ingress-nginx
 [Kubernetes-nginx-expose]: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services
 [Kubernetes-network-service]: https://kubernetes.io/docs/concepts/services-networking/service
-[Kubernetes-nodes]: https://kubernetes.io/docs/concepts/architecture/nodes[Kubernetes-network-service]: https://kubernetes.io/docs/concepts/services-networking/service
 [Kubernetes-network-external-ip]: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
 [Kubernetes-nodes]: https://kubernetes.io/docs/concepts/architecture/nodes
 [Kubernetes-proxy-service]: https://github.com/kubernetes/contrib/tree/master/for-demos/proxy-to-service
