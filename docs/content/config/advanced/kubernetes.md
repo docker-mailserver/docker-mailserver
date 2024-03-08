@@ -152,6 +152,43 @@ When you do not want to or you cannot use Helm, below is a simple starting point
           protocol: TCP
     ```
 
+=== "Certificates"
+
+    In this example, we use [`cert-manager`][cert-manager] to supply RSA certificates. You can also supply RSA certificates as fallback certificates, which DMS supports out of the box with `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH`, and provide ECDSA as the proper certificates.
+
+    ```yaml
+    ---
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+
+    metadata:
+      name: mail-tls-certificate-rsa
+
+    spec:
+      secretName: mail-tls-certificate-rsa
+      isCA: false
+      privateKey:
+        algorithm: RSA
+        encoding: PKCS1
+        size: 2048
+      dnsNames: [mail.example.com]
+      issuerRef:
+        name: mail-issuer
+        kind: Issuer
+    ```
+
+    !!! attention
+
+        You will need to have [`cert-manager`][cert-manager] configured. Especially the issue will need to be configured. Since we do not know how you want or need your certificates to be supplied, we do not provide more configuration here. The documentation for [`cert-manager`][cert-manager] is excellent.
+
+=== "Sensitive Data"
+
+    !!! attention "Sensitive Data"
+
+        For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using `Secret`s. You can mount secrets like `ConfigMap`s and use them the same way.
+
+    The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security. Always provide sensitive information via `Secrets`.
+
 === "`Deployment`"
 
     The `Deployment` config is the most complex component.
@@ -312,43 +349,6 @@ When you do not want to or you cannot use Helm, below is a simple starting point
             - name: tmp-files
               emptyDir: {}
     ```
-
-=== "Certificates"
-
-    In this example, we use [`cert-manager`][cert-manager] to supply RSA certificates. You can also supply RSA certificates as fallback certificates, which DMS supports out of the box with `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH`, and provide ECDSA as the proper certificates.
-
-    ```yaml
-    ---
-    apiVersion: cert-manager.io/v1
-    kind: Certificate
-
-    metadata:
-      name: mail-tls-certificate-rsa
-
-    spec:
-      secretName: mail-tls-certificate-rsa
-      isCA: false
-      privateKey:
-        algorithm: RSA
-        encoding: PKCS1
-        size: 2048
-      dnsNames: [mail.example.com]
-      issuerRef:
-        name: mail-issuer
-        kind: Issuer
-    ```
-
-    !!! attention
-
-        You will need to have [`cert-manager`][cert-manager] configured. Especially the issue will need to be configured. Since we do not know how you want or need your certificates to be supplied, we do not provide more configuration here. The documentation for [`cert-manager`][cert-manager] is excellent.
-
-=== "Sensitive Data"
-
-    !!! attention "Sensitive Data"
-
-        For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using `Secret`s. You can mount secrets like `ConfigMap`s and use them the same way.
-
-    The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security. Always provide sensitive information via `Secrets`.
 
 ## Exposing your Mail Server to the Outside World
 
