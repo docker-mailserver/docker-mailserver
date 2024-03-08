@@ -109,7 +109,7 @@ When you do not want to or you cannot use Helm, below is a simple starting point
 === "`Service`"
 
      A [`Service`][Kubernetes-network-service] is required for getting the traffic to the pod itself. It configures a load balancer with the ports you'll need.
-     
+
      - The configuration for a `Service` affects if the original IP from a connecting client is preserved (_this is important_). [More about this further down below](#exposing-your-mail-server-to-the-outside-world).
      - The configuration covered below does keep the original client IP, but you will not be able to scale this way. Thus this approach is only suitable to support a single instance of DMS.
 
@@ -155,7 +155,7 @@ When you do not want to or you cannot use Helm, below is a simple starting point
 === "`Deployment`"
 
     The `Deployment` config is the most complex component.
-    
+
     - It instructs Kubernetes how to run the DMS container and how to apply your `ConfigMap`s, persisted storage, etc.
     - Additional options can be set to enforce runtime security.
 
@@ -359,7 +359,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 === "Load-Balancer + Public IP"
 
     This approach only works when:
-    
+
     - You can dedicate a publicly routable IP address to the DMS configured `Service` (_e.g. with a load balancer like [MetalLB][metallb-web]_).
     - That IP is required to be dedicated to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
 
@@ -437,6 +437,8 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
     - Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_).
 
 
+    **Also note** that the service type should be `type: ClusterIP` with PROXY protocol; this an optimization to get rid of additional routing steps.
+
     For more information on the PROXY protocol, refer to [our dedicated docs page][docs-mailserver-behind-proxy] on the feature.
 
     **Drawbacks**
@@ -457,7 +459,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
     === "Traefik"
 
         On Traefik's side, the configuration is very simple.
-        
+
         - Create an entrypoint for each port that you want to expose (_probably 25, 465, 587 and 993_). Each entrypoint has a `IngressRouteTCP` configure a route to the appropriate internal port that supports PROXY protocol connections.
         - The below snippet demonstrates an example for two entrypoints, `submissions` (port 465) and `imaps` (port 993).
 
@@ -585,7 +587,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
         === "Separate PROXY protocol ports for ingress"
 
             Supporting internal cluster connections to DMS without using PROXY protocol requires both Postfix and Dovecot to be configured with alternative ports for each service port (_which only differ by enforcing PROXY protocol connections_).
-        
+
             - The ingress controller will route public connections to the internal alternative ports for DMS (`*-proxy` variants).
             - Internal cluster connections will instead use the original ports configured for the DMS container directly (_which are private to the cluster network_).
 
