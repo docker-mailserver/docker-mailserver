@@ -8,8 +8,8 @@ This article describes how to deploy DMS to Kubernetes. We highly recommend ever
 
 !!! attention "Requirements"
 
-    1. We assume basic knowledge about Kubernetes from the reader.
-    2. Moreover, we assume the reader to have a basic understanding of mail servers.
+    1. Basic knowledge about Kubernetes from the reader.
+    2. A basic understanding of mail servers.
     3. Ideally, the reader has deployed DMS before in an easier setup (with Docker or Docker Compose).
 
 !!! warning "Limited Support"
@@ -18,11 +18,11 @@ This article describes how to deploy DMS to Kubernetes. We highly recommend ever
 
 ## Manually Writing Manifests
 
-When you do not want to or you cannot use Helm, we provide a simple starting point for writing YAML manifests now.
+When you do not want to or you cannot use Helm, below is a simple starting point for writing your YAML manifests.
 
 === "`ConfigMap`"
 
-    We can provide the basic configuration in the form of environment variables with a `ConfigMap`. Note that this is just an example configuration; tune the `ConfigMap` to your needs.
+    Provide the basic configuration via environment variables with a `ConfigMap`. Note that this is just an example configuration; tune the `ConfigMap` to your needs.
 
     ```yaml
     ---
@@ -59,7 +59,7 @@ When you do not want to or you cannot use Helm, we provide a simple starting poi
       SSL_KEY_PATH: /secrets/ssl/rsa/tls.key
     ```
 
-    We can also make use of user-provided configuration files, e.g. `user-patches.sh`, `postfix-accounts.cf` and more, to adjust DMS to our likings. We encourage you to have a look at [Kustomize][kustomize] for creating `ConfigMap`s from multiple files, but for now, we will provide a simple, hand-written example. This example is absolutely minimal and only goes to show what can be done.
+    You can also make use of user-provided configuration files (_e.g. `user-patches.sh`, `postfix-accounts.cf` and more_), to customize DMS to your needs. Here is a minimal example that supplies a `postfix-accounts.cf` file inline with two users:
 
     ```yaml
     ---
@@ -77,13 +77,17 @@ When you do not want to or you cannot use Helm, we provide a simple starting poi
 
     !!! attention "Static Configuration"
 
-        With the configuration shown above, you can **not** dynamically add accounts as the configuration file mounted into the mail server can not be written to.
+        With the inline `postfix-accounts.cf` file configured above, as the content is fixed you cannot persist modifications (_adding/removing accounts_).
 
-        Use persistent volumes for production deployments.
+        For production deployments, use persistent volumes instead to support dynamic config files.
+
+    !!! tip "Modularize your `ConfigMap`"
+
+        [Kustomize][kustomize] can be a useful tool as it supports creating a `ConfigMap` from multiple files.
 
 === "`PersistentVolumeClaim`"
 
-    Thereafter, we need persistence for our data. Make sure you have a storage provisioner and that you choose the correct `storageClassName`.
+    To persist data externally from the DMS container, configure a `PersistentVolumeClaim` (PVC). Make sure you have a storage provisioner and that you choose the correct `storageClassName`.
 
     ```yaml
     ---
@@ -104,7 +108,10 @@ When you do not want to or you cannot use Helm, we provide a simple starting poi
 
 === "`Service`"
 
-    The `Service`'s configuration determines whether the original IP from the sender will be kept. [More about this further down below](#exposing-your-mail-server-to-the-outside-world). The configuration you're seeing does keep the original IP, but you will not be able to scale this way. We have chosen to go this route in this case because we think most Kubernetes users will only want to have one instance.
+     A [`Service`][Kubernetes-network-service] is required for getting the traffic to the pod itself. It configures a load balancer with the ports you'll need.
+     
+     - The configuration for a `Service` affects if the original IP from a connecting client is preserved (_this is important_). [More about this further down below](#exposing-your-mail-server-to-the-outside-world).
+     - The configuration covered below does keep the original client IP, but you will not be able to scale this way. Thus this approach is only suitable to support a single instance of DMS.
 
     ```yaml
     ---
@@ -147,7 +154,10 @@ When you do not want to or you cannot use Helm, we provide a simple starting poi
 
 === "`Deployment`"
 
-    Last but not least, the `Deployment` becomes the most complex component. It instructs Kubernetes how to run the DMS container and how to apply your `ConfigMaps`, persisted storage, etc. Additionally, we can set options to enforce runtime security here.
+    The `Deployment` config is the most complex component.
+    
+    - It instructs Kubernetes how to run the DMS container and how to apply your `ConfigMap`s, persisted storage, etc.
+    - Additional options can be set to enforce runtime security.
 
     ```yaml
     ---
@@ -163,8 +173,7 @@ When you do not want to or you cannot use Helm, we provide a simple starting poi
         ignore-check.kube-linter.io/privileged-ports: >-
           'mailserver' needs privileged ports
         ignore-check.kube-linter.io/no-read-only-root-fs: >-
-          There are too many files written to make The
-          root FS read-only
+          There are too many files written to make the root FS read-only
 
     spec:
       replicas: 1
@@ -188,8 +197,8 @@ When you do not want to or you cannot use Helm, we provide a simple starting poi
               imagePullPolicy: IfNotPresent
 
               securityContext:
-                # Required to support SGID via `postdrop` executable
-                # in `/var/mail-state` for Postfix (maildrop + public dirs):
+                # `allowPrivilegeEscalation: true` is required to support SGID via the
+                # `postdrop` executable in `/var/mail-state` for Postfix (maildrop + public dirs):
                 # https://github.com/docker-mailserver/docker-mailserver/pull/3625
                 allowPrivilegeEscalation: true
                 readOnlyRootFilesystem: false
@@ -217,10 +226,10 @@ When you do not want to or you cannot use Helm, we provide a simple starting poi
                 seccompProfile:
                   type: RuntimeDefault
 
-              # You want to tune this to your needs. If you disable ClamAV,
-              #   you can use less RAM and CPU. This becomes important in
-              #   case you're low on resources and Kubernetes refuses to
-              #   schedule new pods.
+              # Tune this to your needs.
+              # If you disable ClamAV, you can use less RAM and CPU.
+              # This becomes important in case you're low on resources
+              # and Kubernetes refuses to schedule new pods.
               resources:
                 limits:
                   memory: 4Gi
@@ -339,15 +348,20 @@ When you do not want to or you cannot use Helm, we provide a simple starting poi
 
         For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using `Secret`s. You can mount secrets like `ConfigMap`s and use them the same way.
 
-    The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security. Always provide sensitive information vai `Secrets`.
+    The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security. Always provide sensitive information via `Secrets`.
 
 ## Exposing your Mail Server to the Outside World
 
-The more difficult part with Kubernetes is to expose a deployed DMS instance to the outside world. Kubernetes provides multiple ways for doing that; each has its upsides and downsides. The major problem with exposing DMS to the outside world in Kubernetes is to [preserve the real client IP][Kubernetes-service-source-ip]. The real client IP is required by DMS for performing IP-based DNS and spam checks.
+The more difficult part with Kubernetes is to expose a deployed DMS instance to the outside world. Kubernetes provides multiple ways for doing that; each has its upsides and downsides.
+
+The major problem with exposing DMS to the outside world in Kubernetes is to [preserve the real client IP][Kubernetes-service-source-ip]. The real client IP is required by DMS for performing IP-based DNS and spam checks.
 
 === "Load-Balancer + Public IP"
 
-    This approach only works when you have a **dedicated** IP address that you can give to the responsible `Service`, e.g., with a load balancer like [MetalLB][metallb-web]. Such an IP has to be public and therefore routable. The IP is required to be dedicated to allow your mail server to have matching `A` and `PTR` records (that other mail server can checken when you send them e-mails).
+    This approach only works when:
+    
+    - You can dedicate a publicly routable IP address to the DMS configured `Service` (_e.g. with a load balancer like [MetalLB][metallb-web]_).
+    - That IP is required to be dedicated to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
 
     The upside is that the manifests files and the configuration do not become more complex; the downside is that you require a dedicated IPv4 address and you are stuck to the node that has this IP address bound.
 
@@ -375,7 +389,7 @@ The more difficult part with Kubernetes is to expose a deployed DMS instance to 
         # ...
 
       externalIPs:
-        - 80.11.12.10
+        - 10.20.30.40
     ```
 
     This approach has the same upsides and downside as the former approach.
@@ -418,13 +432,12 @@ The more difficult part with Kubernetes is to expose a deployed DMS instance to 
 
     This approach might be the best approach out of all the approaches presented here, mainly because
 
-    1. you keep the origin IP addresses, which is crucial for DNS-based checks,
-    2. you align with Kubernete's idea of using a dedicated ingress for traffic that flows from outside the cluster to the inside of the cluster, therefore also benefitting from rules applied on the way, and
-    3. you are not bound a specific node.
+    - Preserves the origin IP address of clients (_which is crucial for DNS related checks_),
+    - Aligns with a best practice for Kubernetes by using a dedicated ingress to route external traffic to the k8s cluster (_which additionally benefits from the flexibility of routing rules_).
+    - Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_).
 
-    The PROXY protocol "wraps" incoming flows and marks them as "wrapped". This allows DMS to "unwrap" the packages and work with the original IP addresses.
 
-    Additional documentation, independent of Kubernetes, can be found [here][docs-mailserver-behind-proxy].
+    For more information on the PROXY protocol, refer to [our dedicated docs page][docs-mailserver-behind-proxy] on the feature.
 
     **Drawbacks**
 
@@ -448,7 +461,10 @@ The more difficult part with Kubernetes is to expose a deployed DMS instance to 
 
     === "Traefik"
 
-        On Traefik's side, the configuration is very simple. You need to create entrypoints for all ports that you want to expose (probably 25, 465, 587 and 993). Then, you can refer to them in `IngressRouteTCP`s. We use the `submissions` entrypoint for port 465 and the `imaps` entrypoint for port 993 here as an example.
+        On Traefik's side, the configuration is very simple.
+        
+        - Create an entrypoint for each port that you want to expose (_probably 25, 465, 587 and 993_). Each entrypoint has a `IngressRouteTCP` configure a route to the appropriate internal port that supports PROXY protocol connections.
+        - The below snippet demonstrates an example for two entrypoints, `submissions` (port 465) and `imaps` (port 993).
 
         ```yaml
         ---
@@ -480,7 +496,6 @@ The more difficult part with Kubernetes is to expose a deployed DMS instance to 
           entryPoints: [ imaps ]
           routes:
             - match: HostSNI(`*`)
-
               services:
                 - name: mailserver
                   namespace: mail
@@ -489,14 +504,22 @@ The more difficult part with Kubernetes is to expose a deployed DMS instance to 
                     version: 2
         ```
 
-        The `*-proxy` ports that we refer to in the `IngressRouteTCP`s are configured on the `mailserver` service, and these ports refer to the `Deployment`'s ports again. One has two options for configuring the `mailserver` service now:
+        !!! info
 
-        1. In case you do not need cluster-internal e-mails to reach DMS on default ports, you can simply change existing port configurations to use the PROXY protocol.
-        2. In case you do need (or want) cluster-internal e-mails to reach DMS on default ports, you need to duplicate port configurations in order to open PROXY-protocol-aware ports and non-PROXY-protocol-aware ports.
+            The `IngressRouteTCP` example configs above reference ports with a `*-proxy` suffix.
 
-        === "Cluster-Internal E-Mails Not Required"
+            - These port variants will be defined in the `Deployment` configuration, and are scoped to the `mailserver` service (via `spec.routes.services.name`).
+            - The suffix is used to distinguish that these ports are only compatible with connections using the PROXY protocol, which is what your ingress controller should be managing for you by adding the correct PROXY protocol headers to TCP connections it routes to DMS.
 
-            Here is an exmaple configuration for [Postfix][docs-postfix], [Dovecot][docs-dovecot], and the `Deployment`:
+        !!! warning "Connections to DMS within the internal cluster will be rejected"
+
+            The services for these ports can only enable PROXY protocol support by mandating the protocol on all connections for these ports.
+
+            This can be problematic when you also need to support internal cluster traffic directly to DMS (_instead of routing indirectly through the ingress controller_).
+
+        === "Only accept connections with PROXY protocol"
+
+            Here is an example configuration for [Postfix][docs-postfix], [Dovecot][docs-dovecot], and the adjustments to the `Deployment` config. The port names are adjusted here only for the additional context as described above.
 
             ```yaml
             kind: ConfigMap
@@ -564,22 +587,30 @@ The more difficult part with Kubernetes is to expose a deployed DMS instance to 
                           readOnly: true
             ```
 
-        === "Cluster-Internal E-Mails Required"
+        === "Separate PROXY protocol ports for ingress"
 
-            We can keep the default configuration, but we need to duplicate it and change port numbers. In this example, we add 10000 to the port numbers to get the PROXY-protocol-enabled ports. If you have an already running instance, you can run the following inside the DMS container to get the duplicated ports:
+            Supporting internal cluster connections to DMS without using PROXY protocol requires both Postfix and Dovecot to be configured with alternative ports for each service port (_which only differ by enforcing PROXY protocol connections_).
+        
+            - The ingress controller will route public connections to the internal alternative ports for DMS (`*-proxy` variants).
+            - Internal cluster connections will instead use the original ports configured for the DMS container directly (_which are private to the cluster network_).
+
+            In this example we'll create a copy of the original service ports with PROXY protocol enabled, and increment the port number assigned by `10000. You could run each of these commands within an active DMS instance, but it would be more convenient to persist the modification via our `user-patches.sh` feature:
 
             ```bash
-            # Duplicate the config for the submission(s) service ports (587/465)
-            # with adjustments for the proxy ports (10587/10465) and syslog_name setting:
-            postconf -Mf submissions/inet | sed -e s/^submissions/10465/ -e 's/submissions/submissions-proxyprotocol/'
-            postconf -Mf submission/inet | sed -e s/^submission/10587/ -e 's/submission/submission-proxyprotocol/'
+            #!/bin/bash
 
-            # Create a variant for port 25 too (NOTE: Port 10025 is already assigned
-            # in DMS to Amavis IF you are using Amavis):
-            postconf -Mf smtp/inet | sed 's/^smtp/12525/'
+            # Duplicate the config for the submission(s) service ports (587 / 465) with adjustments for the PROXY ports (10587 / 10465) and `syslog_name` setting:
+            postconf -Mf submission/inet | sed -e s/^submission/10587/ -e 's/submission/submission-proxyprotocol/' >> /etc/postfix/master.cf
+            postconf -Mf submissions/inet | sed -e s/^submissions/10465/ -e 's/submissions/submissions-proxyprotocol/' >> /etc/postfix/master.cf
+            # Enable PROXY Protocol support for these new service variants:
+            postconf -P 10587/inet/smtpd_upstream_proxy_protocol=haproxy
+            postconf -P 10465/inet/smtpd_upstream_proxy_protocol=haproxy
+
+            # Create a variant for port 25 too (NOTE: Port 10025 is already assigned in DMS to Amavis):
+            postconf -Mf smtp/inet | sed -e s/^smtp/12525/ >> /etc/postfix/master.cf
+            # Enable PROXY Protocol support (different setting as port 25 is handled via postscreen), optionally configure a `syslog_name` to distinguish in logs:
+            postconf -P 12525/inet/postscreen_upstream_proxy_protocol=haproxy 12525/inet/syslog_name=smtp-proxyprotocol
             ```
-
-            For ports 10465 and 10587, you also need `smtpd_upstream_proxy_protocol=haproxy` in Postfix's `master.cf`. Port 25 requires a slightly different setup because of Postscreen; add `postscreen_upstream_proxy_protocol=haproxy` and `syslog_name=smtp-proxyprotocol`.
 
             For Dovecot, you can configure [`dovecot.cf`][docs-dovecot] to look like this:
 
@@ -620,7 +651,7 @@ The more difficult part with Kubernetes is to expose a deployed DMS instance to 
 [docs-tls]: ../security/ssl.md
 [docs-dovecot]: ./override-defaults/dovecot.md
 [docs-postfix]: ./override-defaults/postfix.md
-[docs-mailserver-behind-proxy]: ../../../examples/tutorials/mailserver-behind-proxy
+[docs-mailserver-behind-proxy]: ../../examples/tutorials/mailserver-behind-proxy.md
 [dockerhub-haproxy]: https://hub.docker.com/_/haproxy
 [Kubernetes-nginx]: https://kubernetes.github.io/ingress-nginx
 [Kubernetes-nginx-expose]: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services

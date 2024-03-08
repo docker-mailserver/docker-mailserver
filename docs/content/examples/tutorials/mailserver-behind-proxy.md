@@ -14,7 +14,7 @@ This reduces many of the benefits for why you might use a reverse proxy, but the
 
 Some deployments may require a service to route traffic (kubernetes) when deploying, in which case the below advice is important to understand well.
 
-We also provide a [dedicated documentation page][docs::kubernetes] for using a proxy in Kubernetes.
+The guide here has also been adapted for [our Kubernetes docs][docs::kubernetes].
 
 ## What can go wrong?
 
@@ -374,7 +374,7 @@ While PROXY protocol works well with the reverse proxy, you may have some contai
 
     You should adjust configuration of these monitoring services to monitor for auth failures from those services directly instead, adding an exclusion for that service IP from any DMS logs monitored (_but be mindful of PROXY header forgery risks_).
 
-[docs::kubernetes]: ../../../config/advanced/kubernetes/#__tabbed_2_4
+[docs::kubernetes]: ../../config/advanced/kubernetes.md#__tabbed_2_4
 
 [docs::overrides::dovecot]: ../../config/advanced/override-defaults/dovecot.md
 [docs::overrides::postfix]: ../../config/advanced/override-defaults/postfix.md
