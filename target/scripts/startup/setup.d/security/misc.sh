@@ -304,11 +304,11 @@ function _setup_spam_to_junk() {
     _log 'debug' 'Spam emails will be moved to the Junk folder'
     mkdir -p /usr/lib/dovecot/sieve-global/after/
     cat >/usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve << EOF
-require ["fileinto","mailbox"];
+require ["fileinto","special-use"];
 
 if anyof (header :contains "X-Spam-Flag" "YES",
           header :contains "X-Spam" "Yes") {
-    fileinto "Junk";
+    fileinto :specialuse "\\\\Junk" "Junk";
 }
 EOF
     sievec /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve

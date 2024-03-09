@@ -328,10 +328,12 @@ Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 
 ##### MOVE_SPAM_TO_JUNK
 
-- 0 => Spam messages will be delivered in the mailbox.
-- **1** => Spam messages will be delivered in the `Junk` folder.
+- 0 => Spam messages will be delivered to the inbox.
+- **1** => Spam messages will be delivered to the Junk mailbox.
 
-Routes mail identified as spam into the recipient(s) Junk folder (_via a Dovecot Sieve script_).
+Routes mail identified as spam into the recipient(s) Junk mailbox (_a specialized folder for junk associated to the [special-use flag `\Junk`][docs::dovecot::special-use-flag], handled via a Dovecot sieve script internally_).
+
+[docs::dovecot::special-use-flag]: ../examples/use-cases/imap-folders.md
 
 !!! info
 

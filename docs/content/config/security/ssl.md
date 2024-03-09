@@ -134,6 +134,8 @@ Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store the
     ```
 
     This process can also be [automated via _cron_ or _systemd timers_][certbot::automated-renewal].
+    
+    - [Example with a systemd timer][certbot::automated-renewal::example-systemd-timer]
 
 !!! note "Using a different ACME CA"
 
@@ -903,6 +905,7 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [certbot::standalone]: https://certbot.eff.org/docs/using.html#standalone
 [certbot::renew]: https://certbot.eff.org/docs/using.html#renewing-certificates
 [certbot::automated-renewal]: https://certbot.eff.org/docs/using.html#automated-renewals
+[certbot::automated-renewal::example-systemd-timer]: https://github.com/orgs/docker-mailserver/discussions/3917#discussioncomment-8661690
 [certbot::custom-ca]: https://certbot.eff.org/docs/using.htmlchanging-the-acme-server
 [certbot::webroot]: https://certbot.eff.org/docs/using.html#webroot
 
