@@ -128,7 +128,7 @@ expand_keys = true;
 
 EOF
 
-    # We do not use `{{HOSTNAME}}` but only `{{COMPRES}}` to better support
+    # We do not use `{{HOSTNAME}}` but only `{{COMPRESS}}` to better support
     # Kubernetes, see https://github.com/orgs/docker-mailserver/discussions/3922
     cat >"${RSPAMD_LOCAL_D}/history_redis.conf" << "EOF"
 # documentation: https://rspamd.com/doc/modules/history_redis.html
