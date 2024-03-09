@@ -475,7 +475,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
     ```yaml
     ---
-    apiVersion: extensions/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
 
     metadata:
