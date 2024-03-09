@@ -492,10 +492,13 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                 - name: smtp
                   containerPort: 25
                   hostPort: 25
-                - name: smtp-auth
+                - name: submissions
+                  containerPort: 465
+                  hostPort: 587
+                - name: 465
                   containerPort: 587
                   hostPort: 587
-                - name: imap-secure
+                - name: imaps
                   containerPort: 993
                   hostPort: 993
             #  ...
