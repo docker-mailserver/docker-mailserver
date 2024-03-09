@@ -299,11 +299,6 @@ When you do not want to or you cannot use Helm, below is a simple starting point
                   mountPath: /secrets/ssl/rsa/
                   readOnly: true
 
-                # other
-                - name: tmp-files
-                  mountPath: /tmp
-                  readOnly: false
-
               ports:
                 - name: smtp
                   containerPort: 25
@@ -343,10 +338,6 @@ When you do not want to or you cannot use Helm, below is a simple starting point
                     path: tls.key
                   - key: tls.crt
                     path: tls.crt
-
-            # other
-            - name: tmp-files
-              emptyDir: {}
     ```
 
 ## Exposing your Mail Server to the Outside World
