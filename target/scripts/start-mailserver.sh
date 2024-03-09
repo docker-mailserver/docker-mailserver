@@ -201,6 +201,4 @@ _start_daemons
 _log 'info' "${HOSTNAME} is up and running"
 
 touch /var/log/mail/mail.log
-tail -Fn 0 /var/log/mail/mail.log
-
-exit 0
+exec tail -Fn 0 /var/log/mail/mail.log
