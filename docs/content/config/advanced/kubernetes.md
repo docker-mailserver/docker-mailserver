@@ -530,7 +530,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
     **Examples**
 
-    A complete configuration, with duplicated ports, can be found down below in the "Traefik" section.
+    A complete configuration, with duplicated ports, can be found down below in the "Traefik" section. The Postfx and Dovecot configuration is identical for other proxies (like NGINX).
 
     === "Traefik"
 
