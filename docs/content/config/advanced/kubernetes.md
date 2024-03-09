@@ -87,7 +87,7 @@ When you do not want to or you cannot use Helm, below is a simple starting point
 
 === "`PersistentVolumeClaim`"
 
-    To persist data externally from the DMS container, configure a `PersistentVolumeClaim` (PVC). Make sure you have a storage provisioner and that you choose the correct `storageClassName`.
+    To persist data externally from the DMS container, configure a `PersistentVolumeClaim` (PVC). Make sure you have a storage system (like Longhorn, Rook, etc.) and that you choose the correct `storageClassName` (according to your storage system).
 
     ```yaml
     ---
