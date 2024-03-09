@@ -500,7 +500,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
     - :-1: requires the node to have a dedicated, publicly routable IP address
     - :-1: limited to the node with the dedicated IP address
     - :-1: it is not possible to access DMS via other cluster nodes, only via the node that DMS was deployed on
-    - :-1: every Port within the container is exposed on the host side
+    - :-1: every port within the container is exposed on the host side
 
 === "Using the PROXY Protocol"
 
@@ -523,6 +523,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
     - :+1: preserves the origin IP address of clients (_which is crucial for DNS related checks_);
     - :+1: aligns with a best practice for Kubernetes by using a dedicated ingress to route external traffic to the k8s cluster (_which additionally benefits from the flexibility of routing rules_); and
     - :+1: avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_).
+    - :point_right: requires a proxy (if you do not already have one, e.g. as an ingress, you will need to set up one)
     - :-1: added complexity
         - on the manifest side: changing the DMS configured `Service`
         - on DMS' side: changing the Postfix and Dovecot configuration
