@@ -634,7 +634,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                 submission/inet/smtpd_upstream_proxy_protocol=haproxy
                 submissions/inet/smtpd_upstream_proxy_protocol=haproxy
               dovecot.cf: |
-                haproxy_trusted_networks = <YOUR POD CIDR>, 127.0.0.0/8
+                haproxy_trusted_networks = <YOUR POD CIDR>
                 service imap-login {
                   inet_listener imap {
                     haproxy = yes
