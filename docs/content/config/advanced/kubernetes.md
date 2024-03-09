@@ -110,8 +110,7 @@ When you do not want to or you cannot use Helm, below is a simple starting point
 
     A [`Service`][Kubernetes-network-service] is required for getting the traffic to the pod itself. It configures a load balancer with the ports you'll need.
 
-    - The configuration for a `Service` affects if the original IP from a connecting client is preserved (_this is important_). [More about this further down below](#exposing-your-mail-server-to-the-outside-world).
-    - The configuration covered below does keep the original client IP, but you will not be able to scale this way. Thus this approach is only suitable to support a single instance of DMS.
+    The configuration for a `Service` affects if the original IP from a connecting client is preserved (_this is important_). [More about this further down below](#exposing-your-mail-server-to-the-outside-world). The configuration covered below does keep the original client IP, but you will not be able to scale this way. Thus this approach is only suitable to support a single instance of DMS.
 
     ```yaml
     ---
