@@ -77,7 +77,7 @@ When you do not want to or you cannot use Helm, below is a simple starting point
 
     !!! attention "Static Configuration"
 
-        With the inline `postfix-accounts.cf` file configured above, as the content is fixed you cannot persist modifications (_adding/removing accounts_).
+        With the inline `postfix-accounts.cf` file configured above, the content is fixed: you cannot change the configuration or persists modifications, i.e. adding or removing accounts is not possible. You need to use a `PersistentVolumeClaim` in case `postfix-accounts.cf` cannot be static.
 
         For production deployments, use persistent volumes instead to support dynamic config files.
 
