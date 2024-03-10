@@ -77,7 +77,7 @@ When you do not want to or you cannot use Helm, below is a simple starting point
 
     !!! attention "Static Configuration"
 
-        With the inline `postfix-accounts.cf` file configured above, the content is fixed: you cannot change the configuration or persists modifications, i.e. adding or removing accounts is not possible. You need to use a `PersistentVolumeClaim` in case `postfix-accounts.cf` cannot be static.
+        With the inline `postfix-accounts.cf` config above, the file content is static (_modifications like adding or removing account lines will not persist_). When your configs should be dynamic you should instead use a `PersistentVolumeClaim`.
 
         For production deployments, use persistent volumes instead to support dynamic config files.
 
@@ -355,7 +355,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
         This approach only works when:
 
         1. You can dedicate a **publicly routable IP** address to the DMS configured `Service` (_e.g. with a load balancer like [MetalLB][metallb-web]_).
-        2. The publicly routable IP is required to be dedicated to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
+        2. The IP must be dedicated to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
 
     In this setup, you configure a load balancer to give the DMS configured `Service` a dedicated, publicly routable IP address.
 
@@ -386,7 +386,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
       namespace: metallb-system
 
     spec:
-      addresses: [ <YOUR PUBLIC, DEDICATED IP IN CIDR NOTATION> ]
+      addresses: [ <YOUR PUBLIC DEDICATED IP IN CIDR NOTATION> ]
       autoAssign: true
 
     ---
@@ -405,8 +405,8 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
     - :+1: simple
     - :-1: requires a dedicated, publicly routable IP address
-    - :-1: limited to the node with the dedicated IP address
-    - :point_right: requires the setup of a load balancer
+    - :-1: limited to a single node (_associated to the dedicated IP address_)
+    - :point_right: requires configuring a load balancer
 
 === "External-IP Service"
 
@@ -417,7 +417,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
         This approach only works when:
 
         1. You can dedicate a **publicly routable IP** address to the DMS configured `Service`.
-        2. The publicly routable IP is required to be dedicated to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
+        2. The IP must be dedicated to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
 
     In this setup, you set up the DMS configured `Service` manually with an "[external IP][Kubernetes-network-external-ip]", providing the dedicated, publicly routable IP address yourself.
 
@@ -459,7 +459,9 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
     **General**
 
-    One way to also preserve the real client IP is to use `hostPort` and `hostNetwork: true`. This approach is similar to host network in Docker.
+    Using `hostPort` and `hostNetwork: true` is a similar approach to [`network_mode: host` with Docker Compose][docker-docs::compose::network_mode].
+
+[docker-docs::compose::network_mode]: https://docs.docker.com/compose/compose-file/compose-file-v3/#network_mode
 
     **Example**
 
@@ -484,8 +486,8 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                   hostPort: 25
                 - name: submissions
                   containerPort: 465
-                  hostPort: 587
-                - name: 465
+                  hostPort: 465
+                - name: submission
                   containerPort: 587
                   hostPort: 587
                 - name: imaps
@@ -504,30 +506,32 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
 === "Using the PROXY Protocol"
 
-    **General**
+    !!! question "What is the PROXY protocol?"
 
-    PROXY protocol is a network protocol for preserving a client’s IP address when the client’s TCP connection passes through a proxy. You can use a compatible proxy that supports PROXY protocol (NGINX, HAProxy, Traefik), a proxy that may already be the ingress in your cluster, to also accept and forward connections for DMS.
+        PROXY protocol is a network protocol for preserving a client’s IP address when the client’s TCP connection passes through a proxy.
 
-    ```mermaid
-    flowchart LR
-        A(External Mail Server) -->|Incoming connection| B
-        subgraph cluster
-        B("Ingress Acting as a Proxy") -->|PROXY protocol connection| C(DMS)
-        end
-    ```
+        It is a common feature supported among reverse-proxy services (_NGINX, HAProxy, Traefik_), which you may already have handling ingress traffic for your cluster.
 
-    !!! tip "For more information on the PROXY protocol, refer to [our dedicated docs page][docs-mailserver-behind-proxy] on the feature."
+        ```mermaid
+        flowchart LR
+            A(External Mail Server) -->|Incoming connection| B
+            subgraph cluster
+            B("Ingress Acting as a Proxy") -->|PROXY protocol connection| C(DMS)
+            end
+        ```
 
-    **Advantages / Disadvantages**
+        For more information on the PROXY protocol, refer to [our dedicated docs page][docs-mailserver-behind-proxy] on the topic.
 
-    - :+1: preserves the origin IP address of clients (_which is crucial for DNS related checks_);
-    - :+1: aligns with a best practice for Kubernetes by using a dedicated ingress to route external traffic to the k8s cluster (_which additionally benefits from the flexibility of routing rules_); and
-    - :+1: avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_).
-    - :point_right: requires a proxy (if you do not already have one, e.g. as an ingress, you will need to set up one)
-    - :-1: added complexity
-        - on the manifest side: changing the DMS configured `Service`
-        - on DMS' side: changing the Postfix and Dovecot configuration
-    - :-1: if you want to have cluster-internal traffic remain cluster-internal, you will need to "duplicate" the ports for Postfix and Dovecot to have ports that are PROXY-protocol enabled and ports that remain "normal"
+    !!! abstract "Advantages / Disadvantages"
+
+        - :heavy_check_mark: Preserves the origin IP address of clients (_which is crucial for DNS related checks_);
+        - :heavy_check_mark: Aligns with a best practice for Kubernetes by using a dedicated ingress, routing external traffic to the k8s cluster (_with the benefits of flexible routing rules_)
+        - :heavy_check_mark: Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_).
+        - :heavy_multiplication_x: Introduces complexity by requiring:
+            - A reverse-proxy / ingress controller (_potentially extra setup_)
+            - Kubernetes manifest changes for the DMS configured `Service`
+            - DMS configuration changes for Postfix and Dovecot
+        - :heavy_multiplication_x: To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol.
 
     **Examples**
 
@@ -638,7 +642,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
             ---
             kind: Deployment
-            apiVersion: extensions/v1beta1
+            apiVersion: apps/v1
             metadata:
               name: mailserver
             spec:
