@@ -348,6 +348,13 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
 === "Load-Balancer + Public IP"
 
+    ???+ abstract "Advantages / Disadvantages"
+
+        - [x] Simple
+        - [ ] Requires the node to have a dedicated, publicly routable IP address
+        - [ ] Limited to a single node (_associated to the dedicated IP address_)
+        - [ ] Requires configuring a load balancer
+
     **General**
 
     !!! info
@@ -401,14 +408,14 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
       ipAddressPools: [ mailserver ]
     ```
 
-    !!! abstract "Advantages / Disadvantages"
+=== "External-IP Service"
+
+    ???+ abstract "Advantages / Disadvantages"
 
         - [x] Simple
         - [ ] Requires the node to have a dedicated, publicly routable IP address
         - [ ] Limited to a single node (_associated to the dedicated IP address_)
-        - [ ] Requires configuring a load balancer
-
-=== "External-IP Service"
+        - [ ] Requires manually setting the IP
 
     **General**
 
@@ -448,20 +455,19 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
         - 10.20.30.40
     ```
 
-    !!! abstract "Advantages / Disadvantages"
+=== "Host network"
+
+    ???+ abstract "Advantages / Disadvantages"
 
         - [x] Simple
         - [ ] Requires the node to have a dedicated, publicly routable IP address
         - [ ] Limited to a single node (_associated to the dedicated IP address_)
-        - [ ] Requires manually setting the IP
-
-=== "Host network"
+        - [ ] It is not possible to access DMS via other cluster nodes, only via the node that DMS was deployed on
+        - [ ] Every port within the container is exposed on the host side
 
     **General**
 
     Using `hostPort` and `hostNetwork: true` is a similar approach to [`network_mode: host` with Docker Compose][docker-docs::compose::network_mode].
-
-[docker-docs::compose::network_mode]: https://docs.docker.com/compose/compose-file/compose-file-v3/#network_mode
 
     **Example**
 
@@ -496,15 +502,18 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
             #  ...
     ```
 
-    !!! abstract "Advantages / Disadvantages"
-
-        - [x] Simple
-        - [ ] Requires the node to have a dedicated, publicly routable IP address
-        - [ ] Limited to a single node (_associated to the dedicated IP address_)
-        - [ ] It is not possible to access DMS via other cluster nodes, only via the node that DMS was deployed on
-        - [ ] Every port within the container is exposed on the host side
-
 === "Using the PROXY Protocol"
+
+    ???+ abstract "Advantages / Disadvantages"
+
+        - [x] Preserves the origin IP address of clients (_which is crucial for DNS related checks_)
+        - [x] Aligns with a best practice for Kubernetes by using a dedicated ingress, routing external traffic to the k8s cluster (_with the benefits of flexible routing rules_)
+        - [x] Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_)
+        - [ ] Introduces complexity by requiring:
+            - A reverse-proxy / ingress controller (_potentially extra setup_)
+            - Kubernetes manifest changes for the DMS configured `Service`
+            - DMS configuration changes for Postfix and Dovecot
+        - [ ] To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol
 
     !!! question "What is the PROXY protocol?"
 
@@ -521,17 +530,6 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
         ```
 
         For more information on the PROXY protocol, refer to [our dedicated docs page][docs-mailserver-behind-proxy] on the topic.
-
-    !!! abstract "Advantages / Disadvantages"
-
-        - [x] Preserves the origin IP address of clients (_which is crucial for DNS related checks_)
-        - [x] Aligns with a best practice for Kubernetes by using a dedicated ingress, routing external traffic to the k8s cluster (_with the benefits of flexible routing rules_)
-        - [x] Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_)
-        - [ ] Introduces complexity by requiring:
-            - A reverse-proxy / ingress controller (_potentially extra setup_)
-            - Kubernetes manifest changes for the DMS configured `Service`
-            - DMS configuration changes for Postfix and Dovecot
-        - [ ] To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol
 
     **Examples**
 
@@ -756,6 +754,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 [docs-dovecot]: ./override-defaults/dovecot.md
 [docs-postfix]: ./override-defaults/postfix.md
 [docs-mailserver-behind-proxy]: ../../examples/tutorials/mailserver-behind-proxy.md
+[docker-docs::compose::network_mode]: https://docs.docker.com/compose/compose-file/compose-file-v3/#network_mode
 [dockerhub-haproxy]: https://hub.docker.com/_/haproxy
 [Kubernetes-nginx]: https://kubernetes.github.io/ingress-nginx
 [Kubernetes-nginx-expose]: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services
