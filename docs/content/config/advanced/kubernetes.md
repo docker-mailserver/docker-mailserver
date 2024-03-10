@@ -362,76 +362,76 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
         1. You can dedicate a **publicly routable IP** address for the DMS configured `Service`.
         2. A dedicated IP is required to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
 
-    **Example**
+    !!! example
 
-    === "External-IP Service"
+        === "External-IP Service"
 
-    The DMS `Service` is configured with an "[external IP][Kubernetes-network-external-ip]" manually. Append your externally reachable IP address to `spec.externalIPs`.
+            The DMS `Service` is configured with an "[external IP][Kubernetes-network-external-ip]" manually. Append your externally reachable IP address to `spec.externalIPs`.
 
-    ```yaml
-    ---
-    apiVersion: v1
-    kind: Service
+            ```yaml
+            ---
+            apiVersion: v1
+            kind: Service
 
-    metadata:
-      name: mailserver
-      labels:
-        app: mailserver
+            metadata:
+              name: mailserver
+              labels:
+                app: mailserver
 
-    spec:
-      selector:
-        app: mailserver
-      ports:
-        - name: smtp
-          port: 25
-          targetPort: smtp
-        # ...
+            spec:
+              selector:
+                app: mailserver
+              ports:
+                - name: smtp
+                  port: 25
+                  targetPort: smtp
+                # ...
 
-      externalIPs:
-        - 10.20.30.40
-    ```
+              externalIPs:
+                - 10.20.30.40
+            ```
 
-    === "Load-Balancer"
+        === "Load-Balancer"
 
-    The config differs depending on your choice of load balancer. This example uses [MetalLB][metallb-web].
+            The config differs depending on your choice of load balancer. This example uses [MetalLB][metallb-web].
 
-    ```yaml
-    ---
-    apiVersion: v1
-    kind: Service
+            ```yaml
+            ---
+            apiVersion: v1
+            kind: Service
 
-    metadata:
-      name: mailserver
-      labels:
-        app: mailserver
-      annotations:
-        metallb.universe.tf/address-pool: mailserver
+            metadata:
+              name: mailserver
+              labels:
+                app: mailserver
+              annotations:
+                metallb.universe.tf/address-pool: mailserver
 
-    # ...
+            # ...
 
-    ---
-    apiVersion: metallb.io/v1beta1
-    kind: IPAddressPool
+            ---
+            apiVersion: metallb.io/v1beta1
+            kind: IPAddressPool
 
-    metadata:
-      name: mail
-      namespace: metallb-system
+            metadata:
+              name: mail
+              namespace: metallb-system
 
-    spec:
-      addresses: [ <YOUR PUBLIC DEDICATED IP IN CIDR NOTATION> ]
-      autoAssign: true
+            spec:
+              addresses: [ <YOUR PUBLIC DEDICATED IP IN CIDR NOTATION> ]
+              autoAssign: true
 
-    ---
-    apiVersion: metallb.io/v1beta1
-    kind: L2Advertisement
+            ---
+            apiVersion: metallb.io/v1beta1
+            kind: L2Advertisement
 
-    metadata:
-      name: mail
-      namespace: metallb-system
+            metadata:
+              name: mail
+              namespace: metallb-system
 
-    spec:
-      ipAddressPools: [ mailserver ]
-    ```
+            spec:
+              ipAddressPools: [ mailserver ]
+            ```
 
 === "Host network"
 
