@@ -364,6 +364,33 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
     **Example**
 
+    === "External-IP Service"
+
+    The DMS `Service` is configured with an "[external IP][Kubernetes-network-external-ip]" manually. Append your externally reachable IP address to `spec.externalIPs`.
+
+    ```yaml
+    ---
+    apiVersion: v1
+    kind: Service
+
+    metadata:
+      name: mailserver
+      labels:
+        app: mailserver
+
+    spec:
+      selector:
+        app: mailserver
+      ports:
+        - name: smtp
+          port: 25
+          targetPort: smtp
+        # ...
+
+      externalIPs:
+        - 10.20.30.40
+    ```
+
     === "Load-Balancer"
 
     The config differs depending on your choice of load balancer. This example uses [MetalLB][metallb-web].
@@ -404,33 +431,6 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
     spec:
       ipAddressPools: [ mailserver ]
-    ```
-
-    === "External-IP Service"
-
-    The DMS `Service` is configured with an "[external IP][Kubernetes-network-external-ip]" manually. Append your externally reachable IP address to `spec.externalIPs`.
-
-    ```yaml
-    ---
-    apiVersion: v1
-    kind: Service
-
-    metadata:
-      name: mailserver
-      labels:
-        app: mailserver
-
-    spec:
-      selector:
-        app: mailserver
-      ports:
-        - name: smtp
-          port: 25
-          targetPort: smtp
-        # ...
-
-      externalIPs:
-        - 10.20.30.40
     ```
 
 === "Host network"
