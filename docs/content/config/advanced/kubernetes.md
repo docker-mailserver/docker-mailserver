@@ -524,14 +524,14 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
     !!! abstract "Advantages / Disadvantages"
 
-        - :heavy_check_mark: Preserves the origin IP address of clients (_which is crucial for DNS related checks_);
-        - :heavy_check_mark: Aligns with a best practice for Kubernetes by using a dedicated ingress, routing external traffic to the k8s cluster (_with the benefits of flexible routing rules_)
-        - :heavy_check_mark: Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_).
-        - :heavy_multiplication_x: Introduces complexity by requiring:
+        - [x] Preserves the origin IP address of clients (_which is crucial for DNS related checks_);
+        - [x] Aligns with a best practice for Kubernetes by using a dedicated ingress, routing external traffic to the k8s cluster (_with the benefits of flexible routing rules_)
+        - [x] Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_).
+        - [ ] Introduces complexity by requiring:
             - A reverse-proxy / ingress controller (_potentially extra setup_)
             - Kubernetes manifest changes for the DMS configured `Service`
             - DMS configuration changes for Postfix and Dovecot
-        - :heavy_multiplication_x: To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol.
+        - [ ] To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol.
 
     **Examples**
 

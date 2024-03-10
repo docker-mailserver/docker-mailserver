@@ -82,6 +82,8 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - pymdownx.magiclink
   - pymdownx.inlinehilite
   - pymdownx.tilde
