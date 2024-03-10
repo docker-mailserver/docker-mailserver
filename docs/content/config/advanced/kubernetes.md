@@ -401,12 +401,12 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
       ipAddressPools: [ mailserver ]
     ```
 
-    **Advantages / Disadvantages**
+    !!! abstract "Advantages / Disadvantages"
 
-    - :+1: simple
-    - :-1: requires a dedicated, publicly routable IP address
-    - :-1: limited to a single node (_associated to the dedicated IP address_)
-    - :point_right: requires configuring a load balancer
+        - [x] Simple
+        - [ ] Requires the node to have a dedicated, publicly routable IP address
+        - [ ] Limited to a single node (_associated to the dedicated IP address_)
+        - [ ] Requires configuring a load balancer
 
 === "External-IP Service"
 
@@ -448,12 +448,12 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
         - 10.20.30.40
     ```
 
-    **Advantages / Disadvantages**
+    !!! abstract "Advantages / Disadvantages"
 
-    - :+1: simple
-    - :-1: requires a dedicated, publicly routable IP address
-    - :-1: limited to the node with the dedicated IP address
-    - :point_right: requires manually setting the IP
+        - [x] Simple
+        - [ ] Requires the node to have a dedicated, publicly routable IP address
+        - [ ] Limited to a single node (_associated to the dedicated IP address_)
+        - [ ] Requires manually setting the IP
 
 === "Host network"
 
@@ -496,13 +496,13 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
             #  ...
     ```
 
-    **Advantages / Disadvantages**
+    !!! abstract "Advantages / Disadvantages"
 
-    - :+1: simple
-    - :-1: requires the node to have a dedicated, publicly routable IP address
-    - :-1: limited to the node with the dedicated IP address
-    - :-1: it is not possible to access DMS via other cluster nodes, only via the node that DMS was deployed on
-    - :-1: every port within the container is exposed on the host side
+        - [x] Simple
+        - [ ] Requires the node to have a dedicated, publicly routable IP address
+        - [ ] Limited to a single node (_associated to the dedicated IP address_)
+        - [ ] It is not possible to access DMS via other cluster nodes, only via the node that DMS was deployed on
+        - [ ] Every port within the container is exposed on the host side
 
 === "Using the PROXY Protocol"
 
@@ -524,14 +524,14 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
     !!! abstract "Advantages / Disadvantages"
 
-        - [x] Preserves the origin IP address of clients (_which is crucial for DNS related checks_);
+        - [x] Preserves the origin IP address of clients (_which is crucial for DNS related checks_)
         - [x] Aligns with a best practice for Kubernetes by using a dedicated ingress, routing external traffic to the k8s cluster (_with the benefits of flexible routing rules_)
-        - [x] Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_).
+        - [x] Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_)
         - [ ] Introduces complexity by requiring:
             - A reverse-proxy / ingress controller (_potentially extra setup_)
             - Kubernetes manifest changes for the DMS configured `Service`
             - DMS configuration changes for Postfix and Dovecot
-        - [ ] To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol.
+        - [ ] To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol
 
     **Examples**
 
