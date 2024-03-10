@@ -346,29 +346,27 @@ The more difficult part with Kubernetes is to expose a deployed DMS instance to 
 
 The major problem with exposing DMS to the outside world in Kubernetes is to [preserve the real client IP][Kubernetes-service-source-ip]. The real client IP is required by DMS for performing IP-based DNS and spam checks.
 
-=== "Load-Balancer + Public IP"
+=== "Configure IP Manually"
 
     ???+ abstract "Advantages / Disadvantages"
 
         - [x] Simple
         - [ ] Requires the node to have a dedicated, publicly routable IP address
         - [ ] Limited to a single node (_associated to the dedicated IP address_)
-        - [ ] Requires configuring a load balancer
-
-    **General**
+        - [ ] Your deployment requires an explicit IP in your configuration (_or an entire Load Balancer_).
 
     !!! info
 
         This approach only works when:
 
-        1. You can dedicate a **publicly routable IP** address to the DMS configured `Service` (_e.g. with a load balancer like [MetalLB][metallb-web]_).
-        2. The IP must be dedicated to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
-
-    In this setup, you configure a load balancer to give the DMS configured `Service` a dedicated, publicly routable IP address.
+        1. You can dedicate a **publicly routable IP** address for the DMS configured `Service`.
+        2. A dedicated IP is required to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
 
     **Example**
 
-    The setup differs depending on the load balancer you use; we provide an example for [MetalLb][metallb-web]:
+    === "Load-Balancer"
+
+    The config differs depending on your choice of load balancer. This example uses [MetalLB][metallb-web].
 
     ```yaml
     ---
@@ -408,29 +406,9 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
       ipAddressPools: [ mailserver ]
     ```
 
-=== "External-IP Service"
+    === "External-IP Service"
 
-    ???+ abstract "Advantages / Disadvantages"
-
-        - [x] Simple
-        - [ ] Requires the node to have a dedicated, publicly routable IP address
-        - [ ] Limited to a single node (_associated to the dedicated IP address_)
-        - [ ] Requires manually setting the IP
-
-    **General**
-
-    !!! info
-
-        This approach only works when:
-
-        1. You can dedicate a **publicly routable IP** address to the DMS configured `Service`.
-        2. The IP must be dedicated to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
-
-    In this setup, you set up the DMS configured `Service` manually with an "[external IP][Kubernetes-network-external-ip]", providing the dedicated, publicly routable IP address yourself.
-
-    This approach is very similar to the approach that uses a load balancer and a public IP address.
-
-    **Example**
+    The DMS `Service` is configured with an "[external IP][Kubernetes-network-external-ip]" manually. Append your externally reachable IP address to `spec.externalIPs`.
 
     ```yaml
     ---
