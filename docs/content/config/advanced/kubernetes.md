@@ -580,138 +580,6 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
             - These port variants will be defined in the `Deployment` configuration, and are scoped to the `mailserver` service (via `spec.routes.services.name`).
             - The suffix is used to distinguish that these ports are only compatible with connections using the PROXY protocol, which is what your ingress controller should be managing for you by adding the correct PROXY protocol headers to TCP connections it routes to DMS.
 
-        !!! warning "Connections to DMS within the internal cluster will be rejected"
-
-            The services for these ports can only enable PROXY protocol support by mandating the protocol on all connections for these ports.
-
-            This can be problematic when you also need to support internal cluster traffic directly to DMS (_instead of routing indirectly through the ingress controller_).
-
-        === "Only accept connections with PROXY protocol"
-
-            Here is an example configuration for [Postfix][docs-postfix], [Dovecot][docs-dovecot], and the adjustments to the `Deployment` config. The port names are adjusted here only for the additional context as described previously.
-
-            ```yaml
-            kind: ConfigMap
-            apiVersion: v1
-            metadata:
-              name: mailserver-extra-config
-              labels:
-                app: mailserver
-            data:
-              postfix-main.cf: |
-                postscreen_upstream_proxy_protocol = haproxy
-              postfix-master.cf: |
-                smtp/inet/postscreen_upstream_proxy_protocol=haproxy
-                submission/inet/smtpd_upstream_proxy_protocol=haproxy
-                submissions/inet/smtpd_upstream_proxy_protocol=haproxy
-              dovecot.cf: |
-                haproxy_trusted_networks = <YOUR POD CIDR>
-                service imap-login {
-                  inet_listener imap {
-                    haproxy = yes
-                  }
-                  inet_listener imaps {
-                    haproxy = yes
-                  }
-                }
-            # ...
-
-            ---
-            kind: Deployment
-            apiVersion: apps/v1
-            metadata:
-              name: mailserver
-            spec:
-              template:
-                spec:
-                  containers:
-                    - name: docker-mailserver
-                      # ...
-                      ports:
-                        - name: smtp-proxy
-                          containerPort: 25
-                          protocol: TCP
-                        - name: subs-proxy
-                          containerPort: 465
-                          protocol: TCP
-                        - name: sub-proxy
-                          containerPort: 587
-                          protocol: TCP
-                        - name: imaps-proxy
-                          containerPort: 993
-                          protocol: TCP
-                      # ...
-                      volumeMounts:
-                        - name: config
-                          subPath: postfix-main.cf
-                          mountPath: /tmp/docker-mailserver/postfix-main.cf
-                          readOnly: true
-                        - name: config
-                          subPath: postfix-master.cf
-                          mountPath: /tmp/docker-mailserver/postfix-master.cf
-                          readOnly: true
-                        - name: config
-                          subPath: dovecot.cf
-                          mountPath: /tmp/docker-mailserver/dovecot.cf
-                          readOnly: true
-            ```
-
-        === "Separate PROXY protocol ports for ingress"
-
-            Supporting internal cluster connections to DMS without using PROXY protocol requires both Postfix and Dovecot to be configured with alternative ports for each service port (_which only differ by enforcing PROXY protocol connections_).
-
-            - The ingress controller will route public connections to the internal alternative ports for DMS (`*-proxy` variants).
-            - Internal cluster connections will instead use the original ports configured for the DMS container directly (_which are private to the cluster network_).
-
-            In this example we'll create a copy of the original service ports with PROXY protocol enabled, and increment the port number assigned by `10000. You could run each of these commands within an active DMS instance, but it would be more convenient to persist the modification via our `user-patches.sh` feature:
-
-            ```bash
-            #!/bin/bash
-
-            # Duplicate the config for the submission(s) service ports (587 / 465) with adjustments for the PROXY ports (10587 / 10465) and `syslog_name` setting:
-            postconf -Mf submission/inet | sed -e s/^submission/10587/ -e 's/submission/submission-proxyprotocol/' >> /etc/postfix/master.cf
-            postconf -Mf submissions/inet | sed -e s/^submissions/10465/ -e 's/submissions/submissions-proxyprotocol/' >> /etc/postfix/master.cf
-            # Enable PROXY Protocol support for these new service variants:
-            postconf -P 10587/inet/smtpd_upstream_proxy_protocol=haproxy
-            postconf -P 10465/inet/smtpd_upstream_proxy_protocol=haproxy
-
-            # Create a variant for port 25 too (NOTE: Port 10025 is already assigned in DMS to Amavis):
-            postconf -Mf smtp/inet | sed -e s/^smtp/12525/ >> /etc/postfix/master.cf
-            # Enable PROXY Protocol support (different setting as port 25 is handled via postscreen), optionally configure a `syslog_name` to distinguish in logs:
-            postconf -P 12525/inet/postscreen_upstream_proxy_protocol=haproxy 12525/inet/syslog_name=smtp-proxyprotocol
-            ```
-
-            For Dovecot, you can configure [`dovecot.cf`][docs-dovecot] to look like this:
-
-            ```cf
-            haproxy_trusted_networks = <YOUR POD CIDR>
-
-            service imap-login {
-              inet_listener imaps-proxied {
-                haproxy = yes
-                port = 10993
-                ssl = yes
-              }
-            }
-            ```
-
-            Last but not least, the `ports` section in the `Deployment` needs to be extended:
-
-            ```yaml
-            - name: smtp-proxy
-              containerPort: 10025
-              protocol: TCP
-            - name: subs-proxy
-              containerPort: 10465
-              protocol: TCP
-            - name: sub-proxy
-              containerPort: 10587
-              protocol: TCP
-            - name: imaps-proxy
-              containerPort: 10993
-              protocol: TCP
-            ```
-
     === "NGINX"
 
         With an [NGINX ingress controller][Kubernetes-nginx], add the following to the TCP services config map (as described [here][Kubernetes-nginx-expose]):
@@ -721,6 +589,140 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
         465: "mailserver/mailserver:465::PROXY"
         587: "mailserver/mailserver:587::PROXY"
         993: "mailserver/mailserver:993::PROXY"
+        ```
+
+    ---
+
+    === "Only accept connections with PROXY protocol"
+
+        !!! warning "Connections to DMS within the internal cluster will be rejected"
+
+            The services for these ports can only enable PROXY protocol support by mandating the protocol on all connections for these ports.
+
+            This can be problematic when you also need to support internal cluster traffic directly to DMS (_instead of routing indirectly through the ingress controller_).
+
+        Here is an example configuration for [Postfix][docs-postfix], [Dovecot][docs-dovecot], and the adjustments to the `Deployment` config. The port names are adjusted here only for the additional context as described previously.
+
+        ```yaml
+        kind: ConfigMap
+        apiVersion: v1
+        metadata:
+          name: mailserver-extra-config
+          labels:
+            app: mailserver
+        data:
+          postfix-main.cf: |
+            postscreen_upstream_proxy_protocol = haproxy
+          postfix-master.cf: |
+            smtp/inet/postscreen_upstream_proxy_protocol=haproxy
+            submission/inet/smtpd_upstream_proxy_protocol=haproxy
+            submissions/inet/smtpd_upstream_proxy_protocol=haproxy
+          dovecot.cf: |
+            haproxy_trusted_networks = <YOUR POD CIDR>
+            service imap-login {
+              inet_listener imap {
+                haproxy = yes
+              }
+              inet_listener imaps {
+                haproxy = yes
+              }
+            }
+        # ...
+
+        ---
+        kind: Deployment
+        apiVersion: apps/v1
+        metadata:
+          name: mailserver
+        spec:
+          template:
+            spec:
+              containers:
+                - name: docker-mailserver
+                  # ...
+                  ports:
+                    - name: smtp-proxy
+                      containerPort: 25
+                      protocol: TCP
+                    - name: subs-proxy
+                      containerPort: 465
+                      protocol: TCP
+                    - name: sub-proxy
+                      containerPort: 587
+                      protocol: TCP
+                    - name: imaps-proxy
+                      containerPort: 993
+                      protocol: TCP
+                  # ...
+                  volumeMounts:
+                    - name: config
+                      subPath: postfix-main.cf
+                      mountPath: /tmp/docker-mailserver/postfix-main.cf
+                      readOnly: true
+                    - name: config
+                      subPath: postfix-master.cf
+                      mountPath: /tmp/docker-mailserver/postfix-master.cf
+                      readOnly: true
+                    - name: config
+                      subPath: dovecot.cf
+                      mountPath: /tmp/docker-mailserver/dovecot.cf
+                      readOnly: true
+        ```
+
+    === "Separate PROXY protocol ports for ingress"
+
+        Supporting internal cluster connections to DMS without using PROXY protocol requires both Postfix and Dovecot to be configured with alternative ports for each service port (_which only differ by enforcing PROXY protocol connections_).
+
+        - The ingress controller will route public connections to the internal alternative ports for DMS (`*-proxy` variants).
+        - Internal cluster connections will instead use the original ports configured for the DMS container directly (_which are private to the cluster network_).
+
+        In this example we'll create a copy of the original service ports with PROXY protocol enabled, and increment the port number assigned by `10000. You could run each of these commands within an active DMS instance, but it would be more convenient to persist the modification via our `user-patches.sh` feature:
+
+        ```bash
+        #!/bin/bash
+
+        # Duplicate the config for the submission(s) service ports (587 / 465) with adjustments for the PROXY ports (10587 / 10465) and `syslog_name` setting:
+        postconf -Mf submission/inet | sed -e s/^submission/10587/ -e 's/submission/submission-proxyprotocol/' >> /etc/postfix/master.cf
+        postconf -Mf submissions/inet | sed -e s/^submissions/10465/ -e 's/submissions/submissions-proxyprotocol/' >> /etc/postfix/master.cf
+        # Enable PROXY Protocol support for these new service variants:
+        postconf -P 10587/inet/smtpd_upstream_proxy_protocol=haproxy
+        postconf -P 10465/inet/smtpd_upstream_proxy_protocol=haproxy
+
+        # Create a variant for port 25 too (NOTE: Port 10025 is already assigned in DMS to Amavis):
+        postconf -Mf smtp/inet | sed -e s/^smtp/12525/ >> /etc/postfix/master.cf
+        # Enable PROXY Protocol support (different setting as port 25 is handled via postscreen), optionally configure a `syslog_name` to distinguish in logs:
+        postconf -P 12525/inet/postscreen_upstream_proxy_protocol=haproxy 12525/inet/syslog_name=smtp-proxyprotocol
+        ```
+
+        For Dovecot, you can configure [`dovecot.cf`][docs-dovecot] to look like this:
+
+        ```cf
+        haproxy_trusted_networks = <YOUR POD CIDR>
+
+        service imap-login {
+          inet_listener imaps-proxied {
+            haproxy = yes
+            port = 10993
+            ssl = yes
+          }
+        }
+        ```
+
+        Last but not least, the `ports` section in the `Deployment` needs to be extended:
+
+        ```yaml
+        - name: smtp-proxy
+          containerPort: 10025
+          protocol: TCP
+        - name: subs-proxy
+          containerPort: 10465
+          protocol: TCP
+        - name: sub-proxy
+          containerPort: 10587
+          protocol: TCP
+        - name: imaps-proxy
+          containerPort: 10993
+          protocol: TCP
         ```
 
 [github-web::docker-mailserver-helm]: https://github.com/docker-mailserver/docker-mailserver-helm
