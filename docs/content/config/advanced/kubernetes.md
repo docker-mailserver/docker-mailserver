@@ -706,6 +706,11 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                 haproxy_trusted_networks = <YOUR POD CIDR>
 
                 service imap-login {
+                  inet_listener imap-proxied {
+                    haproxy = yes
+                    port = 10143
+                  }
+
                   inet_listener imaps-proxied {
                     haproxy = yes
                     port = 10993
@@ -714,11 +719,14 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                 }
                 ```
 
-                Last but not least, the `ports` section in the `Deployment` needs to be extended:
+                Last but not least, the `ports` section in the `Deployment` needs to be changed:
 
                 ```yaml
                 - name: smtp-proxy
                   containerPort: 10025
+                  protocol: TCP
+                - name: imap-proxy
+                  containerPort: 10143
                   protocol: TCP
                 - name: subs-proxy
                   containerPort: 10465
