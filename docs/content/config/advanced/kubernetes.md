@@ -650,6 +650,9 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                             - name: smtp-proxy
                               containerPort: 25
                               protocol: TCP
+                            - name: imap-proxy
+                              containerPort: 143
+                              protocol: TCP
                             - name: subs-proxy
                               containerPort: 465
                               protocol: TCP
@@ -719,11 +722,12 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                 }
                 ```
 
-                Last but not least, the `ports` section in the `Deployment` needs to be changed:
+                Last but not least, the `ports` section in the `Deployment` needs to be changed. The following ports have to be added:
 
                 ```yaml
                 - name: smtp-proxy
-                  containerPort: 10025
+                  # not 10025 in this example due to a possible clash with Amavis
+                  containerPort: 12525
                   protocol: TCP
                 - name: imap-proxy
                   containerPort: 10143
