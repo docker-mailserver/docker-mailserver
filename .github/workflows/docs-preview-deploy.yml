@@ -55,7 +55,7 @@ jobs:
           context: 'Deploy Preview (pull_request => workflow_run)'
 
       - name: 'Send preview build to Netlify'
-        uses: nwtgck/actions-netlify@v2.1
+        uses: nwtgck/actions-netlify@v3.0
         id: preview
         timeout-minutes: 1
         env:
