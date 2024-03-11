@@ -722,6 +722,12 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                 }
                 ```
 
+                !!! warning
+
+                    You are responsible for properly managing traffic inside your cluster and to **ensure that only trustworthy entities** can connect to the designated PROXY protocol ports. With Kubernetes, this is usually the task of the container network interface.
+
+                    While Dovecot provides a very basic machanims to achieve firewalling connections via `haproxy_trusted_networks`, Postfix does not provide ann equivalent at all.
+
                 Last but not least, the `ports` section in the `Deployment` needs to be changed. The following ports have to be added:
 
                 ```yaml
