@@ -169,9 +169,9 @@ function _register_functions() {
 # ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
-# fresh container?
+# Ensure DMS only adjusts config files for a new container.
+# Container restarts should skip as they retain the modified config.
 if [[ ! -f /CONTAINER_START ]]; then
-  # first container start
   _early_supervisor_setup
   _early_variables_setup
 
