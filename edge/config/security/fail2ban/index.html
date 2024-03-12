@@ -2270,7 +2270,7 @@
 <h2 id="running-inside-a-rootless-container"><a class="toclink" href="#running-inside-a-rootless-container">Running Inside A Rootless Container</a></h2>
 <p><a href="https://github.com/rootless-containers/rootlesskit"><code>RootlessKit</code></a> is the <em>fakeroot</em> implementation for supporting <em>rootless mode</em> in Docker and Podman. By default, RootlessKit uses the <a href="https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers"><code>builtin</code> port forwarding driver</a>, which does not propagate source IP addresses.</p>
 <p>It is necessary for F2B to have access to the real source IP addresses in order to correctly identify clients. This is achieved by changing the port forwarding driver to <a href="https://github.com/rootless-containers/slirp4netns"><code>slirp4netns</code></a>, which is slower than the builtin driver but does preserve the real source IPs.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Docker</label><label for="__tabbed_1_2">Podman</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="docker" name="__tabbed_1" type="radio" /><input id="podman" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="docker">Docker</label><label for="podman">Podman</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>For <a href="https://docs.docker.com/engine/security/rootless">rootless mode</a> in Docker, create <code>~/.config/systemd/user/docker.service.d/override.conf</code> with the following content:</p>

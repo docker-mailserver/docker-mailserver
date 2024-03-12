@@ -2323,7 +2323,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 </div>
 </details>
 <p>DKIM is currently supported by either OpenDKIM or Rspamd:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">OpenDKIM</label><label for="__tabbed_1_2">Rspamd</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="opendkim" name="__tabbed_1" type="radio" /><input id="rspamd" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="opendkim">OpenDKIM</label><label for="rspamd">Rspamd</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>OpenDKIM is currently <a href="../../environment/#enable_opendkim">enabled by default</a>.</p>
@@ -2431,7 +2431,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <div class="admonition example">
 <p class="admonition-title">Configuring DNS - DKIM record</p>
 <p>When you generated your key in the previous step, the DNS data was saved into a file <code>&lt;selector&gt;.txt</code> (default: <code>mail.txt</code>). Use this content to update your <a href="https://www.vultr.com/docs/introduction-to-vultr-dns/">DNS via Web Interface</a> or directly edit your <a href="https://en.wikipedia.org/wiki/Zone_file">DNS Zone file</a>:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Web Interface</label><label for="__tabbed_2_2">DNS Zone file</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="web-interface" name="__tabbed_2" type="radio" /><input id="dns-zone-file" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="web-interface">Web Interface</label><label for="dns-zone-file">DNS Zone file</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Create a new record:</p>

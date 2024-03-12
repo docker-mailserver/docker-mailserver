@@ -2285,11 +2285,11 @@
 <li>The network will also implicitly be assigned an IPv4 subnet (<em>from the Docker daemon config <code>default-address-pools</code></em>).</li>
 </ul>
 </details>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">User-defined Network</label><label for="__tabbed_1_2">Default Bridge (daemon)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="user-defined-network" name="__tabbed_1" type="radio" /><input id="default-bridge-daemon" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="user-defined-network">User-defined Network</label><label for="default-bridge-daemon">Default Bridge (daemon)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>The preferred approach is with <a href="https://docs.docker.com/config/daemon/ipv6/#create-an-ipv6-network">user-defined networks</a> via <code>compose.yaml</code> (recommended) or CLI with <code>docker network create</code>:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Compose</label><label for="__tabbed_2_2">CLI</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="compose" name="__tabbed_2" type="radio" /><input id="cli" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="compose">Compose</label><label for="cli">CLI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Create the network in <code>compose.yaml</code> and attach a service to it:</p>

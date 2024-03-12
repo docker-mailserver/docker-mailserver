@@ -107,3 +107,37 @@ div.md-content article.md-content__inner a.toclink code {
 .md-nav__item--nested > .md-nav__link {
   font-weight: 700;
 }
+
+/* ============================================================================================================= */
+
+/*
+  TaskList style for a pro/con list. Presently only used for this type of list in the kubernetes docs.
+  Uses a custom icon for the unchecked (con) state: :octicons-x-circle-fill-24:
+  https://github.com/squidfunk/mkdocs-material/discussions/6811#discussioncomment-8700795
+
+  TODO: Can better scope the style under a class name when migrating to block extension syntax:
+  https://github.com/facelessuser/pymdown-extensions/discussions/1973
+*/
+
+:root {
+  --md-tasklist-icon--failed: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12Zm8.036-4.024a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L10.939 12l-2.963 2.963a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L12 13.06l2.963 2.964a.75.75 0 0 0 1.061-1.06L13.061 12l2.963-2.964a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L12 10.939Z"/></svg>');
+}
+
+.md-typeset [type="checkbox"] + .task-list-indicator::before {
+  background-color: rgb(216, 87, 48);
+  -webkit-mask-image: var(--md-tasklist-icon--failed);
+  mask-image: var(--md-tasklist-icon--failed);
+}
+
+/* More suitable shade of green */
+.md-typeset [type=checkbox]:checked+.task-list-indicator:before {
+  background-color: rgb(97, 216, 42);
+}
+
+/* Tiny layout shift */
+[dir=ltr] .md-typeset .task-list-indicator:before {
+  left: -1.6em;
+  top: 1px;
+}
+
+/* ============================================================================================================= */
