@@ -18,73 +18,79 @@ This article describes how to deploy DMS to Kubernetes. We highly recommend ever
 
 ## Manually Writing Manifests
 
-If using our Helm chart is not viable, here is some guidance to start with your own manifests.
+If using our Helm chart is not viable for you, here is some guidance to start with your own manifests.
 
 <!-- This empty quote block is purely for a visual border -->
 !!! quote ""
 
     === "`ConfigMap`"
 
-        Provide the basic configuration via environment variables with a `ConfigMap`. Note that this is just an example configuration; tune the `ConfigMap` to your needs.
+        Provide the basic configuration via environment variables with a `ConfigMap`.
+        
+        !!! example
 
-        ```yaml
-        ---
-        apiVersion: v1
-        kind: ConfigMap
+            Below is only an example configuration, adjust the `ConfigMap` to your own needs.
 
-        metadata:
-          name: mailserver.environment
+            ```yaml
+            ---
+            apiVersion: v1
+            kind: ConfigMap
 
-        immutable: false
+            metadata:
+              name: mailserver.environment
 
-        data:
-          TLS_LEVEL: modern
-          POSTSCREEN_ACTION: drop
-          OVERRIDE_HOSTNAME: mail.example.com
-          FAIL2BAN_BLOCKTYPE: drop
-          POSTMASTER_ADDRESS: postmaster@example.com
-          UPDATE_CHECK_INTERVAL: 10d
-          POSTFIX_INET_PROTOCOLS: ipv4
-          ENABLE_CLAMAV: '1'
-          ENABLE_POSTGREY: '0'
-          ENABLE_FAIL2BAN: '1'
-          AMAVIS_LOGLEVEL: '-1'
-          SPOOF_PROTECTION: '1'
-          MOVE_SPAM_TO_JUNK: '1'
-          ENABLE_UPDATE_CHECK: '1'
-          ENABLE_SPAMASSASSIN: '1'
-          SUPERVISOR_LOGLEVEL: warn
-          SPAMASSASSIN_SPAM_TO_INBOX: '1'
+            immutable: false
 
-          # here, we provide an example for the SSL configuration
-          SSL_TYPE: manual
-          SSL_CERT_PATH: /secrets/ssl/rsa/tls.crt
-          SSL_KEY_PATH: /secrets/ssl/rsa/tls.key
-        ```
+            data:
+              TLS_LEVEL: modern
+              POSTSCREEN_ACTION: drop
+              OVERRIDE_HOSTNAME: mail.example.com
+              FAIL2BAN_BLOCKTYPE: drop
+              POSTMASTER_ADDRESS: postmaster@example.com
+              UPDATE_CHECK_INTERVAL: 10d
+              POSTFIX_INET_PROTOCOLS: ipv4
+              ENABLE_CLAMAV: '1'
+              ENABLE_POSTGREY: '0'
+              ENABLE_FAIL2BAN: '1'
+              AMAVIS_LOGLEVEL: '-1'
+              SPOOF_PROTECTION: '1'
+              MOVE_SPAM_TO_JUNK: '1'
+              ENABLE_UPDATE_CHECK: '1'
+              ENABLE_SPAMASSASSIN: '1'
+              SUPERVISOR_LOGLEVEL: warn
+              SPAMASSASSIN_SPAM_TO_INBOX: '1'
 
-        **Providing config files**
+              # here, we provide an example for the SSL configuration
+              SSL_TYPE: manual
+              SSL_CERT_PATH: /secrets/ssl/rsa/tls.crt
+              SSL_KEY_PATH: /secrets/ssl/rsa/tls.key
+            ```
 
-        You can also make use of user-provided configuration files (_e.g. `user-patches.sh`, `postfix-accounts.cf` and more_), to customize DMS to your needs. Here is a minimal example that supplies a `postfix-accounts.cf` file inline with two users:
+        You can also make use of user-provided configuration files (_e.g. `user-patches.sh`, `postfix-accounts.cf`, etc_), to customize DMS to your needs.
 
-        ```yaml
-        ---
-        apiVersion: v1
-        kind: ConfigMap
+        ??? example "Providing config files"
 
-        metadata:
-          name: mailserver.files
+            Here is a minimal example that supplies a `postfix-accounts.cf` file inline with two users:
 
-        data:
-          postfix-accounts.cf: |
-            test@example.com|{SHA512-CRYPT}$6$someHashValueHere
-            other@example.com|{SHA512-CRYPT}$6$someOtherHashValueHere
-        ```
+            ```yaml
+            ---
+            apiVersion: v1
+            kind: ConfigMap
 
-        !!! info "Static Configuration"
+            metadata:
+              name: mailserver.files
 
-            The inline `postfix-accounts.cf` config example above provides file content that is static. It is mounted as read-only at runtime, thus cannot support modifications.
+            data:
+              postfix-accounts.cf: |
+                test@example.com|{SHA512-CRYPT}$6$someHashValueHere
+                other@example.com|{SHA512-CRYPT}$6$someOtherHashValueHere
+            ```
 
-            For production deployments, use persistent volumes instead (via `PersistentVolumeClaim`). That will enable files like `postfix-account.cf` to add and remove accounts, while also persisting those changes externally from the container.
+            !!! info "Static Configuration"
+
+                The inline `postfix-accounts.cf` config example above provides file content that is static. It is mounted as read-only at runtime, thus cannot support modifications.
+
+                For production deployments, use persistent volumes instead (via `PersistentVolumeClaim`). That will enable files like `postfix-account.cf` to add and remove accounts, while also persisting those changes externally from the container.
 
         !!! tip "Modularize your `ConfigMap`"
 
@@ -92,24 +98,28 @@ If using our Helm chart is not viable, here is some guidance to start with your 
 
     === "`PersistentVolumeClaim`"
 
-        To persist data externally from the DMS container, configure a `PersistentVolumeClaim` (PVC). Make sure you have a storage system (like Longhorn, Rook, etc.) and that you choose the correct `storageClassName` (according to your storage system).
+        To persist data externally from the DMS container, configure a `PersistentVolumeClaim` (PVC).
 
-        ```yaml
-        ---
-        apiVersion: v1
-        kind: PersistentVolumeClaim
+        Make sure you have a storage system (like Longhorn, Rook, etc.) and that you choose the correct `storageClassName` (according to your storage system).
 
-        metadata:
-          name: data
+        !!! example
 
-        spec:
-          storageClassName: local-path
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 25Gi
-        ```
+            ```yaml
+            ---
+            apiVersion: v1
+            kind: PersistentVolumeClaim
+
+            metadata:
+              name: data
+
+            spec:
+              storageClassName: local-path
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 25Gi
+            ```
 
     === "`Service`"
 
@@ -117,77 +127,83 @@ If using our Helm chart is not viable, here is some guidance to start with your 
 
         The configuration for a `Service` affects if the original IP from a connecting client is preserved (_this is important_). [More about this further down below](#exposing-your-mail-server-to-the-outside-world).
 
-        ```yaml
-        ---
-        apiVersion: v1
-        kind: Service
+        !!! example
 
-        metadata:
-          name: mailserver
-          labels:
-            app: mailserver
+            ```yaml
+            ---
+            apiVersion: v1
+            kind: Service
 
-        spec:
-          type: LoadBalancer
+            metadata:
+              name: mailserver
+              labels:
+                app: mailserver
 
-          selector:
-            app: mailserver
+            spec:
+              type: LoadBalancer
 
-          ports:
-            # smtp
-            - name: smtp
-              port: 25
-              targetPort: smtp
-              protocol: TCP
-            # submissions (ESMTP with implicit TLS)
-            - name: submission
-              port: 465
-              targetPort: submissions
-              protocol: TCP
-            # submission (ESMTP with explicit TLS)
-            - name: submission
-              port: 587
-              targetPort: submission
-              protocol: TCP
-            # imaps (implicit TLS)
-            - name: imaps
-              port: 993
-              targetPort: imaps
-              protocol: TCP
-        ```
+              selector:
+                app: mailserver
+
+              ports:
+                # smtp
+                - name: smtp
+                  port: 25
+                  targetPort: smtp
+                  protocol: TCP
+                # submissions (ESMTP with implicit TLS)
+                - name: submission
+                  port: 465
+                  targetPort: submissions
+                  protocol: TCP
+                # submission (ESMTP with explicit TLS)
+                - name: submission
+                  port: 587
+                  targetPort: submission
+                  protocol: TCP
+                # imaps (implicit TLS)
+                - name: imaps
+                  port: 993
+                  targetPort: imaps
+                  protocol: TCP
+            ```
 
     === "`Certificate`"
 
-        In this example, we use [`cert-manager`][cert-manager] to supply RSA certificates.
+        !!! example "Using [`cert-manager`][cert-manager] to supply TLS certificates"
 
-        You could also supply RSA certificates as fallback certificates, which DMS supports out of the box with `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH`, and provide ECDSA as the proper certificates.
+            ```yaml
+            ---
+            apiVersion: cert-manager.io/v1
+            kind: Certificate
 
-        ```yaml
-        ---
-        apiVersion: cert-manager.io/v1
-        kind: Certificate
+            metadata:
+              name: mail-tls-certificate-rsa
 
-        metadata:
-          name: mail-tls-certificate-rsa
+            spec:
+              secretName: mail-tls-certificate-rsa
+              isCA: false
+              privateKey:
+                algorithm: RSA
+                encoding: PKCS1
+                size: 2048
+              dnsNames: [mail.example.com]
+              issuerRef:
+                name: mail-issuer
+                kind: Issuer
+            ```
 
-        spec:
-          secretName: mail-tls-certificate-rsa
-          isCA: false
-          privateKey:
-            algorithm: RSA
-            encoding: PKCS1
-            size: 2048
-          dnsNames: [mail.example.com]
-          issuerRef:
-            name: mail-issuer
-            kind: Issuer
-        ```
+            The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security.
 
-        !!! warning "Sensitive Data"
+        !!! tip "ECDSA + RSA (fallback)"
 
-            For storing OpenDKIM keys, TLS certificates, or any sort of sensitive data - you should be using `Secret`s. A `Secret` is similar to `ConfigMap`, it can be used and mounted as a volume as demonstrated in the `Deployment` tab.
+            You could supply RSA certificates as fallback certificates instead, with ECDSA as the primary. DMS supports dual certificates via the ENV `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH`.
 
-            The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security. Always provide sensitive information via `Secrets`.
+        !!! warning "Always provide sensitive information via a `Secret`"
+
+            For storing OpenDKIM keys, TLS certificates, or any sort of sensitive data - you should be using `Secret`s.
+
+            A `Secret` is similar to `ConfigMap`, it can be used and mounted as a volume as demonstrated in the `Deployment` tab.
 
     === "`Deployment`"
 
@@ -196,150 +212,152 @@ If using our Helm chart is not viable, here is some guidance to start with your 
         - It instructs Kubernetes how to run the DMS container and how to apply your `ConfigMap`s, persisted storage, etc.
         - Additional options can be set to enforce runtime security.
 
-        ```yaml
-        ---
-        apiVersion: apps/v1
-        kind: Deployment
+        ???+ example
 
-        metadata:
-          name: mailserver
+            ```yaml
+            ---
+            apiVersion: apps/v1
+            kind: Deployment
 
-          annotations:
-            ignore-check.kube-linter.io/run-as-non-root: >-
-              'mailserver' needs to run as root
-            ignore-check.kube-linter.io/privileged-ports: >-
-              'mailserver' needs privileged ports
-            ignore-check.kube-linter.io/no-read-only-root-fs: >-
-              There are too many files written to make the root FS read-only
-
-        spec:
-          replicas: 1
-          selector:
-            matchLabels:
-              app: mailserver
-
-          template:
             metadata:
-              labels:
-                app: mailserver
+              name: mailserver
 
               annotations:
-                container.apparmor.security.beta.kubernetes.io/mailserver: runtime/default
+                ignore-check.kube-linter.io/run-as-non-root: >-
+                  'mailserver' needs to run as root
+                ignore-check.kube-linter.io/privileged-ports: >-
+                  'mailserver' needs privileged ports
+                ignore-check.kube-linter.io/no-read-only-root-fs: >-
+                  There are too many files written to make the root FS read-only
 
             spec:
-              hostname: mail
-              containers:
-                - name: mailserver
-                  image: ghcr.io/docker-mailserver/docker-mailserver:latest
-                  imagePullPolicy: IfNotPresent
+              replicas: 1
+              selector:
+                matchLabels:
+                  app: mailserver
 
-                  securityContext:
-                    # `allowPrivilegeEscalation: true` is required to support SGID via the
-                    # `postdrop` executable in `/var/mail-state` for Postfix (maildrop + public dirs):
-                    # https://github.com/docker-mailserver/docker-mailserver/pull/3625
-                    allowPrivilegeEscalation: true
-                    readOnlyRootFilesystem: false
-                    runAsUser: 0
-                    runAsGroup: 0
-                    runAsNonRoot: false
-                    privileged: false
-                    capabilities:
-                      add:
-                        # file permission capabilities
-                        - CHOWN
-                        - FOWNER
-                        - MKNOD
-                        - SETGID
-                        - SETUID
-                        - DAC_OVERRIDE
-                        # network capabilities
-                        - NET_ADMIN  # needed for F2B
-                        - NET_RAW    # needed for F2B
-                        - NET_BIND_SERVICE
-                        # miscellaneous  capabilities
-                        - SYS_CHROOT
-                        - KILL
-                      drop: [ALL]
-                    seccompProfile:
-                      type: RuntimeDefault
+              template:
+                metadata:
+                  labels:
+                    app: mailserver
 
-                  # Tune this to your needs.
-                  # If you disable ClamAV, you can use less RAM and CPU.
-                  # This becomes important in case you're low on resources
-                  # and Kubernetes refuses to schedule new pods.
-                  resources:
-                    limits:
-                      memory: 4Gi
-                      cpu: 1500m
-                    requests:
-                      memory: 2Gi
-                      cpu: 600m
+                  annotations:
+                    container.apparmor.security.beta.kubernetes.io/mailserver: runtime/default
 
-                  volumeMounts:
+                spec:
+                  hostname: mail
+                  containers:
+                    - name: mailserver
+                      image: ghcr.io/docker-mailserver/docker-mailserver:latest
+                      imagePullPolicy: IfNotPresent
+
+                      securityContext:
+                        # `allowPrivilegeEscalation: true` is required to support SGID via the `postdrop`
+                        # executable in `/var/mail-state` for Postfix (maildrop + public dirs):
+                        # https://github.com/docker-mailserver/docker-mailserver/pull/3625
+                        allowPrivilegeEscalation: true
+                        readOnlyRootFilesystem: false
+                        runAsUser: 0
+                        runAsGroup: 0
+                        runAsNonRoot: false
+                        privileged: false
+                        capabilities:
+                          add:
+                            # file permission capabilities
+                            - CHOWN
+                            - FOWNER
+                            - MKNOD
+                            - SETGID
+                            - SETUID
+                            - DAC_OVERRIDE
+                            # network capabilities
+                            - NET_ADMIN  # needed for F2B
+                            - NET_RAW    # needed for F2B
+                            - NET_BIND_SERVICE
+                            # miscellaneous  capabilities
+                            - SYS_CHROOT
+                            - KILL
+                          drop: [ALL]
+                        seccompProfile:
+                          type: RuntimeDefault
+
+                      # Tune this to your needs.
+                      # If you disable ClamAV, you can use less RAM and CPU.
+                      # This becomes important in case you're low on resources
+                      # and Kubernetes refuses to schedule new pods.
+                      resources:
+                        limits:
+                          memory: 4Gi
+                          cpu: 1500m
+                        requests:
+                          memory: 2Gi
+                          cpu: 600m
+
+                      volumeMounts:
+                        - name: files
+                          subPath: postfix-accounts.cf
+                          mountPath: /tmp/docker-mailserver/postfix-accounts.cf
+                          readOnly: true
+
+                        # PVCs
+                        - name: data
+                          mountPath: /var/mail
+                          subPath: data
+                          readOnly: false
+                        - name: data
+                          mountPath: /var/mail-state
+                          subPath: state
+                          readOnly: false
+                        - name: data
+                          mountPath: /var/log/mail
+                          subPath: log
+                          readOnly: false
+
+                        # certificates
+                        - name: certificates-rsa
+                          mountPath: /secrets/ssl/rsa/
+                          readOnly: true
+
+                      ports:
+                        - name: smtp
+                          containerPort: 25
+                          protocol: TCP
+                        - name: submissions
+                          containerPort: 465
+                          protocol: TCP
+                        - name: submission
+                          containerPort: 587
+                        - name: imaps
+                          containerPort: 993
+                          protocol: TCP
+
+                      envFrom:
+                        - configMapRef:
+                            name: mailserver.environment
+
+                  restartPolicy: Always
+
+                  volumes:
+                    # configuration files
                     - name: files
-                      subPath: postfix-accounts.cf
-                      mountPath: /tmp/docker-mailserver/postfix-accounts.cf
-                      readOnly: true
+                      configMap:
+                        name: mailserver.files
 
                     # PVCs
                     - name: data
-                      mountPath: /var/mail
-                      subPath: data
-                      readOnly: false
-                    - name: data
-                      mountPath: /var/mail-state
-                      subPath: state
-                      readOnly: false
-                    - name: data
-                      mountPath: /var/log/mail
-                      subPath: log
-                      readOnly: false
+                      persistentVolumeClaim:
+                        claimName: data
 
                     # certificates
                     - name: certificates-rsa
-                      mountPath: /secrets/ssl/rsa/
-                      readOnly: true
-
-                  ports:
-                    - name: smtp
-                      containerPort: 25
-                      protocol: TCP
-                    - name: submissions
-                      containerPort: 465
-                      protocol: TCP
-                    - name: submission
-                      containerPort: 587
-                    - name: imaps
-                      containerPort: 993
-                      protocol: TCP
-
-                  envFrom:
-                    - configMapRef:
-                        name: mailserver.environment
-
-              restartPolicy: Always
-
-              volumes:
-                # configuration files
-                - name: files
-                  configMap:
-                    name: mailserver.files
-
-                # PVCs
-                - name: data
-                  persistentVolumeClaim:
-                    claimName: data
-
-                # certificates
-                - name: certificates-rsa
-                  secret:
-                    secretName: mail-tls-certificate-rsa
-                    items:
-                      - key: tls.key
-                        path: tls.key
-                      - key: tls.crt
-                        path: tls.crt
-        ```
+                      secret:
+                        secretName: mail-tls-certificate-rsa
+                        items:
+                          - key: tls.key
+                            path: tls.key
+                          - key: tls.crt
+                            path: tls.crt
+            ```
 
 ## Exposing your Mail Server to the Outside World
 
@@ -449,11 +467,9 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
             - [ ] It is not possible to access DMS via other cluster nodes, only via the node that DMS was deployed on
             - [ ] Every port within the container is exposed on the host side
 
-        **General**
-
-        Using `hostPort` and `hostNetwork: true` is a similar approach to [`network_mode: host` with Docker Compose][docker-docs::compose::network_mode].
-
         !!! example
+
+             Using `hostPort` and `hostNetwork: true` is a similar approach to [`network_mode: host` with Docker Compose][docker-docs::compose::network_mode].
 
             ```yaml
             ---
@@ -513,9 +529,7 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
 
             For more information on the PROXY protocol, refer to [our dedicated docs page][docs-mailserver-behind-proxy] on the topic.
 
-        !!! example
-
-            **Configure the Ingress Controller**
+        ???+ example "Configure the Ingress Controller"
 
             === "Traefik"
 
@@ -594,9 +608,7 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
                 993: "mailserver/mailserver:993::PROXY"
                 ```
 
-            ---
-
-            **Adjust DMS config for Dovecot + Postfix**
+        ???+ example "Adjust DMS config for Dovecot + Postfix"
 
             ??? warning "Only ingress should connect to DMS with PROXY protocol"
 
