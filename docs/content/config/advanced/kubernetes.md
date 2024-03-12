@@ -10,15 +10,15 @@ This article describes how to deploy DMS to Kubernetes. We highly recommend ever
 
     1. Basic knowledge about Kubernetes from the reader.
     2. A basic understanding of mail servers.
-    3. Ideally, the reader has deployed DMS before in an easier setup (with Docker or Docker Compose).
+    3. Ideally, the reader has already deployed DMS before with a simpler setup (_`docker run` or Docker Compose_).
 
 !!! warning "Limited Support"
 
-    We do **not officially support** Kubernetes, i.e., this content is entirely community-supported. If you find errors, please open an issue and raise  a PR.
+    DMS **does not officially support Kubernetes**. This content is entirely community-supported. If you find errors, please open an issue and raise  a PR.
 
 ## Manually Writing Manifests
 
-When you do not want to or you cannot use Helm, below is a simple starting point for writing your YAML manifests.
+If using our Helm chart is not viable, here is some guidance to start with your own manifests.
 
 <!-- This empty quote block is purely for a visual border -->
 !!! quote ""
@@ -62,6 +62,8 @@ When you do not want to or you cannot use Helm, below is a simple starting point
           SSL_KEY_PATH: /secrets/ssl/rsa/tls.key
         ```
 
+        **Providing config files**
+
         You can also make use of user-provided configuration files (_e.g. `user-patches.sh`, `postfix-accounts.cf` and more_), to customize DMS to your needs. Here is a minimal example that supplies a `postfix-accounts.cf` file inline with two users:
 
         ```yaml
@@ -78,11 +80,11 @@ When you do not want to or you cannot use Helm, below is a simple starting point
             other@example.com|{SHA512-CRYPT}$6$someOtherHashValueHere
         ```
 
-        !!! attention "Static Configuration"
+        !!! info "Static Configuration"
 
-            With the inline `postfix-accounts.cf` config above, the file content is static (_modifications like adding or removing account lines will not persist_). When your configs should be dynamic you should instead use a `PersistentVolumeClaim`.
+            The inline `postfix-accounts.cf` config example above provides file content that is static. It is mounted as read-only at runtime, thus cannot support modifications.
 
-            For production deployments, use persistent volumes instead to support dynamic config files.
+            For production deployments, use persistent volumes instead (via `PersistentVolumeClaim`). That will enable files like `postfix-account.cf` to add and remove accounts, while also persisting those changes externally from the container.
 
         !!! tip "Modularize your `ConfigMap`"
 
@@ -154,9 +156,11 @@ When you do not want to or you cannot use Helm, below is a simple starting point
               protocol: TCP
         ```
 
-    === "Certificates"
+    === "`Certificate`"
 
-        In this example, we use [`cert-manager`][cert-manager] to supply RSA certificates. You can also supply RSA certificates as fallback certificates, which DMS supports out of the box with `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH`, and provide ECDSA as the proper certificates.
+        In this example, we use [`cert-manager`][cert-manager] to supply RSA certificates.
+
+        You could also supply RSA certificates as fallback certificates, which DMS supports out of the box with `SSL_ALT_CERT_PATH` and `SSL_ALT_KEY_PATH`, and provide ECDSA as the proper certificates.
 
         ```yaml
         ---
@@ -179,17 +183,11 @@ When you do not want to or you cannot use Helm, below is a simple starting point
             kind: Issuer
         ```
 
-        !!! attention
+        !!! warning "Sensitive Data"
 
-            You will need to have [`cert-manager`][cert-manager] configured. Especially the issue will need to be configured. Since we do not know how you want or need your certificates to be supplied, we do not provide more configuration here. The documentation for [`cert-manager`][cert-manager] is excellent.
+            For storing OpenDKIM keys, TLS certificates, or any sort of sensitive data - you should be using `Secret`s. A `Secret` is similar to `ConfigMap`, it can be used and mounted as a volume as demonstrated in the `Deployment` tab.
 
-    === "Sensitive Data"
-
-        !!! attention "Sensitive Data"
-
-            For storing OpenDKIM keys, TLS certificates or any sort of sensitive data, you should be using `Secret`s. You can mount secrets like `ConfigMap`s and use them the same way.
-
-        The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security. Always provide sensitive information via `Secrets`.
+            The [TLS docs page][docs-tls] provides guidance when it comes to certificates and transport layer security. Always provide sensitive information via `Secrets`.
 
     === "`Deployment`"
 
@@ -345,9 +343,11 @@ When you do not want to or you cannot use Helm, below is a simple starting point
 
 ## Exposing your Mail Server to the Outside World
 
-The more difficult part with Kubernetes is to expose a deployed DMS instance to the outside world. Kubernetes provides multiple ways for doing that; each has its upsides and downsides.
+The more difficult part with Kubernetes is to expose a deployed DMS instance to the outside world.
 
 The major problem with exposing DMS to the outside world in Kubernetes is to [preserve the real client IP][Kubernetes-service-source-ip]. The real client IP is required by DMS for performing IP-based DNS and spam checks.
+
+Kubernetes provides multiple ways to address this; each has its upsides and downsides.
 
 <!-- This empty quote block is purely for a visual border -->
 !!! quote ""
@@ -361,14 +361,14 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
             - [ ] Limited to a single node (_associated to the dedicated IP address_)
             - [ ] Your deployment requires an explicit IP in your configuration (_or an entire Load Balancer_).
 
-        !!! info
-
-            This approach only works when:
+        !!! info "Requirements"
 
             1. You can dedicate a **publicly routable IP** address for the DMS configured `Service`.
             2. A dedicated IP is required to allow your mail server to have matching `A` and `PTR` records (_which other mail servers will use to verify trust when they receive mail sent from your DMS instance_).
 
         !!! example
+
+            Assign the DMS `Service` an external IP directly, or delegate an LB to assign the IP on your behalf.
 
             === "External-IP Service"
 
@@ -466,7 +466,6 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
             # ...
                 spec:
                   hostNetwork: true
-
                 # ...
                   containers:
                     # ...
@@ -483,7 +482,6 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                         - name: imaps
                           containerPort: 993
                           hostPort: 993
-                    #  ...
             ```
 
     === "Using the PROXY Protocol"
