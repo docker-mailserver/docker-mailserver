@@ -4,9 +4,9 @@ title: 'Advanced | Kubernetes'
 
 ## Introduction
 
-This article describes how to deploy DMS to Kubernetes. We highly recommend everyone to use the [Helm chart that we develop in a separate repository][github-web::docker-mailserver-helm].
+This article describes how to deploy DMS to Kubernetes. We highly recommend everyone to use our community [DMS Helm chart][github-web::docker-mailserver-helm].
 
-!!! attention "Requirements"
+!!! note "Requirements"
 
     1. Basic knowledge about Kubernetes from the reader.
     2. A basic understanding of mail servers.
@@ -86,7 +86,7 @@ If using our Helm chart is not viable for you, here is some guidance to start wi
                 other@example.com|{SHA512-CRYPT}$6$someOtherHashValueHere
             ```
 
-            !!! info "Static Configuration"
+            !!! warning "Static Configuration"
 
                 The inline `postfix-accounts.cf` config example above provides file content that is static. It is mounted as read-only at runtime, thus cannot support modifications.
 
@@ -123,7 +123,7 @@ If using our Helm chart is not viable for you, here is some guidance to start wi
 
     === "`Service`"
 
-        A [`Service`][Kubernetes-network-service] is required for getting the traffic to the pod itself. It configures a load balancer with the ports you'll need.
+        A [`Service`][k8s-docs::config::service] is required for getting the traffic to the pod itself. It configures a load balancer with the ports you'll need.
 
         The configuration for a `Service` affects if the original IP from a connecting client is preserved (_this is important_). [More about this further down below](#exposing-your-mail-server-to-the-outside-world).
 
@@ -203,11 +203,11 @@ If using our Helm chart is not viable for you, here is some guidance to start wi
 
             For storing OpenDKIM keys, TLS certificates, or any sort of sensitive data - you should be using `Secret`s.
 
-            A `Secret` is similar to `ConfigMap`, it can be used and mounted as a volume as demonstrated in the `Deployment` tab.
+            A `Secret` is similar to `ConfigMap`, it can be used and mounted as a volume as demonstrated in the [`Deployment` manifest][docs::k8s::config-deployment] tab.
 
     === "`Deployment`"
 
-        The `Deployment` config is the most complex component.
+        The [`Deployment`][k8s-docs::config::deployment] config is the most complex component.
 
         - It instructs Kubernetes how to run the DMS container and how to apply your `ConfigMap`s, persisted storage, etc.
         - Additional options can be set to enforce runtime security.
@@ -363,7 +363,7 @@ If using our Helm chart is not viable for you, here is some guidance to start wi
 
 The more difficult part with Kubernetes is to expose a deployed DMS instance to the outside world.
 
-The major problem with exposing DMS to the outside world in Kubernetes is to [preserve the real client IP][Kubernetes-service-source-ip]. The real client IP is required by DMS for performing IP-based DNS and spam checks.
+The major problem with exposing DMS to the outside world in Kubernetes is to [preserve the real client IP][k8s-docs::service-source-ip]. The real client IP is required by DMS for performing IP-based DNS and spam checks.
 
 Kubernetes provides multiple ways to address this; each has its upsides and downsides.
 
@@ -390,7 +390,7 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
 
             === "External-IP Service"
 
-                The DMS `Service` is configured with an "[external IP][Kubernetes-network-external-ip]" manually. Append your externally reachable IP address to `spec.externalIPs`.
+                The DMS `Service` is configured with an "[external IP][k8s-docs::network-external-ip]" manually. Append your externally reachable IP address to `spec.externalIPs`.
 
                 ```yaml
                 ---
@@ -506,7 +506,7 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
 
             - [x] Preserves the origin IP address of clients (_which is crucial for DNS related checks_)
             - [x] Aligns with a best practice for Kubernetes by using a dedicated ingress, routing external traffic to the k8s cluster (_with the benefits of flexible routing rules_)
-            - [x] Avoids the restraint of a single [node][Kubernetes-nodes] (_as a workaround to preserve the original client IP_)
+            - [x] Avoids the restraint of a single [node][k8s-docs::nodes] (_as a workaround to preserve the original client IP_)
             - [ ] Introduces complexity by requiring:
                 - A reverse-proxy / ingress controller (_potentially extra setup_)
                 - Kubernetes manifest changes for the DMS configured `Service`
@@ -590,16 +590,16 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
                             version: 2
                 ```
 
-                !!! info
+                !!! info "`*-proxy` port name suffix"
 
                     The `IngressRouteTCP` example configs above reference ports with a `*-proxy` suffix.
 
-                    - These port variants will be defined in the `Deployment` configuration, and are scoped to the `mailserver` service (via `spec.routes.services.name`).
+                    - These port variants will be defined in the [`Deployment` manifest][docs::k8s::config-deployment], and are scoped to the `mailserver` service (via `spec.routes.services.name`).
                     - The suffix is used to distinguish that these ports are only compatible with connections using the PROXY protocol, which is what your ingress controller should be managing for you by adding the correct PROXY protocol headers to TCP connections it routes to DMS.
 
             === "NGINX"
 
-                With an [NGINX ingress controller][Kubernetes-nginx], add the following to the TCP services config map (as described [here][Kubernetes-nginx-expose]):
+                With an [NGINX ingress controller][k8s-docs::nginx], add the following to the TCP services config map (_as described [here][k8s-docs::nginx-expose]_):
 
                 ```yaml
                 25:  "mailserver/mailserver:25::PROXY"
@@ -618,7 +618,9 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
 
                 With Kubernetes, this is usually the task of the CNI (_container network interface_).
 
-            The 2nd approach adds a little more complexity, but is usually what you'd need.
+            !!! tip "Advised approach"
+
+                The _"Separate PROXY protocol ports"_ tab below introduces a little more complexity, but provides better compatibility for internal connections to DMS.
 
             === "Only accept connections with PROXY protocol"
 
@@ -628,7 +630,7 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
 
                     This can be problematic when you also need to support internal cluster traffic directly to DMS (_instead of routing indirectly through the ingress controller_).
 
-                Here is an example configuration for [Postfix][docs-postfix], [Dovecot][docs-dovecot], and the required adjustments for the `Deployment` config. The port names are adjusted here only to convey the additional context described earlier.
+                Here is an example configuration for [Postfix][docs-postfix], [Dovecot][docs-dovecot], and the required adjustments for the [`Deployment` manifest][docs::k8s::config-deployment]. The port names are adjusted here only to convey the additional context described earlier.
 
                 ```yaml
                 kind: ConfigMap
@@ -708,7 +710,9 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
                     - The ingress controller will route public connections to the internal alternative ports for DMS (`*-proxy` variants).
                     - Internal cluster connections will instead use the original ports configured for the DMS container directly (_which are private to the cluster network_).
 
-                In this example we'll create a copy of the original service ports with PROXY protocol enabled, and increment the port number assigned by `10000`. You could run each of these commands within an active DMS instance, but it would be more convenient to persist the modification via our `user-patches.sh` feature:
+                In this example we'll create a copy of the original service ports with PROXY protocol enabled, and increment the port number assigned by `10000`.
+
+                Create a `user-patches.sh` file to apply these config changes during container startup:
 
                 ```bash
                 #!/bin/bash
@@ -745,7 +749,7 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
                 }
                 ```
 
-                The `Deployment` needs to update the `ports` section by appending these new ports:
+                Update the [`Deployment` manifest][docs::k8s::config-deployment] `ports` section by appending these new ports:
 
                 ```yaml
                 - name: smtp-proxy
@@ -766,21 +770,28 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
                   protocol: TCP
                 ```
 
-[github-web::docker-mailserver-helm]: https://github.com/docker-mailserver/docker-mailserver-helm
-[metallb-web]: https://metallb.universe.tf/
-[kustomize]: https://kustomize.io/
-[cert-manager]: https://cert-manager.io/docs/
+                !!! note
+
+                    If you use other Dovecot ports (110, 995, 4190), you may want to configure those similar to above. The `dovecot.cf` config for these ports is [documented here][docs-mailserver-behind-proxy] (_in the equivalent section of that page_).
+
+[docs::k8s::config-deployment]: #deployment
 [docs-tls]: ../security/ssl.md
 [docs-dovecot]: ./override-defaults/dovecot.md
 [docs-postfix]: ./override-defaults/postfix.md
 [docs-mailserver-behind-proxy]: ../../examples/tutorials/mailserver-behind-proxy.md
+
+[github-web::docker-mailserver-helm]: https://github.com/docker-mailserver/docker-mailserver-helm
 [docker-docs::compose::network_mode]: https://docs.docker.com/compose/compose-file/compose-file-v3/#network_mode
-[dockerhub-haproxy]: https://hub.docker.com/_/haproxy
+[kustomize]: https://kustomize.io/
+[cert-manager]: https://cert-manager.io/docs/
+[metallb-web]: https://metallb.universe.tf/
+
+[k8s-docs::config::service]: https://kubernetes.io/docs/concepts/services-networking/service
+[k8s-docs::config::deployment]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#creating-a-deployment
+[k8s-docs::nodes]: https://kubernetes.io/docs/concepts/architecture/nodes
+[k8s-docs::nginx]: https://kubernetes.github.io/ingress-nginx
+[k8s-docs::nginx-expose]: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services
+[k8s-docs::service-source-ip]: https://kubernetes.io/docs/tutorials/services/source-ip
+[k8s-docs::network-external-ip]: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
+
 [traefik-docs::k8s::ingress-route-tcp]: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroutetcp
-[Kubernetes-nginx]: https://kubernetes.github.io/ingress-nginx
-[Kubernetes-nginx-expose]: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services
-[Kubernetes-network-service]: https://kubernetes.io/docs/concepts/services-networking/service
-[Kubernetes-network-external-ip]: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
-[Kubernetes-nodes]: https://kubernetes.io/docs/concepts/architecture/nodes
-[Kubernetes-proxy-service]: https://github.com/kubernetes/contrib/tree/master/for-demos/proxy-to-service
-[Kubernetes-service-source-ip]: https://kubernetes.io/docs/tutorials/services/source-ip

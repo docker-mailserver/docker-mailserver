@@ -374,7 +374,7 @@ While PROXY protocol works well with the reverse proxy, you may have some contai
 
     You should adjust configuration of these monitoring services to monitor for auth failures from those services directly instead, adding an exclusion for that service IP from any DMS logs monitored (_but be mindful of PROXY header forgery risks_).
 
-[docs::kubernetes]: ../../config/advanced/kubernetes.md#__tabbed_2_4
+[docs::kubernetes]: ../../config/advanced/kubernetes.md#using-the-proxy-protocol
 
 [docs::overrides::dovecot]: ../../config/advanced/override-defaults/dovecot.md
 [docs::overrides::postfix]: ../../config/advanced/override-defaults/postfix.md
