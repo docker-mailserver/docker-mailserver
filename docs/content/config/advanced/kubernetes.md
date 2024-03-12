@@ -469,7 +469,7 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
 
         !!! example
 
-             Using `hostPort` and `hostNetwork: true` is a similar approach to [`network_mode: host` with Docker Compose][docker-docs::compose::network_mode].
+            Using `hostPort` and `hostNetwork: true` is a similar approach to [`network_mode: host` with Docker Compose][docker-docs::compose::network_mode].
 
             ```yaml
             ---
