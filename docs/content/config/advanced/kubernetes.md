@@ -499,7 +499,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                 - DMS configuration changes for Postfix and Dovecot
             - [ ] To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol
 
-        !!! question "What is the PROXY protocol?"
+        ??? question "What is the PROXY protocol?"
 
             PROXY protocol is a network protocol for preserving a client’s IP address when the client’s TCP connection passes through a proxy.
 
@@ -517,14 +517,16 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
         !!! example
 
-            A complete configuration, with duplicated ports, can be found down below in the "Traefik" section. The Postfx and Dovecot configuration is identical for other proxies (like NGINX).
+            **Configure the Ingress Controller**
 
             === "Traefik"
 
                 On Traefik's side, the configuration is very simple.
 
-                - Create an entrypoint for each port that you want to expose (_probably 25, 465, 587 and 993_). Each entrypoint has a `IngressRouteTCP` configure a route to the appropriate internal port that supports PROXY protocol connections.
-                - The below snippet demonstrates an example for two entrypoints, `submissions` (port 465) and `imaps` (port 993).
+                - Create an entrypoint for each port that you want to expose (_probably 25, 465, 587 and 993_).
+                - Each entrypoint should configure an [`IngressRouteTCP`][traefik-docs::k8s::ingress-route-tcp] that routes to the equivalent internal DMS `Service` port which supports PROXY protocol connections.
+
+                The below snippet demonstrates an example for two entrypoints, `submissions` (port 465) and `imaps` (port 993).
 
                 ```yaml
                 ---
@@ -534,13 +536,10 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                 metadata:
                   name: mailserver
 
-                # ...
-
                 spec:
                   # This an optimization to get rid of additional routing steps.
-                  type: ClusterIP # previously "LoadBalancer"
-
-                # ...
+                  # Previously "type: LoadBalancer"
+                  type: ClusterIP
 
                 ---
                 apiVersion: traefik.io/v1alpha1
@@ -599,6 +598,18 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
             ---
 
+            **Adjust DMS config for Dovecot + Postfix**
+
+            ??? warning "Only ingress should connect to DMS with PROXY protocol"
+
+                While Dovecot will restrict connections via PROXY protocol to only clients trusted configured via `haproxy_trusted_networks`, Postfix does not have an equivalent setting. Public clients should always route through ingress to establish a PROXY protocol connection.
+
+                You are responsible for properly managing traffic inside your cluster and to **ensure that only trustworthy entities** can connect to the designated PROXY protocol ports.
+
+                With Kubernetes, this is usually the task of the CNI (_container network interface_).
+
+            The 2nd approach adds a little more complexity, but is usually what you'd need.
+
             === "Only accept connections with PROXY protocol"
 
                 !!! warning "Connections to DMS within the internal cluster will be rejected"
@@ -607,7 +618,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
                     This can be problematic when you also need to support internal cluster traffic directly to DMS (_instead of routing indirectly through the ingress controller_).
 
-                Here is an example configuration for [Postfix][docs-postfix], [Dovecot][docs-dovecot], and the adjustments to the `Deployment` config. The port names are adjusted here only for the additional context as described previously.
+                Here is an example configuration for [Postfix][docs-postfix], [Dovecot][docs-dovecot], and the required adjustments for the `Deployment` config. The port names are adjusted here only to convey the additional context described earlier.
 
                 ```yaml
                 kind: ConfigMap
@@ -680,12 +691,14 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
             === "Separate PROXY protocol ports for ingress"
 
-                Supporting internal cluster connections to DMS without using PROXY protocol requires both Postfix and Dovecot to be configured with alternative ports for each service port (_which only differ by enforcing PROXY protocol connections_).
+                !!! info
 
-                - The ingress controller will route public connections to the internal alternative ports for DMS (`*-proxy` variants).
-                - Internal cluster connections will instead use the original ports configured for the DMS container directly (_which are private to the cluster network_).
+                    Supporting internal cluster connections to DMS without using PROXY protocol requires both Postfix and Dovecot to be configured with alternative ports for each service port (_which only differ by enforcing PROXY protocol connections_).
 
-                In this example we'll create a copy of the original service ports with PROXY protocol enabled, and increment the port number assigned by `10000. You could run each of these commands within an active DMS instance, but it would be more convenient to persist the modification via our `user-patches.sh` feature:
+                    - The ingress controller will route public connections to the internal alternative ports for DMS (`*-proxy` variants).
+                    - Internal cluster connections will instead use the original ports configured for the DMS container directly (_which are private to the cluster network_).
+
+                In this example we'll create a copy of the original service ports with PROXY protocol enabled, and increment the port number assigned by `10000`. You could run each of these commands within an active DMS instance, but it would be more convenient to persist the modification via our `user-patches.sh` feature:
 
                 ```bash
                 #!/bin/bash
@@ -722,13 +735,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
                 }
                 ```
 
-                !!! warning
-
-                    You are responsible for properly managing traffic inside your cluster and to **ensure that only trustworthy entities** can connect to the designated PROXY protocol ports. With Kubernetes, this is usually the task of the container network interface.
-
-                    While Dovecot provides a very basic machanims to achieve firewalling connections via `haproxy_trusted_networks`, Postfix does not provide ann equivalent at all.
-
-                Last but not least, the `ports` section in the `Deployment` needs to be changed. The following ports have to be added:
+                The `Deployment` needs to update the `ports` section by appending these new ports:
 
                 ```yaml
                 - name: smtp-proxy
@@ -751,7 +758,6 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 
 [github-web::docker-mailserver-helm]: https://github.com/docker-mailserver/docker-mailserver-helm
 [metallb-web]: https://metallb.universe.tf/
-
 [kustomize]: https://kustomize.io/
 [cert-manager]: https://cert-manager.io/docs/
 [docs-tls]: ../security/ssl.md
@@ -760,6 +766,7 @@ The major problem with exposing DMS to the outside world in Kubernetes is to [pr
 [docs-mailserver-behind-proxy]: ../../examples/tutorials/mailserver-behind-proxy.md
 [docker-docs::compose::network_mode]: https://docs.docker.com/compose/compose-file/compose-file-v3/#network_mode
 [dockerhub-haproxy]: https://hub.docker.com/_/haproxy
+[traefik-docs::k8s::ingress-route-tcp]: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroutetcp
 [Kubernetes-nginx]: https://kubernetes.github.io/ingress-nginx
 [Kubernetes-nginx-expose]: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services
 [Kubernetes-network-service]: https://kubernetes.io/docs/concepts/services-networking/service
