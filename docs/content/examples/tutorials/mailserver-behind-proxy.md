@@ -14,6 +14,8 @@ This reduces many of the benefits for why you might use a reverse proxy, but the
 
 Some deployments may require a service to route traffic (kubernetes) when deploying, in which case the below advice is important to understand well.
 
+The guide here has also been adapted for [our Kubernetes docs][docs::kubernetes].
+
 ## What can go wrong?
 
 Without a reverse proxy involved, a service is typically aware of the client IP for a connection.
@@ -354,9 +356,8 @@ Software on the receiving end of the connection often supports configuring an IP
     [`postscreen_access_list`][postfix-docs::settings::postscreen_access_list] (_or [`smtpd_client_restrictions`][postfix-docs::settings::smtpd_client_restrictions] with [`check_client_access`][postfix-docs::settings::check_client_access] for ports 587/465_) can both restrict access by IP via a [CIDR lookup table][postfix-docs::config-table::cidr], however the client IP is already rewritten at this point via PROXY protocol.
 
     Thus those settings cannot be used for restricting access to only trusted proxies, only to the actual clients.
-    
-    A similar setting [`mynetworks`][postfix-docs::settings::mynetworks] / [`PERMIT_DOCKER`][docs::env::permit_docker] manages elevated trust for bypassing security restrictions. While it is intended for trusted clients, it has no relevance to trusting proxies for the same reasons.
 
+    A similar setting [`mynetworks`][postfix-docs::settings::mynetworks] / [`PERMIT_DOCKER`][docs::env::permit_docker] manages elevated trust for bypassing security restrictions. While it is intended for trusted clients, it has no relevance to trusting proxies for the same reasons.
 
 ### Monitoring
 
@@ -372,6 +373,8 @@ While PROXY protocol works well with the reverse proxy, you may have some contai
     - This may be problematic when monitoring services like Fail2Ban are enabled that scan logs for multiple failed authentication attempts which triggers a ban on the shared IP address.
 
     You should adjust configuration of these monitoring services to monitor for auth failures from those services directly instead, adding an exclusion for that service IP from any DMS logs monitored (_but be mindful of PROXY header forgery risks_).
+
+[docs::kubernetes]: ../../config/advanced/kubernetes.md#using-the-proxy-protocol
 
 [docs::overrides::dovecot]: ../../config/advanced/override-defaults/dovecot.md
 [docs::overrides::postfix]: ../../config/advanced/override-defaults/postfix.md
