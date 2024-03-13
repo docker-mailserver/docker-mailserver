@@ -177,6 +177,12 @@ docker run --rm -d --network dms-ipv6 -p 80:80 traefik/whoami
 curl --max-time 5 http://[2001:db8::1]:80
 ```
 
+!!! warning "IPv6 gateway IP"
+
+    If instead of the remote IPv6 address, you may notice the gateway IP for the IPv6 subnet your DMS container belongs to.
+
+    This will happen when DMS has an IPv6 IP address assigned, for the same reason as with IPv4, `userland-proxy: true`. It indicates that your `daemon.json` has not been configured correctly or had the updated config applied for `ip6tables :true` + `experimental: true`. Make sure you used `systemctl restart docker` after updating `daemon.json`.
+
 !!! info "IPv6 ULA address priority"
 
     DNS lookups that have records for both IPv4 and IPv6 addresses (_eg: `localhost`_) may prefer IPv4 over IPv6 (ULA) for private addresses, whereas for public addresses IPv6 has priority. This shouldn't be anything to worry about, but can come across as a surprise when testing your IPv6 setup on the same host instead of from a remote client.
