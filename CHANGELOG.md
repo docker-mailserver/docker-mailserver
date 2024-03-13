@@ -75,7 +75,7 @@ The most noteworthy change of this release is the update of the container's base
     - The fail2ban log file is now also taken into account by `LOGROTATE_COUNT` and `LOGROTATE_INTERVAL` ([#3915](https://github.com/docker-mailserver/docker-mailserver/pull/3915), [#3919](https://github.com/docker-mailserver/docker-mailserver/pull/3919))
 
 - **Internal:**
-  - Support container restart ([3929](https://github.com/docker-mailserver/docker-mailserver/pull/3929))
+  - Regular container restarts are now better supported. Setup scripts that ran previously will now be skipped ([#3929](https://github.com/docker-mailserver/docker-mailserver/pull/3929))
 
 ### Updates
 
