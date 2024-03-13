@@ -185,7 +185,7 @@ else
   # container was restarted
   _early_variables_setup
 
-  _log 'info' 'Container was restarted. Skipping setup routines..'
+  _log  'info' 'Container was restarted. Skipping setup routines.
   _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
 
   _register_functions
