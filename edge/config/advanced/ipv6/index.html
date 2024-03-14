@@ -2375,6 +2375,11 @@
 <span class="c1"># On a different host, replace `2001:db8::1` with your DMS host IPv6 address</span>
 curl<span class="w"> </span>--max-time<span class="w"> </span><span class="m">5</span><span class="w"> </span>http://<span class="o">[</span><span class="m">2001</span>:db8::1<span class="o">]</span>:80
 </code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">IPv6 gateway IP</p>
+<p>If instead of the remote IPv6 address, you may notice the gateway IP for the IPv6 subnet your DMS container belongs to.</p>
+<p>This will happen when DMS has an IPv6 IP address assigned, for the same reason as with IPv4, <code>userland-proxy: true</code>. It indicates that your <code>daemon.json</code> has not been configured correctly or had the updated config applied for <code>ip6tables :true</code> + <code>experimental: true</code>. Make sure you used <code>systemctl restart docker</code> after updating <code>daemon.json</code>.</p>
+</div>
 <div class="admonition info">
 <p class="admonition-title">IPv6 ULA address priority</p>
 <p>DNS lookups that have records for both IPv4 and IPv6 addresses (<em>eg: <code>localhost</code></em>) may prefer IPv4 over IPv6 (ULA) for private addresses, whereas for public addresses IPv6 has priority. This shouldn't be anything to worry about, but can come across as a surprise when testing your IPv6 setup on the same host instead of from a remote client.</p>
