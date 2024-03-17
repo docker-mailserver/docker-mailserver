@@ -33,7 +33,6 @@ function _register_functions() {
 
   # ? >> Checks
 
-  _register_check_function '_check_improper_restart'
   _register_check_function '_check_hostname'
   _register_check_function '_check_log_level'
   _register_check_function '_check_spam_prefix'
@@ -170,24 +169,35 @@ function _register_functions() {
 # ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
-_early_supervisor_setup
-_early_variables_setup
+# Ensure DMS only adjusts config files for a new container.
+# Container restarts should skip as they retain the modified config.
+if [[ ! -f /CONTAINER_START ]]; then
+  _early_supervisor_setup
+  _early_variables_setup
 
-_log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
+  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
 
-_register_functions
-_check
-_setup
-[[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
-_run_user_patches
-_start_daemons
+  _register_functions
+  _check
+  _setup
+  _run_user_patches
+else
+  # container was restarted
+  _early_variables_setup
+
+  _log 'info' 'Container was restarted. Skipping setup routines.'
+  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
+
+  _register_functions
+fi
 
 # marker to check if container was restarted
 date >/CONTAINER_START
 
+[[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
+_start_daemons
+
 _log 'info' "${HOSTNAME} is up and running"
 
 touch /var/log/mail/mail.log
-tail -Fn 0 /var/log/mail/mail.log
-
-exit 0
+exec tail -Fn 0 /var/log/mail/mail.log
