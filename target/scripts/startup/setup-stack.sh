@@ -40,7 +40,7 @@ function _early_supervisor_setup() {
   if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf; then
     case "${SUPERVISOR_LOGLEVEL}" in
       ( 'critical' | 'error' | 'info' | 'debug' )
-        sed -i -E \
+        sedfile -i -E \
           "s|(loglevel).*|\1 = ${SUPERVISOR_LOGLEVEL}|g" \
           /etc/supervisor/supervisord.conf
 
