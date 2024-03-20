@@ -67,8 +67,8 @@ function __setup__security__postscreen() {
 }
 
 function __setup__security__spamassassin() {
-  if [[ ${ENABLE_AMAVIS} -ne 1 && ${ENABLE_RSPAMD} -ne 1 && ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
-    _log 'warn' 'Spamassassin does not work when not at least Amavis or Rspamd is running. Enable either Amavis or Rspamd to fix it.'
+  if [[ ${ENABLE_AMAVIS} -ne 1 && ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
+    _log 'warn' 'Spamassassin does not work when Amavis is disabled. Enable Amavis to fix it.'
     ENABLE_SPAMASSASSIN=0
   fi
 
