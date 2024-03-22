@@ -54,3 +54,7 @@ A production-ready fullstack but simple containerized mail server (SMTP, IMAP, L
 - A [setup script](https://docker-mailserver.github.io/docker-mailserver/latest/config/setup.sh) for easy configuration and maintenance
 - SASLauthd with LDAP authentication
 - OAuth2 authentication (_via `XOAUTH2` or `OAUTHBEARER` SASL mechanisms_)
+
+## :octocat: Git Statistics
+
+![Git Statistics](https://repobeats.axiom.co/api/embed/86fd4f9b563bd45a9871dec4b48814338cd6db77.svg "Repobeats analytics image")
