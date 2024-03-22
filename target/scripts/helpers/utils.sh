@@ -4,14 +4,30 @@ function _escape() {
   echo "${1//./\\.}"
 }
 
-# TODO: Not in use currently. Maybe in the future: https://github.com/docker-mailserver/docker-mailserver/pull/3484/files#r1299410851
-# Replaces a string so that it can be used inside
-# `sed` safely.
+# Replaces a string so that it can be used inside the `sed` regex segment safely.
+# WARNING: Only for use with `sed -E` / `sed -r` due to escaping additional tokens,
+# which are valid tokens when escaped in basic regex mode.
 #
 # @param ${1} = string to escape
 # @output     = prints the escaped string
 function _escape_for_sed() {
-  sed -E 's/[]\/$*.^[]/\\&/g' <<< "${1:?String to escape for sed is required}"
+  # Escapes all special tokens:
+  # - `/` should represent the sed delimiter (caution when using sed with a non-default delimiter).
+  # - `]` should be the first char, while `.` must not be the 2nd.
+  # - Within the `[ ... ]` scope, no escaping is needed regardless of basic vs extended regexp mode.
+  local REGEX_BASIC='][/\$*.^'
+  # In this mode (`-E` / `-r`), these tokens no longer require a preceding `\`, so must also be escaped:
+  local REGEX_EXTENDED='|?)(}{+'
+  # The replacement segment is compatible but most tokens do not require escaping.
+  # `&` is a token for this segment, and is compatible with escaping in the regex segment:
+  local TOKEN_REPLACEMENT='&'
+  local REGEX_SEGMENT="${REGEX_BASIC}${REGEX_EXTENDED}${TOKEN_REPLACEMENT}"
+
+  # Output: `\\` prepends a `\` to a token matched by the regex segment (`&`)
+  local PREPEND_ESCAPE='\\&'
+
+  # Full sed expression: sed -E 's/[][/\$*.^|?)(}{+&]/\\&/g'
+  sed -E "s/[${REGEX_SEGMENT}]/${PREPEND_ESCAPE}/g" <<< "${1:?String to escape for sed is required}"
 }
 
 # Returns input after filtering out lines that are:
@@ -113,8 +129,9 @@ function _reload_postfix() {
 # calling this function.
 #
 # @option --shutdown-on-error = shutdown in case an error is detected
-# @param ${1} = prefix for environment variables
-# @param ${2} = file in which substitutions should take place
+# @param ${1} = Prefix for selecting environment variables
+# @param ${2} = File in which substitutions should take place
+# @param ${3} = The key/value assignment operator used (default: `=`) [OPTIONAL]
 #
 # ## Example
 #
@@ -122,7 +139,7 @@ function _reload_postfix() {
 # you can set the environment variable `POSTFIX_README_DIRECTORY='/new/dir/'`
 # (`POSTFIX_` is an arbitrary prefix, you can choose the one you like),
 # and then call this function:
-# `_replace_by_env_in_file 'POSTFIX_' 'PATH TO POSTFIX's main.cf>`
+# `_replace_by_env_in_file 'POSTFIX_' '/etc/postfix/main.cf`
 #
 # ## Panics
 #
@@ -140,15 +157,15 @@ function _replace_by_env_in_file() {
   fi
 
   local ENV_PREFIX=${1} CONFIG_FILE=${2}
+  local KV_DELIMITER=${3:-'='}
   local ESCAPED_VALUE ESCAPED_KEY
 
-  while IFS='=' read -r KEY VALUE; do
+  while IFS="${KV_DELIMITER}" read -r KEY VALUE; do
     KEY=${KEY#"${ENV_PREFIX}"} # strip prefix
-    ESCAPED_KEY=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${KEY,,}")
-    ESCAPED_VALUE=$(sed -E 's#([\=\&\|\$\.\*\/\[\\^]|\])#\\\1#g' <<< "${VALUE}")
-    [[ -n ${ESCAPED_VALUE} ]] && ESCAPED_VALUE=" ${ESCAPED_VALUE}"
+    ESCAPED_KEY=$(_escape_for_sed "${KEY,,}")
+    ESCAPED_VALUE=$(_escape_for_sed "${VALUE}")
     _log 'trace' "Setting value of '${KEY}' in '${CONFIG_FILE}' to '${VALUE}'"
-    sed -i -E "s#^${ESCAPED_KEY}[[:space:]]*=.*#${ESCAPED_KEY} =${ESCAPED_VALUE}#g" "${CONFIG_FILE}"
+    sedfile -i -E "s#^(${ESCAPED_KEY}[[:space:]]*${KV_DELIMITER}[[:space:]]*).*#\1${ESCAPED_VALUE}#gi" "${CONFIG_FILE}"
   done < <(env | grep "^${ENV_PREFIX}")
 }
 
