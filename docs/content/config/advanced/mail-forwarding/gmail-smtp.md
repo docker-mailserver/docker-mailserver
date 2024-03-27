@@ -45,7 +45,7 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
     ```
 
 [docs::relay]: ./relay-hosts.md
-[gmail-smtp]: https://support.google.com/a/answer/2956491?sjid=10042458694956130936-AP
+[gmail-smtp]: https://support.google.com/a/answer/2956491
 [gmail-smtp::relay-host]: https://support.google.com/a/answer/176600
 [gmail-smtp::relay-port]: https://support.google.com/a/answer/2956491
 [gmail-smtp::account-id]: https://myaccount.google.com/security?gar=1
