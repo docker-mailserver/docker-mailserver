@@ -6,7 +6,7 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
 
 !!! example "Configuration via ENV"
 
-    [Configure a relay host in DMS][docs::relay] to forward all your mail through GMAIL SMTP:
+    [Configure a relay host in DMS][docs::relay] to forward all your mail through:
 
     - `RELAY_HOST` should match your [SMTP Server Endpoint][gmail-smtp::relay-host].
     - `RELAY_PORT` should be set to [one of the supported Gmail SMTP ports][gmail-smtp::relay-port] (_eg: 587 for STARTTLS_).
