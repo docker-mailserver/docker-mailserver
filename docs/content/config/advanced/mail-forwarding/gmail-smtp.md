@@ -2,7 +2,7 @@
 title: 'Mail Forwarding | GMAIL SMTP'
 ---
 
-[GMAIL SMTP (Simple Message Transport Protocol)][gmail-smtp] provides a simple way for cloud based applications to send and receive email.
+This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay host][gmail-smtp].
 
 !!! example "Configuration via ENV"
 
