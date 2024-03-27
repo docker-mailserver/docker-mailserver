@@ -40,7 +40,7 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
     ```log
     postfix/smtp[910]: Trusted TLS connection established to smtp.gmail.com[64.233.188.109]:587:
       TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-    postfix/smtp[910]: 4BCB547D9D: to=&lt;someone@gmail.com&gt;, relay=smtp.gmail.com[64.233.188.109]:587,
+    postfix/smtp[910]: 4BCB547D9D: to=<username@gmail.com>, relay=smtp.gmail.com[64.233.188.109]:587,
       delay=2.9, delays=0.01/0.02/1.7/1.2, dsn=2.0.0, status=sent (250 2.0.0 OK  17... - gsmtp)
     ```
 
