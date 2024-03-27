@@ -29,7 +29,7 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
     
 !!! tip
 
-    If you have set up GMAIL SMTP, you can Filter messages for spam and viruses before they reach external recipients
+    If you have set up GMAIL SMTP, you can filter messages for spam and viruses before they reach external recipients
     and also apply email security and advanced Gmail settings to outgoing messages.
 
 !!! note "Verify the relay host is configured correctly"
