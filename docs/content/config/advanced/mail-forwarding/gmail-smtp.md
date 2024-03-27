@@ -26,11 +26,6 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
 
     You should use your [2-step verification app password][gmail-smtp::2-step-password], **not** your gmail account password.
     `setup relay add-auth` is a better alternative, which manages the credentials via a config file.
-    
-!!! tip
-
-    If you have set up GMAIL SMTP, you can filter messages for spam and viruses before they reach external recipients
-    and also apply email security and advanced Gmail settings to outgoing messages.
 
 !!! note "Verify the relay host is configured correctly"
 
