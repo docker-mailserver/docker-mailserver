@@ -35,7 +35,7 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
 !!! note "Verify the relay host is configured correctly"
 
     To verify proper operation, send an email to some external account of yours and inspect the mail headers.
-    You will also see the connection to GMAIL SMTP in the mail logs:
+    You will also see the connection to the Gmail relay host in the mail logs:
 
     ```log
     postfix/smtp[910]: Trusted TLS connection established to smtp.gmail.com[64.233.188.109]:587:
