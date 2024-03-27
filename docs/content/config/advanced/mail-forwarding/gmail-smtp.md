@@ -8,9 +8,9 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
 
     [Configure a relay host in DMS][docs::relay] to forward all your mail through:
 
-    - `RELAY_HOST` should match your [SMTP Server Endpoint][gmail-smtp::relay-host].
+    - `RELAY_HOST` should be either `smtp.gmail.com` (_for a personal GMAIL account_) or `smtp-relay.gmail.com` (_when using Google Workspace_). For more information, view [these docs for the two supported SMTP endpoints][gmail-smtp::relay-host].
     - `RELAY_PORT` should be set to [one of the supported Gmail SMTP ports][gmail-smtp::relay-port] (_eg: 587 for STARTTLS_).
-    - `RELAY_USER` and `RELAY_PASSWORD` should be set to your [Gmail Account ID][gmail-smtp::account-id].
+    - `RELAY_USER` and `RELAY_PASSWORD` should be set to your credentials for [Gmail][gmail-smtp::account-id].
 
     ```env
     RELAY_HOST=smtp.gmail.com
@@ -18,8 +18,8 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
     # Alternative to RELAY_HOST + RELAY_PORT which is compatible with LDAP:
     DEFAULT_RELAY_HOST=[smtp.gmail.com]:587
 
-    RELAY_USER=someone@gmail.com
-    RELAY_PASSWORD=xxx
+    RELAY_USER=username@gmail.com
+    RELAY_PASSWORD=secret
     ```
 
 !!! warning "Process of providing RELAY_PASSWORD"
