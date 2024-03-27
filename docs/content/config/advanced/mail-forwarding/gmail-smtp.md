@@ -1,5 +1,5 @@
 ---
-title: 'Mail Forwarding | GMAIL SMTP'
+title: 'Mail Forwarding | Configure Gmail as a relay host'
 ---
 
 This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay host][gmail-smtp].
