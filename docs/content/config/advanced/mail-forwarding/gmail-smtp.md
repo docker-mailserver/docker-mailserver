@@ -6,11 +6,14 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
 
 !!! example "Configuration via ENV"
 
-    [Configure a relay host in DMS][docs::relay] to forward all your mail through:
+    [Configure a relay host in DMS][docs::relay]. This example shows how the related ENV settings map to the Gmail service config:
 
-    - `RELAY_HOST` should be either `smtp.gmail.com` (_for a personal GMAIL account_) or `smtp-relay.gmail.com` (_when using Google Workspace_). For more information, view [these docs for the two supported SMTP endpoints][gmail-smtp::relay-host].
+    - `RELAY_HOST` should be configured as [advised by Gmail][gmail-smtp::relay-host], there are two SMTP endpoints to choose:
+        - `smtp.gmail.com` (_for a personal Gmail account_)
+        - `smtp-relay.gmail.com` (_when using Google Workspace_)
     - `RELAY_PORT` should be set to [one of the supported Gmail SMTP ports][gmail-smtp::relay-port] (_eg: 587 for STARTTLS_).
-    - `RELAY_USER` and `RELAY_PASSWORD` should be set to your credentials for [Gmail][gmail-smtp::account-id].
+    - `RELAY_USER` should be your gmail address (`user@gmail.com`).
+    - `RELAY_PASSWORD` should be your [App Password][gmail-smtp::app-password], **not** your personal gmail account password.
 
     ```env
     RELAY_HOST=smtp.gmail.com
@@ -22,15 +25,16 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
     RELAY_PASSWORD=secret
     ```
 
-!!! warning "Process of providing RELAY_PASSWORD"
-
-    You should use your [2-step verification app password][gmail-smtp::2-step-password], **not** your gmail account password.
-    `setup relay add-auth` is a better alternative, which manages the credentials via a config file.
+!!! tip
+    
+    - As per our main [relay host docs page][docs::relay], you may prefer to configure your credentials via `setup relay add-auth` instead of the `RELAY_USER` + `RELAY_PASSWORD` ENV.
+    - If you configure for `smtp-relay.gmail.com`, the `DEFAULT_RELAY_HOST` ENV should be all you need as shown in the above example. Credentials can be optional when using Google Workspace (`smtp-relay.gmail.com`), which supports restricting connections to trusted IP addresses.
 
 !!! note "Verify the relay host is configured correctly"
 
-    To verify proper operation, send an email to some external account of yours and inspect the mail headers.
-    You will also see the connection to the Gmail relay host in the mail logs:
+    To verify proper operation, send an email to an external account of yours and inspect the mail headers.
+
+    You will also see the connection to the Gmail relay host (`smtp.gmail.com`) in the mail logs:
 
     ```log
     postfix/smtp[910]: Trusted TLS connection established to smtp.gmail.com[64.233.188.109]:587:
@@ -43,5 +47,4 @@ This page provides a guide for configuring DMS to use [GMAIL as an SMTP relay ho
 [gmail-smtp]: https://support.google.com/a/answer/2956491
 [gmail-smtp::relay-host]: https://support.google.com/a/answer/176600
 [gmail-smtp::relay-port]: https://support.google.com/a/answer/2956491
-[gmail-smtp::account-id]: https://myaccount.google.com/security?gar=1
-[gmail-smtp::2-step-password]: https://support.google.com/accounts/answer/185833
+[gmail-smtp::app-password]: https://support.google.com/accounts/answer/185833
