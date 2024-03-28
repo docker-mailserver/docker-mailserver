@@ -26,7 +26,7 @@ If using our Helm chart is not viable for you, here is some guidance to start wi
     === "`ConfigMap`"
 
         Provide the basic configuration via environment variables with a `ConfigMap`.
-        
+
         !!! example
 
             Below is only an example configuration, adjust the `ConfigMap` to your own needs.
@@ -512,6 +512,7 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
                 - Kubernetes manifest changes for the DMS configured `Service`
                 - DMS configuration changes for Postfix and Dovecot
             - [ ] To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol
+            - [ ] Custom Fail2Ban required: Because the traffic to DMS is now coming from the proxy, banning the origin IP address will have no effect; you'll need to implement a [custom solution for your setup][github-web::docker-mailserver::proxy-protocol-fail2ban].
 
         ??? question "What is the PROXY protocol?"
 
@@ -795,3 +796,4 @@ Kubernetes provides multiple ways to address this; each has its upsides and down
 [k8s-docs::network-external-ip]: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
 
 [traefik-docs::k8s::ingress-route-tcp]: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroutetcp
+[github-web::docker-mailserver::proxy-protocol-fail2ban]: https://github.com/docker-mailserver/docker-mailserver/issues/1761#issuecomment-2016879319
