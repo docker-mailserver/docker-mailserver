@@ -12,28 +12,28 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/debugging/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-forwarding/gmail-smtp/">
       
       
-        <link rel="prev" href="../security/rspamd/">
+        <link rel="prev" href="../aws-ses/">
       
       
-        <link rel="next" href="../pop3/">
+        <link rel="next" href="../../full-text-search/">
       
       
-      <link rel="icon" href="../../assets/logo/favicon-32x32.png">
+      <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.15">
     
     
       
-        <title>Debugging - Docker Mailserver</title>
+        <title>Mail Forwarding | Configure Gmail as a relay host - Docker Mailserver</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.7e359304.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.7e359304.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -52,9 +52,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/css/customizations.css">
+      <link rel="stylesheet" href="../../../../assets/css/customizations.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -79,11 +79,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#preliminary-checks" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -98,9 +93,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -117,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Debugging
+              Mail Forwarding | Configure Gmail as a relay host
             
           </span>
         </div>
@@ -224,7 +219,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../../.." class="md-tabs__link">
         
   
     
@@ -241,7 +236,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../introduction/" class="md-tabs__link">
+      <a href="../../../../introduction/" class="md-tabs__link">
         
   
     
@@ -258,7 +253,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../usage/" class="md-tabs__link">
+      <a href="../../../../usage/" class="md-tabs__link">
         
   
     
@@ -279,7 +274,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../environment/" class="md-tabs__link">
+        <a href="../../../environment/" class="md-tabs__link">
           
   
   Configuration
@@ -303,7 +298,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../examples/tutorials/basic-installation/" class="md-tabs__link">
+        <a href="../../../../examples/tutorials/basic-installation/" class="md-tabs__link">
           
   
   Examples
@@ -322,7 +317,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../faq/" class="md-tabs__link">
+      <a href="../../../../faq/" class="md-tabs__link">
         
   
     
@@ -341,7 +336,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../contributing/general/" class="md-tabs__link">
+        <a href="../../../../contributing/general/" class="md-tabs__link">
           
   
   Contributing
@@ -397,8 +392,6 @@
           
             
               
-                
-              
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -410,9 +403,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     Docker Mailserver
@@ -439,7 +432,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -459,7 +452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../introduction/" class="md-nav__link">
+      <a href="../../../../introduction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -479,7 +472,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/" class="md-nav__link">
+      <a href="../../../../usage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -542,7 +535,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../environment/" class="md-nav__link">
+      <a href="../../../environment/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -563,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-management/" class="md-nav__link">
+      <a href="../../../user-management/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -624,7 +617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/autodiscover/" class="md-nav__link">
+      <a href="../../../best-practices/autodiscover/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -645,7 +638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/dkim_dmarc_spf/" class="md-nav__link">
+      <a href="../../../best-practices/dkim_dmarc_spf/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -666,7 +659,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/mta-sts/" class="md-nav__link">
+      <a href="../../../best-practices/mta-sts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -735,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/understanding-the-ports/" class="md-nav__link">
+      <a href="../../../security/understanding-the-ports/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -756,7 +749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/ssl/" class="md-nav__link">
+      <a href="../../../security/ssl/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -777,7 +770,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/fail2ban/" class="md-nav__link">
+      <a href="../../../security/fail2ban/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -798,7 +791,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/mail_crypt/" class="md-nav__link">
+      <a href="../../../security/mail_crypt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -819,7 +812,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/rspamd/" class="md-nav__link">
+      <a href="../../../security/rspamd/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -845,28 +838,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Debugging
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../debugging/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -875,138 +850,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#preliminary-checks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Preliminary Checks
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Preliminary Checks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#mail-sent-from-dms-does-not-arrive-at-destination" class="md-nav__link">
-    <span class="md-ellipsis">
-      Mail sent from DMS does not arrive at destination
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mail-sent-to-dms-does-not-get-delivered-to-user" class="md-nav__link">
-    <span class="md-ellipsis">
-      Mail sent to DMS does not get delivered to user
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#steps-for-debugging-dms" class="md-nav__link">
-    <span class="md-ellipsis">
-      Steps for Debugging DMS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Steps for Debugging DMS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#debug-a-running-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      Debug a running container
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Debug a running container">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#general" class="md-nav__link">
-    <span class="md-ellipsis">
-      General
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#logs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Logs
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#compatibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      Compatibility
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Compatibility">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#network" class="md-nav__link">
-    <span class="md-ellipsis">
-      Network
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#system" class="md-nav__link">
-    <span class="md-ellipsis">
-      System
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1019,7 +862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pop3/" class="md-nav__link">
+      <a href="../../../pop3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1040,7 +883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../setup.sh/" class="md-nav__link">
+      <a href="../../../setup.sh/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1058,8 +901,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1067,13 +912,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" checked>
         
           
           <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
@@ -1087,7 +930,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_8">
             <span class="md-nav__icon md-icon"></span>
             Advanced Configuration
@@ -1101,7 +944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/optional-config/" class="md-nav__link">
+      <a href="../../optional-config/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1162,7 +1005,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+      <a href="../../maintenance/update-and-cleanup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1231,7 +1074,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/override-defaults/dovecot/" class="md-nav__link">
+      <a href="../../override-defaults/dovecot/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1252,7 +1095,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/override-defaults/postfix/" class="md-nav__link">
+      <a href="../../override-defaults/postfix/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1273,7 +1116,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/override-defaults/user-patches/" class="md-nav__link">
+      <a href="../../override-defaults/user-patches/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1302,7 +1145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/auth-ldap/" class="md-nav__link">
+      <a href="../../auth-ldap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1323,7 +1166,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/auth-oauth2/" class="md-nav__link">
+      <a href="../../auth-oauth2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1344,7 +1187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-sieve/" class="md-nav__link">
+      <a href="../../mail-sieve/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1365,7 +1208,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-fetchmail/" class="md-nav__link">
+      <a href="../../mail-fetchmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1386,7 +1229,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-getmail/" class="md-nav__link">
+      <a href="../../mail-getmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1404,8 +1247,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1413,13 +1258,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8_9" checked>
         
           
           <label class="md-nav__link" for="__nav_4_8_9" id="__nav_4_8_9_label" tabindex="0">
@@ -1433,7 +1276,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_8_9">
             <span class="md-nav__icon md-icon"></span>
             Email Forwarding
@@ -1447,7 +1290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
+      <a href="../relay-hosts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1468,7 +1311,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-forwarding/aws-ses/" class="md-nav__link">
+      <a href="../aws-ses/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1486,10 +1329,17 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1498,6 +1348,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1518,7 +1369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/full-text-search/" class="md-nav__link">
+      <a href="../../full-text-search/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1539,7 +1390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/kubernetes/" class="md-nav__link">
+      <a href="../../kubernetes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1560,7 +1411,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/ipv6/" class="md-nav__link">
+      <a href="../../ipv6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1581,7 +1432,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/podman/" class="md-nav__link">
+      <a href="../../podman/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1602,7 +1453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/dovecot-master-accounts/" class="md-nav__link">
+      <a href="../../dovecot-master-accounts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1718,7 +1569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/basic-installation/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/basic-installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1739,7 +1590,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1760,7 +1611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/crowdsec/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/crowdsec/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1781,7 +1632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/docker-build/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/docker-build/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1802,7 +1653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/blog-posts/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/blog-posts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1871,7 +1722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1892,7 +1743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/imap-folders/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/imap-folders/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1913,7 +1764,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1934,7 +1785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/auth-lua/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/auth-lua/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1955,7 +1806,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1991,7 +1842,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
+      <a href="../../../../faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2051,7 +1902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/general/" class="md-nav__link">
+      <a href="../../../../contributing/general/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2072,7 +1923,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/tests/" class="md-nav__link">
+      <a href="../../../../contributing/tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2093,7 +1944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/issues-and-pull-requests/" class="md-nav__link">
+      <a href="../../../../contributing/issues-and-pull-requests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2162,9 +2013,7 @@
             
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -2173,128 +2022,6 @@
   
   
   
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#preliminary-checks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Preliminary Checks
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Preliminary Checks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#mail-sent-from-dms-does-not-arrive-at-destination" class="md-nav__link">
-    <span class="md-ellipsis">
-      Mail sent from DMS does not arrive at destination
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mail-sent-to-dms-does-not-get-delivered-to-user" class="md-nav__link">
-    <span class="md-ellipsis">
-      Mail sent to DMS does not get delivered to user
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#steps-for-debugging-dms" class="md-nav__link">
-    <span class="md-ellipsis">
-      Steps for Debugging DMS
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Steps for Debugging DMS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#debug-a-running-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      Debug a running container
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Debug a running container">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#general" class="md-nav__link">
-    <span class="md-ellipsis">
-      General
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#logs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Logs
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#compatibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      Compatibility
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Compatibility">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#network" class="md-nav__link">
-    <span class="md-ellipsis">
-      Network
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#system" class="md-nav__link">
-    <span class="md-ellipsis">
-      System
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -2309,7 +2036,7 @@
                   
 
   
-    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/debugging.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/mail-forwarding/gmail-smtp.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -2318,114 +2045,55 @@
     
       
     
-    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/debugging.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/advanced/mail-forwarding/gmail-smtp.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-  <h1>Debugging</h1>
+  <h1>Configure Gmail as a relay host</h1>
 
-<p>This page contains valuable information when it comes to resolving issues you encounter.</p>
-<div class="admonition info">
-<p class="admonition-title">Contributions Welcome!</p>
-<p>Please consider contributing solutions to the <a href="../../faq/">FAQ</a> <img alt="❤" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2764.svg" title=":heart:" /></p>
+<p>This page provides a guide for configuring DMS to use <a href="https://support.google.com/a/answer/2956491">GMAIL as an SMTP relay host</a>.</p>
+<div class="admonition example">
+<p class="admonition-title">Configuration via ENV</p>
+<p><a href="../relay-hosts/">Configure a relay host in DMS</a>. This example shows how the related ENV settings map to the Gmail service config:</p>
+<ul>
+<li><code>RELAY_HOST</code> should be configured as <a href="https://support.google.com/a/answer/176600">advised by Gmail</a>, there are two SMTP endpoints to choose:<ul>
+<li><code>smtp.gmail.com</code> (<em>for a personal Gmail account</em>)</li>
+<li><code>smtp-relay.gmail.com</code> (<em>when using Google Workspace</em>)</li>
+</ul>
+</li>
+<li><code>RELAY_PORT</code> should be set to <a href="https://support.google.com/a/answer/2956491">one of the supported Gmail SMTP ports</a> (<em>eg: 587 for STARTTLS</em>).</li>
+<li><code>RELAY_USER</code> should be your gmail address (<code>user@gmail.com</code>).</li>
+<li><code>RELAY_PASSWORD</code> should be your <a href="https://support.google.com/accounts/answer/185833">App Password</a>, <strong>not</strong> your personal gmail account password.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="na">RELAY_HOST</span><span class="o">=</span><span class="s">smtp.gmail.com</span>
+<span class="na">RELAY_PORT</span><span class="o">=</span><span class="s">587</span>
+<span class="c1"># Alternative to RELAY_HOST + RELAY_PORT which is compatible with LDAP:</span>
+<span class="na">DEFAULT_RELAY_HOST</span><span class="o">=</span><span class="s">[smtp.gmail.com]:587</span>
+
+<span class="na">RELAY_USER</span><span class="o">=</span><span class="s">username@gmail.com</span>
+<span class="na">RELAY_PASSWORD</span><span class="o">=</span><span class="s">secret</span>
+</code></pre></div>
 </div>
-<h2 id="preliminary-checks"><a class="toclink" href="#preliminary-checks">Preliminary Checks</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
 <ul>
-<li>Check that all published DMS ports are actually open and not blocked by your ISP / hosting provider.</li>
-<li>SSL errors are likely the result of a wrong setup on the user side and not caused by DMS itself.</li>
-<li>Ensure that you have correctly started DMS. Many problems related to configuration are due to this.</li>
-</ul>
-<div class="admonition danger">
-<p class="admonition-title">Correctly starting DMS</p>
-<p>Use the <a href="https://docs.docker.com/compose/reference/up/"><code>--force-recreate</code></a> option to avoid configuration mishaps: <code>docker compose up --force-recreate</code></p>
-<p>Alternatively, always use <code>docker compose down</code> to stop DMS. <strong>Do not</strong> rely on <code>CTRL + C</code>, <code>docker compose stop</code>, or <code>docker compose restart</code>.</p>
-<hr />
-<p>DMS setup scripts are run when a container starts, but may fail to work properly if you do the following:</p>
-<ul>
-<li>Stopping a container with commands like: <code>docker stop</code> or <code>docker compose up</code> stopped via <code>CTRL + C</code> instead of <code>docker compose down</code>.</li>
-<li>Restarting a container.</li>
-</ul>
-<p>Volumes persist data across container instances, however the same container instance will keep internal changes not stored in a volume until the container is removed.</p>
-<p>Due to this, DMS setup scripts may modify configuration it has already modified in the past.</p>
-<ul>
-<li>This is brittle as some changes are naive by assuming they are applied to the original configs from the image.</li>
-<li>Volumes in <code>compose.yaml</code> are expected to persist any important data. Thus it should be safe to throwaway the container created each time, avoiding this config problem.</li>
+<li>As per our main <a href="../relay-hosts/">relay host docs page</a>, you may prefer to configure your credentials via <code>setup relay add-auth</code> instead of the <code>RELAY_USER</code> + <code>RELAY_PASSWORD</code> ENV.</li>
+<li>If you configure for <code>smtp-relay.gmail.com</code>, the <code>DEFAULT_RELAY_HOST</code> ENV should be all you need as shown in the above example. Credentials can be optional when using Google Workspace (<code>smtp-relay.gmail.com</code>), which supports restricting connections to trusted IP addresses.</li>
 </ul>
 </div>
-<h3 id="mail-sent-from-dms-does-not-arrive-at-destination"><a class="toclink" href="#mail-sent-from-dms-does-not-arrive-at-destination">Mail sent from DMS does not arrive at destination</a></h3>
-<p>Some service providers block outbound traffic on port 25. Common hosting providers known to have this issue:</p>
-<ul>
-<li><a href="https://docs.microsoft.com/en-us/azure/virtual-network/troubleshoot-outbound-smtp-connectivity">Azure</a></li>
-<li><a href="https://aws.amazon.com/premiumsupport/knowledge-center/ec2-port-25-throttle/">AWS EC2</a></li>
-<li><a href="https://www.vultr.com/docs/what-ports-are-blocked/">Vultr</a></li>
-</ul>
-<p>These links may advise how the provider can unblock the port through additional services offered, or via a support ticket request.</p>
-<h3 id="mail-sent-to-dms-does-not-get-delivered-to-user"><a class="toclink" href="#mail-sent-to-dms-does-not-get-delivered-to-user">Mail sent to DMS does not get delivered to user</a></h3>
-<p>Common logs related to this are:</p>
-<ul>
-<li><code>warning: do not list domain domain.fr in BOTH mydestination and virtual_mailbox_domains</code></li>
-<li><code>Recipient address rejected: User unknown in local recipient table</code></li>
-</ul>
-<p>If your logs look like this, you likely have <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3679#issuecomment-1837609043">assigned the same FQDN to the DMS <code>hostname</code> and your mail accounts</a> which is not supported by default. You can either adjust your DMS <code>hostname</code> or follow <a href="../../faq/#can-i-use-a-nakedbare-domain-ie-no-hostname">this FAQ advice</a></p>
-<p>It is also possible that <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3679#issuecomment-1848083358">DMS services are temporarily unavailable</a> when configuration changes are detected, producing the 2nd error. Certificate updates may be a less obvious trigger.</p>
-<h2 id="steps-for-debugging-dms"><a class="toclink" href="#steps-for-debugging-dms">Steps for Debugging DMS</a></h2>
-<ol>
-<li><strong>Increase log verbosity</strong>: Very helpful for troubleshooting problems during container startup. Set the environment variable <a href="../environment/#log_level"><code>LOG_LEVEL</code></a> to <code>debug</code> or <code>trace</code>.</li>
-<li><strong>Use error logs as a search query</strong>: Try <a href="https://github.com/docker-mailserver/docker-mailserver/issues">finding an <em>existing issue</em></a> or <em>search engine result</em> from any errors in your container log output. Often you'll find answers or more insights. If you still need to open an issue, sharing links from your search may help us assist you. The mail server log can be acquired by running <code>docker log &lt;CONTAINER NAME&gt;</code> (<em>or <code>docker logs -f &lt;CONTAINER NAME&gt;</code> if you want to follow the log</em>).</li>
-<li><strong>Inspect the logs of the service that is failing</strong>: We provide a dedicated paragraph on this topic <a href="#logs">further down below</a>.</li>
-<li><strong>Understand the basics of mail servers</strong>: Especially for beginners, make sure you read our <a href="../../introduction/">Introduction</a> and <a href="../../usage/">Usage</a> articles.</li>
-<li><strong>Search the whole FAQ</strong>: Our <a href="../../faq/">FAQ</a> contains answers for common problems. Make sure you go through the list.</li>
-<li><strong>Reduce the scope</strong>: Ensure that you can run a basic setup of DMS first. Then incrementally restore parts of your original configuration until the problem is reproduced again. If you're new to DMS, it is common to find the cause is misunderstanding how to configure a minimal setup.</li>
-</ol>
-<h3 id="debug-a-running-container"><a class="toclink" href="#debug-a-running-container">Debug a running container</a></h3>
-<h4 id="general"><a class="toclink" href="#general">General</a></h4>
-<p>To get a shell inside the container run: <code>docker exec -it &lt;CONTAINER NAME&gt; bash</code>. To install additional software, run:</p>
-<ol>
-<li><code>apt-get update</code> to update repository metadata.</li>
-<li><code>apt-get install &lt;PACKAGE&gt;</code> to install a package, e.g., <code>apt-get install neovim</code> if you want to use NeoVim instead of <code>nano</code> (which is shipped by default).</li>
-</ol>
-<h4 id="logs"><a class="toclink" href="#logs">Logs</a></h4>
-<p>If you need more flexibility than what the <code>docker logs</code> command offers, then the most useful locations to get relevant DMS logs within the container are:</p>
-<ul>
-<li><code>/var/log/mail/&lt;SERVICE&gt;.log</code></li>
-<li><code>/var/log/supervisor/&lt;SERVICE&gt;.log</code></li>
-</ul>
-<p>You may use <code>nano</code> (a text editor) to edit files, while <code>less</code> (a file viewer) and <code>tail</code>/<code>cat</code> are useful tools to inspect the contents of logs.</p>
-<h2 id="compatibility"><a class="toclink" href="#compatibility">Compatibility</a></h2>
-<p>It's possible that the issue you're experiencing is due to a compatibility conflict.</p>
-<p>This could be from outdated software, or running a system that isn't able to provide you newer software and kernels. You may want to verify if you can reproduce the issue on a system that is not affected by these concerns.</p>
-<h3 id="network"><a class="toclink" href="#network">Network</a></h3>
-<ul>
-<li>Misconfigured network connections can cause the client IP address to be proxied through a docker network gateway IP, or a <a href="https://github.com/orgs/docker-mailserver/discussions/3273#discussioncomment-5654603">service that acts on behalf of connecting clients for logins</a> where the connections client IP appears to be only from that service (eg: Container IP) instead. This can relay the wrong information to other services (eg: monitoring like Fail2Ban, SPF verification) causing unexpected failures.</li>
-<li><strong><code>userland-proxy</code>:</strong> Prior to Docker <code>v23</code>, <a href="https://github.com/moby/moby/issues/44721">changing the <code>userland-proxy</code> setting did not reliably remove NAT rules</a>.</li>
-<li><strong>UFW / firewalld:</strong> Some users expect only their firewall frontend to manage the firewall rules, but these will be bypassed when Docker publishes a container port (<em>as there is no integration between the two</em>).</li>
-<li><strong><code>iptables</code> / <code>nftables</code>:</strong><ul>
-<li>Docker <a href="https://github.com/moby/moby/issues/26824">only manages the NAT rules via <code>iptables</code></a>, relying on compatibility shims for supporting the successor <code>nftables</code>. Internally DMS expects <code>nftables</code> support on the host kernel for services like Fail2Ban to function correctly.</li>
-<li><a href="https://unix.stackexchange.com/questions/596493/can-nftables-and-iptables-ip6tables-rules-be-applied-at-the-same-time-if-so-wh/596497#596497">Kernels older than 5.2 may affect management of NAT rules via <code>nftables</code></a>. Other software outside of DMS may also manipulate these rules, such as firewall frontends.</li>
-</ul>
-</li>
-<li><strong>IPv6:</strong><ul>
-<li>Requires <a href="../advanced/ipv6/">additional configuration</a> to prevent or properly support IPv6 connections (eg: Preserving the Client IP).</li>
-<li>Support in 2023 is still considered experimental. You are advised to use at least Docker Engine <code>v23</code> (2023Q1).</li>
-<li>Various networking bug fixes have been addressed since the initial IPv6 support arrived in Docker Engine <code>v20.10.0</code> (2020Q4).</li>
-</ul>
-</li>
-</ul>
-<h3 id="system"><a class="toclink" href="#system">System</a></h3>
-<ul>
-<li><strong>macOS:</strong> DMS has limited support for macOS. Often an issue encountered is due to permissions related to the <code>volumes</code> config in <code>compose.yaml</code>. You may have luck <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3648#issuecomment-1822774080">trying <code>gRPC FUSE</code></a> as the file sharing implementation; <a href="https://www.docker.com/blog/speed-boost-achievement-unlocked-on-docker-desktop-4-6-for-mac/"><code>VirtioFS</code> is the successor</a> but presently appears incompatible with DMS.</li>
-<li><strong>Kernel:</strong> Some systems provide <a href="https://github.com/docker-mailserver/docker-mailserver/pull/2662#issuecomment-1168435970">kernels with modifications (<em>replacing defaults and backporting patches</em>)</a> to support running legacy software or kernels, complicating compatibility. This can be commonly experienced with products like NAS.</li>
-<li><strong>CGroups v2:</strong> Hosts running older kernels (prior to 5.2) and systemd (prior to v244) are not likely to leverage cgroup v2, or have not defaulted to the cgroup v2 <code>unified</code> hierarchy. Not meeting this baseline may influence the behavior of your DMS container, even with the latest Docker Engine installed.</li>
-<li><strong>Container runtime:</strong> Docker and Podman for example have subtle differences. DMS docs are primarily focused on Docker, but we try to document known issues where relevant.</li>
-<li><strong>Rootless containers:</strong> Introduces additional differences in behavior or requirements:<ul>
-<li>cgroup v2 is required for supporting rootless containers.</li>
-<li>Differences such as for container networking which may further affect support for IPv6 and preserving the client IP (Remote address). Example with Docker rootless are <a href="https://github.com/moby/moby/issues/45742">binding a port to a specific interface</a> and the choice of <a href="../security/fail2ban/#running-inside-a-rootless-container">port forwarding driver</a>.</li>
-</ul>
-</li>
-</ul>
+<div class="admonition note">
+<p class="admonition-title">Verify the relay host is configured correctly</p>
+<p>To verify proper operation, send an email to an external account of yours and inspect the mail headers.</p>
+<p>You will also see the connection to the Gmail relay host (<code>smtp.gmail.com</code>) in the mail logs:</p>
+<div class="highlight"><pre><span></span><code><span class="go">postfix/smtp[910]: Trusted TLS connection established to smtp.gmail.com[64.233.188.109]:587:</span>
+<span class="go">  TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)</span>
+<span class="go">postfix/smtp[910]: 4BCB547D9D: to=&lt;username@gmail.com&gt;, relay=smtp.gmail.com[64.233.188.109]:587,</span>
+<span class="go">  delay=2.9, delays=0.01/0.02/1.7/1.2, dsn=2.0.0, status=sent (250 2.0.0 OK  17... - gsmtp)</span>
+</code></pre></div>
+</div>
 
 
 
@@ -2438,8 +2106,6 @@
 
 
 
-
-  
 
 
 
@@ -2487,10 +2153,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.bd41221c.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.bd41221c.min.js"></script>
       
     
   </body>
