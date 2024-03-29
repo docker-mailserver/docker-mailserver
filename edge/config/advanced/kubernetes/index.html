@@ -2645,6 +2645,7 @@
 </ul>
 </li>
 <li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> To keep support for direct connections to DMS services internally within cluster, service ports must be "duplicated" to offer an alternative port for connections using PROXY protocol</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Custom Fail2Ban required: Because the traffic to DMS is now coming from the proxy, banning the origin IP address will have no effect; you'll need to implement a <a href="https://github.com/docker-mailserver/docker-mailserver/issues/1761#issuecomment-2016879319">custom solution for your setup</a>.</li>
 </ul>
 </details>
 <details class="question">
