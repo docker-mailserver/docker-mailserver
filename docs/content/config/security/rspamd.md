@@ -94,11 +94,7 @@ Rspamd provides a [web interface][rspamd-docs::web-interface], which contains st
 
 ### DNS
 
-DMS does not supply custom values for DNS servers to Rspamd. If you need to use custom DNS servers, which could be required when using [DNS-based black/whitelists](#rbls-realtime-blacklists-dnsbls-dns-based-blacklists), you need to adjust [`options.inc`][rspamd-docs::basic-options] yourself.
-
-!!! tip "Making DNS Servers Configurable"
-
-    If you want to see an environment variable (like `RSPAMD_DNS_SERVERS`) to support custom DNS servers for Rspamd being added to DMS, please raise a feature request issue.
+DMS does not supply custom values for DNS servers (to Rspamd). If you need to use custom DNS servers, which could be required when using [DNS-based deny/allowlists](#rbls-real-time-blacklists-dnsbls-dns-based-blacklists), you need to adjust [`options.inc`][rspamd-docs::basic-options] yourself. Make sure to also read our [FAQ page on DNS servers][docs::faq::dns-servers].
 
 !!! warning
 
@@ -270,3 +266,5 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 
 [docs::dms-volumes-config]: ../advanced/optional-config.md#volumes-config
 [docs::dms-volumes-state]: ../advanced/optional-config.md#volumes-state
+
+[docs::faq::dns-servers]: ../../faq.md#what-about-dns-servers
