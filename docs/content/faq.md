@@ -79,6 +79,14 @@ volumes:
 
 Optionally, you can set the `TZ` ENV variable; e.g. `TZ=Europe/Berlin`. Check [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for which values are allowed.
 
+### What About DNS Servers?
+
+Properly working DNS servers are crucial for differentiating spam from legitimate e-mails. Records like `SPF`, `DKIM` and `DMARC` records, as well as working name (resolving `A` records) and reverse name (resolving `PTR` records) resolution ensures legitimate e-mails arrive while e-mails that are more likely phishing and spam do not.
+
+Anti-spam measures (like SpamAssassin or Rspamd) make use of DNS block lists. To learn more check out our [Rspamd documentation on this topic][docs::rspamd-rbl-dnsbl]. In case you want to utilize RBL/DNSBLs, you need a recursive DNS resolver (_not big custom resolvers like Cloudflare, Quad9, Google, etc._).
+
+DMS does not integrate support for an internal DNS service as this is a [responsibility that is sensitive to the host environment][gh-discussion::dms-avoid-maintaining-internal-dns]. You can configure internal services within DMS to use your own managed DNS server, or configure for such at the host or container level (_such as with [`compose.yaml`][docker-compose::docs::config-dns]_).
+
 ### What is the file format?
 
 All files are using the Unix format with `LF` line endings. Please do not use `CRLF`.
@@ -376,7 +384,7 @@ The default setup `@local_domains_acl = ( ".$mydomain" );` does not match subdom
 
 Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` and `MOVE_SPAM_TO_JUNK=1` and add a _user_ cron like the following:
 
-!!! example 
+!!! example
 
     **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs::dms-volumes-state] mounted.
 
@@ -482,6 +490,7 @@ $spam_quarantine_to       = "quarantine\@example.com";
 
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs::dms-volumes-state]: ./config/advanced/optional-config.md#volumes-state
+[docs::rspamd-rbl-dnsbl]: ./config/security/rspamd.md#rbls-real-time-blacklists-dnsbls-dns-based-blacklists
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
@@ -495,4 +504,6 @@ $spam_quarantine_to       = "quarantine\@example.com";
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
 [github-issue-1639]: https://github.com/docker-mailserver/docker-mailserver/issues/1639
 [github-issue-1792]: https://github.com/docker-mailserver/docker-mailserver/pull/1792
+[gh-discussion::dms-avoid-maintaining-internal-dns]: https://github.com/orgs/docker-mailserver/discussions/3959#discussioncomment-8956322
+[docker-compose::docs::config-dns]: https://docs.docker.com/compose/compose-file/compose-file-v3/#dns
 [hanscees-userpatches]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh
