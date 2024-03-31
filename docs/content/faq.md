@@ -81,15 +81,11 @@ Optionally, you can set the `TZ` ENV variable; e.g. `TZ=Europe/Berlin`. Check [t
 
 ### What About DNS Servers?
 
-Properly working DNS servers are crucial for differentiating spam from legitimate e-mails. Records like `SPF`, `DKIM` and `DMARC` records, as well as working name (resolving `A` records) and reverse name (resolving `PTR` records) resolution ensure legitimate e-mails arrive while e-mails that are likely phishing and spam do not.
+Properly working DNS servers are crucial for differentiating spam from legitimate e-mails. Records like `SPF`, `DKIM` and `DMARC` records, as well as working name (resolving `A` records) and reverse name (resolving `PTR` records) resolution ensures legitimate e-mails arrive while e-mails that are more likely phishing and spam do not.
 
-Moreover, anti-spam measures (like SpamAssassin or Rspamd) make use of DNS block lists. Check out our [Rspamd documentation on this topic][docs::rspamd-rbl-dnsbl] to learn more about this topic. In case you want to utilize RBL/DNSBLs, you need a recursive DNS resolver, and do not use big custom resolvers (like Cloudflare, Quad9, Google, etc.).
+Anti-spam measures (like SpamAssassin or Rspamd) make use of DNS block lists. To learn more check out our [Rspamd documentation on this topic][docs::rspamd-rbl-dnsbl]. In case you want to utilize RBL/DNSBLs, you need a recursive DNS resolver (_not big custom resolvers like Cloudflare, Quad9, Google, etc._).
 
-DMS does not support custom DNS servers via environment variables because, on the one hand, DNS is a difficult to maintain topic, and on the other hand, most environments already provide options for using custom DNS servers.
-
-??? quote "DNS Servers Should Not be DMS' Responsibility"
-
-    It's not just Docker vs K8s, as the OS can play a role too adding complexity. Linux may be using `systemd-resolved`, a local custom DNS service (or external one like with PiHole), [a] VM hypervisor can influence that too IIRC, cloud vendors often use NetPlan which at least with Vultr I found annoying with it's reactive behaviour each time a container spun up introducing a new IP, VM guests resuming from suspend I was finding containers no longer could resolve DNS until restarting the Docker daemon, along with other side-effects like from kernel tunables, glibc/nss, /etc/hosts and related configs, chroot (we had a container issue related to this with Postfix back when it used chroot), Windows you've got WSL2 and it's network differences between the host, the WSL2 VM using the Docker container and the actual private WSL2 VM managed by docker, similarly macOS with it's own VM wrapper and drivers has had networking issues.
+DMS does not integrate support for an internal DNS service as this is a [responsibility that is sensitive to the host environment][gh-discussion::dms-avoid-maintaining-internal-dns]. You can configure internal services within DMS to use your own managed DNS server, or configure for such at the host or container level (_such as with [`compose.yaml`][docker-compose::docs::config-dns]_).
 
 ### What is the file format?
 
@@ -495,6 +491,8 @@ $spam_quarantine_to       = "quarantine\@example.com";
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs::dms-volumes-state]: ./config/advanced/optional-config.md#volumes-state
 [docs::rspamd-rbl-dnsbl]: ./config/security/rspamd.md#rbls-real-time-blacklists-dnsbls-dns-based-blacklists
+[docker-compose::docs::config-dns]: https://docs.docker.com/compose/compose-file/compose-file-v3/#dns
+[gh-discussion::dms-avoid-maintaining-internal-dns]: https://github.com/orgs/docker-mailserver/discussions/3959#discussioncomment-8956322
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
