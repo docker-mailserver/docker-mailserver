@@ -1974,6 +1974,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#what-about-dns-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      What About DNS Servers?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-is-the-file-format" class="md-nav__link">
     <span class="md-ellipsis">
       What is the file format?
@@ -2513,6 +2522,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#what-about-dns-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      What About DNS Servers?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-is-the-file-format" class="md-nav__link">
     <span class="md-ellipsis">
       What is the file format?
@@ -2859,6 +2877,10 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
 </code></pre></div>
 <p>Optionally, you can set the <code>TZ</code> ENV variable; e.g. <code>TZ=Europe/Berlin</code>. Check <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">this list</a> for which values are allowed.</p>
+<h3 id="what-about-dns-servers"><a class="toclink" href="#what-about-dns-servers">What About DNS Servers?</a></h3>
+<p>Properly working DNS servers are crucial for differentiating spam from legitimate e-mails. Records like <code>SPF</code>, <code>DKIM</code> and <code>DMARC</code> records, as well as working name (resolving <code>A</code> records) and reverse name (resolving <code>PTR</code> records) resolution ensures legitimate e-mails arrive while e-mails that are more likely phishing and spam do not.</p>
+<p>Anti-spam measures (like SpamAssassin or Rspamd) make use of DNS block lists. To learn more check out our <a href="../config/security/rspamd/#rbls-real-time-blacklists-dnsbls-dns-based-blacklists">Rspamd documentation on this topic</a>. In case you want to utilize RBL/DNSBLs, you need a recursive DNS resolver (<em>not big custom resolvers like Cloudflare, Quad9, Google, etc.</em>).</p>
+<p>DMS does not integrate support for an internal DNS service as this is a <a href="https://github.com/orgs/docker-mailserver/discussions/3959#discussioncomment-8956322">responsibility that is sensitive to the host environment</a>. You can configure internal services within DMS to use your own managed DNS server, or configure for such at the host or container level (<em>such as with <a href="https://docs.docker.com/compose/compose-file/compose-file-v3/#dns"><code>compose.yaml</code></a></em>).</p>
 <h3 id="what-is-the-file-format"><a class="toclink" href="#what-is-the-file-format">What is the file format?</a></h3>
 <p>All files are using the Unix format with <code>LF</code> line endings. Please do not use <code>CRLF</code>.</p>
 <h3 id="do-you-support-multiple-domains"><a class="toclink" href="#do-you-support-multiple-domains">Do you support multiple domains?</a></h3>
