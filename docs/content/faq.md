@@ -491,8 +491,6 @@ $spam_quarantine_to       = "quarantine\@example.com";
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs::dms-volumes-state]: ./config/advanced/optional-config.md#volumes-state
 [docs::rspamd-rbl-dnsbl]: ./config/security/rspamd.md#rbls-real-time-blacklists-dnsbls-dns-based-blacklists
-[docker-compose::docs::config-dns]: https://docs.docker.com/compose/compose-file/compose-file-v3/#dns
-[gh-discussion::dms-avoid-maintaining-internal-dns]: https://github.com/orgs/docker-mailserver/discussions/3959#discussioncomment-8956322
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
@@ -506,4 +504,6 @@ $spam_quarantine_to       = "quarantine\@example.com";
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
 [github-issue-1639]: https://github.com/docker-mailserver/docker-mailserver/issues/1639
 [github-issue-1792]: https://github.com/docker-mailserver/docker-mailserver/pull/1792
+[gh-discussion::dms-avoid-maintaining-internal-dns]: https://github.com/orgs/docker-mailserver/discussions/3959#discussioncomment-8956322
+[docker-compose::docs::config-dns]: https://docs.docker.com/compose/compose-file/compose-file-v3/#dns
 [hanscees-userpatches]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh
