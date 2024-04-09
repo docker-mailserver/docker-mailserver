@@ -88,8 +88,9 @@ maillog_file = /var/log/postfix.log
 
 Let's highlight some of the important parts. Remove any mentions of `mail.example.com` from `mydestination`, in fact you can just set localhost or nothing at all here. We want all the mail to be relayed. For good measure also disable `local_recipient_maps`. I'll skip over the TLS parts. You should use a proper certificate for `mail.example.com`. You can also harden your host as you want. Important are `transport_maps = hash:/etc/postfix/transport` and `relay_domains = $mydestination, hash:/etc/postfix/relay` which I will show in a second. Furthermore `mynetworks` should contain your VPN network.
 
-!!! warning Open relay
-  Please be aware that setting `mynetworks` to a public CIDR will leave you with an open relay. **Only** set it to the CIDR of your VPN beyond the localhost ranges.
+!!! warning "Open relay"
+
+    Please be aware that setting `mynetworks` to a public CIDR will leave you with an open relay. **Only** set it to the CIDR of your VPN beyond the localhost ranges.
 
 Let's look at `/etc/postfix/transport`:
 ```txt
