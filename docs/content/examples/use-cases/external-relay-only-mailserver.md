@@ -6,9 +6,10 @@ hide:
 ## Introduction
 
 Sometimes it's useful to have a public "relay-only" mailserver, that forwards all inbound mail to a private DMS instance and forwards all outbound mail to a receiving mailserver. There are a few reasons for this setup:
-  * I don't want to have my private mail lying around on a VPS.
-  * I want to be able to quickly move from one VPS to another without having to carry all my mail around.
-  * etc.
+  
+* I don't want to have my private mail lying around on a VPS.
+* I want to be able to quickly move from one VPS to another without having to carry all my mail around.
+* etc.
 
 The following guide assumes you have a public server with a static IP on a hosting provider of your choice. This server will not have any local mailboxes. And that you have a private server eg at home, or somewhere else. This server will host DMS. Furthermore this example assumes a VPN connection between both servers to make things easier. How to set that up is out of scope, there are a lot of guides online.
 
