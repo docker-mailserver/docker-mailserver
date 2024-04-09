@@ -16,14 +16,15 @@ The following guide assumes you have a public server with a static IP on a hosti
 
 We will briefly go through the DNS part of the setup. It's similar to the general recommended setup for all mailservers. Let's assume our public server has a public reachable IP address of `123.123.123.123` and the hostname `mail.example.com`. Set your A, MX and PTR records like you would for DMS.
 
-        ```txt
-        $ORIGIN example.com
-        @     IN  A      123.123.123.123
-        mail  IN  A      123.123.123.123
+```txt
+$ORIGIN example.com
+@     IN  A      123.123.123.123
+mail  IN  A      123.123.123.123
 
-        ; mail server for example.com
-        @     IN  MX  10 mail.example.com.
-        ```
+; mail server for example.com
+@     IN  MX  10 mail.example.com.
+```
+
 And the associated PTR record. SPF records should also be setup as you normally would for `mail.example.com`.
 
 ## Public host postfix setup
