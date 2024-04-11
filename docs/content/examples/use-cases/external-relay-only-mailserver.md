@@ -116,13 +116,13 @@ meaning all mail example.com gets relayed via the public instance through our VP
 ```txt
 @example.com user:secret
 ```
-the username and password don't matter, since we use `mynetworks`. But you can configure a proper sasl account with credentials for added protection or instead of a VPN. Furthermore we need to create `postfix-main.cf` with
+the username and password don't matter, since we use `mynetworks`. But you can configure a proper SASL account with credentials for added protection or instead of a VPN. Furthermore we need to create `postfix-main.cf` with
 
 ```txt
 mynetworks = 192.168.2.0/24
 ```
-so that the relay _towards_ our private instance from the public instance via the VPN works. You can also use sasl of course. And with that everything is done.
+so that the relay _towards_ our private instance from the public instance via the VPN works. You can also use SASL of course. And with that everything is done.
 
 ## IMAP/POP3
 
-Imap and pop3 need to point towards your private instance, since that is where the mailboxes live, which means you need to have a way for your MUA to connect to it.
+IMAP and POP3 need to point towards your private instance, since that is where the mailboxes live, which means you need to have a way for your MUA to connect to it.
