@@ -1783,10 +1783,10 @@ Thanks goes to these wonderful people ✨
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/LeoWinterDE">
-            <img src="https://avatars.githubusercontent.com/u/1300141?v=4" width="100;" alt="LeoWinterDE"/>
+        <a href="https://github.com/leowinterde">
+            <img src="https://avatars.githubusercontent.com/u/1300141?v=4" width="100;" alt="leowinterde"/>
             <br />
-            <sub><b>LeoWinterDE</b></sub>
+            <sub><b>leowinterde</b></sub>
         </a>
     </td>
     <td align="center">
