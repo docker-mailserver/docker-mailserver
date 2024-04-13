@@ -26,7 +26,7 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
     - Technically, there is no difference between `ALIAS` and `GROUP`, but ideally you should use `ALIAS` for personal aliases for a singular person (like `ceo@example.org`) and `GROUP` for multiple people (like `hr@example.org`).
 - ...for outgoing email, the sender address is put through the `SENDERS` filter, and only if the authenticated user is one of the returned entries, the email can be sent.
     - This only applies if `SPOOF_PROTECTION=1`.
-    - If the `SENDERS` filter is missing, the `USER`, `ALIAS` and `GROUP` filters will be used in in a disjunction (OR).
+    - If the `SENDERS` filter is missing, the `USER`, `ALIAS` and `GROUP` filters will be used in a disjunction (OR).
     - To for example allow users from the `admin` group to spoof any sender email address, and to force everyone else to only use their personal mailbox address for outgoing email, you can use something like this: `(|(memberOf=cn=admin,*)(mail=%s))`
 
 ???+ example
