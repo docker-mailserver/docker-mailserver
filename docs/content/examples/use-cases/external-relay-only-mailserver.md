@@ -1,128 +1,213 @@
 ---
-title: 'Use Cases | Use an external mailserver as inbound and outbound relay'
+title: 'Use Cases | Use a public server for relaying between a private DMS instance'
 hide:
   - toc
 ---
+
 ## Introduction
 
-Sometimes it's useful to have a public "relay-only" mailserver, that forwards all inbound mail to a private DMS instance and forwards all outbound mail to a receiving mailserver. There are a few reasons for this setup:
+!!! info "Community contributed guide"
+
+    Adapted into a guide from [this discussion](https://github.com/orgs/docker-mailserver/discussions/3965).
+
+    **Requirements:**
+
+    - A _public server_ with a static IP, like many VPS providers offer. It will only relay mail to DMS, no mail is stored on this system.
+    - A _private server_ (eg: a local system at home) that will run DMS.
+    - Both servers are connected to the same network via a VPN (_optional convenience for trust via the `mynetworks` setting_). We will assume below that the VPN is setup on `192.168.2.0/24`, with the _public server_ using `192.168.2.2` and the _private server_ using `192.168.2.3`.
+
+The goal of this guide is to configure a _public server_ that can receive inbound mail and relay that over to DMS on a _private server_, which can likewise submit mail outbound through a _public server_ or service. The primary motivation is keep your mail storage private, instead of storing unencrypted on a VPS host disk.
   
-* I don't want to have my private mail lying around on a VPS.
-* I want to be able to quickly move from one VPS to another without having to carry all my mail around.
-* etc.
-
-The following guide assumes you have a public server with a static IP on a hosting provider of your choice. This server will not have any local mailboxes. And that you have a private server eg at home, or somewhere else. This server will host DMS. Furthermore this example assumes a VPN connection between both servers to make things easier. How to set that up is out of scope, there are a lot of guides online.
-
 ## DNS setup
 
-We will briefly go through the DNS part of the setup. It's similar to the general recommended setup for all mailservers. Let's assume our public server has a public reachable IP address of `123.123.123.123` and the hostname `mail.example.com`. Set your A, MX and PTR records like you would for DMS.
+Follow our [standard guidance][docs::usage-dns-setup] for DNS setup.
 
-```txt
-$ORIGIN example.com
-@     IN  A      123.123.123.123
-mail  IN  A      123.123.123.123
+!!! example "DNZ Zone file example"
 
-; mail server for example.com
-@     IN  MX  10 mail.example.com.
-```
+    - A public reachable IP address of `11.22.33.44`
+    - Mail for `@example.com` addreses has an MX record to `mail.example.com` which resolves to that _public server_ IP.
+    - Set your A, MX and PTR records for the _public server_ as if it were running DMS.
 
-And the associated PTR record. SPF records should also be setup as you normally would for `mail.example.com`.
+    ```txt
+    $ORIGIN example.com
+    @     IN  A      123.123.123.123
+    mail  IN  A      123.123.123.123
 
-## Public host postfix setup
+    ; mail server for example.com
+    @     IN  MX  10 mail.example.com.
+    ```
 
-Now we need to install postfix on your public host. The functionality that is needed for this setup is not yet implemented in DMS, so a vanilla postfix will probably be easier to work with, especially since we only use this server as inbound and outbound relay. It's necessary to adjust some settings. We will assume that the VPN is setup on `192.168.2.0/24`, with the public instance using `192.168.2.2` and the private instance using `192.168.2.3`. Let's start with the `main.cf`:
+    SPF records should also be setup as you normally would for `mail.example.com`.
 
-```txt
-# See /usr/share/postfix/main.cf.dist for a commented, more complete version
+## Public Server (Basic Postfix setup)
 
+You will need to install Postfix on your _public server_. The functionality that is needed for this setup is not yet implemented in DMS, so a vanilla Postfix will probably be easier to work with, especially since this server will only be used as an inbound and outbound relay.
 
-# Debian specific:  Specifying a file name will cause the first
-# line of that file to be used as the name.  The Debian default
-# is /etc/mailname.
-#myorigin = /etc/mailname
+It's necessary to adjust some settings afterwards.
 
-myorigin = example.com
-mydestination = localhost
-local_recipient_maps =
-local_transport = error:local mail delivery is disabled
+???+ example "Postfix main config"
 
-smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
-biff = no
+    Create or replace `/etc/postfix/main.cf` with this content:
 
-# appending .domain is the MUA's job.
-append_dot_mydomain = no
+    ```txt
+    # See /usr/share/postfix/main.cf.dist for a commented, more complete version
 
-# Uncomment the next line to generate "delayed mail" warnings
-#delay_warning_time = 4h
+    smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
+    biff = no
 
-readme_directory = no
+    # appending .domain is the MUA's job.
+    append_dot_mydomain = no
 
-# See http://www.postfix.org/COMPATIBILITY_README.html -- default to 3.6 on
-# fresh installs.
-compatibility_level = 3.6
+    # Uncomment the next line to generate "delayed mail" warnings
+    #delay_warning_time = 4h
 
+    # See http://www.postfix.org/COMPATIBILITY_README.html -- default to 3.6 on
+    # fresh installs.
+    compatibility_level = 3.6
 
+    # TLS parameters
+    smtpd_tls_cert_file=/etc/postfix/certificates/mail.example.com.crt
+    smtpd_tls_key_file=/etc/postfix/certificates/mail.example.com.key
+    smtpd_tls_security_level=may
+    smtp_tls_CApath=/etc/ssl/certs
+    smtp_tls_security_level=may
+    smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 
-# TLS parameters
-smtpd_tls_cert_file=/etc/postfix/certificates/mail.example.com.crt
-smtpd_tls_key_file=/etc/postfix/certificates/mail.example.com.key
-smtpd_tls_security_level=may
+    alias_database = hash:/etc/aliases
+    alias_maps = hash:/etc/aliases
+    maillog_file = /var/log/postfix.log
+    mailbox_size_limit = 0
+    inet_interfaces = all
+    inet_protocols = ipv4
+    readme_directory = no
+    recipient_delimiter = +
 
-smtp_tls_CApath=/etc/ssl/certs
-smtp_tls_security_level=may
-smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+    # Customizations relevant to this guide:
+    myhostname = mail.example.com
+    myorigin = example.com
+    mydestination = localhost
+    mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 192.168.2.0/24
+    smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
+    transport_maps = hash:/etc/postfix/transport
+    relay_domains = $mydestination, hash:/etc/postfix/relay
 
+    # Disable local system accounts and delivery:
+    local_recipient_maps =
+    local_transport = error:local mail delivery is disabled
+    ```
 
-smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-myhostname = mail.example.com
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
-transport_maps = hash:/etc/postfix/transport
-relay_domains = $mydestination, hash:/etc/postfix/relay
-mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 192.168.2.0/24
-mailbox_size_limit = 0
-recipient_delimiter = +
-inet_interfaces = all
-inet_protocols = ipv4
-maillog_file = /var/log/postfix.log
-```
+    Let's highlight some of the important parts:
 
-Let's highlight some of the important parts. Remove any mentions of `mail.example.com` from `mydestination`, in fact you can just set localhost or nothing at all here. We want all the mail to be relayed. For good measure also disable `local_recipient_maps`. I'll skip over the TLS parts. You should use a proper certificate for `mail.example.com`. You can also harden your host as you want. Important are `transport_maps = hash:/etc/postfix/transport` and `relay_domains = $mydestination, hash:/etc/postfix/relay` which I will show in a second. Furthermore `mynetworks` should contain your VPN network.
+    - Avoid including `mail.example.com` in `mydestination`, in fact you can just set `localhost` or nothing at all here as we want all mail to be relayed to our _private server_ (DMS).
+    - `mynetworks` should contain your VPN network (_eg: `192.168.2.0/24` subnet_).
+    - Important are `transport_maps = hash:/etc/postfix/transport` and `relay_domains = $mydestination, hash:/etc/postfix/relay`, with their file contents covered below.
+    - For good measure also disable `local_recipient_maps`.
+    - You should have a valid certificate configured for `mail.example.com`.
 
-!!! warning "Open relay"
+    !!! warning "Open relay"
 
-    Please be aware that setting `mynetworks` to a public CIDR will leave you with an open relay. **Only** set it to the CIDR of your VPN beyond the localhost ranges.
+        Please be aware that setting `mynetworks` to a public CIDR will leave you with an open relay. **Only** set it to the CIDR of your VPN beyond the localhost ranges.
 
-Let's look at `/etc/postfix/transport`:
-```txt
-example.com relay:[192.168.2.3]:25
-```
-the transport file specifies which relay each domain is using. If you have multiple domains, you can add them there, too. If you use a smarthost add `* relay:[X.X.X.X]:port` to the bottom, eg `* relay:[relay1.org]:587`, which will relay everything outbound via this relay host. `/etc/postfix/relay` looks like this:
-```txt
-example.com   OK
-*             OK
-```
-This file specifies which domains should be relayed. We want `example.com` to be relayed inbound and everything else relayed outbound. Run `postmap /etc/postfix/transport` and `postmap /etc/postfix/relay` to have the files be useable by postfix. With that the public server is done.
+!!! example "Route outbound mail through a separate transport"
 
-## private DMS instance
+    When mail arrives to the _public server_ for an `@example.com` address, we want to send it via the `relay` transport to our _private server_ over port 25 for delivery to DMS.
 
-You can setup your DMS instance as you normally would. Just be careful to not give it a hostname of `mail.example.com`. Instead use `internal-mail.example.com` or something similar. DKIM can be setup as usual since it considers checks whether the message body has been tampered with, which our public relay doesn't do. Set DKIM up for `mail.example.com`. Next we need to configure our outbound relay from our private instance, so that all mail gets send out via our public instance (or from there towards a smarthost). The setup is similar to the default relay setup. `postfix-relaymap.cf` looks like:
+    [`transport_maps`][postfix-docs::transport_maps] is configured with a [`transport` table][postfix-docs::transport_table] file that matches recipient addresses and assigns a non-default transport. This setting has priority over [`relay_transport`][postfix-docs::relay_transport].
 
-```txt
-@example.com  [192.168.2.2]:25
-```
-meaning all mail example.com gets relayed via the public instance through our VPN. You can also set `postfix-sasl-password.cf` like
+    Create `/etc/postfix/transport` with contents:
 
-```txt
-@example.com user:secret
-```
-the username and password don't matter, since we use `mynetworks`. But you can configure a proper SASL account with credentials for added protection or instead of a VPN. Furthermore we need to create `postfix-main.cf` with
+    ```txt
+    example.com relay:[192.168.2.3]:25
+    ```
 
-```txt
-mynetworks = 192.168.2.0/24
-```
-so that the relay _towards_ our private instance from the public instance via the VPN works. You can also use SASL of course. And with that everything is done.
+    Other considerations:
 
-## IMAP/POP3
+    - If you have multiple domains, you can add them there too as separate lines.
+    - If you use a smarthost add `* relay:[X.X.X.X]:port` to the bottom, eg `* relay:[relay1.org]:587`, which will relay everything outbound via this relay host.
 
-IMAP and POP3 need to point towards your private instance, since that is where the mailboxes live, which means you need to have a way for your MUA to connect to it.
+    !!! tip
+
+        Instead of a file, you could alternatively configure `main.cf` with `transport_maps = inline:{ example.com=relay:[192.168.2.3]:25 }`
+
+!!! example "Configure recipient domains to relay mail"
+
+    We want `example.com` to be relayed inbound and everything else relayed outbound.
+
+    [`relay_domains`][postfix-docs::relay_domains] is configured with a file with a list of domains that should be relayed (one per line), the 2nd value is required but can be anything.
+
+    Create `/etc/postfix/relay` with contents:
+
+    ```txt
+    example.com   OK
+    *             OK
+    ```
+
+    !!! tip
+
+        Instead of a file, you could alternatively configure `main.cf` with `relay_domains = example.com`.
+
+Run `postmap /etc/postfix/transport` and `postmap /etc/postfix/relay` after creating or updating those files to make them compatible for Postfix to use.
+
+## Private Server (Running DMS)
+
+You can setup your DMS instance as you normally would.
+
+- Be careful to not give it a hostname of `mail.example.com`. Instead use `internal-mail.example.com` or something similar.
+- DKIM can be setup as usual since it considers checks whether the message body has been tampered with, which our public relay doesn't do. Set DKIM up for `mail.example.com`.
+
+Next we need to configure our _private server_ to relay all outbound mail through the _public server_ (or a separate smarthost service). The setup is [similar to the default relay setup][docs::relay-host-details].
+
+!!! example "Configure the relay host"
+
+    Create `postfix-relaymap.cf` with contents:
+
+    ```txt
+    @example.com  [192.168.2.2]:25
+    ```
+
+    Meaning all mail sent outbound from `@example.com` addresses will be relayed through the _public server_ at the VPN IP.
+
+    The _public server_ `mynetworks` setting from earlier trusts any mail received on port 25 from the VPN network, which is what allows the mail to be sent outbound when it'd otherwise be denied.
+
+!!! example "Trust the _public server_"
+
+    Create `postfix-main.cf` with contents:
+
+    ```txt
+    mynetworks = 192.168.2.0/24
+    ```
+
+    This will trust any connection from the VPN network to DMS, such as from the _public server_ when relaying mail over to DMS at the _private server_.
+
+    This step is necessary to skip some security measures that DMS normally checks for, like verifying DNS records like SPF are valid. As the mail is being relayed, those checks would fail otherwise as the IP of your _public server_ would not be authorized to send mail on behalf of the sender address in mail being relayed.
+
+!!! tip "Alternative to `mynetworks`"
+
+    Instead of trusting connections by their IP with the `mynetworks` setting, those same security measures can be skipped for any authenticated deliveries to DMS over port 587 instead.
+
+    This is a bit more work. `mynetworks` on the _public server_ config is for trusting DMS to send mail from the _private server_, thus you'll need to have that public Postfix service configured with a login account that DMS can use.
+    
+    On the DMS side, `postfix-sasl-password.cf` configures which credentials should be used for a SASL login address:
+
+    ```txt
+    @example.com user:secret
+    ```
+
+    You could also relay mail through SendGrid, AWS SES or similar instead of the _public server_ you're running, providing login credentials through the same `postfix-sasl-password.cf` file.
+
+    ---
+
+    Likewise for the _public server_ to send mail to DMS, it would need to be configured to relay mail with credentials too, removing the need for `mynetworks` on the DMS `postfix-main.cf` config.
+
+    The extra effort to require authentication instead of blind trust of your private subnet can be beneficial at reducing the impact of a compromised system or service on that network that wasn't expected to be permitted to send mail.
+
+## IMAP / POP3
+
+IMAP and POP3 need to point towards your _private server_, since that is where the mailboxes are located, which means you need to have a way for your MUA to connect to it.
+
+[docs::usage-dns-setup]: ../../usage.md#minimal-dns-setup
+[docs::relay-host-details]: ../../config/advanced/mail-forwarding/relay-hosts.md#technical-details
+[postfix-docs::relay_domains]: https://www.postfix.org/postconf.5.html#relay_domains
+[postfix-docs::relay_transport]: https://www.postfix.org/postconf.5.html#relay_transport
+[postfix-docs::transport_maps]: https://www.postfix.org/postconf.5.html#transport_maps
+[postfix-docs::transport_table]: https://www.postfix.org/transport.5.html
