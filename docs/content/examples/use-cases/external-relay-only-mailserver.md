@@ -1,5 +1,5 @@
 ---
-title: 'Use Cases | Use a public server for relaying between a private DMS instance'
+title: 'Use Cases | Relay inbound and outbound mail for an internal DMS'
 hide:
   - toc
 ---
@@ -14,24 +14,35 @@ hide:
 
     - A _public server_ with a static IP, like many VPS providers offer. It will only relay mail to DMS, no mail is stored on this system.
     - A _private server_ (eg: a local system at home) that will run DMS.
-    - Both servers are connected to the same network via a VPN (_optional convenience for trust via the `mynetworks` setting_). We will assume below that the VPN is setup on `192.168.2.0/24`, with the _public server_ using `192.168.2.2` and the _private server_ using `192.168.2.3`.
+    - Both servers are connected to the same network via a VPN (_optional convenience for trust via the `mynetworks` setting_).
+    
+    The guide below will assume the VPN is setup on `192.168.2.0/24` with:
+    
+    - The _public server_ using `192.168.2.2`.
+    - The _private server_ using `192.168.2.3`.
 
-The goal of this guide is to configure a _public server_ that can receive inbound mail and relay that over to DMS on a _private server_, which can likewise submit mail outbound through a _public server_ or service. The primary motivation is keep your mail storage private, instead of storing unencrypted on a VPS host disk.
+The goal of this guide is to configure a _public server_ that can receive inbound mail and relay that over to DMS on a _private server_, which can likewise submit mail outbound through a _public server_ or service.
+
+The primary motivation is to keep your mail storage private, instead of storing unencrypted on a VPS host disk.
   
 ## DNS setup
 
 Follow our [standard guidance][docs::usage-dns-setup] for DNS setup.
 
+
+Set your A, MX and PTR records for the _public server_ as if it were running DMS.
+
 !!! example "DNZ Zone file example"
+    
+    For this guide we assume DNS is configured with:
 
     - A public reachable IP address of `11.22.33.44`
-    - Mail for `@example.com` addreses has an MX record to `mail.example.com` which resolves to that _public server_ IP.
-    - Set your A, MX and PTR records for the _public server_ as if it were running DMS.
+    - Mail for `@example.com` addresses should have an MX record to `mail.example.com` which A record then resolves to the IP of your _public server_.
 
     ```txt
     $ORIGIN example.com
-    @     IN  A      123.123.123.123
-    mail  IN  A      123.123.123.123
+    @     IN  A      11.22.33.44
+    mail  IN  A      11.22.33.44
 
     ; mail server for example.com
     @     IN  MX  10 mail.example.com.
@@ -49,7 +60,7 @@ It's necessary to adjust some settings afterwards.
 
     Create or replace `/etc/postfix/main.cf` with this content:
 
-    ```txt
+    ```cf
     # See /usr/share/postfix/main.cf.dist for a commented, more complete version
 
     smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
