@@ -31,10 +31,9 @@ The primary motivation is to keep your mail storage private, instead of storing 
 
 Follow our [standard guidance][docs::usage-dns-setup] for DNS setup.
 
-
 Set your A, MX and PTR records for the _public server_ as if it were running DMS.
 
-!!! example "DNZ Zone file example"
+!!! example "DNS Zone file example"
     
     For this guide we assume DNS is configured with:
 
