@@ -11,7 +11,7 @@ This page explains how to get started with DMS. The guide uses Docker Compose as
 Before you can get started with deploying your own mail server, there are some requirements to be met:
 
 1. You need to have a host that you can manage.
-2. You need to own a domain, and you need to able to manage DNS for this domain.
+2. You need to own a domain, and you need to be able to manage DNS for this domain.
 
 ### Host Setup
 
