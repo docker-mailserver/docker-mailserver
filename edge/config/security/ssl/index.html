@@ -884,9 +884,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#traefik-v2" class="md-nav__link">
+  <a href="#traefik" class="md-nav__link">
     <span class="md-ellipsis">
-      Traefik v2
+      Traefik
     </span>
   </a>
   
@@ -2322,9 +2322,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#traefik-v2" class="md-nav__link">
+  <a href="#traefik" class="md-nav__link">
     <span class="md-ellipsis">
-      Traefik v2
+      Traefik
     </span>
   </a>
   
@@ -2857,99 +2857,94 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 </code></pre></div>
 <p>DSM-generated letsencrypt certificates get auto-renewed every three months.</p>
 <h3 id="caddy"><a class="toclink" href="#caddy">Caddy</a></h3>
-<p>For Caddy v2 you can specify the <code>key_type</code> in your server's global settings, which would end up looking something like this if you're using a <code>Caddyfile</code>:</p>
-<div class="highlight"><pre><span></span><code>{
-  debug
-  admin localhost:2019
-  http_port 80
-  https_port 443
-  default_sni example.com
-  key_type rsa2048
+<p><a href="https://caddyserver.com">Caddy</a> is an open-source web server with built-in TLS certificate generation. You can use the <a href="https://hub.docker.com/_/caddy">official Docker image</a> and write your own <code>Caddyfile</code>.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Basic Caddy service to provision certs:</span>
+<span class="w">  </span><span class="nt">reverse-proxy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">caddy:2.7</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80:80</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">443:443</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./Caddyfile:/etc/caddy/Caddyfile:ro</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}:/data</span>
+
+<span class="w">  </span><span class="c1"># Share the Caddy data volume for certs and configure SSL_TYPE to `letsencrypt`</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">SSL_TYPE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">letsencrypt</span>
+<span class="w">    </span><span class="c1"># While you could use a named data volume instead of a bind mount volume, it would require the long-syntax to rename cert files:</span>
+<span class="w">    </span><span class="c1"># https://docs.docker.com/compose/compose-file/05-services/#volumes</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Caddyfile</span><pre><span></span><code>mail.example.com {
+  tls internal {
+    key_type rsa2048
+  }
+
+  # Optional, can be useful for troubleshooting
+  # connection to Caddy with correct certificate:
+  respond &quot;Hello DMS&quot;
 }
 </code></pre></div>
-<p>If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:</p>
+<p>While DMS does not need a webserver to work, this workaround will provision a TLS certificate for DMS to use.</p>
+<ul>
+<li><a href="https://caddyserver.com/docs/caddyfile/directives/tls#syntax"><code>tls internal</code></a> will create a local self-signed cert for testing. This targets only the site-address, unlike the global <code>local_certs</code> option.</li>
+<li><a href="https://caddyserver.com/docs/caddyfile/options#key-type"><code>key_type</code></a> can be used in the <code>tls</code> block if you need to enforce RSA as the key type for certificates provisioned. The default is currently ECDSA (P-256).</li>
+</ul>
+</div>
 <details class="example">
-<summary>Caddy v2 JSON example snippet</summary>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;apps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;http&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;servers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;srv0&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;listen&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;:443&quot;</span>
-<span class="w">          </span><span class="p">],</span>
-<span class="w">          </span><span class="nt">&quot;routes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="p">{</span>
-<span class="w">              </span><span class="nt">&quot;match&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                    </span><span class="s2">&quot;mail.example.com&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="p">]</span>
-<span class="w">                </span><span class="p">}</span>
-<span class="w">              </span><span class="p">],</span>
-<span class="w">              </span><span class="nt">&quot;handle&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                </span><span class="p">{</span>
-<span class="w">                  </span><span class="nt">&quot;handler&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subroute&quot;</span><span class="p">,</span>
-<span class="w">                  </span><span class="nt">&quot;routes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                    </span><span class="p">{</span>
-<span class="w">                      </span><span class="nt">&quot;handle&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">                        </span><span class="p">{</span>
-<span class="w">                          </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="w">                          </span><span class="nt">&quot;handler&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;static_response&quot;</span>
-<span class="w">                        </span><span class="p">}</span>
-<span class="w">                      </span><span class="p">]</span>
-<span class="w">                    </span><span class="p">}</span>
-<span class="w">                  </span><span class="p">]</span>
-<span class="w">                </span><span class="p">}</span>
-<span class="w">              </span><span class="p">],</span>
-<span class="w">              </span><span class="nt">&quot;terminal&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<span class="w">            </span><span class="p">},</span>
-<span class="w">          </span><span class="p">]</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;tls&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;automation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;policies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;subjects&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">              </span><span class="s2">&quot;mail.example.com&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;key_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rsa2048&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;issuer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">              </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;admin@example.com&quot;</span><span class="p">,</span>
-<span class="w">              </span><span class="nt">&quot;module&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;acme&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;issuer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">              </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;admin@example.com&quot;</span><span class="p">,</span>
-<span class="w">              </span><span class="nt">&quot;module&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;acme&quot;</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">          </span><span class="p">}</span>
-<span class="w">        </span><span class="p">]</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
+<summary>With <code>caddy-docker-proxy</code></summary>
+<p>Using <a href="https://github.com/lucaslorentz/caddy-docker-proxy"><code>lucaslorentz/caddy-docker-proxy</code></a> allows you to generate a <code>Caddyfile</code> by adding labels to your services in <code>compose.yaml</code>:</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">reverse-proxy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lucaslorentz/caddy-docker-proxy:2.8</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80:80</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">443:443</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}:/data</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># Set global config here, this option has an empty value to enable self-signed certs for local testing:</span>
+<span class="w">      </span><span class="c1"># NOTE: Remove this label when going to production.</span>
+<span class="w">      </span><span class="nt">caddy.local_certs</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+
+<span class="w">  </span><span class="c1"># Use labels to configure Caddy to provision DMS certs</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">SSL_TYPE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">letsencrypt</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># Set your DMS FQDN here to add the site-address into the generated Caddyfile:</span>
+<span class="w">      </span><span class="nt">caddy_0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
+<span class="w">      </span><span class="c1"># Add a dummy directive is required:</span>
+<span class="w">      </span><span class="nt">caddy_0.respond</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Hello</span><span class="nv"> </span><span class="s">DMS&quot;</span>
+<span class="w">      </span><span class="c1"># Uncomment to make a proxy for Rspamd</span>
+<span class="w">      </span><span class="c1"># caddy_1: rspamd.example.com</span>
+<span class="w">      </span><span class="c1"># caddy_1.reverse_proxy: &quot;{{upstreams 11334}}&quot;</span>
 </code></pre></div>
 </details>
-<p>The generated certificates can then be mounted:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem</span>
-</code></pre></div>
-<h3 id="traefik-v2"><a class="toclink" href="#traefik-v2">Traefik v2</a></h3>
-<p><a href="https://github.com/containous/traefik">Traefik</a> is an open-source application proxy using the <a href="https://datatracker.ietf.org/doc/html/rfc8555">ACME protocol</a>. <a href="https://github.com/containous/traefik">Traefik</a> can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use <a href="https://github.com/containous/traefik">Traefik</a>'s major version 2.</p>
-<p><a href="https://github.com/containous/traefik">Traefik</a>'s storage format is natively supported if the <code>acme.json</code> store is mounted into the container at <code>/etc/letsencrypt/acme.json</code>. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot).</p>
-<p>Wildcard certificates are supported. If your FQDN is <code>mail.example.com</code> and your wildcard certificate is <code>*.example.com</code>, add the ENV: <code class="highlight"><span class="nv">SSL_DOMAIN</span><span class="o">=</span>example.com</code>.</p>
-<p>DMS will select it's certificate from <code>acme.json</code> checking these ENV for a matching FQDN (<em>in order of priority</em>):</p>
-<ol>
-<li><code class="highlight"><span class="si">${</span><span class="nv">SSL_DOMAIN</span><span class="si">}</span></code></li>
-<li><code class="highlight"><span class="si">${</span><span class="nv">HOSTNAME</span><span class="si">}</span></code></li>
-<li><code class="highlight"><span class="si">${</span><span class="nv">DOMAINNAME</span><span class="si">}</span></code></li>
-</ol>
-<p>This setup only comes with one caveat: The domain has to be configured on another service for <a href="https://github.com/containous/traefik">Traefik</a> to actually request it from <em>Let's Encrypt</em>, i.e. <a href="https://github.com/containous/traefik">Traefik</a> will not issue a certificate without a service / router demanding it.</p>
+<div class="admonition warning">
+<p class="admonition-title">Caddy certificate location varies</p>
+<p>The path contains the certificate provisioner used. This path may be different from the example above for you and may change over time when multiple provisioner services are used]<a href="https://github.com/docker-mailserver/docker-mailserver/pull/3485/files#r1297512818">dms-pr-feedback::caddy-provisioning-gotcha</a>.</p>
+<p>This can make the volume mounting for DMS to find the certificates non-deterministic, but you can <a href="https://caddy.community/t/is-there-a-way-on-a-caddyfile-to-force-a-specific-acme-ca/14506">restrict provisioning to single service via the <code>acme_ca</code> setting</a>.</p>
+</div>
+<h3 id="traefik"><a class="toclink" href="#traefik">Traefik</a></h3>
+<p><a href="https://github.com/containous/traefik">Traefik</a> is an open-source application proxy using the <a href="https://datatracker.ietf.org/doc/html/rfc8555">ACME protocol</a>. Traefik can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc.</p>
+<p>Traefik's storage format is natively supported if the <code>acme.json</code> store is mounted into the container at <code>/etc/letsencrypt/acme.json</code>. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot).</p>
+<p>DMS will select it's certificate from <code>acme.json</code> prioritizing a match for the DMS FQDN (hostname), while also checking one DNS level up (<em>eg: <code>mail.example.com</code> =&gt; <code>example.com</code></em>). Wildcard certificates are supported.</p>
+<p>This setup only comes with one caveat - The domain has to be configured on another service for Traefik to actually request it from <em>Let's Encrypt</em> (<em>i.e. Traefik will not issue a certificate without a service / router demanding it</em>).</p>
 <details class="example" open="open">
 <summary>Example Code</summary>
 <p>Here is an example setup for <a href="https://docs.docker.com/compose/"><code>docker-compose</code></a>:</p>
@@ -3059,32 +3054,42 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <p>You may have to restart DMS once the certificates change.</p>
 </div>
 <h2 id="testing-a-certificate-is-valid"><a class="toclink" href="#testing-a-certificate-is-valid">Testing a Certificate is Valid</a></h2>
-<ul>
-<li>
-<p>From your host:</p>
+<div class="admonition example">
+<p class="admonition-title">Connect to DMS on port 25</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>openssl<span class="w"> </span>s_client<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-connect<span class="w"> </span><span class="m">0</span>.0.0.0:25<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-starttls<span class="w"> </span>smtp<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-CApath<span class="w"> </span>/etc/ssl/certs/
 </code></pre></div>
-</li>
-<li>
-<p>Or:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>openssl<span class="w"> </span>s_client<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-connect<span class="w"> </span><span class="m">0</span>.0.0.0:143<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-starttls<span class="w"> </span>imap<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-CApath<span class="w"> </span>/etc/ssl/certs/
-</code></pre></div>
-</li>
+<p>The response should show the certificate chain with a line further down: <code>Verify return code: 0 (ok)</code></p>
+<hr />
+<p>This example runs within the DMS container itself to verify the cert is working locally.</p>
+<ul>
+<li>Adjust the <code>-connect</code> IP if testing externally from another system. Additionally testing for port 143 (Dovecot IMAP) is encouraged (<em>change the protocol for <code>-starttls</code> from <code>smtp</code> to <code>imap</code></em>).</li>
+<li><code>-CApath</code> will help verify the certificate chain, provided the location contains the root CA that signed your TLS cert for DMS.</li>
 </ul>
-<p>And you should see the certificate chain, the server certificate and: <code>Verify return code: 0 (ok)</code></p>
-<p>In addition, to verify certificate dates:</p>
+</div>
+<details class="example">
+<summary>Verify certificate dates</summary>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>openssl<span class="w"> </span>s_client<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-connect<span class="w"> </span><span class="m">0</span>.0.0.0:25<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-starttls<span class="w"> </span>smtp<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-CApath<span class="w"> </span>/etc/ssl/certs/<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>x509<span class="w"> </span>-noout<span class="w"> </span>-dates
 </code></pre></div>
+</details>
+<div class="admonition tip">
+<p class="admonition-title">Testing and troubleshooting</p>
+<p>If you need to test a connection without resolving DNS, <code>curl</code> can connect with <code>--resolve</code> option to map an FQDN + Port to an IP address, instead of the request address provided.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># NOTE: You may want to use `--insecure` if the cert was provisioned with a private CA not present on the curl client:</span>
+<span class="c1"># Use `--verbose` for additional insights on the connection.</span>
+curl<span class="w"> </span>--resolve<span class="w"> </span>mail.example.com:443:127.0.0.1<span class="w"> </span>https://mail.example.com
+</code></pre></div>
+<p>Similarly with <code>openssl</code> you can connect to an IP as shown previously, but provide an explicit SNI if necessary with <code>-servername mail.example.com</code>.</p>
+<hr />
+<p>Both <code>curl</code> and <code>openssl</code> also support <code>-4</code> and <code>-6</code> for enforcing IPv4 or IPv6 lookup.</p>
+<p>This can be useful, such as when <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3955#issuecomment-2027882633">DNS resolves the IP to different servers leading to different certificates returned</a>. As shown in that link, <code>step certificate inspect</code> is also handy for viewing details of the cert returned or on disk.</p>
+</div>
 <h2 id="plain-text-access"><a class="toclink" href="#plain-text-access">Plain-Text Access</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
