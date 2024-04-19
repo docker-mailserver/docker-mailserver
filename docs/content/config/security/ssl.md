@@ -481,113 +481,108 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 
 ### Caddy
 
-For Caddy v2 you can specify the `key_type` in your server's global settings, which would end up looking something like this if you're using a `Caddyfile`:
+[Caddy][web::caddy] is an open-source web server with built-in TLS certificate generation. You can use the [official Docker image][dockerhub::caddy] and write your own `Caddyfile`.
 
-```caddyfile
-{
-  debug
-  admin localhost:2019
-  http_port 80
-  https_port 443
-  default_sni example.com
-  key_type rsa2048
-}
-```
+!!! example
 
-If you are instead using a json config for Caddy v2, you can set it in your site's TLS automation policies:
+    ```yaml title="compose.yaml"
+    services:
+      # Basic Caddy service to provision certs:
+      reverse-proxy:
+        image: caddy:2.7
+        ports:
+          - 80:80
+          - 443:443
+        volumes:
+          - ./Caddyfile:/etc/caddy/Caddyfile:ro
+          - ${CADDY_DATA_DIR}:/data
 
-??? example "Caddy v2 JSON example snippet"
+      # Share the Caddy data volume for certs and configure SSL_TYPE to `letsencrypt`
+      mailserver:
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
+        hostname: mail.example.com
+        environment:
+          SSL_TYPE: letsencrypt
+        # While you could use a named data volume instead of a bind mount volume, it would require the long-syntax to rename cert files:
+        # https://docs.docker.com/compose/compose-file/05-services/#volumes
+        volumes:
+          - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem
+          - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem
+    ```
 
-    ```json
-    {
-      "apps": {
-        "http": {
-          "servers": {
-            "srv0": {
-              "listen": [
-                ":443"
-              ],
-              "routes": [
-                {
-                  "match": [
-                    {
-                      "host": [
-                        "mail.example.com",
-                      ]
-                    }
-                  ],
-                  "handle": [
-                    {
-                      "handler": "subroute",
-                      "routes": [
-                        {
-                          "handle": [
-                            {
-                              "body": "",
-                              "handler": "static_response"
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ],
-                  "terminal": true
-                },
-              ]
-            }
-          }
-        },
-        "tls": {
-          "automation": {
-            "policies": [
-              {
-                "subjects": [
-                  "mail.example.com",
-                ],
-                "key_type": "rsa2048",
-                "issuer": {
-                  "email": "admin@example.com",
-                  "module": "acme"
-                }
-              },
-              {
-                "issuer": {
-                  "email": "admin@example.com",
-                  "module": "acme"
-                }
-              }
-            ]
-          }
-        }
+    ```caddyfile title="Caddyfile"
+    mail.example.com {
+      tls internal {
+        key_type rsa2048
       }
+
+      # Optional, can be useful for troubleshooting
+      # connection to Caddy with correct certificate:
+      respond "Hello DMS"
     }
     ```
 
-The generated certificates can then be mounted:
+    While DMS does not need a webserver to work, this workaround will provision a TLS certificate for DMS to use.
 
-```yaml
-volumes:
-  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem
-  - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem
-```
+    - [`tls internal`][caddy-docs::tls-internal] will create a local self-signed cert for testing. This targets only the site-address, unlike the global `local_certs` option.
+    - [`key_type`][caddy-docs::key-type] can be used in the `tls` block if you need to enforce RSA as the key type for certificates provisioned. The default is currently ECDSA (P-256).
 
-### Traefik v2
+??? example "With `caddy-docker-proxy`"
 
-[Traefik][traefik::github] is an open-source application proxy using the [ACME protocol][ietf::rfc::acme]. [Traefik][traefik::github] can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc. We strongly recommend to use [Traefik][traefik::github]'s major version 2.
+    Using [`lucaslorentz/caddy-docker-proxy`][github::caddy-docker-proxy] allows you to generate a `Caddyfile` by adding labels to your services in `compose.yaml`:
 
-[Traefik][traefik::github]'s storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot).
+    ```yaml title="compose.yaml"
+    services:
+      reverse-proxy:
+        image: lucaslorentz/caddy-docker-proxy:2.8
+        ports:
+          - 80:80
+          - 443:443
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - ${CADDY_DATA_DIR}:/data
+        labels:
+          # Set global config here, this option has an empty value to enable self-signed certs for local testing:
+          # NOTE: Remove this label when going to production.
+          caddy.local_certs: ""
 
-Wildcard certificates are supported. If your FQDN is `mail.example.com` and your wildcard certificate is `*.example.com`, add the ENV: `#!bash SSL_DOMAIN=example.com`.
+      # Use labels to configure Caddy to provision DMS certs
+      mailserver:
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
+        hostname: mail.example.com
+        environment:
+          SSL_TYPE: letsencrypt
+        volumes:
+          - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem
+          - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem
+        labels:
+          # Set your DMS FQDN here to add the site-address into the generated Caddyfile:
+          caddy_0: mail.example.com
+          # Add a dummy directive is required:
+          caddy_0.respond: "Hello DMS"
+          # Uncomment to make a proxy for Rspamd
+          # caddy_1: rspamd.example.com
+          # caddy_1.reverse_proxy: "{{upstreams 11334}}"
+    ```
 
-DMS will select it's certificate from `acme.json` checking these ENV for a matching FQDN (_in order of priority_):
+!!! warning "Caddy certificate location varies"
 
-1. `#!bash ${SSL_DOMAIN}`
-2. `#!bash ${HOSTNAME}`
-3. `#!bash ${DOMAINNAME}`
+    The path contains the certificate provisioner used. This path may be different from the example above for you and may change over time when multiple provisioner services are used][dms-pr-feedback::caddy-provisioning-gotcha].
 
-This setup only comes with one caveat: The domain has to be configured on another service for [Traefik][traefik::github] to actually request it from _Let's Encrypt_, i.e. [Traefik][traefik::github] will not issue a certificate without a service / router demanding it.
+    This can make the volume mounting for DMS to find the certificates non-deterministic, but you can [restrict provisioning to single service via the `acme_ca` setting][caddy::restrict-acme-provisioner].
+
+### Traefik
+
+[Traefik][traefik::github] is an open-source application proxy using the [ACME protocol][ietf::rfc::acme]. Traefik can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc.
+
+Traefik's storage format is natively supported if the `acme.json` store is mounted into the container at `/etc/letsencrypt/acme.json`. The file is also monitored for changes and will trigger a reload of the mail services (Postfix and Dovecot).
+
+DMS will select it's certificate from `acme.json` prioritizing a match for the DMS FQDN (hostname), while also checking one DNS level up (_eg: `mail.example.com` => `example.com`_). Wildcard certificates are supported.
+
+This setup only comes with one caveat - The domain has to be configured on another service for Traefik to actually request it from _Let's Encrypt_ (_i.e. Traefik will not issue a certificate without a service / router demanding it_).
 
 ???+ example "Example Code"
+
     Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
 
     ```yaml
@@ -716,7 +711,7 @@ The local and internal paths may be whatever you prefer, so long as both `SSL_CE
 
 ## Testing a Certificate is Valid
 
-- From your host:
+!!! example "Connect to DMS on port 25"
 
     ```sh
     docker exec mailserver openssl s_client \
@@ -725,26 +720,42 @@ The local and internal paths may be whatever you prefer, so long as both `SSL_CE
       -CApath /etc/ssl/certs/
     ```
 
-- Or:
+    The response should show the certificate chain with a line further down: `Verify return code: 0 (ok)`
+
+    ---
+
+    This example runs within the DMS container itself to verify the cert is working locally.
+
+    - Adjust the `-connect` IP if testing externally from another system. Additionally testing for port 143 (Dovecot IMAP) is encouraged (_change the protocol for `-starttls` from `smtp` to `imap`_).
+    - `-CApath` will help verify the certificate chain, provided the location contains the root CA that signed your TLS cert for DMS.
+
+??? example "Verify certificate dates"
 
     ```sh
     docker exec mailserver openssl s_client \
-      -connect 0.0.0.0:143 \
-      -starttls imap \
-      -CApath /etc/ssl/certs/
+      -connect 0.0.0.0:25 \
+      -starttls smtp \
+      -CApath /etc/ssl/certs/ \
+      2>/dev/null | openssl x509 -noout -dates
     ```
 
-And you should see the certificate chain, the server certificate and: `Verify return code: 0 (ok)`
+!!! tip "Testing and troubleshooting"
 
-In addition, to verify certificate dates:
+    If you need to test a connection without resolving DNS, `curl` can connect with `--resolve` option to map an FQDN + Port to an IP address, instead of the request address provided.
 
-```sh
-docker exec mailserver openssl s_client \
-  -connect 0.0.0.0:25 \
-  -starttls smtp \
-  -CApath /etc/ssl/certs/ \
-  2>/dev/null | openssl x509 -noout -dates
-```
+    ```bash
+    # NOTE: You may want to use `--insecure` if the cert was provisioned with a private CA not present on the curl client:
+    # Use `--verbose` for additional insights on the connection.
+    curl --resolve mail.example.com:443:127.0.0.1 https://mail.example.com
+    ```
+
+    Similarly with `openssl` you can connect to an IP as shown previously, but provide an explicit SNI if necessary with `-servername mail.example.com`.
+
+    ---
+
+    Both `curl` and `openssl` also support `-4` and `-6` for enforcing IPv4 or IPv6 lookup.
+
+    This can be useful, such as when [DNS resolves the IP to different servers leading to different certificates returned][dms-discussion::gotcha-fqdn-bad-dns]. As shown in that link, `step certificate inspect` is also handy for viewing details of the cert returned or on disk.
 
 ## Plain-Text Access
 
@@ -919,3 +930,13 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [acme-companion::standalone]: https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md
 [acme-companion::standalone-changes]: https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md#picking-up-changes-to-letsencrypt_user_data
 [acme-companion::service-loop]: https://github.com/nginx-proxy/acme-companion/blob/main/docs/Container-utilities.md
+
+[web::caddy]: https://caddyserver.com
+[dockerhub::caddy]: https://hub.docker.com/_/caddy
+[github::caddy-docker-proxy]: https://github.com/lucaslorentz/caddy-docker-proxy
+[dms-pr-feedback::caddy-provisioning-gotcha]: https://github.com/docker-mailserver/docker-mailserver/pull/3485/files#r1297512818
+[caddy-docs::tls-internal]: https://caddyserver.com/docs/caddyfile/directives/tls#syntax
+[caddy-docs::key-type]: https://caddyserver.com/docs/caddyfile/options#key-type
+[caddy::restrict-acme-provisioner]: https://caddy.community/t/is-there-a-way-on-a-caddyfile-to-force-a-specific-acme-ca/14506
+
+[dms-discussion::gotcha-fqdn-bad-dns]: https://github.com/docker-mailserver/docker-mailserver/issues/3955#issuecomment-2027882633
