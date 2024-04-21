@@ -131,6 +131,7 @@ The most noteworthy change of this release is the update of the container's base
 ### Added
 
 - **Docs:**
+  - A guide for configuring a public server to relay inbound and outbound mail from DMS on a private server ([#3973](https://github.com/docker-mailserver/docker-mailserver/pull/3973))
   - An example for how to bind outbound SMTP connections to a specific network interface ([#3465](https://github.com/docker-mailserver/docker-mailserver/pull/3465))
 
 ### Updates
