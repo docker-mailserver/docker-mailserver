@@ -13,19 +13,19 @@ hide:
     **Requirements:**
 
     - A _public server_ with a static IP, like many VPS providers offer. It will only relay mail to DMS, no mail is stored on this system.
-    - A _private server_ (eg: a local system at home) that will run DMS.
+    - A _private server_ (e.g.: a local system at home) that will run DMS.
     - Both servers are connected to the same network via a VPN (_optional convenience for trust via the `mynetworks` setting_).
 
     ---
 
     The guide below will assume the VPN is setup on `192.168.2.0/24` with:
 
-    - The _public server_ using `192.168.2.2`
-    - The _private server_ using `192.168.2.3`
+    - The _public server_ is using `192.168.2.2`
+    - The _private server_ is using `192.168.2.3`
 
 The goal of this guide is to configure a _public server_ that can receive inbound mail and relay that over to DMS on a _private server_, which can likewise submit mail outbound through a _public server_ or service.
 
-The primary motivation is to keep your mail storage private, instead of storing to disk unencrypted on a VPS host.
+The primary motivation is to keep your mail storage private instead of storing it to disk unencrypted on a VPS host.
 
 ## DNS setup
 
@@ -35,10 +35,11 @@ Set your A, MX and PTR records for the _public server_ as if it were running DMS
 
 !!! example "DNS Zone file example"
     
-    For this guide we assume DNS is configured with:
+    For this guide, we assume DNS is configured with:
 
     - A public reachable IP address of `11.22.33.44`
-    - Mail for `@example.com` addresses should have an MX record to `mail.example.com` which A record then resolves to the IP of your _public server_.
+    - Mail for `@example.com` addresses must have an MX record pointing to `mail.example.com`.
+    - An A record for `mail.example.com` pointing to the IP address of your _public server_.
 
     ```txt
     $ORIGIN example.com
@@ -49,7 +50,7 @@ Set your A, MX and PTR records for the _public server_ as if it were running DMS
     @     IN  MX  10 mail.example.com.
     ```
 
-    SPF records should also be setup as you normally would for `mail.example.com`.
+    SPF records should also be set up as you normally would for `mail.example.com`.
 
 ## Public Server (Basic Postfix setup)
 
@@ -116,7 +117,7 @@ It's necessary to adjust some settings afterwards.
         - Avoid including `mail.example.com` in `mydestination`, in fact you can just set `localhost` or nothing at all here as we want all mail to be relayed to our _private server_ (DMS).
         - `mynetworks` should contain your VPN network (_eg: `192.168.2.0/24` subnet_).
         - Important are `transport_maps = hash:/etc/postfix/transport` and `relay_domains = $mydestination, hash:/etc/postfix/relay`, with their file contents covered below.
-        - For good measure also disable `local_recipient_maps`.
+        - For good measure, also disable `local_recipient_maps`.
         - You should have a valid certificate configured for `mail.example.com`.
 
         !!! warning "Open relay"
@@ -161,18 +162,18 @@ It's necessary to adjust some settings afterwards.
 
             Instead of a file, you could alternatively configure `main.cf` with `relay_domains = example.com`.
 
-!!! note "Files configured with `hash:` table type must run `postmap` to apply changes"
+!!! note "Files configured with `hash:` table type must run `postmap` to apply changes."
 
     Run `postmap /etc/postfix/transport` and `postmap /etc/postfix/relay` after creating or updating either of these files, this processes them into a separate file for Postfix to use.
 
 ## Private Server (Running DMS)
 
-You can setup your DMS instance as you normally would.
+You can set up your DMS instance as you normally would.
 
-- Be careful to not give it a hostname of `mail.example.com`. Instead use `internal-mail.example.com` or something similar.
+- Be careful not to give it a hostname of `mail.example.com`. Instead, use `internal-mail.example.com` or something similar.
 - DKIM can be setup as usual since it considers checks whether the message body has been tampered with, which our public relay doesn't do. Set DKIM up for `mail.example.com`.
 
-Next we need to configure our _private server_ to relay all outbound mail through the _public server_ (or a separate smarthost service). The setup is [similar to the default relay setup][docs::relay-host-details].
+Next, we need to configure our _private server_ to relay all outbound mail through the _public server_ (or a separate smarthost service). The setup is [similar to the default relay setup][docs::relay-host-details].
 
 <!-- This empty quote block is purely for a visual border -->
 !!! quote ""
