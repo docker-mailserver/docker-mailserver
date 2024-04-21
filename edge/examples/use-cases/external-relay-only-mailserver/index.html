@@ -12,28 +12,28 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/mail-forwarding/relay-hosts/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/external-relay-only-mailserver/">
       
       
-        <link rel="prev" href="../../mail-getmail/">
+        <link rel="prev" href="../bind-smtp-network-interface/">
       
       
-        <link rel="next" href="../aws-ses/">
+        <link rel="next" href="../../../faq/">
       
       
-      <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
+      <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.18">
     
     
       
-        <title>Mail Forwarding | Relay Hosts - Docker Mailserver</title>
+        <title>Use Cases | Relay inbound and outbound mail for an internal DMS - Docker Mailserver</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.66ac8b77.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -52,9 +52,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/css/customizations.css">
+      <link rel="stylesheet" href="../../../assets/css/customizations.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#what-is-a-relay-host" class="md-skip">
+        <a href="#introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -98,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Mail Forwarding | Relay Hosts
+              Use Cases | Relay inbound and outbound mail for an internal DMS
             
           </span>
         </div>
@@ -224,7 +224,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../.." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
     
@@ -241,7 +241,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../../introduction/" class="md-tabs__link">
+      <a href="../../../introduction/" class="md-tabs__link">
         
   
     
@@ -258,7 +258,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../../usage/" class="md-tabs__link">
+      <a href="../../../usage/" class="md-tabs__link">
         
   
     
@@ -273,13 +273,11 @@
         
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../../environment/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../../config/environment/" class="md-tabs__link">
           
   
   Configuration
@@ -293,17 +291,21 @@
         
   
   
+    
+  
   
     
     
       
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../../../examples/tutorials/basic-installation/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../tutorials/basic-installation/" class="md-tabs__link">
           
   
   Examples
@@ -322,7 +324,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../../faq/" class="md-tabs__link">
+      <a href="../../../faq/" class="md-tabs__link">
         
   
     
@@ -341,7 +343,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../../contributing/general/" class="md-tabs__link">
+        <a href="../../../contributing/general/" class="md-tabs__link">
           
   
   Contributing
@@ -397,6 +399,8 @@
           
             
               
+                
+              
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -408,9 +412,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     Docker Mailserver
@@ -437,7 +441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -457,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../introduction/" class="md-nav__link">
+      <a href="../../../introduction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -477,7 +481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../usage/" class="md-nav__link">
+      <a href="../../../usage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -494,28 +498,25 @@
       
   
   
-    
   
   
-  
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -526,7 +527,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Configuration
@@ -540,7 +541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../environment/" class="md-nav__link">
+      <a href="../../../config/environment/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -561,7 +562,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../user-management/" class="md-nav__link">
+      <a href="../../../config/user-management/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -622,7 +623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../best-practices/autodiscover/" class="md-nav__link">
+      <a href="../../../config/best-practices/autodiscover/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -643,7 +644,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../best-practices/dkim_dmarc_spf/" class="md-nav__link">
+      <a href="../../../config/best-practices/dkim_dmarc_spf/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -664,7 +665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../best-practices/mta-sts/" class="md-nav__link">
+      <a href="../../../config/best-practices/mta-sts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -733,7 +734,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../security/understanding-the-ports/" class="md-nav__link">
+      <a href="../../../config/security/understanding-the-ports/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -754,7 +755,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../security/ssl/" class="md-nav__link">
+      <a href="../../../config/security/ssl/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -775,7 +776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../security/fail2ban/" class="md-nav__link">
+      <a href="../../../config/security/fail2ban/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -796,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../security/mail_crypt/" class="md-nav__link">
+      <a href="../../../config/security/mail_crypt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -817,7 +818,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../security/rspamd/" class="md-nav__link">
+      <a href="../../../config/security/rspamd/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -846,7 +847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../debugging/" class="md-nav__link">
+      <a href="../../../config/debugging/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -867,7 +868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../pop3/" class="md-nav__link">
+      <a href="../../../config/pop3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -888,7 +889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../setup.sh/" class="md-nav__link">
+      <a href="../../../config/setup.sh/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -906,8 +907,6 @@
                 
   
   
-    
-  
   
   
     
@@ -917,11 +916,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8" >
         
           
           <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
@@ -935,7 +936,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_8">
             <span class="md-nav__icon md-icon"></span>
             Advanced Configuration
@@ -949,7 +950,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../optional-config/" class="md-nav__link">
+      <a href="../../../config/advanced/optional-config/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1010,7 +1011,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../maintenance/update-and-cleanup/" class="md-nav__link">
+      <a href="../../../config/advanced/maintenance/update-and-cleanup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1079,7 +1080,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../override-defaults/dovecot/" class="md-nav__link">
+      <a href="../../../config/advanced/override-defaults/dovecot/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1100,7 +1101,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../override-defaults/postfix/" class="md-nav__link">
+      <a href="../../../config/advanced/override-defaults/postfix/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1121,7 +1122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../override-defaults/user-patches/" class="md-nav__link">
+      <a href="../../../config/advanced/override-defaults/user-patches/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1150,7 +1151,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../auth-ldap/" class="md-nav__link">
+      <a href="../../../config/advanced/auth-ldap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1171,7 +1172,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../auth-oauth2/" class="md-nav__link">
+      <a href="../../../config/advanced/auth-oauth2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1192,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mail-sieve/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-sieve/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1213,7 +1214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mail-fetchmail/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-fetchmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1234,7 +1235,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mail-getmail/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-getmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1252,8 +1253,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1263,11 +1262,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8_9" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_9" >
         
           
           <label class="md-nav__link" for="__nav_4_8_9" id="__nav_4_8_9_label" tabindex="0">
@@ -1281,7 +1282,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_9_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_8_9">
             <span class="md-nav__icon md-icon"></span>
             Email Forwarding
@@ -1292,28 +1293,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Relay Hosts
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../config/advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1322,66 +1305,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-a-relay-host" class="md-nav__link">
-    <span class="md-ellipsis">
-      What is a Relay Host?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#advanced-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advanced Configuration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#technical-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      Technical Details
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1394,7 +1317,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../aws-ses/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-forwarding/aws-ses/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1415,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../gmail-smtp/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1444,7 +1367,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../full-text-search/" class="md-nav__link">
+      <a href="../../../config/advanced/full-text-search/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1465,7 +1388,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../kubernetes/" class="md-nav__link">
+      <a href="../../../config/advanced/kubernetes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1486,7 +1409,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ipv6/" class="md-nav__link">
+      <a href="../../../config/advanced/ipv6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1507,7 +1430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../podman/" class="md-nav__link">
+      <a href="../../../config/advanced/podman/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1528,7 +1451,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../dovecot-master-accounts/" class="md-nav__link">
+      <a href="../../../config/advanced/dovecot-master-accounts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1561,25 +1484,28 @@
       
   
   
+    
   
   
+  
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1590,7 +1516,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Examples
@@ -1644,7 +1570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/tutorials/basic-installation/" class="md-nav__link">
+      <a href="../../tutorials/basic-installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1665,7 +1591,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+      <a href="../../tutorials/mailserver-behind-proxy/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1686,7 +1612,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/tutorials/crowdsec/" class="md-nav__link">
+      <a href="../../tutorials/crowdsec/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1707,7 +1633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/tutorials/docker-build/" class="md-nav__link">
+      <a href="../../tutorials/docker-build/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1728,7 +1654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/tutorials/blog-posts/" class="md-nav__link">
+      <a href="../../tutorials/blog-posts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1754,8 +1680,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1763,13 +1691,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
         
           
           <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
@@ -1783,7 +1709,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
             Use Cases
@@ -1797,7 +1723,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+      <a href="../forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1818,7 +1744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/use-cases/imap-folders/" class="md-nav__link">
+      <a href="../imap-folders/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1839,7 +1765,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
+      <a href="../ios-mail-push-support/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1860,7 +1786,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/use-cases/auth-lua/" class="md-nav__link">
+      <a href="../auth-lua/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1881,7 +1807,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
+      <a href="../bind-smtp-network-interface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1899,10 +1825,28 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../../examples/use-cases/external-relay-only-mailserver/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Relay inbound and outbound mail for an internal DMS
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1911,6 +1855,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introduction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dns-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      DNS setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-server-basic-postfix-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Public Server (Basic Postfix setup)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#private-server-running-dms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Private Server (Running DMS)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#imap-pop3" class="md-nav__link">
+    <span class="md-ellipsis">
+      IMAP / POP3
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1938,7 +1945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../faq/" class="md-nav__link">
+      <a href="../../../faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1998,7 +2005,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../contributing/general/" class="md-nav__link">
+      <a href="../../../contributing/general/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2019,7 +2026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../contributing/tests/" class="md-nav__link">
+      <a href="../../../contributing/tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2040,7 +2047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../contributing/issues-and-pull-requests/" class="md-nav__link">
+      <a href="../../../contributing/issues-and-pull-requests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2109,7 +2116,9 @@
             
             
               
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -2126,44 +2135,47 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-is-a-relay-host" class="md-nav__link">
+  <a href="#introduction" class="md-nav__link">
     <span class="md-ellipsis">
-      What is a Relay Host?
+      Introduction
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#dns-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#advanced-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advanced Configuration
+      DNS setup
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#technical-details" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#public-server-basic-postfix-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      Technical Details
+      Public Server (Basic Postfix setup)
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#private-server-running-dms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Private Server (Running DMS)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#imap-pop3" class="md-nav__link">
+    <span class="md-ellipsis">
+      IMAP / POP3
+    </span>
+  </a>
   
 </li>
       
@@ -2182,7 +2194,7 @@
                   
 
   
-    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/mail-forwarding/relay-hosts.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/use-cases/external-relay-only-mailserver.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -2191,144 +2203,207 @@
     
       
     
-    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/advanced/mail-forwarding/relay-hosts.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/examples/use-cases/external-relay-only-mailserver.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-  <h1>Relay Hosts</h1>
+  <h1>Relay inbound and outbound mail for an internal DMS</h1>
 
-<h2 id="what-is-a-relay-host"><a class="toclink" href="#what-is-a-relay-host">What is a Relay Host?</a></h2>
-<p>An SMTP relay service (<em>aka relay host / <a href="https://en.wikipedia.org/wiki/Smart_host">smarthost</a></em>) is an MTA that relays (<em>forwards</em>) mail on behalf of third-parties (<em>it does not manage the mail domains</em>).</p>
-<ul>
-<li>Instead of DMS handling SMTP delivery directly itself (<em>via Postfix</em>), it can be configured to delegate delivery by sending all outbound mail through a relay service.</li>
-<li>Examples of popular mail relay services: <a href="https://aws.amazon.com/ses/">AWS SES</a>, <a href="https://www.mailgun.com/">Mailgun</a>, <a href="https://www.mailjet.com">Mailjet</a>, <a href="https://sendgrid.com/">SendGrid</a></li>
-</ul>
+<h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
 <div class="admonition info">
-<p class="admonition-title">When can a relay service can be helpful?</p>
+<p class="admonition-title">Community contributed guide</p>
+<p>Adapted into a guide from <a href="https://github.com/orgs/docker-mailserver/discussions/3965">this discussion</a>.</p>
+<p><strong>Requirements:</strong></p>
 <ul>
-<li>Your network provider has blocked outbound connections on port 25 (<em>required for direct delivery</em>).</li>
-<li>To improve delivery success via better established reputation (trust) of a relay service.</li>
+<li>A <em>public server</em> with a static IP, like many VPS providers offer. It will only relay mail to DMS, no mail is stored on this system.</li>
+<li>A <em>private server</em> (e.g.: a local system at home) that will run DMS.</li>
+<li>Both servers are connected to the same network via a VPN (<em>optional convenience for trust via the <code>mynetworks</code> setting</em>).</li>
+</ul>
+<hr />
+<p>The guide below will assume the VPN is setup on <code>192.168.2.0/24</code> with:</p>
+<ul>
+<li>The <em>public server</em> is using <code>192.168.2.2</code></li>
+<li>The <em>private server</em> is using <code>192.168.2.3</code></li>
 </ul>
 </div>
-<h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
-<p>All mail sent outbound from DMS (<em>where the sender address is a DMS account or a virtual alias</em>) will be relayed through the configured relay host.</p>
-<div class="admonition info">
-<p class="admonition-title">Configuration via ENV</p>
-<p>Configure the default relayhost with either of these ENV:</p>
+<p>The goal of this guide is to configure a <em>public server</em> that can receive inbound mail and relay that over to DMS on a <em>private server</em>, which can likewise submit mail outbound through a <em>public server</em> or service.</p>
+<p>The primary motivation is to keep your mail storage private instead of storing it to disk unencrypted on a VPS host.</p>
+<h2 id="dns-setup"><a class="toclink" href="#dns-setup">DNS setup</a></h2>
+<p>Follow our <a href="../../../usage/#minimal-dns-setup">standard guidance</a> for DNS setup.</p>
+<p>Set your A, MX and PTR records for the <em>public server</em> as if it were running DMS.</p>
+<div class="admonition example">
+<p class="admonition-title">DNS Zone file example</p>
+<p>For this guide, we assume DNS is configured with:</p>
 <ul>
-<li>Preferable (<em>LDAP compatible</em>): <code>DEFAULT_RELAY_HOST</code> (eg: <code>[mail.relay-service.com]:25</code>)</li>
-<li><code>RELAY_HOST</code> (eg: <code>mail.relay-service.com</code>) + <code>RELAY_PORT</code> (default: 25)</li>
+<li>A public reachable IP address of <code>11.22.33.44</code></li>
+<li>Mail for <code>@example.com</code> addresses must have an MX record pointing to <code>mail.example.com</code>.</li>
+<li>An A record for <code>mail.example.com</code> pointing to the IP address of your <em>public server</em>.</li>
 </ul>
-<p>Most relay services also require authentication configured:</p>
-<ul>
-<li><code>RELAY_USER</code> + <code>RELAY_PASSWORD</code> provides credentials for authenticating with the default relayhost.</li>
-</ul>
-<div class="admonition warning">
-<p class="admonition-title">Providing secrets via ENV</p>
-<p>While ENV is convenient, the risk of exposing secrets is higher.</p>
-<p><code>setup relay add-auth</code> is a better alternative, which manages the credentials via a config file.</p>
+<div class="highlight"><pre><span></span><code>$ORIGIN example.com
+@     IN  A      11.22.33.44
+mail  IN  A      11.22.33.44
+
+; mail server for example.com
+@     IN  MX  10 mail.example.com.
+</code></pre></div>
+<p>SPF records should also be set up as you normally would for <code>mail.example.com</code>.</p>
 </div>
-</div>
-<details class="tip">
-<summary>Excluding specific sender domains from relay</summary>
-<p>You can opt-out with: <code>setup relay exclude-domain &lt;domain&gt;</code></p>
-<p>Outbound mail from senders of that domain will be sent normally (<em>instead of through the configured <code>RELAY_HOST</code></em>).</p>
-<div class="admonition warning">
-<p class="admonition-title">When any relay host credentials are configured</p>
-<p>It will still be expected that mail is sent over a secure connection with credentials provided.</p>
-<p>Thus this opt-out feature is rarely practical.</p>
-</div>
+<h2 id="public-server-basic-postfix-setup"><a class="toclink" href="#public-server-basic-postfix-setup">Public Server (Basic Postfix setup)</a></h2>
+<p>You will need to install Postfix on your <em>public server</em>. The functionality that is needed for this setup is not yet implemented in DMS, so a vanilla Postfix will probably be easier to work with, especially since this server will only be used as an inbound and outbound relay.</p>
+<p>It's necessary to adjust some settings afterwards.</p>
+<!-- This empty quote block is purely for a visual border -->
+<div class="admonition quote">
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="postfix-main-config" name="__tabbed_1" type="radio" /><input id="route-outbound-mail-through-a-separate-transport" name="__tabbed_1" type="radio" /><input id="configure-recipient-domains-to-relay-mail" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="postfix-main-config">Postfix main config</label><label for="route-outbound-mail-through-a-separate-transport">Route outbound mail through a separate transport</label><label for="configure-recipient-domains-to-relay-mail">Configure recipient domains to relay mail</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<details class="example">
+<summary>Create or replace <code>/etc/postfix/main.cf</code></summary>
+<div class="highlight"><pre><span></span><code><span class="c1"># See /usr/share/postfix/main.cf.dist for a commented, more complete version</span>
+
+<span class="na">smtpd_banner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$myhostname ESMTP $mail_name (Debian/GNU)</span>
+<span class="na">biff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span>
+
+<span class="c1"># appending .domain is the MUA&#39;s job.</span>
+<span class="na">append_dot_mydomain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span>
+
+<span class="c1"># Uncomment the next line to generate &quot;delayed mail&quot; warnings</span>
+<span class="c1">#delay_warning_time = 4h</span>
+
+<span class="c1"># See http://www.postfix.org/COMPATIBILITY_README.html -- default to 3.6 on</span>
+<span class="c1"># fresh installs.</span>
+<span class="na">compatibility_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.6</span>
+
+<span class="c1"># TLS parameters</span>
+<span class="na">smtpd_tls_cert_file</span><span class="o">=</span><span class="s">/etc/postfix/certificates/mail.example.com.crt</span>
+<span class="na">smtpd_tls_key_file</span><span class="o">=</span><span class="s">/etc/postfix/certificates/mail.example.com.key</span>
+<span class="na">smtpd_tls_security_level</span><span class="o">=</span><span class="s">may</span>
+<span class="na">smtp_tls_CApath</span><span class="o">=</span><span class="s">/etc/ssl/certs</span>
+<span class="na">smtp_tls_security_level</span><span class="o">=</span><span class="s">may</span>
+<span class="na">smtp_tls_session_cache_database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">btree:${data_directory}/smtp_scache</span>
+
+<span class="na">alias_database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">hash:/etc/aliases</span>
+<span class="na">alias_maps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">hash:/etc/aliases</span>
+<span class="na">maillog_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/postfix.log</span>
+<span class="na">mailbox_size_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+<span class="na">inet_interfaces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">all</span>
+<span class="na">inet_protocols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ipv4</span>
+<span class="na">readme_directory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span>
+<span class="na">recipient_delimiter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">+</span>
+
+<span class="c1"># Customizations relevant to this guide:</span>
+<span class="na">myhostname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mail.example.com</span>
+<span class="na">myorigin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">example.com</span>
+<span class="na">mydestination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">localhost</span>
+<span class="na">mynetworks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 192.168.2.0/24</span>
+<span class="na">smtpd_relay_restrictions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">permit_mynetworks permit_sasl_authenticated defer_unauth_destination</span>
+<span class="na">transport_maps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">hash:/etc/postfix/transport</span>
+<span class="na">relay_domains</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$mydestination, hash:/etc/postfix/relay</span>
+
+<span class="c1"># Disable local system accounts and delivery:</span>
+<span class="na">local_recipient_maps</span><span class="w"> </span><span class="o">=</span>
+<span class="na">local_transport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">error:local mail delivery is disabled</span>
+</code></pre></div>
 </details>
-<h3 id="advanced-configuration"><a class="toclink" href="#advanced-configuration">Advanced Configuration</a></h3>
-<p>When mail is sent, there is support to change the relay service or the credentials configured based on the sender address domain used.</p>
-<p>We provide this support via two config files:</p>
+<p>Let's highlight some of the important parts:</p>
 <ul>
-<li>Sender-dependent Relay Host: <code>docker-data/dms/config/postfix-relaymap.cf</code></li>
-<li>Sender-dependent Authentication: <code>docker-data/dms/config/postfix-sasl-password.cf</code></li>
+<li>Avoid including <code>mail.example.com</code> in <code>mydestination</code>, in fact you can just set <code>localhost</code> or nothing at all here as we want all mail to be relayed to our <em>private server</em> (DMS).</li>
+<li><code>mynetworks</code> should contain your VPN network (<em>eg: <code>192.168.2.0/24</code> subnet</em>).</li>
+<li>Important are <code>transport_maps = hash:/etc/postfix/transport</code> and <code>relay_domains = $mydestination, hash:/etc/postfix/relay</code>, with their file contents covered below.</li>
+<li>For good measure, also disable <code>local_recipient_maps</code>.</li>
+<li>You should have a valid certificate configured for <code>mail.example.com</code>.</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Open relay</p>
+<p>Please be aware that setting <code>mynetworks</code> to a public CIDR will leave you with an open relay. <strong>Only</strong> set it to the CIDR of your VPN beyond the localhost ranges.</p>
+</div>
+</div>
+<div class="tabbed-block">
+<p>When mail arrives to the <em>public server</em> for an <code>@example.com</code> address, we want to send it via the <code>relay</code> transport to our <em>private server</em> over port 25 for delivery to DMS.</p>
+<p><a href="https://www.postfix.org/postconf.5.html#transport_maps"><code>transport_maps</code></a> is configured with a <a href="https://www.postfix.org/transport.5.html"><code>transport</code> table</a> file that matches recipient addresses and assigns a non-default transport. This setting has priority over <a href="https://www.postfix.org/postconf.5.html#relay_transport"><code>relay_transport</code></a>.</p>
+<div class="admonition example">
+<p class="admonition-title">Create <code>/etc/postfix/transport</code></p>
+<div class="highlight"><pre><span></span><code>example.com relay:[192.168.2.3]:25
+</code></pre></div>
+<p><strong>Other considerations:</strong></p>
+<ul>
+<li>If you have multiple domains, you can add them here too (on separate lines).</li>
+<li>If you use a smarthost add <code>* relay:[X.X.X.X]:port</code> to the bottom (eg: <code>* relay:[relay1.org]:587</code>), which will relay everything outbound via this relay host.</li>
+</ul>
+</div>
 <div class="admonition tip">
-<p class="admonition-title">Configure with our <code>setup relay</code> commands</p>
-<p>While you can edit those configs directly, DMS provides these helpful config management commands:</p>
-<div class="highlight"><pre><span></span><code><span class="c"># Configure a sender domain to use a specific relay host:</span>
-setup relay add-domain <span class="s">&lt;domain&gt; &lt;host&gt; [&lt;port&gt;]</span>
-
-<span class="c"># Configure relay host credentials for a sender domain to use:</span>
-setup relay add-auth <span class="s">&lt;domain&gt; &lt;username&gt; [&lt;password&gt;]</span>
-
-<span class="c"># Optionally avoid relaying from senders of this domain:</span>
-<span class="c"># NOTE: Only supported when configured with the `RELAY_HOST` ENV!</span>
-setup relay exclude-domain <span class="s">&lt;domain&gt;</span>
-</code></pre></div>
+<p class="admonition-title">Tip</p>
+<p>Instead of a file, you could alternatively configure <code>main.cf</code> with <code>transport_maps = inline:{ example.com=relay:[192.168.2.3]:25 }</code></p>
 </div>
+</div>
+<div class="tabbed-block">
+<p>We want <code>example.com</code> to be relayed inbound and everything else relayed outbound.</p>
+<p><a href="https://www.postfix.org/postconf.5.html#relay_domains"><code>relay_domains</code></a> is configured with a file with a list of domains that should be relayed (one per line), the 2nd value is required but can be anything.</p>
 <div class="admonition example">
-<p class="admonition-title">Config file: <code>postfix-sasl-password.cf</code></p>
-<div class="highlight"><span class="filename">docker-data/dms/config/postfix-sasl-password.cf</span><pre><span></span><code><span class="s">@domain1.com        mailgun-user</span><span class="p">:</span>secret
-<span class="s">@domain2.com        sendgrid-user</span><span class="p">:</span>secret
-
-<span class="c"># NOTE: This must have an exact match with the relay host in `postfix-relaymap.cf`,</span>
-<span class="c"># `/etc/postfix/relayhost_map`, or the `DEFAULT_RELAY_HOST` ENV.</span>
-<span class="c"># NOTE: Not supported via our setup CLI, but valid config for Postfix.</span>
-<span class="s">[email-smtp.us-west-2.amazonaws.com]</span><span class="p">:</span><span class="m">2587</span> aws-user<span class="p">:</span>secret
+<p class="admonition-title">Create <code>/etc/postfix/relay</code></p>
+<div class="highlight"><pre><span></span><code>example.com   OK
 </code></pre></div>
-<p>When Postfix needs to lookup credentials for mail sent outbound, the above config will:</p>
-<ul>
-<li>Authenticate as <code>mailgun-user</code> for mail sent with a sender belonging to <code>@domain1.com</code></li>
-<li>Authenticate as <code>sendgrid-user</code> for mail sent with a sender belonging to <code>@domain2.com</code></li>
-<li>Authenticate as <code>aws-user</code> for mail sent through a configured AWS SES relay host (any sender domain).</li>
-</ul>
 </div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Instead of a file, you could alternatively configure <code>main.cf</code> with <code>relay_domains = example.com</code>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Files configured with <code>hash:</code> table type must run <code>postmap</code> to apply changes</p>
+<p>Run <code>postmap /etc/postfix/transport</code> and <code>postmap /etc/postfix/relay</code> after creating or updating either of these files, this processes them into a separate file for Postfix to use.</p>
+</div>
+<h2 id="private-server-running-dms"><a class="toclink" href="#private-server-running-dms">Private Server (Running DMS)</a></h2>
+<p>You can set up your DMS instance as you normally would.</p>
+<ul>
+<li>Be careful not to give it a hostname of <code>mail.example.com</code>. Instead, use <code>internal-mail.example.com</code> or something similar.</li>
+<li>DKIM can be setup as usual since it considers checks whether the message body has been tampered with, which our public relay doesn't do. Set DKIM up for <code>mail.example.com</code>.</li>
+</ul>
+<p>Next, we need to configure our <em>private server</em> to relay all outbound mail through the <em>public server</em> (or a separate smarthost service). The setup is <a href="../../../config/advanced/mail-forwarding/relay-hosts/#technical-details">similar to the default relay setup</a>.</p>
+<!-- This empty quote block is purely for a visual border -->
+<div class="admonition quote">
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="configure-the-relay-host" name="__tabbed_2" type="radio" /><input id="trust-the-public-server" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="configure-the-relay-host">Configure the relay host</label><label for="trust-the-public-server">Trust the <em>public server</em></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="admonition example">
-<p class="admonition-title">Config file: <code>postfix-relaymap.cf</code></p>
-<div class="highlight"><span class="filename">docker-data/dms/config/postfix-relaymap.cf</span><pre><span></span><code><span class="s">@domain1.com        [smtp.mailgun.org]</span><span class="p">:</span><span class="m">587</span>
-<span class="s">@domain2.com        [smtp.sendgrid.net]</span><span class="p">:</span><span class="m">2525</span>
-
-<span class="c"># Opt-out of relaying:</span>
-<span class="s">@domain3.com</span>
-</code></pre></div>
-<p>When Postfix sends mail outbound from these sender domains, the above config will:</p>
-<ul>
-<li>Relay mail through <code>[smtp.mailgun.org]:587</code> when mail is sent from a sender of <code>@domain1.com</code></li>
-<li>Relay mail through <code>[smtp.sendgrid.net]:2525</code> when mail is sent from a sender of <code>@domain1.com</code></li>
-<li>Mail with a sender from <code>@domain3.com</code> is not sent through a relay (<em><strong>Only applicable</strong> when using <code>RELAY_HOST</code></em>)</li>
-</ul>
-</div>
-<h3 id="technical-details"><a class="toclink" href="#technical-details">Technical Details</a></h3>
-<ul>
-<li>Both the supported ENV and config files for this feature have additional details covered in our ENV docs <a href="../../../environment/#relay-host">Relay Host section</a>.</li>
-<li>For troubleshooting, a <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3842#issuecomment-1913380639">minimal <code>compose.yaml</code> config with several DMS instances</a> demonstrates this feature for local testing.</li>
-<li><a href="https://github.com/docker-mailserver/docker-mailserver/issues/3607">Subscribe to this tracking issue</a> for future improvements intended for this feature.</li>
-</ul>
-<div class="admonition abstract">
-<p class="admonition-title">Postfix Settings</p>
-<p>Internally this feature is implemented in DMS by <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v14.0.0/target/scripts/helpers/relay.sh"><code>relay.sh</code></a>.</p>
-<p>The <code>relay.sh</code> script manages configuring these Postfix settings:</p>
-<div class="highlight"><pre><span></span><code><span class="c"># Send all outbound mail through this relay service:</span>
-relayhost <span class="s">= [smtp.relay-service.com]</span><span class="p">:</span><span class="m">587</span>
-
-<span class="c"># Credentials to use:</span>
-smtp_sasl_password_maps <span class="s">= texthash</span><span class="p">:</span><span class="s">/etc/postfix/sasl_passwd</span>
-<span class="c"># Alternative table type examples which do not require a separate file:</span>
-<span class="c">#smtp_sasl_password_maps = static:john.doe@relay-service.com:secret</span>
-<span class="c">#smtp_sasl_password_maps = inline:{ [smtp.relay-service.com]:587=john.doe@relay-service.com:secret }</span>
-
-<span class="c">## Authentication support:</span>
-<span class="c"># Required to provide credentials to the relay service:</span>
-smtp_sasl_auth_enable <span class="s">= yes</span>
-<span class="c"># Enforces requiring credentials when sending mail outbound:</span>
-smtp_sasl_security_options <span class="s">= noanonymous</span>
-<span class="c"># Enforces a secure connection (TLS required) to the relay service:</span>
-smtp_tls_security_level <span class="s">= encrypt</span>
-
-<span class="c">## Support for advanced requirements:</span>
-<span class="c"># Relay service(s) to use instead of direct delivery for specific sender domains:</span>
-sender_dependent_relayhost_maps <span class="s">= texthash</span><span class="p">:</span><span class="s">/etc/postfix/relayhost_map</span>
-<span class="c"># Support credentials to a relay service(s) that vary by relay host used or sender domain:</span>
-smtp_sender_dependent_authentication <span class="s">= yes</span>
+<p class="admonition-title">Create <code>postfix-relaymap.cf</code></p>
+<div class="highlight"><pre><span></span><code>@example.com  [192.168.2.2]:25
 </code></pre></div>
 </div>
+<p>Meaning all mail sent outbound from <code>@example.com</code> addresses will be relayed through the <em>public server</em> at that VPN IP.</p>
+<p>The <em>public server</em> <code>mynetworks</code> setting from earlier trusts any mail received on port 25 from the VPN network, which is what allows the mail to be sent outbound when it'd otherwise be denied.</p>
+</div>
+<div class="tabbed-block">
+<div class="admonition example">
+<p class="admonition-title">Create <code>postfix-main.cf</code></p>
+<div class="highlight"><pre><span></span><code>mynetworks = 192.168.2.0/24
+</code></pre></div>
+</div>
+<p>This will trust any connection from the VPN network to DMS, such as from the <em>public server</em> when relaying mail over to DMS at the <em>private server</em>.</p>
+<p>This step is necessary to skip some security measures that DMS normally checks for, like verifying DNS records like SPF are valid. As the mail is being relayed, those checks would fail otherwise as the IP of your <em>public server</em> would not be authorized to send mail on behalf of the sender address in mail being relayed.</p>
+<details class="tip">
+<summary>Alternative to <code>mynetworks</code> setting</summary>
+<p>Instead of trusting connections by their IP with the <code>mynetworks</code> setting, those same security measures can be skipped for any authenticated deliveries to DMS over port 587 instead.</p>
+<p>This is a bit more work. <code>mynetworks</code> on the <em>public server</em> <code>main.cf</code> Postfix config is for trusting DMS when it sends mail from the <em>private server</em>, thus you'll need to have that public Postfix service configured with a login account that DMS can use.</p>
+<p>On the <em>private server</em>, DMS needs to know the credentials for that login account, that is handled with <code>postfix-sasl-password.cf</code>:</p>
+<div class="highlight"><pre><span></span><code>@example.com user:secret
+</code></pre></div>
+<p>You could also relay mail through SendGrid, AWS SES or similar instead of the <em>public server</em> you're running to receive mail from. Login credentials for those relay services are provided via the same <code>postfix-sasl-password.cf</code> file.</p>
+<hr />
+<p>Likewise for the <em>public server</em> to send mail to DMS, it would need to be configured to relay mail with credentials too, removing the need for <code>mynetworks</code> on the DMS <code>postfix-main.cf</code> config.</p>
+<p>The extra effort to require authentication instead of blind trust of your private subnet can be beneficial at reducing the impact of a compromised system or service on that network that wasn't expected to be permitted to send mail.</p>
+</details>
+</div>
+</div>
+</div>
+</div>
+<h2 id="imap-pop3"><a class="toclink" href="#imap-pop3">IMAP / POP3</a></h2>
+<p>IMAP and POP3 need to point towards your <em>private server</em>, since that is where the mailboxes are located, which means you need to have a way for your MUA to connect to it.</p>
 
 
 
@@ -2341,6 +2416,8 @@ smtp_sender_dependent_authentication <span class="s">= yes</span>
 
 
 
+
+  
 
 
 
@@ -2388,10 +2465,10 @@ smtp_sender_dependent_authentication <span class="s">= yes</span>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.3220b9d7.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.3220b9d7.min.js"></script>
       
     
   </body>
