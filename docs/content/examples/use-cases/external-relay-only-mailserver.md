@@ -155,14 +155,13 @@ It's necessary to adjust some settings afterwards.
 
             ```txt
             example.com   OK
-            *             OK
             ```
 
         !!! tip
 
             Instead of a file, you could alternatively configure `main.cf` with `relay_domains = example.com`.
 
-!!! note "Files configured with `hash:` table type must run `postmap` to apply changes."
+!!! note "Files configured with `hash:` table type must run `postmap` to apply changes"
 
     Run `postmap /etc/postfix/transport` and `postmap /etc/postfix/relay` after creating or updating either of these files, this processes them into a separate file for Postfix to use.
 
