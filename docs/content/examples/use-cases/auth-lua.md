@@ -34,7 +34,7 @@ A drawback of this method is that any (compromised) Nextcloud application passwo
 
 To answer the questions asked earlier for this specific scenario:
 
-1. Do I want to use Lua to identify mailboxes and verify that users are are authorized to use mail services? **No. Provisioning is done through LDAP.**
+1. Do I want to use Lua to identify mailboxes and verify that users are authorized to use mail services? **No. Provisioning is done through LDAP.**
 1. Do I want to use Lua to verify passwords that users authenticate with for IMAP/POP3/SMTP in their mail clients? **Yes. Password authentication is done through Lua against Nextcloud.**
 1. If the answer is 'yes' to question 1 or 2: are there other methods that better facilitate my use case instead of custom scripts which rely on me being a developer and not just a user? **No. Only HTTP can be used to authenticate against Nextcloud, which is not supported natively by Dovecot or DMS.**
 
