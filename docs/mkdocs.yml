@@ -180,6 +180,7 @@ nav:
       - 'iOS Mail Push Support': examples/use-cases/ios-mail-push-support.md
       - 'Lua Authentication': examples/use-cases/auth-lua.md
       - 'Bind outbound SMTP to a specific network': examples/use-cases/bind-smtp-network-interface.md
+      - 'Relay inbound and outbound mail for an internal DMS': examples/use-cases/external-relay-only-mailserver.md
   - 'FAQ' : faq.md
   - 'Contributing':
     - 'General Information': contributing/general.md
