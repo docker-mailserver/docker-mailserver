@@ -28,7 +28,7 @@ A detailed description of the configuration options can be found in the [online 
 
 !!! example "Basic Configuration"
 
-    Configure fetchmail to connect to the remote mailservice to retrieve mail:
+    Configure fetchmail to retrieve mail from an account at a remote mail server and deliver to the inbox of `dms-user@example.com`:
 
     ```fetchmailrc
     poll 'mail.remote-mailservice.com'
@@ -43,21 +43,23 @@ A detailed description of the configuration options can be found in the [online 
     - `user` and `pass` provide the login credentials for the remote mail service account to access.
     - `is` configures where the fetched mail will be sent to (_eg: your local DMS account in `docker-data/dms/config/postfix-accounts.cf`_).
 
+    ---
+
     !!! warning "`proto imap` will still delete remote mail once fetched"
 
         This is due to a separate default setting `no keep`. Adding the setting `keep` to your config on a new line will prevent deleting the remote copy.
 
-!!! abstract "Fetchmail docs"
+??? abstract "Fetchmail config docs"
 
-    The `fetchmail.cf` config has many more settings you can set as detailed in the [fetchmail docs (section "The run control file")][fetchmail-docs-config].
-
-    Each line from the example above is documented at the section in a table within the "keyword" column.
+    The `fetchmail.cf` config has many more settings you can set as detailed in the [fetchmail docs][fetchmail-docs-config] (_see the section "The run control file" and the table "keyword" column for all settings_).
 
     ---
 
     !!! example "Multiple users and remote servers"
 
-        The official docs [config examples][fetchmail-config-examples] show a common convention to indent settings on subsequent lines for a visual grouping per server. The config file also allows for some optional "noise" keywords, and `#` for adding comments.
+        The official docs [config examples][fetchmail-config-examples] show a common convention to indent settings on subsequent lines for a visual grouping per server.
+
+        The config file also allows for some optional "noise" keywords, and `#` for adding comments.
 
         === "Minimal syntax"
     
@@ -68,7 +70,9 @@ A detailed description of the configuration options can be found in the [online 
               user 'jane.doe' pass 'secret' is 'jane@example.com'
     
             # Also retrieve mail from this mail server (but via POP3):
-            poll 'mail.somewhere-else.com' proto pop3 user 'john.doe@somewhere-else.com' pass 'secret' is 'johnny@example.com'
+            # NOTE: This could also be all on a single line, or each key + value as a separate line.
+            poll 'mail.somewhere-else.com' proto pop3
+              user 'john.doe@somewhere-else.com' pass 'secret' is 'johnny@example.com'
             ```
     
         === "With optional syntax"
