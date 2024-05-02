@@ -1,3 +1,6 @@
 submission/inet/smtpd_sasl_security_options=noanonymous
 # this is a test comment, please don't delete me :'(
     # this is also a test comment, :O
+
+# `postfix-main.cf` must be processed first before this custom parameter is in scope:
+submission/inet/smtpd_client_restrictions=$custom_parameter
