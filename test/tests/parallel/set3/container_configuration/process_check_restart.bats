@@ -184,7 +184,7 @@ function _check_if_process_is_running() {
 
   # `--list-full` provides information for matching against (full process path)
   # `--full` allows matching the process against the full path (required if a process is not the exec command, such as started by python3 command without a shebang)
-  # `--oldest` should select the parent process when there are multiple results, typically the command defined in `supervisor-app.conf`
+  # `--oldest` should select the parent process when there are multiple results, typically the command defined in `dms-services.conf`
   local IS_RUNNING=$(_exec_in_container pgrep --full --list-full "${MIN_SECS_RUNNING[@]}" --oldest "${PROCESS}")
 
   # When no matches are found, nothing is returned. Provide something we can assert on (helpful for debugging):
@@ -199,7 +199,7 @@ function _check_if_process_is_running() {
 
 # The process manager (supervisord) should perform a graceful shutdown:
 # NOTE: Time limit should never be below these configured values:
-# - supervisor-app.conf:stopwaitsecs
+# - dms-services.conf:stopwaitsecs
 # - compose.yaml:stop_grace_period
 function _should_stop_cleanly() {
   run docker stop -t 60 "${CONTAINER_NAME}"

@@ -86,6 +86,18 @@ function teardown_file() { _default_teardown ; }
   refute_line --regexp 'rewrite_subject = [0-9]+;'
 }
 
+@test 'Rspamd Redis configuration is correct' {
+  _run_in_container rspamadm configdump redis
+  assert_success
+  assert_line 'expand_keys = true;'
+  assert_line 'servers = "127.0.0.1:6379";'
+
+  _run_in_container rspamadm configdump history_redis
+  assert_success
+  assert_line 'compress = true;'
+  assert_line 'key_prefix = "rs_history{{COMPRESS}}";'
+}
+
 @test "contents of '/etc/rspamd/override.d/' are copied" {
   local OVERRIDE_D='/etc/rspamd/override.d'
   _file_exists_in_container "${OVERRIDE_D}/testmodule_complicated.conf"
@@ -232,7 +244,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'add header "Gtube pattern"'
 
   _print_mail_log_for_msgid 'rspamd-test-email-header'
-  assert_output --partial "fileinto action: stored mail into mailbox 'Junk'"
+  assert_output --partial "fileinto action: stored mail into mailbox [SPECIAL-USE \\Junk]"
 
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.Junk/new/ 1

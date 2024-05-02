@@ -67,6 +67,11 @@ function __setup__security__postscreen() {
 }
 
 function __setup__security__spamassassin() {
+  if [[ ${ENABLE_AMAVIS} -ne 1 && ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
+    _log 'warn' 'Spamassassin does not work when Amavis is disabled. Enable Amavis to fix it.'
+    ENABLE_SPAMASSASSIN=0
+  fi
+
   if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring SpamAssassin'
 
@@ -189,14 +194,17 @@ function __setup__security__fail2ban() {
     _log 'debug' 'Enabling and configuring Fail2Ban'
 
     if [[ -e /tmp/docker-mailserver/fail2ban-fail2ban.cf ]]; then
+      _log 'trace' 'Custom fail2ban-fail2ban.cf found'
       cp /tmp/docker-mailserver/fail2ban-fail2ban.cf /etc/fail2ban/fail2ban.local
     fi
 
     if [[ -e /tmp/docker-mailserver/fail2ban-jail.cf ]]; then
+      _log 'trace' 'Custom fail2ban-jail.cf found'
       cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.d/user-jail.local
     fi
 
     if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]; then
+      _log 'trace' "Setting fail2ban blocktype to 'drop'"
       echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
     fi
 
@@ -205,6 +213,9 @@ function __setup__security__fail2ban() {
     _log 'debug' 'Fail2Ban is disabled'
     rm -f /etc/logrotate.d/fail2ban
   fi
+  _log 'trace' 'Configuring fail2ban logrotate rotate count and interval'
+  [[ ${LOGROTATE_COUNT} -ne 4 ]]          && sedfile -i "s|rotate 4$|rotate ${LOGROTATE_COUNT}|" /etc/logrotate.d/fail2ban
+  [[ ${LOGROTATE_INTERVAL} != "weekly" ]] && sedfile -i "s|weekly$|${LOGROTATE_INTERVAL}|"       /etc/logrotate.d/fail2ban
 }
 
 function __setup__security__amavis() {
@@ -233,10 +244,6 @@ function __setup__security__amavis() {
 
     if [[ ${ENABLE_CLAMAV} -eq 1 ]] && [[ ${ENABLE_RSPAMD} -eq 0 ]]; then
       _log 'warn' 'ClamAV will not work when Amavis & rspamd are disabled. Enable either Amavis or rspamd to fix it.'
-    fi
-
-    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
-      _log 'warn' 'Spamassassin will not work when Amavis is disabled. Enable Amavis to fix it.'
     fi
   fi
 }
@@ -298,11 +305,11 @@ function _setup_spam_to_junk() {
     _log 'debug' 'Spam emails will be moved to the Junk folder'
     mkdir -p /usr/lib/dovecot/sieve-global/after/
     cat >/usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve << EOF
-require ["fileinto","mailbox"];
+require ["fileinto","special-use"];
 
 if anyof (header :contains "X-Spam-Flag" "YES",
           header :contains "X-Spam" "Yes") {
-    fileinto "Junk";
+    fileinto :specialuse "\\\\Junk" "Junk";
 }
 EOF
     sievec /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve

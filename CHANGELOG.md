@@ -36,6 +36,10 @@ The most noteworthy change of this release is the update of the container's base
       - DMS `main.cf` has renamed `postscreen_dnsbl_whitelist_threshold` to `postscreen_dnsbl_allowlist_threshold` as part of this change.
     - `smtpd_relay_restrictions` (relay policy) is now evaluated after `smtpd_recipient_restrictions` (spam policy). Previously it was evaluated before `smtpd_recipient_restrictions`. Mail to be relayed via DMS must now pass through the spam policy first.
     - The TLS fingerprint policy has changed the default from MD5 to SHA256 (_DMS does not modify this Postfix parameter, but may affect any user customizations that do_).
+- **Dovecot**
+  - The "Junk" mailbox (folder) is now referenced by it's [special-use flag `\Junk`](https://docker-mailserver.github.io/docker-mailserver/v13.3/examples/use-cases/imap-folders/) instead of an explicit mailbox. ([#3925](https://github.com/docker-mailserver/docker-mailserver/pull/3925))
+    - This provides compatibility for the Junk mailbox when it's folder name differs (_eg: Renamed to "Spam"_).
+    - Potential breakage if your deployment modifies our `spam_to_junk.sieve` sieve script (_which is created during container startup when ENV `MOVE_SPAM_TO_JUNK=1`_) that handles storing spam mail into a users "Junk" mailbox folder.
 - **rsyslog:**
   - Debian 12 adjusted the `rsyslog` configuration for the default file template from `RSYSLOG_TraditionalFileFormat` to `RSYSLOG_FileFormat` (_upstream default since 2012_). This change may affect you if you have any monitoring / analysis of log output (_eg: `mail.log` / `docker logs`_).
     - The two formats are roughly equivalent to [RFC 3164](https://www.rfc-editor.org/rfc/rfc3164)) and [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424#section-1) respectively.
@@ -52,13 +56,28 @@ The most noteworthy change of this release is the update of the container's base
       - `smtp_sasl_security_options = noanonymous` (_credentials are mandatory for outbound mail delivery_)
       - `smtp_tls_security_level = encrypt` (_the outbound MTA connection must always be secure due to credentials sent_)
 - **Environment Variables**:
-  - `SA_SPAM_SUBJECT` has been renamed into `SPAM_SUBJECT` to become anti-spam service agnostic. ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
+  - `SA_SPAM_SUBJECT` has been renamed into `SPAM_SUBJECT` to become anti-spam service agnostic. ([#3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
     - As this functionality is now handled in Dovecot via a Sieve script instead of the respective anti-spam service during Postfix processing, this feature will only apply to mail stored in Dovecot. If you have relied on this feature in a different context, it will no longer be available.
     - Rspamd previously handled this functionality via the `rewrite_subject` action which as now been disabled by default in favor of the new approach with `SPAM_SUBJECT`.
     - `SA_SPAM_SUBJECT` is now deprecated and will log a warning if used. The value is copied as a fallback to `SPAM_SUBJECT`.
     - The default has changed to not prepend any prefix to the subject unless configured to do so. If you relied on the implicit prefix, you will now need to provide one explicitly.
     - `undef` was previously supported as an opt-out with `SA_SPAM_SUBJECT`. This is no longer valid, the equivalent opt-out value is now an empty value (_or rather the omission of this ENV being configured_).
     - The feature to include [`_SCORE_` tag](https://spamassassin.apache.org/full/4.0.x/doc/Mail_SpamAssassin_Conf.html#rewrite_header-subject-from-to-STRING) in your value to be replaced by the associated spam score is no longer available.
+- **Supervisord**:
+  - `supervisor-app.conf` renamed to `dms-services.conf`
+- **Rspamd**:
+  - the Redis history key has been changed in order to not incorporate the hostname of the container (which is desirable in Kubernetes environments) ([#3927](https://github.com/docker-mailserver/docker-mailserver/pull/3927))
+
+### Added
+
+- **Docs:**
+  - A guide for configuring a public server to relay inbound and outbound mail from DMS on a private server ([#3973](https://github.com/docker-mailserver/docker-mailserver/pull/3973))
+- **Environment Variables:**
+  - `LOGROTATE_COUNT` defines the number of files kept by logrotate ([#3907](https://github.com/docker-mailserver/docker-mailserver/pull/3907))
+    - The fail2ban log file is now also taken into account by `LOGROTATE_COUNT` and `LOGROTATE_INTERVAL` ([#3915](https://github.com/docker-mailserver/docker-mailserver/pull/3915), [#3919](https://github.com/docker-mailserver/docker-mailserver/pull/3919))
+
+- **Internal:**
+  - Regular container restarts are now better supported. Setup scripts that ran previously will now be skipped ([#3929](https://github.com/docker-mailserver/docker-mailserver/pull/3929))
 
 ### Updates
 
@@ -67,11 +86,13 @@ The most noteworthy change of this release is the update of the container's base
     - It's only functionality remaining was to opt-out of run-time state consolidation with `ONE_DIR=0` (_when a volume was already mounted to `/var/mail-state`_).
 - **Internal:**
   - Changed the Postgrey whitelist retrieved during build to  [source directly from Github](https://github.com/schweikert/postgrey/blob/master/postgrey_whitelist_clients) as the list is updated more frequently than the [author publishes at their website](https://postgrey.schweikert.ch) ([#3879](https://github.com/docker-mailserver/docker-mailserver/pull/3879))
+  - Enable spamassassin only, when amavis is enabled too. ([#3943](https://github.com/docker-mailserver/docker-mailserver/pull/3943))
 - **Tests:**
   - Refactored helper methods for sending e-mails with specific `Message-ID` headers and the helpers for retrieving + filtering logs, which together help isolate logs relevant to specific mail when multiple mails have been processed within a single test. ([#3786](https://github.com/docker-mailserver/docker-mailserver/pull/3786))
 - **Rspamd**:
-  - The `rewrite_subject` action, is now disabled by default. It has been replaced with the new `SPAM_SUBJECT` environment variable, which implements the functionality via a Sieve script instead in favor of being anti-spam service agnostic ([3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
-  - `RSPAMD_NEURAL` was added and is disabled by default. If switched on it wil enable the experimental Rspamd Neural network module to add a layer of analysis to spam detection using neural network technology.  ([3833](https://github.com/docker-mailserver/docker-mailserver/pull/3833))
+  - The `rewrite_subject` action, is now disabled by default. It has been replaced with the new `SPAM_SUBJECT` environment variable, which implements the functionality via a Sieve script instead which is anti-spam service agnostic ([#3820](https://github.com/docker-mailserver/docker-mailserver/pull/3820))
+  - `RSPAMD_NEURAL` was added and is disabled by default. If switched on it will enable the experimental Rspamd "Neural network" module to add a layer of analysis to spam detection ([#3833](https://github.com/docker-mailserver/docker-mailserver/pull/3833))
+  - The symbol weights of SPF, DKIM and DMARC have been adjusted again. Fixes a bug and includes more appropriate combinations of symbols ([#3913](https://github.com/docker-mailserver/docker-mailserver/pull/3913), [#3923](https://github.com/docker-mailserver/docker-mailserver/pull/3923))
 
 ### Fixes
 
@@ -84,6 +105,9 @@ The most noteworthy change of this release is the update of the container's base
   - `RELAY_HOST` ENV no longer enforces configuring outbound SMTP to require credentials. Like `DEFAULT_RELAY_HOST` it can now configure a relay where credentials are optional.
   - Restarting DMS should not be required when configuring relay hosts without these ENV, but solely via `setup relay ...`, as change detection events now apply relevant Postfix setting changes for supporting credentials too.
 - Rspamd configuration: Add a missing comma in `local_networks` so that all internal IP addresses are actually considered as internal ([#3862](https://github.com/docker-mailserver/docker-mailserver/pull/3862))
+- Ensure correct SELinux security context labels for files and directories moved to the mail-state volume during setup ([#3890](https://github.com/docker-mailserver/docker-mailserver/pull/3890))
+- Use correct environment variable for fetchmail ([#3901](https://github.com/docker-mailserver/docker-mailserver/pull/3901))
+- Dovecot dummy accounts (_virtual alias workaround for dovecot feature `ENABLE_QUOTAS=1`_) now correctly matches the home location of the user for that alias ([#3997](https://github.com/docker-mailserver/docker-mailserver/pull/3997))
 
 ## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)
 

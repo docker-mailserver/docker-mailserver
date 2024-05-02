@@ -109,7 +109,7 @@ function __rspamd__setup_logfile() {
   compress
   copytruncate
   delaycompress
-  rotate 4
+  rotate ${LOGROTATE_COUNT}
   ${LOGROTATE_INTERVAL}
 }
 EOF
@@ -125,6 +125,15 @@ function __rspamd__setup_redis() {
 
 servers = "127.0.0.1:6379";
 expand_keys = true;
+
+EOF
+
+    # We do not use `{{HOSTNAME}}` but only `{{COMPRESS}}` to better support
+    # Kubernetes, see https://github.com/orgs/docker-mailserver/discussions/3922
+    cat >"${RSPAMD_LOCAL_D}/history_redis.conf" << "EOF"
+# documentation: https://rspamd.com/doc/modules/history_redis.html
+
+key_prefix = "rs_history{{COMPRESS}}";
 
 EOF
 

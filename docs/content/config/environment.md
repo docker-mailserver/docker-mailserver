@@ -212,7 +212,7 @@ Configures the handling of creating mails with forged sender addresses.
 
 ##### ENABLE_SRS
 
-Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/master/README.md#sender-rewriting-scheme-crash-course) for further explanation.
+Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/main/README.rst) for further explanation.
 
 - **0** => Disabled
 - 1 => Enabled
@@ -328,10 +328,12 @@ Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 
 ##### MOVE_SPAM_TO_JUNK
 
-- 0 => Spam messages will be delivered in the mailbox.
-- **1** => Spam messages will be delivered in the `Junk` folder.
+- 0 => Spam messages will be delivered to the inbox.
+- **1** => Spam messages will be delivered to the Junk mailbox.
 
-Routes mail identified as spam into the recipient(s) Junk folder (_via a Dovecot Sieve script_).
+Routes mail identified as spam into the recipient(s) Junk mailbox (_a specialized folder for junk associated to the [special-use flag `\Junk`][docs::dovecot::special-use-flag], handled via a Dovecot sieve script internally_).
+
+[docs::dovecot::special-use-flag]: ../examples/use-cases/imap-folders.md
 
 !!! info
 
@@ -454,8 +456,8 @@ Default: 6 (which corresponds to the `add_header` action)
 
 ##### RSPAMD_NEURAL
 
-Can be used to enable or disable the [Neural network module][rspamd-docs-neural-network]. This is an experimental anti-spam weigh method using three neuaral networks in the configuration added here. As far as we can tell it trains itsself by using other modules to find out what spam is. It will take a while (a week or more) to train its first neural network. The config trains new networks all the time and discards of old networks. 
-Since it is experimental it is switched of by default.
+Can be used to enable or disable the [Neural network module][rspamd-docs-neural-network]. This is an experimental anti-spam weigh method using three neural networks in the configuration added here. As far as we can tell it trains itself by using other modules to find out what spam is. It will take a while (a week or more) to train its first neural network. The config trains new networks all the time and discards old networks. 
+Since it is experimental, it is switched off by default.
 
 - **0** => Disabled
 - 1 => Enabled
@@ -544,6 +546,12 @@ Changes the interval in which log files are rotated.
 !!! note
 
     This variable can also determine the interval for Postfix's log summary reports, see [`PFLOGSUMM_TRIGGER`](#pflogsumm_trigger).
+
+##### LOGROTATE_COUNT
+
+Defines how many files are kept by logrotate.
+
+- **4** => Number of files
 
 #### SpamAssassin
 
