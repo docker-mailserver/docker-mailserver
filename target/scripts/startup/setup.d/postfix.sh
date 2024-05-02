@@ -109,21 +109,6 @@ function _setup_postfix_late() {
 function __postfix__setup_override_configuration() {
   __postfix__log 'debug' 'Overriding / adjusting configuration with user-supplied values'
 
-  local OVERRIDE_CONFIG_POSTFIX_MAIN='/tmp/docker-mailserver/postfix-main.cf'
-  if [[ -f ${OVERRIDE_CONFIG_POSTFIX_MAIN} ]]; then
-    cat "${OVERRIDE_CONFIG_POSTFIX_MAIN}" >>/etc/postfix/main.cf
-    _adjust_mtime_for_postfix_maincf
-
-    # do not directly output to 'main.cf' as this causes a read-write-conflict
-    postconf -n >/tmp/postfix-main-new.cf 2>/dev/null
-
-    mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
-    _adjust_mtime_for_postfix_maincf
-    __postfix__log 'trace' "Adjusted '/etc/postfix/main.cf' according to '${OVERRIDE_CONFIG_POSTFIX_MAIN}'"
-  else
-    __postfix__log 'trace' "No extra Postfix settings loaded because optional '${OVERRIDE_CONFIG_POSTFIX_MAIN}' was not provided"
-  fi
-
   local OVERRIDE_CONFIG_POSTFIX_MASTER='/tmp/docker-mailserver/postfix-master.cf'
   if [[ -f ${OVERRIDE_CONFIG_POSTFIX_MASTER} ]]; then
     while read -r LINE; do
@@ -131,7 +116,26 @@ function __postfix__setup_override_configuration() {
     done < <(_get_valid_lines_from_file "${OVERRIDE_CONFIG_POSTFIX_MASTER}")
     __postfix__log 'trace' "Adjusted '/etc/postfix/master.cf' according to '${OVERRIDE_CONFIG_POSTFIX_MASTER}'"
   else
-    __postfix__log 'trace' "No extra Postfix settings loaded because optional '${OVERRIDE_CONFIG_POSTFIX_MASTER}' was not provided"
+    __postfix__log 'trace' "No extra Postfix master settings loaded because optional '${OVERRIDE_CONFIG_POSTFIX_MASTER}' was not provided"
+  fi
+
+  # NOTE: `postfix-main.cf` should be handled after `postfix-master.cf` as custom parameters require an existing reference
+  # in either `main.cf` or `master.cf` prior to `postconf` reading `main.cf`, otherwise it is discarded from output.
+  local OVERRIDE_CONFIG_POSTFIX_MAIN='/tmp/docker-mailserver/postfix-main.cf'
+  if [[ -f ${OVERRIDE_CONFIG_POSTFIX_MAIN} ]]; then
+    cat "${OVERRIDE_CONFIG_POSTFIX_MAIN}" >>/etc/postfix/main.cf
+    _adjust_mtime_for_postfix_maincf
+
+    # Do not directly output to 'main.cf' as this causes a read-write-conflict.
+    # `postconf` output is filtered to skip expected warnings regarding overrides:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/3880#discussion_r1510414576
+    postconf -n >/tmp/postfix-main-new.cf 2> >(grep -v 'overriding earlier entry')
+
+    mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
+    _adjust_mtime_for_postfix_maincf
+    __postfix__log 'trace' "Adjusted '/etc/postfix/main.cf' according to '${OVERRIDE_CONFIG_POSTFIX_MAIN}'"
+  else
+    __postfix__log 'trace' "No extra Postfix main settings loaded because optional '${OVERRIDE_CONFIG_POSTFIX_MAIN}' was not provided"
   fi
 }
 
