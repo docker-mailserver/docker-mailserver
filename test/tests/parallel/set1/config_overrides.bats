@@ -48,7 +48,8 @@ function teardown_file() { _default_teardown ; }
   _run_in_container postconf -Ph 'submission/inet/smtpd_client_restrictions'
   assert_success
   refute_output --partial 'postconf: warning: /etc/postfix/master.cf: undefined parameter: custom_parameter'
-  asset_output '$custom_parameter'
+  #shellcheck disable=SC2016
+  assert_output '$custom_parameter'
 
   # As it's a custom parameter (`$` prefix), ensure the parameter value expands correctly:
   _run_in_container postconf -Phx 'submission/inet/smtpd_client_restrictions'
