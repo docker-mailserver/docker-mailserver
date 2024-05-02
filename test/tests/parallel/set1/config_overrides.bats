@@ -41,17 +41,20 @@ function teardown_file() { _default_teardown ; }
 }
 
 # Custom parameter support works correctly:
-@test "Postfix - 'postfix-main.cf' should apply before 'postfix-master.cf'" {
+# NOTE: This would only fail on a fresh container state, any restart would pass successfully:
+# https://github.com/docker-mailserver/docker-mailserver/pull/3880
+@test "Postfix - 'postfix-master.cf' should apply before 'postfix-main.cf'" {
   # Retrieve the value for this setting, `postfix-master.cf` should have the override set:
   _run_in_container postconf -Ph 'submission/inet/smtpd_client_restrictions'
   assert_success
+  refute_output --partial 'postconf: warning: /etc/postfix/master.cf: undefined parameter: custom_parameter'
   asset_output '$custom_parameter'
 
-  # As it's a custom parameter ($ prefix), ensure the parameters value is correctly configured:
+  # As it's a custom parameter (`$` prefix), ensure the parameter value expands correctly:
   _run_in_container postconf -Phx 'submission/inet/smtpd_client_restrictions'
   assert_success
+  refute_output --partial 'postconf: warning: /etc/postfix/master.cf: undefined parameter: custom_parameter'
   assert_output 'cidr:{{!172.16.0.42 REJECT}}, permit_sasl_authenticated, reject'
-  refute_output 'postconf: warning: /etc/postfix/master.cf: undefined parameter: custom_parameter'
 }
 
 @test "Dovecot - 'dovecot.cf' overrides applied to '/etc/dovecot/local.conf'" {
