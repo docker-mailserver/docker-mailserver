@@ -18,20 +18,19 @@ Generate a file called `fetchmail.cf` and place it in the `docker-data/dms/confi
 │   ├── fetchmail.cf
 │   ├── postfix-accounts.cf
 │   └── postfix-virtual.cf
-├── compose.yaml
-└── README.md
+└── compose.yaml
 ```
 
 ## Configuration
 
-A detailed description of the configuration options can be found in the [online version of the manual page][fetchmail-docs].
+Configuration options for `fetchmail.cf` are covered at the [official fetchmail docs][fetchmail-docs-config] (_see the section "The run control file" and the table with "keyword" column for all settings_).
 
-!!! example "Basic Configuration"
+!!! example "Basic `fetchmail.cf` configuration"
 
-    Configure fetchmail to retrieve mail from an account at a remote mail server and deliver to the inbox of `dms-user@example.com`:
+    Retrieve mail from `remote-user@somewhere.com` and deliver it to `dms-user@example.com`:
 
     ```fetchmailrc
-    poll 'mail.remote-mailservice.com'
+    poll 'mail.somewhere.com'
     proto imap
     user 'remote-user'
     pass 'secret'
@@ -49,52 +48,44 @@ A detailed description of the configuration options can be found in the [online 
 
         This is due to a separate default setting `no keep`. Adding the setting `keep` to your config on a new line will prevent deleting the remote copy.
 
-??? abstract "Fetchmail config docs"
+??? example "Multiple users or remote servers"
 
-    The `fetchmail.cf` config has many more settings you can set as detailed in the [fetchmail docs][fetchmail-docs-config] (_see the section "The run control file" and the table "keyword" column for all settings_).
+    The official docs [config examples][fetchmail-config-examples] show a common convention to indent settings on subsequent lines for a visual grouping per server.
 
-    ---
+    The config file also allows for some optional "noise" keywords, and `#` for adding comments.
 
-    !!! example "Multiple users and remote servers"
+    === "Minimal syntax"
 
-        The official docs [config examples][fetchmail-config-examples] show a common convention to indent settings on subsequent lines for a visual grouping per server.
+        ```fetchmailrc
+        # Retrieve mail for users `john.doe` and `jane.doe` via IMAP at this remote mail server:
+        poll 'mail.somewhere.com' proto imap
+          user 'john.doe' pass 'secret' is 'johnny@example.com'
+          user 'jane.doe' pass 'secret' is 'jane@example.com'
 
-        The config file also allows for some optional "noise" keywords, and `#` for adding comments.
+        # Also retrieve mail from this mail server (but via POP3):
+        # NOTE: This could also be all on a single line, or each key + value as a separate line.
+        poll 'mail.somewhere-else.com' proto pop3
+          user 'john.doe@somewhere-else.com' pass 'secret' is 'johnny@example.com'
+        ```
 
-        === "Minimal syntax"
-    
-            ```fetchmailrc
-            # Retrieve mail for users `john.doe` and `jane.doe` via IMAP at this remote mail server:
-            poll 'mail.remote-mailservice.com' proto imap
-              user 'john.doe' pass 'secret' is 'johnny@example.com'
-              user 'jane.doe' pass 'secret' is 'jane@example.com'
-    
-            # Also retrieve mail from this mail server (but via POP3):
-            # NOTE: This could also be all on a single line, or each key + value as a separate line.
-            poll 'mail.somewhere-else.com' proto pop3
-              user 'john.doe@somewhere-else.com' pass 'secret' is 'johnny@example.com'
-            ```
-    
-        === "With optional syntax"
-    
-            ```fetchmailrc
-            # Retrieve mail for users `john.doe` and `jane.doe` via IMAP at this remote mail server:
-            poll 'mail.remote-mailservice.com' with proto imap wants:
-              user 'john.doe' with pass 'secret', is 'johnny@example.com' here
-              user 'jane.doe' with pass 'secret', is 'jane@example.com' here
-    
-            # Also retrieve mail from this mail server (but via POP3).
-            # Notice how the remote username includes a full email address,
-            # Some mail servers like DMS use the full email address as the username:
-            poll 'mail.somewhere-else.com' with proto pop3 wants:
-              user 'john.doe@somewhere-else.com' with pass 'secret', is 'johnny@example.com' here
-            ```
+    === "With optional syntax"
 
-### Polling Interval
+        ```fetchmailrc
+        # Retrieve mail for users `john.doe` and `jane.doe` via IMAP at this remote mail server:
+        poll 'mail.somewhere.com' with proto imap wants:
+          user 'john.doe' with pass 'secret', is 'johnny@example.com' here
+          user 'jane.doe' with pass 'secret', is 'jane@example.com' here
 
-By default the fetchmail service will check for new mail at your external mail accounts every 5 minutes.
+        # Also retrieve mail from this mail server (but via POP3).
+        # Notice how the remote username includes a full email address,
+        # Some mail servers like DMS use the full email address as the username:
+        poll 'mail.somewhere-else.com' with proto pop3 wants:
+          user 'john.doe@somewhere-else.com' with pass 'secret', is 'johnny@example.com' here
+        ```
 
-!!! example "Override default polling interval with the `FETCHMAIL_POLL` ENV"
+!!! tip "Override default polling interval with the `FETCHMAIL_POLL` ENV"
+
+    By default the fetchmail service will check every 5 minutes for new mail at the configured mail accounts.
 
     ```yaml
     environment:
@@ -157,7 +148,6 @@ docker exec -it dms-container-name setup debug fetchmail
     [A minimal `compose.yaml` example][fetchmail-compose-example] demonstrates how to run two instances of DMS locally, with one instance configured with `fetchmail.cf` and the other to simulate a remote mail server to fetch from.
 
 [fetchmail-website]: https://www.fetchmail.info
-[fetchmail-docs]: https://www.fetchmail.info/fetchmail-man.html
 [fetchmail-docs-config]: https://www.fetchmail.info/fetchmail-man.html#the-run-control-file
 [fetchmail-config-examples]: https://www.fetchmail.info/fetchmail-man.html#configuration-examples
 [fetchmail-compose-example]: https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570
