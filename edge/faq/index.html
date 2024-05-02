@@ -2169,6 +2169,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-to-restrict-login-by-ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to restrict login by IP?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-to-adjust-settings-with-the-user-patchessh-script" class="md-nav__link">
     <span class="md-ellipsis">
       How to adjust settings with the user-patches.sh script
@@ -2717,6 +2726,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-to-restrict-login-by-ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to restrict login by IP?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-to-adjust-settings-with-the-user-patchessh-script" class="md-nav__link">
     <span class="md-ellipsis">
       How to adjust settings with the user-patches.sh script
@@ -3032,6 +3050,9 @@ Few examples of symptoms can be found <a href="https://github.com/docker-mailser
 <p><a href="../config/advanced/override-defaults/user-patches/">Using <code>user-patches.sh</code></a>, update the container file <code>/etc/postfix/main.cf</code> to include:</p>
 <div class="highlight"><pre><span></span><code><span class="na">proxy_interfaces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">X.X.X.X (your public IP)</span>
 </code></pre></div>
+<p>For reverse proxy support you will want to view <a href="../examples/tutorials/mailserver-behind-proxy/">our dedicated guide</a>.</p>
+<h3 id="how-to-restrict-login-by-ip"><a class="toclink" href="#how-to-restrict-login-by-ip">How to restrict login by IP?</a></h3>
+<p>There are a few ways you could approach this, see <a href="https://github.com/orgs/docker-mailserver/discussions/3847">this discussion answer</a> for advice.</p>
 <h3 id="how-to-adjust-settings-with-the-user-patchessh-script"><a class="toclink" href="#how-to-adjust-settings-with-the-user-patchessh-script">How to adjust settings with the <code>user-patches.sh</code> script</a></h3>
 <p>Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?</p>
 <p>DMS has a built-in way to do post-install processes. If you place a script called <strong><code>user-patches.sh</code></strong> in the config directory it will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started.</p>
