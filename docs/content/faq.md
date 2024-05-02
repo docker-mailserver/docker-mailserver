@@ -291,6 +291,12 @@ mydestination = localhost.$mydomain, localhost
 proxy_interfaces = X.X.X.X (your public IP)
 ```
 
+For reverse proxy support you will want to view [our dedicated guide][docs::examples::reverse-proxy].
+
+### How to restrict login by IP?
+
+There are a few ways you could approach this, see [this discussion answer][gh-discussion::restrict-login-by-ip] for advice.
+
 ### How to adjust settings with the `user-patches.sh` script
 
 Suppose you want to change a number of settings that are not listed as variables or add things to the server that are not included?
@@ -496,6 +502,7 @@ $spam_quarantine_to       = "quarantine\@example.com";
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
 [docs::env::sa_env]: ./config/environment.md#spamassassin
 [docs::env::sa_kill]: ./config/environment.md#sa_kill
+[docs::examples::reverse-proxy]: ./examples/tutorials/mailserver-behind-proxy.md
 [github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
 [github-comment-override-hostname]: https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95
@@ -505,5 +512,6 @@ $spam_quarantine_to       = "quarantine\@example.com";
 [github-issue-1639]: https://github.com/docker-mailserver/docker-mailserver/issues/1639
 [github-issue-1792]: https://github.com/docker-mailserver/docker-mailserver/pull/1792
 [gh-discussion::dms-avoid-maintaining-internal-dns]: https://github.com/orgs/docker-mailserver/discussions/3959#discussioncomment-8956322
+[gh-discussion::restrict-login-by-ip]: https://github.com/orgs/docker-mailserver/discussions/3847
 [docker-compose::docs::config-dns]: https://docs.docker.com/compose/compose-file/compose-file-v3/#dns
 [hanscees-userpatches]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh
