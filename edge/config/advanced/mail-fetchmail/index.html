@@ -1261,39 +1261,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#imap-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      IMAP Configuration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pop3-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      POP3 Configuration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#polling-interval" class="md-nav__link">
-    <span class="md-ellipsis">
-      Polling Interval
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2141,39 +2108,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#imap-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      IMAP Configuration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pop3-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      POP3 Configuration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#polling-interval" class="md-nav__link">
-    <span class="md-ellipsis">
-      Polling Interval
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2218,7 +2152,7 @@
 
   <h1>Email Gathering with Fetchmail</h1>
 
-<p>To enable the <a href="https://www.fetchmail.info">fetchmail</a> service to retrieve e-mails set the environment variable <code>ENABLE_FETCHMAIL</code> to <code>1</code>. Your <code>compose.yaml</code> file should look like following snippet:</p>
+<p>To enable the <a href="https://www.fetchmail.info">fetchmail</a> service to retrieve e-mails, set the environment variable <code>ENABLE_FETCHMAIL</code> to <code>1</code>. Your <code>compose.yaml</code> file should look like following snippet:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FETCHMAIL=1</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FETCHMAIL_POLL=300</span>
@@ -2229,48 +2163,80 @@
 │   ├── fetchmail.cf
 │   ├── postfix-accounts.cf
 │   └── postfix-virtual.cf
-├── compose.yaml
-└── README.md
+└── compose.yaml
 </code></pre></div>
 <h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
-<p>A detailed description of the configuration options can be found in the <a href="https://www.fetchmail.info/fetchmail-man.html">online version of the manual page</a>.</p>
-<h3 id="imap-configuration"><a class="toclink" href="#imap-configuration">IMAP Configuration</a></h3>
+<p>Configuration options for <code>fetchmail.cf</code> are covered at the <a href="https://www.fetchmail.info/fetchmail-man.html#the-run-control-file">official fetchmail docs</a> (<em>see the section "The run control file" and the table with "keyword" column for all settings</em>).</p>
 <div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code>poll &#39;imap.gmail.com&#39; proto imap
-  user &#39;username&#39;
-  pass &#39;secret&#39;
-  is &#39;user1@example.com&#39;
-  ssl
+<p class="admonition-title">Basic <code>fetchmail.cf</code> configuration</p>
+<p>Retrieve mail from <code>remote-user@somewhere.com</code> and deliver it to <code>dms-user@example.com</code>:</p>
+<div class="highlight"><pre><span></span><code>poll &#39;mail.somewhere.com&#39;
+proto imap
+user &#39;remote-user&#39;
+pass &#39;secret&#39;
+is &#39;dms-user@example.com&#39;
+</code></pre></div>
+<ul>
+<li><code>poll</code> sets the remote mail server to connect to retrieve mail from.</li>
+<li><code>proto</code> lets you connect via IMAP or POP3.</li>
+<li><code>user</code> and <code>pass</code> provide the login credentials for the remote mail service account to access.</li>
+<li><code>is</code> configures where the fetched mail will be sent to (<em>eg: your local DMS account in <code>docker-data/dms/config/postfix-accounts.cf</code></em>).</li>
+</ul>
+<hr />
+<details class="warning">
+<summary><code>proto imap</code> will still delete remote mail once fetched</summary>
+<p>This is due to a separate default setting <code>no keep</code>. Adding the setting <code>keep</code> to your config on a new line will prevent deleting the remote copy.</p>
+</details>
+</div>
+<details class="example">
+<summary>Multiple users or remote servers</summary>
+<p>The official docs <a href="https://www.fetchmail.info/fetchmail-man.html#configuration-examples">config examples</a> show a common convention to indent settings on subsequent lines for visually grouping per server.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="minimal-syntax" name="__tabbed_1" type="radio" /><input id="with-optional-syntax" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="minimal-syntax">Minimal syntax</label><label for="with-optional-syntax">With optional syntax</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>poll &#39;mail.somewhere.com&#39; proto imap
+  user &#39;john.doe&#39; pass &#39;secret&#39; is &#39;johnny@example.com&#39;
+  user &#39;jane.doe&#39; pass &#39;secret&#39; is &#39;jane@example.com&#39;
+
+poll &#39;mail.somewhere-else.com&#39; proto pop3
+  user &#39;john.doe@somewhere-else.com&#39; pass &#39;secret&#39; is &#39;johnny@example.com&#39;
 </code></pre></div>
 </div>
-<h3 id="pop3-configuration"><a class="toclink" href="#pop3-configuration">POP3 Configuration</a></h3>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code>poll &#39;pop3.gmail.com&#39; proto pop3
-  user &#39;username&#39;
-  pass &#39;secret&#39;
-  is &#39;user2@example.com&#39;
-  ssl
+<div class="tabbed-block">
+<ul>
+<li><code>#</code> for adding comments.</li>
+<li>The config file may include "noise" keywords to improve readability.</li>
+</ul>
+<div class="highlight"><pre><span></span><code># Retrieve mail for users `john.doe` and `jane.doe` via IMAP at this remote mail server:
+poll &#39;mail.somewhere.com&#39; with proto imap wants:
+  user &#39;john.doe&#39; with pass &#39;secret&#39;, is &#39;johnny@example.com&#39; here
+  user &#39;jane.doe&#39; with pass &#39;secret&#39;, is &#39;jane@example.com&#39; here
+
+# Also retrieve mail from this mail server (but via POP3).
+# NOTE: This could also be all on a single line, or with each key + value as a separate line.
+# Notice how the remote username includes a full email address,
+# Some mail servers like DMS use the full email address as the username:
+poll &#39;mail.somewhere-else.com&#39; with proto pop3 wants:
+  user &#39;john.doe@somewhere-else.com&#39; with pass &#39;secret&#39;, is &#39;johnny@example.com&#39; here
 </code></pre></div>
 </div>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>Don’t forget the last line! (<em>eg: <code>is 'user1@example.com'</code></em>). After <code>is</code>, you have to specify an email address from the configuration file: <code>docker-data/dms/config/postfix-accounts.cf</code>.</p>
 </div>
-<p>More details how to configure fetchmail can be found in the <a href="https://www.fetchmail.info/fetchmail-man.html#31">fetchmail man page in the chapter “The run control file”</a>.</p>
-<h3 id="polling-interval"><a class="toclink" href="#polling-interval">Polling Interval</a></h3>
-<p>By default the fetchmail service searches every 5 minutes for new mails on your external mail accounts. You can override this default value by changing the ENV variable <code>FETCHMAIL_POLL</code>:</p>
+</div>
+</details>
+<div class="admonition tip">
+<p class="admonition-title"><code>FETCHMAIL_POLL</code> ENV: Override default polling interval</p>
+<p>By default the fetchmail service will check every 5 minutes for new mail at the configured mail accounts.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FETCHMAIL_POLL=60</span>
+<span class="w">  </span><span class="c1"># The fetchmail polling interval in seconds:</span>
+<span class="w">  </span><span class="nt">FETCHMAIL_POLL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
 </code></pre></div>
-<p>You must specify a numeric argument which is a polling interval in seconds. The example above polls every minute for new mails.</p>
+</div>
 <h2 id="debugging"><a class="toclink" href="#debugging">Debugging</a></h2>
-<p>To debug your <code>fetchmail.cf</code> configuration run this command:</p>
-<div class="highlight"><pre><span></span><code>./setup.sh<span class="w"> </span>debug<span class="w"> </span>fetchmail
+<p>To debug your <code>fetchmail.cf</code> configuration run this <code>setup debug</code> command:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>dms-container-name<span class="w"> </span>setup<span class="w"> </span>debug<span class="w"> </span>fetchmail
 </code></pre></div>
-<p>For more information about the configuration script <code>setup.sh</code> <a href="../../setup.sh/">read the corresponding docs</a>.</p>
-<p>Here a sample output of <code>./setup.sh debug fetchmail</code>:</p>
+<details class="example">
+<summary>Sample output of <code>setup debug fetchmail</code></summary>
 <div class="highlight"><pre><span></span><code><span class="go">fetchmail: 6.3.26 querying outlook.office365.com (protocol POP3) at Mon Aug 29 22:11:09 2016: poll started</span>
 <span class="go">Trying to connect to 132.245.48.18/995...connected.</span>
 <span class="go">fetchmail: Server certificate:</span>
@@ -2309,6 +2275,11 @@
 <span class="go">fetchmail: 6.3.26 querying outlook.office365.com (protocol POP3) at Mon Aug 29 22:11:11 2016: poll completed</span>
 <span class="go">fetchmail: normal termination, status 1</span>
 </code></pre></div>
+</details>
+<div class="admonition tip">
+<p class="admonition-title">Troubleshoot with this reference <code>compose.yaml</code></p>
+<p><a href="https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570">A minimal <code>compose.yaml</code> example</a> demonstrates how to run two instances of DMS locally, with one instance configured with <code>fetchmail.cf</code> and the other to simulate a remote mail server to fetch from.</p>
+</div>
 
 
 
