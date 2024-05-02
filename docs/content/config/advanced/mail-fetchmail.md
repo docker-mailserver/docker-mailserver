@@ -44,31 +44,29 @@ Configuration options for `fetchmail.cf` are covered at the [official fetchmail 
 
     ---
 
-    !!! warning "`proto imap` will still delete remote mail once fetched"
+    ??? warning "`proto imap` will still delete remote mail once fetched"
 
         This is due to a separate default setting `no keep`. Adding the setting `keep` to your config on a new line will prevent deleting the remote copy.
 
 ??? example "Multiple users or remote servers"
 
-    The official docs [config examples][fetchmail-config-examples] show a common convention to indent settings on subsequent lines for a visual grouping per server.
-
-    The config file also allows for some optional "noise" keywords, and `#` for adding comments.
+    The official docs [config examples][fetchmail-config-examples] show a common convention to indent settings on subsequent lines for visually grouping per server.
 
     === "Minimal syntax"
 
         ```fetchmailrc
-        # Retrieve mail for users `john.doe` and `jane.doe` via IMAP at this remote mail server:
         poll 'mail.somewhere.com' proto imap
           user 'john.doe' pass 'secret' is 'johnny@example.com'
           user 'jane.doe' pass 'secret' is 'jane@example.com'
 
-        # Also retrieve mail from this mail server (but via POP3):
-        # NOTE: This could also be all on a single line, or each key + value as a separate line.
         poll 'mail.somewhere-else.com' proto pop3
           user 'john.doe@somewhere-else.com' pass 'secret' is 'johnny@example.com'
         ```
 
     === "With optional syntax"
+
+        - `#` for adding comments.
+        - The config file may include "noise" keywords to improve readability.
 
         ```fetchmailrc
         # Retrieve mail for users `john.doe` and `jane.doe` via IMAP at this remote mail server:
@@ -77,13 +75,14 @@ Configuration options for `fetchmail.cf` are covered at the [official fetchmail 
           user 'jane.doe' with pass 'secret', is 'jane@example.com' here
 
         # Also retrieve mail from this mail server (but via POP3).
+        # NOTE: This could also be all on a single line, or with each key + value as a separate line.
         # Notice how the remote username includes a full email address,
         # Some mail servers like DMS use the full email address as the username:
         poll 'mail.somewhere-else.com' with proto pop3 wants:
           user 'john.doe@somewhere-else.com' with pass 'secret', is 'johnny@example.com' here
         ```
 
-!!! tip "Override default polling interval with the `FETCHMAIL_POLL` ENV"
+!!! tip "`FETCHMAIL_POLL` ENV: Override default polling interval"
 
     By default the fetchmail service will check every 5 minutes for new mail at the configured mail accounts.
 
