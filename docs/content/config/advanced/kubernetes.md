@@ -152,7 +152,7 @@ If using our Helm chart is not viable for you, here is some guidance to start wi
                   targetPort: smtp
                   protocol: TCP
                 # submissions (ESMTP with implicit TLS)
-                - name: submission
+                - name: submissions
                   port: 465
                   targetPort: submissions
                   protocol: TCP
