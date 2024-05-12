@@ -273,6 +273,7 @@ EOF
 # -----------------------------------------------
 
 COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
+COPY target/logwatch/ignore.conf /etc/logwatch/conf/ignore.conf
 
 # -----------------------------------------------
 # --- Supervisord & Start -----------------------
