@@ -70,7 +70,10 @@ function _setup_save_states() {
         rm -rf "${SERVICEDIR}"
       elif [[ -d ${SERVICEDIR} ]]; then
         _log 'trace' "Moving contents of ${SERVICEDIR} to ${DEST}"
-        # Empty volume was mounted, or new content from enabling a feature ENV:
+        # An empty volume was mounted, or new content exists from enabling a feature ENV:
+        # Ensure the original directory exists before mv, otherwise with nothing to move
+        # the symlink created afterwards is invalid.
+        mkdir -p "${SERVICEDIR}"
         mv "${SERVICEDIR}" "${DEST}"
         # Apply SELinux security context to match the state directory, so access
         # is not restricted to the current running container:
