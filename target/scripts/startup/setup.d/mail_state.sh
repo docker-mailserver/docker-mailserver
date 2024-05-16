@@ -70,14 +70,13 @@ function _setup_save_states() {
         rm -rf "${SERVICEDIR}"
       elif [[ -d ${SERVICEDIR} ]]; then
         _log 'trace' "Moving contents of ${SERVICEDIR} to ${DEST}"
-        # An empty volume was mounted, or new content exists from enabling a feature ENV:
-        # Ensure the original directory exists before mv, otherwise with nothing to move
-        # the symlink created afterwards is invalid.
-        mkdir -p "${SERVICEDIR}"
+        # An empty volume was mounted, or new content dir now exists from enabling a feature ENV:
         mv "${SERVICEDIR}" "${DEST}"
         # Apply SELinux security context to match the state directory, so access
         # is not restricted to the current running container:
         chcon -R --reference="${STATEDIR}" "${DEST}" 2>/dev/null || true
+      else
+        _log 'error' "${SERVICEDIR} should exist but is missing"
       fi
 
       # Symlink the original path in the container ($SERVICEDIR) to be

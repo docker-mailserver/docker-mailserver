@@ -31,6 +31,10 @@ function _setup_getmail() {
 EOF
       chmod -R 600 "${GETMAILRC}"
     fi
+
+    # Both the debug command and cron job (that runs getmail) for getmail
+    # expect this location to exist. As does the `/var/mail-state` startup script.
+    mkdir -p /var/lib/getmail
   else
     _log 'debug' 'Getmail is disabled'
   fi
