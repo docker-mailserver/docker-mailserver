@@ -302,9 +302,7 @@ The DMARC status may not be displayed instantly due to delays in DNS (caches). D
 
     [Source][wikipedia-spf]
 
-!!! note "Disabling `policyd-spf`?"
-
-    As of now, `policyd-spf` cannot be disabled. This is WIP.
+You may disable extra and excessive SPF checks when using Rspamd via ENABLE_POLICYD_SPF=0.
 
 ### Adding an SPF Record
 
