@@ -302,7 +302,11 @@ The DMARC status may not be displayed instantly due to delays in DNS (caches). D
 
     [Source][wikipedia-spf]
 
-You may disable extra and excessive SPF checks when using Rspamd via ENABLE_POLICYD_SPF=0.
+!!! tip "Disabling the default SPF service `policy-spf`"
+
+    Set [`ENABLE_POLICYD_SPF=0`][docs-env-spf-policyd] to opt-out of the default SPF service. Advised when Rspamd is configured to handle SPF instead.
+    
+[docs-env-spf-policyd]: ../environment.md#enable_policyd_spf
 
 ### Adding an SPF Record
 
