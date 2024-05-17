@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.21">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.23">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -2550,9 +2550,9 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <p>Sender Policy Framework (SPF) is a simple email-validation system designed to detect email spoofing by providing a mechanism to allow receiving mail exchangers to check that incoming mail from a domain comes from a host authorized by that domain's administrators.</p>
 <p><a href="https://en.wikipedia.org/wiki/Sender_Policy_Framework">Source</a></p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Disabling <code>policyd-spf</code>?</p>
-<p>As of now, <code>policyd-spf</code> cannot be disabled. This is WIP.</p>
+<div class="admonition tip">
+<p class="admonition-title">Disabling the default SPF service <code>policy-spf</code></p>
+<p>Set <a href="../../environment/#enable_policyd_spf"><code>ENABLE_POLICYD_SPF=0</code></a> to opt-out of the default SPF service. Advised when Rspamd is configured to handle SPF instead.</p>
 </div>
 <h3 id="adding-an-spf-record"><a class="toclink" href="#adding-an-spf-record">Adding an SPF Record</a></h3>
 <p>To add a SPF record in your DNS, insert the following line in your DNS zone:</p>
@@ -2636,7 +2636,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.a7c05c9e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.ebd0bdb7.min.js"></script>
       
     
   </body>
