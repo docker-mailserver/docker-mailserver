@@ -7,13 +7,7 @@ source /usr/local/bin/setup.d/getmail.sh
 
 _setup_getmail
 
-if [[ -d /var/lib/getmail ]]; then
-  GETMAILDIR=/var/lib/getmail
-else
-  mkdir -p /tmp/docker-mailserver/getmail
-  GETMAILDIR=/tmp/docker-mailserver/getmail
-fi
-
+GETMAILDIR=/tmp/docker-mailserver/getmail
 for FILE in /etc/getmailrc.d/getmailrc*; do
   getmail --getmaildir "${GETMAILDIR}" --rcfile "${FILE}" --dump | tail -n +6
 done

@@ -33,8 +33,9 @@ EOF
     fi
 
     # Both the debug command and cron job (that runs getmail) for getmail
-    # expect this location to exist. As does the `/var/mail-state` startup script.
-    mkdir -p /var/lib/getmail
+    # expect this location to exist.
+    GETMAILDIR=/tmp/docker-mailserver/getmail
+    mkdir -p "${GETMAILDIR}"
   else
     _log 'debug' 'Getmail is disabled'
   fi
