@@ -302,9 +302,9 @@ The DMARC status may not be displayed instantly due to delays in DNS (caches). D
 
     [Source][wikipedia-spf]
 
-!!! note "Disabling `policyd-spf`?"
+!!! tip "Disabling the default SPF service `policy-spf`"
 
-    As of now, `policyd-spf` cannot be disabled. This is WIP.
+    Set [`ENABLE_POLICYD_SPF=0`][docs-env-spf-policyd] to opt-out of the default SPF service. Advised when Rspamd is configured to handle SPF instead.
 
 ### Adding an SPF Record
 
@@ -348,6 +348,7 @@ volumes:
 [docs-volumes-config]: ../advanced/optional-config.md#volumes-config
 [docs-env-opendkim]: ../environment.md#enable_opendkim
 [docs-env-rspamd]: ../environment.md#enable_rspamd
+[docs-env-spf-policyd]: ../environment.md#enable_policyd_spf
 [docs-rspamd-config-dropin]: ../security/rspamd.md#manually
 [cloudflare-dkim-dmarc-spf]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
 [rfc-8301]: https://datatracker.ietf.org/doc/html/rfc8301#section-3.2
