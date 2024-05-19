@@ -23,7 +23,6 @@ function _setup_save_states() {
     [[ ${ENABLE_CLAMAV}       -eq 1 ]] && SERVICEDIRS+=('lib/clamav')
     [[ ${ENABLE_FAIL2BAN}     -eq 1 ]] && SERVICEDIRS+=('lib/fail2ban')
     [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && SERVICEDIRS+=('lib/fetchmail')
-    [[ ${ENABLE_GETMAIL}      -eq 1 ]] && SERVICEDIRS+=('lib/getmail')
     [[ ${ENABLE_MTA_STS}      -eq 1 ]] && SERVICEDIRS+=('lib/mta-sts')
     [[ ${ENABLE_POSTGREY}     -eq 1 ]] && SERVICEDIRS+=('lib/postgrey')
     [[ ${ENABLE_RSPAMD}       -eq 1 ]] && SERVICEDIRS+=('lib/rspamd')
@@ -70,11 +69,13 @@ function _setup_save_states() {
         rm -rf "${SERVICEDIR}"
       elif [[ -d ${SERVICEDIR} ]]; then
         _log 'trace' "Moving contents of ${SERVICEDIR} to ${DEST}"
-        # Empty volume was mounted, or new content from enabling a feature ENV:
+        # An empty volume was mounted, or new content dir now exists from enabling a feature ENV:
         mv "${SERVICEDIR}" "${DEST}"
         # Apply SELinux security context to match the state directory, so access
         # is not restricted to the current running container:
         chcon -R --reference="${STATEDIR}" "${DEST}" 2>/dev/null || true
+      else
+        _log 'error' "${SERVICEDIR} should exist but is missing"
       fi
 
       # Symlink the original path in the container ($SERVICEDIR) to be

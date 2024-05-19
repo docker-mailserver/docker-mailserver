@@ -109,6 +109,7 @@ The most noteworthy change of this release is the update of the container's base
 - Rspamd configuration: Add a missing comma in `local_networks` so that all internal IP addresses are actually considered as internal ([#3862](https://github.com/docker-mailserver/docker-mailserver/pull/3862))
 - Ensure correct SELinux security context labels for files and directories moved to the mail-state volume during setup ([#3890](https://github.com/docker-mailserver/docker-mailserver/pull/3890))
 - Use correct environment variable for fetchmail ([#3901](https://github.com/docker-mailserver/docker-mailserver/pull/3901))
+- When using `ENABLE_GETMAIL=1` the undocumented internal location `/var/lib/getmail/` usage has been removed. Only the config volume `/tmp/docker-mailserver/getmail/` location is supported when Getmail has not been configured to deliver mail to Dovecot as advised in the DMS docs ([#4018](https://github.com/docker-mailserver/docker-mailserver/pull/4018))
 - Dovecot dummy accounts (_virtual alias workaround for dovecot feature `ENABLE_QUOTAS=1`_) now correctly matches the home location of the user for that alias ([#3997](https://github.com/docker-mailserver/docker-mailserver/pull/3997))
 
 ## [v13.3.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.3.1)

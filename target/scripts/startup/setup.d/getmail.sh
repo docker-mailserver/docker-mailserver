@@ -31,6 +31,11 @@ function _setup_getmail() {
 EOF
       chmod -R 600 "${GETMAILRC}"
     fi
+
+    # Both the debug command and cron job (that runs getmail) for getmail
+    # expect this location to exist.
+    GETMAILDIR=/tmp/docker-mailserver/getmail
+    mkdir -p "${GETMAILDIR}"
   else
     _log 'debug' 'Getmail is disabled'
   fi
