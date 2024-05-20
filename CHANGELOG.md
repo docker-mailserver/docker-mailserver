@@ -10,6 +10,9 @@ The most noteworthy change of this release is the update of the container's base
 
 ### Breaking
 
+- **Dropped Solr**
+  - The image used in our setup is now 2 years old and doesn't support our supported architectures (namely `arm64`). The official image proved really hard to set up as even the official base config from dovecot didn't work. The fact that noone noticed this means that there's little to no usage of this tool in DMS.
+
 - **Updated base image to Debian 12** ([#3403](https://github.com/docker-mailserver/docker-mailserver/pull/3403))
   - Changed the default of `DOVECOT_COMMUNITY_REPO` to `0` (disabled) - the Dovecot community repo will (for now) not be the default when building the DMS.
     - While Debian 12 (Bookworm) was released in June 2023 and the latest Dovecot `2.3.21` in Sep 2023, as of Jan 2024 there is no [Dovecot community repo available for Debian 12](https://repo.dovecot.org).
