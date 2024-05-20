@@ -92,7 +92,8 @@ Rspamd provides a [web interface][rspamd-docs::web-interface], which contains st
 
 ![Rspamd Web Interface](https://rspamd.com/img/webui.png)
 
-To use the web interface you will need to configure a password, otherwise you won't be able to log in.
+To use the web interface you will need to configure a password, [otherwise you won't be able to log in][rspamd-docs::web-ui::password].
+[rspamd-docs::web-ui::password]: https://www.rspamd.com/doc/tutorials/quickstart.html#setting-the-controller-password
 
 ??? example "Set a custom password"
 
@@ -105,7 +106,7 @@ To use the web interface you will need to configure a password, otherwise you wo
     The password hash can be generated via the `rspamadm pw` command:
 
     ```bash
-    docker exec -it dms rspamadm pw
+    docker exec -it <CONTAINER_NAME> rspamadm pw
     ```
 
 ### DNS
