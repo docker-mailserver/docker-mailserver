@@ -135,7 +135,7 @@ function _install_dovecot() {
   local DOVECOT_PACKAGES=(
     dovecot-core dovecot-imapd
     dovecot-ldap dovecot-lmtpd dovecot-managesieved
-    dovecot-pop3d dovecot-sieve dovecot-solr
+    dovecot-pop3d dovecot-sieve
   )
 
   # Dovecot packages for community supported features.
