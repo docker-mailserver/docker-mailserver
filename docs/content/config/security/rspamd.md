@@ -84,13 +84,29 @@ When Rspamd is enabled, we implicitly also start an instance of Redis in the con
 Redis uses `/etc/redis/redis.conf` for configuration:
 
 - We adjust this file when enabling the internal Redis service.
-- If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV [`ENABLE_RSPAMD_REDIS=0`](../environment.md#enable_rspamd_redis) (_link also details required changes to the DMS Rspamd config_).
+- If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV [`ENABLE_RSPAMD_REDIS=0`][docs::env::enable-redis] (_link also details required changes to the DMS Rspamd config_).
 
 ### Web Interface
 
-Rspamd provides a [web interface][rspamd-docs::web-interface], which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.
+Rspamd provides a [web interface][rspamd-docs::web-ui], which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.
 
 ![Rspamd Web Interface](https://rspamd.com/img/webui.png)
+
+To use the web interface you will need to configure a password, [otherwise you won't be able to log in][rspamd-docs::web-ui::password].
+
+??? example "Set a custom password"
+
+    Add this line to [your rspamd `custom-commands.conf` config](#with-the-help-of-a-custom-file) which sets the `password` option of the _controller worker_:
+
+    ```
+    set-option-for-controller password "your hashed password here"
+    ```
+
+    The password hash can be generated via the `rspamadm pw` command:
+
+    ```bash
+    docker exec -it <CONTAINER_NAME> rspamadm pw
+    ```
 
 ### DNS
 
@@ -126,13 +142,13 @@ You can choose to enable ClamAV, and Rspamd will then use it to check for viruse
 
 #### RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)
 
-The [RBL module](https://rspamd.com/doc/modules/rbl.html) is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body \[[source][www::rbl-vs-dnsbl]\].
+The [RBL module][rspamd-docs::modules::rbl] is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body \[[source][www::rbl-vs-dnsbl]\].
 
 !!! danger "Rspamd and DNS Block Lists"
 
     When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.
 
-    If you want to use DNSBLs, **try to use your own DNS resolver** and make sure it is set up correctly, i.e. it should be a non-public & **recursive** resolver. Otherwise, you might not be able ([see this Spamhaus post](https://www.spamhaus.org/faq/section/DNSBL%20Usage#365)) to make use of the block lists.
+    If you want to use DNSBLs, **try to use your own DNS resolver** and make sure it is set up correctly, i.e. it should be a non-public & **recursive** resolver. Otherwise, you might not be able ([see this Spamhaus post][spamhaus::faq::dnsbl-usage]) to make use of the block lists.
 
 ## Providing Custom Settings & Overriding Settings
 
@@ -247,8 +263,10 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [rspamd-web]: https://rspamd.com/
 [rspamd-docs::bayes]: https://rspamd.com/doc/configuration/statistic.html
 [rspamd-docs::proxy-self-scan-mode]: https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode
-[rspamd-docs::web-interface]: https://rspamd.com/webui/
+[rspamd-docs::web-ui]: https://rspamd.com/webui/
+[rspamd-docs::web-ui::password]: https://www.rspamd.com/doc/tutorials/quickstart.html#setting-the-controller-password
 [rspamd-docs::modules]: https://rspamd.com/doc/modules/
+[rspamd-docs::modules::rbl]: https://rspamd.com/doc/modules/rbl.html
 [rspamd-docs::override-dir]: https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 [rspamd-docs::config-directories]: https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 [rspamd-docs::basic-options]: https://rspamd.com/doc/configuration/options.html
@@ -256,10 +274,12 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [www::rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&comment=119818
 [abusix-web]: https://abusix.com/
 [abusix-docs::rspamd-integration]: https://docs.abusix.com/abusix-mail-intelligence/gbG8EcJ3x3fSUv8cMZLiwA/getting-started/dmw9dcwSGSNQiLTssFAnBW#rspamd
+[spamhaus::faq::dnsbl-usage]: https://www.spamhaus.org/faq/section/DNSBL%20Usage#365
 
 [dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/blob/v14.0.0/target/rspamd/local.d/actions.conf
 [dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd
 
+[docs::env::enable-redis]: ../environment.md#enable_rspamd_redis
 [docs::spam-to-junk]: ../environment.md#move_spam_to_junk
 [docs::dkim-dmarc-spf]: ../best-practices/dkim_dmarc_spf.md
 [docs::dkim-with-rspamd]: ../best-practices/dkim_dmarc_spf.md#dkim
