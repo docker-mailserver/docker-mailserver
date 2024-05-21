@@ -140,6 +140,5 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 #### Further Discussion
 
 See [#905](https://github.com/docker-mailserver/docker-mailserver/issues/905)
-See [#4024](https://github.com/docker-mailserver/docker-mailserver/issues/4024)
 
 [docs-faq-sa-learn-cron]: ../../faq.md#how-can-i-make-spamassassin-better-recognize-spam
