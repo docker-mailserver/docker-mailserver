@@ -70,6 +70,8 @@ The most noteworthy change of this release is the update of the container's base
   - `supervisor-app.conf` renamed to `dms-services.conf`
 - **Rspamd**:
   - the Redis history key has been changed in order to not incorporate the hostname of the container (which is desirable in Kubernetes environments) ([#3927](https://github.com/docker-mailserver/docker-mailserver/pull/3927))
+- **Account Management**
+  - addresses (accounts) are now normalized to lowercase automatically and a warning is logged in case uppercase letters are supplied
 
 ### Added
 
