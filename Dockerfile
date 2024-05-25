@@ -82,8 +82,8 @@ EOF
 
 # install fts_xapian plugin
 
-COPY --from=stage-compile dovecot-fts-xapian-1.5.5_1.5.5_*.deb /
-RUN dpkg -i /dovecot-fts-xapian-1.5.5_1.5.5_*.deb && rm /dovecot-fts-xapian-1.5.5_1.5.5_*.deb
+COPY --from=stage-compile dovecot-fts-xapian-1.7.12_1.7.12_*.deb /
+RUN dpkg -i /dovecot-fts-xapian-1.7.12_1.7.12_*.deb && rm /dovecot-fts-xapian-1.7.12_1.7.12_*.deb
 
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
