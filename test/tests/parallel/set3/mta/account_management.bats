@@ -74,6 +74,19 @@ function teardown_file() { _default_teardown ; }
   __should_add_new_user 'user3@domain.tld'
 }
 
+@test "should add new user 'USeRx@domain.tld' as 'userx@domain.tld' into 'postfix-accounts.cf' and log a warning" {
+  local MAIL_ACCOUNT='USeRx@domain.tld'
+  local NORMALIZED_MAIL_ACCOUNT='userx@domain.tld'
+
+  _run_in_container setup email add "${MAIL_ACCOUNT}" mypassword
+  assert_success
+  assert_output --partial "'USeRx@domain.tld' has uppercase letters and will be normalized to 'userx@domain.tld'"
+
+  __check_mail_account_exists "${NORMALIZED_MAIL_ACCOUNT}"
+  assert_success
+  assert_output "${NORMALIZED_MAIL_ACCOUNT}"
+}
+
 # To catch mistakes from substring matching:
 @test "should add new user 'auser3@domain.tld' into 'postfix-accounts.cf'" {
   __should_add_new_user 'auser3@domain.tld'
