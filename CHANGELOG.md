@@ -70,6 +70,8 @@ The most noteworthy change of this release is the update of the container's base
   - `supervisor-app.conf` renamed to `dms-services.conf`
 - **Rspamd**:
   - the Redis history key has been changed in order to not incorporate the hostname of the container (which is desirable in Kubernetes environments) ([#3927](https://github.com/docker-mailserver/docker-mailserver/pull/3927))
+- **Log**:
+  - the log level format was updated; the new format is `<ISO 8601 TIMESTAMP>  <LOG LEVEL>  <WHO LOGGED>: <MESSAGE>`
 
 ### Added
 
