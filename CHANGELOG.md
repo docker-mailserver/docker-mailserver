@@ -100,6 +100,7 @@ The most noteworthy change of this release is the update of the container's base
   - The symbol weights of SPF, DKIM and DMARC have been adjusted again. Fixes a bug and includes more appropriate combinations of symbols ([#3913](https://github.com/docker-mailserver/docker-mailserver/pull/3913), [#3923](https://github.com/docker-mailserver/docker-mailserver/pull/3923))
 - **Dovecot:**
   - `logwatch` now filters out non-error logs related to the status of the `index-worker` process for FTS indexing. ([#4012](https://github.com/docker-mailserver/docker-mailserver/pull/4012))
+  - updated FTS Xapian from version 1.5.5 to 1.7.12
 
 ### Fixes
 
