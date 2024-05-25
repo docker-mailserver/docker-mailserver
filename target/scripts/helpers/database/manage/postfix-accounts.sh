@@ -13,6 +13,7 @@ function _manage_accounts() {
   local PASSWD=${4}
 
   _arg_expect_mail_account
+  _arg_check_mail_account
 
   case "${ACTION}" in
     ( 'create' | 'update' )
@@ -67,6 +68,15 @@ function _arg_expect_mail_account() {
 
   # Account has both local and domain parts:
   [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "'${MAIL_ACCOUNT}' should include the domain (eg: user@example.com)" ; }
+}
+
+# Checks the mail account string, e.g. on uppercase letters.
+function _arg_check_mail_account() {
+  if grep -q -E '[[:upper:]]+' <<< "${MAIL_ACCOUNT}"; then
+    local MAIL_ACCOUNT_NORMALIZED=${MAIL_ACCOUNT,,}
+    _log 'warn' "Mail account '${MAIL_ACCOUNT}' has uppercase letters and will be normalized to '${MAIL_ACCOUNT_NORMALIZED}'"
+    MAIL_ACCOUNT=${MAIL_ACCOUNT_NORMALIZED}
+  fi
 }
 
 function _account_should_not_exist_yet() {
