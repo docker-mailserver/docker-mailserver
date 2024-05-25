@@ -73,7 +73,7 @@ function _arg_expect_mail_account() {
 # Checks the mail account string, e.g. on uppercase letters.
 function _arg_check_mail_account() {
   if grep -q -E '[[:upper:]]+' <<< "${MAIL_ACCOUNT}"; then
-    MAIL_ACCOUNT_NORMALIZED=${MAIL_ACCOUNT,,}
+    local MAIL_ACCOUNT_NORMALIZED=${MAIL_ACCOUNT,,}
     _log 'warn' "Mail account '${MAIL_ACCOUNT}' has uppercase letters and will be normalized to '${MAIL_ACCOUNT_NORMALIZED}'"
     MAIL_ACCOUNT=${MAIL_ACCOUNT_NORMALIZED}
   fi
