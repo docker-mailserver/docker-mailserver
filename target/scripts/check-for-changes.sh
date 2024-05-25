@@ -7,7 +7,7 @@
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
-_log_with_date 'debug' 'Starting changedetector'
+_log 'debug' 'Starting changedetector'
 
 # ATTENTION: Do not remove!
 # This script requires some environment variables to be properly set.
@@ -30,9 +30,9 @@ if [[ ! -f ${CHKSUM_FILE} ]]; then
   _exit_with_error "'${CHKSUM_FILE}' is missing" 0
 fi
 
-_log_with_date 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
+_log 'trace' "Using postmaster address '${POSTMASTER_ADDRESS}'"
 
-_log_with_date 'debug' "Changedetector is ready"
+_log 'debug' "Changedetector is ready"
 
 function _check_for_changes() {
   # get chksum and check it, no need to lock config yet
@@ -44,7 +44,7 @@ function _check_for_changes() {
   # 1 – files differ
   # 2 – inaccessible or missing argument
   if [[ ${?} -eq 1 ]]; then
-    _log_with_date 'info' 'Change detected'
+    _log 'info' 'Change detected'
     _create_lock # Shared config safety lock
 
     local CHANGED
@@ -52,7 +52,7 @@ function _check_for_changes() {
     _handle_changes
 
     _remove_lock
-    _log_with_date 'debug' 'Completed handling of detected change'
+    _log 'debug' 'Completed handling of detected change'
 
     # mark changes as applied
     mv "${CHKSUM_FILE}.new" "${CHKSUM_FILE}"
@@ -64,7 +64,7 @@ function _handle_changes() {
   local VHOST_UPDATED=0
   # These two configs are the source for /etc/postfix/vhost (managed mail domains)
   if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-(accounts|virtual).cf ]]; then
-    _log_with_date 'trace' 'Regenerating vhosts (Postfix)'
+    _log 'trace' 'Regenerating vhosts (Postfix)'
     # Regenerate via `helpers/postfix.sh`:
     _create_postfix_vhost
 
@@ -75,7 +75,7 @@ function _handle_changes() {
   _postfix_dovecot_changes
   _rspamd_changes
 
-  _log_with_date 'debug' 'Reloading services due to detected changes'
+  _log 'debug' 'Reloading services due to detected changes'
 
   [[ ${ENABLE_AMAVIS} -eq 1 ]] && _reload_amavis
   _reload_postfix
@@ -119,7 +119,7 @@ function _postfix_dovecot_changes() {
   || [[ ${CHANGED} =~ ${DMS_DIR}/dovecot-quotas.cf   ]] \
   || [[ ${CHANGED} =~ ${DMS_DIR}/dovecot-masters.cf  ]]
   then
-    _log_with_date 'trace' 'Regenerating accounts (Dovecot + Postfix)'
+    _log 'trace' 'Regenerating accounts (Dovecot + Postfix)'
     [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
   fi
 
@@ -131,7 +131,7 @@ function _postfix_dovecot_changes() {
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-relaymap.cf      ]] \
   || [[ ${CHANGED} =~ ${DMS_DIR}/postfix-sasl-password.cf ]]
   then
-    _log_with_date 'trace' 'Regenerating relay config (Postfix)'
+    _log 'trace' 'Regenerating relay config (Postfix)'
     _process_relayhost_configs
   fi
 
@@ -159,14 +159,14 @@ function _ssl_changes() {
     || [[ ${CHANGED} =~ ${SSL_ALT_CERT_PATH:-${REGEX_NEVER_MATCH}} ]] \
     || [[ ${CHANGED} =~ ${SSL_ALT_KEY_PATH:-${REGEX_NEVER_MATCH}} ]]
     then
-      _log_with_date 'debug' 'Manual certificates have changed - extracting certificates'
+      _log 'debug' 'Manual certificates have changed - extracting certificates'
       _setup_ssl
     fi
   # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
   # When a change is detected it's assumed to be a possible cert renewal that needs to be
   # extracted for `docker-mailserver` services to adjust to.
   elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]; then
-    _log_with_date 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
+    _log 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
     _setup_ssl
 
     # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
@@ -188,23 +188,23 @@ function _rspamd_changes() {
 
     # "${RSPAMD_DMS_D}/override.d"
     if [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]]; then
-      _log_with_date 'trace' 'Rspamd - Copying configuration overrides'
+      _log 'trace' 'Rspamd - Copying configuration overrides'
       rm "${RSPAMD_OVERRIDE_D}"/*
       cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
     fi
 
     # "${RSPAMD_DMS_D}/custom-commands.conf"
     if [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]]; then
-      _log_with_date 'trace' 'Rspamd - Generating new configuration from custom commands'
+      _log 'trace' 'Rspamd - Generating new configuration from custom commands'
       _rspamd_handle_user_modules_adjustments
     fi
 
     # "${RSPAMD_DMS_D}/dkim"
     if [[ ${CHANGED} =~ ${RSPAMD_DMS_DKIM_D} ]]; then
-      _log_with_date 'trace' 'Rspamd - DKIM files updated'
+      _log 'trace' 'Rspamd - DKIM files updated'
     fi
 
-    _log_with_date 'debug' 'Rspamd configuration has changed - restarting service'
+    _log 'debug' 'Rspamd configuration has changed - restarting service'
     supervisorctl restart rspamd
   fi
 }

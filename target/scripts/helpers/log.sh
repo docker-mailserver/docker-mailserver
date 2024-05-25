@@ -110,11 +110,6 @@ function _log() {
   fi
 }
 
-# Like `_log` but adds a timestamp in front of the message.
-function _log_with_date() {
-  _log "${1}" "$(date '+%Y-%m-%d %H:%M:%S')  ${2}"
-}
-
 # Get the value of the environment variable LOG_LEVEL if
 # it is set. Otherwise, try to query the common environment
 # variables file. If this does not yield a value either,
