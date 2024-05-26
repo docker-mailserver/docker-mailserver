@@ -72,6 +72,8 @@ The most noteworthy change of this release is the update of the container's base
   - the Redis history key has been changed in order to not incorporate the hostname of the container (which is desirable in Kubernetes environments) ([#3927](https://github.com/docker-mailserver/docker-mailserver/pull/3927))
 - **Log**:
   - the log level format was updated; the new format is `<ISO 8601 TIMESTAMP>  <LOG LEVEL>  <WHO LOGGED>: <MESSAGE>`
+- **Account Management**
+  - addresses (accounts) are now normalized to lowercase automatically and a warning is logged in case uppercase letters are supplied
 
 ### Added
 
@@ -100,6 +102,7 @@ The most noteworthy change of this release is the update of the container's base
   - The symbol weights of SPF, DKIM and DMARC have been adjusted again. Fixes a bug and includes more appropriate combinations of symbols ([#3913](https://github.com/docker-mailserver/docker-mailserver/pull/3913), [#3923](https://github.com/docker-mailserver/docker-mailserver/pull/3923))
 - **Dovecot:**
   - `logwatch` now filters out non-error logs related to the status of the `index-worker` process for FTS indexing. ([#4012](https://github.com/docker-mailserver/docker-mailserver/pull/4012))
+  - updated FTS Xapian from version 1.5.5 to 1.7.12
 
 ### Fixes
 
