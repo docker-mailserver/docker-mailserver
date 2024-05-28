@@ -100,7 +100,7 @@ function _log() {
       ;;
   esac
 
-  MESSAGE="$(date --iso-8601='seconds') ${!LOG_COLOR}${LOG_LEVEL_NAME}${RESET} $(basename "${0}"): ${2}"
+  MESSAGE="$(date --rfc-3339='seconds') ${!LOG_COLOR}${LOG_LEVEL_NAME}${RESET} $(basename "${0}"): ${2}"
 
   if [[ ${1} =~ ^(warn|error)$ ]]; then
     echo -e "${MESSAGE}" >&2
