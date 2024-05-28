@@ -79,12 +79,14 @@ function _log() {
     ( 'info' )
       [[ ${LEVEL_AS_INT} -ge 3 ]] || return 0
       LOG_COLOR='BLUE'
+      # the whitespace is intentional (for alignment purposes)
       LOG_LEVEL_NAME='INFO '
       ;;
 
     ( 'warn' )
       [[ ${LEVEL_AS_INT} -ge 2 ]] || return 0
       LOG_COLOR='LYELLOW'
+      # the whitespace is intentional (for alignment purposes)
       LOG_LEVEL_NAME='WARN '
       ;;
 
