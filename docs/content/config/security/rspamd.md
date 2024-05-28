@@ -273,7 +273,7 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 
 [www::rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&comment=119818
 [abusix-web]: https://abusix.com/
-[abusix-docs::rspamd-integration]: https://docs.abusix.com/abusix-mail-intelligence/gbG8EcJ3x3fSUv8cMZLiwA/getting-started/dmw9dcwSGSNQiLTssFAnBW#rspamd
+[abusix-docs::rspamd-integration]: https://abusix.com/docs/rspamd/
 [spamhaus::faq::dnsbl-usage]: https://www.spamhaus.org/faq/section/DNSBL%20Usage#365
 
 [dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/blob/v14.0.0/target/rspamd/local.d/actions.conf
