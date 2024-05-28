@@ -2293,6 +2293,9 @@
 <span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span>
 
 <span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># `Local` is most likely required, otherwise every incoming request would be identified by the external IP,</span>
+<span class="w">  </span><span class="c1"># which will get banned by Fail2Ban when monitored services are not configured for PROXY protocol</span>
+<span class="w">  </span><span class="nt">externalTrafficPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Local</span>
 <span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LoadBalancer</span>
 
 <span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
