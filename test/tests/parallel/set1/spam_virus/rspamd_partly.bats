@@ -44,7 +44,7 @@ function teardown_file() { _default_teardown ; }
   run docker logs "${CONTAINER_NAME}"
   assert_success
   for SERVICE in 'Amavis/SA' 'OpenDKIM' 'OpenDMARC' 'policyd-spf'; do
-    assert_output --regexp ".*WARNING.*Running ${SERVICE} & Rspamd at the same time is discouraged"
+    assert_output --regexp ".*WARN.*Running ${SERVICE} & Rspamd at the same time is discouraged"
   done
 }
 

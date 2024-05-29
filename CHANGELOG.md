@@ -43,6 +43,8 @@ The most noteworthy change of this release is the update of the container's base
   - **Removed support for Solr integration:** ([#4025](https://github.com/docker-mailserver/docker-mailserver/pull/4025))
     - This was a community contributed feature for FTS (Full Text Search), the docs advise using an image that has not been maintained for over 2 years and lacks ARM64 support. Based on user engagement over the years this feature has very niche value to continue to support, thus is being removed.
     - If you use Solr, support can be restored if you're willing to contribute docs for the feature that resolves the concerns raised
+- **Log**:
+  - The format of DMS specific logs (_from our scripts, not running services_) has been changed. The new format is `<RFC 3339 TIMESTAMP> <LOG LEVEL> <LOG EVENT SRC>: <MESSAGE>` ([#4035](https://github.com/docker-mailserver/docker-mailserver/pull/4035))
 - **rsyslog:**
   - Debian 12 adjusted the `rsyslog` configuration for the default file template from `RSYSLOG_TraditionalFileFormat` to `RSYSLOG_FileFormat` (_upstream default since 2012_). This change may affect you if you have any monitoring / analysis of log output (_eg: `mail.log` / `docker logs`_).
     - The two formats are roughly equivalent to [RFC 3164](https://www.rfc-editor.org/rfc/rfc3164)) and [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424#section-1) respectively.

@@ -50,7 +50,7 @@ function teardown() { _default_teardown ; }
   # Should emit a warning:
   run docker logs "${CONTAINER_NAME}"
   assert_success
-  assert_output --partial '[ WARNING ]  Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove'
+  assert_output --partial 'Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove'
 }
 
 # Ensures the docker image services (Postfix and Dovecot) have the expected DH files:
