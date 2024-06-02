@@ -34,6 +34,7 @@ function _monitored_files_checksums() {
       "${DMS_DIR}/postfix-accounts.cf"
       "${DMS_DIR}/postfix-virtual.cf"
       "${DMS_DIR}/postfix-regexp.cf"
+      "${DMS_DIR}/postfix-regexp-send-only.cf"
       "${DMS_DIR}/postfix-aliases.cf"
       "${DMS_DIR}/postfix-relaymap.cf"
       "${DMS_DIR}/postfix-sasl-password.cf"
