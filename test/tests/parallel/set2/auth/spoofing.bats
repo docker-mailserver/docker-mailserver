@@ -83,6 +83,8 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "send-only alias does not affect incoming mail" {
+  # user1 is allowed to send as user3, however, mail to user3 should still be delivered to user3.
+  # Verifies that /etc/postfix/regexp-send-only does not affect incoming mail.
   _send_email \
     --port 587 -tls --auth PLAIN \
     --auth-user user1@localhost.localdomain \
