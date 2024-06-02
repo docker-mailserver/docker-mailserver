@@ -57,5 +57,6 @@ function _handle_postfix_aliases_config() {
 function _create_aliases() {
   _handle_postfix_virtual_config
   _handle_postfix_regexp_config
+  _handle_postfix_regexp_send_only_config
   _handle_postfix_aliases_config
 }
