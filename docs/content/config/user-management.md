@@ -84,7 +84,7 @@ Postfix supports so-called address tags, in the form of plus (+) tags - i.e. `ad
 
 ### Send-Only Aliases
 
-Sometimes, it may be useful to allow certain accounts to send as other accounts, even when [the `SPOOF_PROTECTION` environment variable is enabled][spoof-protection]. This may be used to allow services to send accounts as other addresses without needing to disable spoof protection entirely, and without affecting incoming mail (which traditional [aliases](#aliases) would do).
+Sometimes, it may be useful to allow certain accounts to send as other accounts, even when [the `SPOOF_PROTECTION` environment variable is enabled][spoof-protection]. This may be used to allow services to send accounts as other addresses/users without needing to disable spoof protection entirely, and without affecting incoming mail (which traditional [aliases](#aliases) would do).
 
 To configure these aliases, add them to `docker-data/dms/config/postfix-regexp-send-only.cf` in the same format as [the other regexp aliases](#configuring-regexp-aliases). For example:
 

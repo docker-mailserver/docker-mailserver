@@ -83,7 +83,7 @@ This is a list of all configuration files and directories which are optional, au
 - **postfix-sasl-password.cf:** listing of relayed domains with their respective `<username>:<password>`. Modify via `setup.sh relay add-auth <domain> <username> [<password>]`. (Docs: [Relay-Hosts Auth][docs-relayhosts-senderauth])
 - **postfix-relaymap.cf:** domain-specific relays and exclusions. Modify via `setup.sh relay add-domain` and `setup.sh relay exclude-domain`. (Docs: [Relay-Hosts Senders][docs-relayhosts-senderhost])
 - **postfix-regexp.cf:** Regular expression alias file. (Docs: [Aliases][docs-aliases-regex])
-- **postfix-regexp-send-only.cf:** Regular expression alias file for senders only. (Docs: [Aliases][docs-aliases-send-only])
+- **postfix-regexp-send-only.cf:** Regular expression alias file for sending only. (Docs: [Send-Only Aliases][docs-aliases-send-only])
 - **ldap-users.cf:** Configuration for the virtual user mapping `virtual_mailbox_maps`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
 - **ldap-groups.cf:** Configuration for the virtual alias mapping `virtual_alias_maps`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
 - **ldap-aliases.cf:** Configuration for the virtual alias mapping `virtual_alias_maps`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
