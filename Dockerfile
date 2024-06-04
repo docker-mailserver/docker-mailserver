@@ -185,8 +185,6 @@ COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
   ln -s  /var/log/mail/mail.log     /var/log/mail.log
   ln -sf /var/log/mail/fail2ban.log /var/log/fail2ban.log
-  # disable sshd jail
-  rm /etc/fail2ban/jail.d/defaults-debian.conf
 EOF
 
 COPY target/opendkim/opendkim.conf /etc/opendkim.conf
