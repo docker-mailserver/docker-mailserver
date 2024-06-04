@@ -73,9 +73,6 @@ function _install_packages() {
     clamav clamav-daemon
     # spamassassin is used only with amavisd-new, while pyzor + razor are used by spamassasin
     amavisd-new spamassassin pyzor razor
-    # the following packages are all for Fail2Ban
-    # https://github.com/docker-mailserver/docker-mailserver/pull/3403#discussion_r1306581431
-    fail2ban python3-pyinotify python3-dnspython
   )
 
   # predominantly for Amavis support
@@ -178,6 +175,45 @@ function _install_rspamd() {
   apt-get "${QUIET}" install rspamd redis-server
 }
 
+function _install_fail2ban() {
+  local FAIL2BAN_VERSION=1.1.0
+  local FAIL2BAN_DEB_URL="https://github.com/fail2ban/fail2ban/releases/download/${FAIL2BAN_VERSION}/fail2ban_${FAIL2BAN_VERSION}-1.upstream1_all.deb"
+  local FAIL2BAN_DEB_ASC_URL="${FAIL2BAN_DEB_URL}.asc"
+  local FAIL2BAN_GPG_FINGERPRINT='8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C'
+  local FAIL2BAN_GPG_PUBLIC_KEY_ID='0x683BF1BEBD0A882C'
+  local FAIL2BAN_GPG_PUBLIC_KEY_SERVER='hkps://keyserver.ubuntu.com'
+
+  _log 'debug' 'Installing Fail2ban'
+  # Dependencies (https://github.com/docker-mailserver/docker-mailserver/pull/3403#discussion_r1306581431)
+  apt-get "${QUIET}" --no-install-recommends install python3-pyinotify python3-dnspython python3-systemd
+
+  gpg --keyserver "${FAIL2BAN_GPG_PUBLIC_KEY_SERVER}" --recv-keys "${FAIL2BAN_GPG_PUBLIC_KEY_ID}" 2>&1
+
+  curl -Lkso fail2ban.deb "${FAIL2BAN_DEB_URL}"
+  curl -Lkso fail2ban.deb.asc "${FAIL2BAN_DEB_ASC_URL}"
+
+  FINGERPRINT=$(LANG=C gpg --verify fail2ban.deb.asc fail2ban.deb |& sed -n 's#Primary key fingerprint: \(.*\)#\1#p')
+
+  if [[ -z ${FINGERPRINT} ]]; then
+    echo 'ERROR: Invalid GPG signature!' >&2
+    exit 1
+  fi
+
+  if [[ ${FINGERPRINT} != "${FAIL2BAN_GPG_FINGERPRINT}" ]]; then
+    echo "ERROR: Wrong GPG fingerprint!" >&2
+    exit 1
+  fi
+
+  dpkg -i fail2ban.deb 2>&1
+  rm fail2ban.deb fail2ban.deb.asc
+
+  _log 'debug' 'Patching Fail2ban to enable network bans'
+  # Enable network bans
+  # https://github.com/docker-mailserver/docker-mailserver/issues/2669
+  # https://github.com/fail2ban/fail2ban/issues/3125
+  sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
+}
+
 function _post_installation_steps() {
   _log 'debug' 'Running post-installation steps (cleanup)'
   _log 'debug' 'Deleting sensitive files (secrets)'
@@ -189,11 +225,6 @@ function _post_installation_steps() {
   _log 'trace' 'Removing leftovers from APT'
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
-
-  _log 'debug' 'Patching Fail2ban to enable network bans'
-  # Enable network bans
-  # https://github.com/docker-mailserver/docker-mailserver/issues/2669
-  sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
 }
 
 _pre_installation_steps
@@ -202,4 +233,5 @@ _install_postfix
 _install_packages
 _install_dovecot
 _install_rspamd
+_install_fail2ban
 _post_installation_steps
