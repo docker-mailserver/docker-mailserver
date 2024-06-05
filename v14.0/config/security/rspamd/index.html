@@ -1,0 +1,2821 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.) using Docker.">
+      
+      
+        <meta name="author" content="docker-mailserver (Github Organization)">
+      
+      
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/latest/config/security/rspamd/">
+      
+      
+        <link rel="prev" href="../mail_crypt/">
+      
+      
+        <link rel="next" href="../../debugging/">
+      
+      
+      <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+    
+    
+      
+        <title>Security | Rspamd - Docker Mailserver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/css/customizations.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#about" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+      
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Mailserver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Security | Rspamd
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/docker-mailserver/docker-mailserver" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    docker-mailserver
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../introduction/" class="md-tabs__link">
+        
+  
+    
+  
+  Introduction
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../usage/" class="md-tabs__link">
+        
+  
+    
+  
+  Usage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../environment/" class="md-tabs__link">
+          
+  
+  Configuration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../examples/tutorials/basic-installation/" class="md-tabs__link">
+          
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../faq/" class="md-tabs__link">
+        
+  
+    
+  
+  FAQ
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/general/" class="md-tabs__link">
+          
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://hub.docker.com/r/mailserver/docker-mailserver/" class="md-tabs__link">
+        
+  
+    
+  
+  <span class="icon-external-link"></span>DockerHub
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver" class="md-tabs__link">
+        
+  
+    
+  
+  <span class="icon-external-link"></span>GHCR
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+      
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+
+    </a>
+    Docker Mailserver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/docker-mailserver/docker-mailserver" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    docker-mailserver
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../usage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Configuration
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../environment/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Environment Variables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    User Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Best Practices
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            Best Practices
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../best-practices/autodiscover/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Auto-discovery
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../best-practices/dkim_dmarc_spf/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DKIM, DMARC & SPF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../best-practices/mta-sts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MTA-STS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Security
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Security
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../understanding-the-ports/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Understanding the Ports
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ssl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SSL/TLS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fail2ban/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Fail2Ban
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mail_crypt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mail Encryption
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Rspamd
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Rspamd
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about" class="md-nav__link">
+    <span class="md-ellipsis">
+      About
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Environment Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-default-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Default Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Default Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other-anti-spam-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Anti-Spam-Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mode-of-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mode of Operation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistence-with-redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Persistence with Redis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#web-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      Web Interface
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      DNS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modules
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#disabled-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabled By Default
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anti-virus-clamav" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anti-Virus (ClamAV)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists" class="md-nav__link">
+    <span class="md-ellipsis">
+      RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#providing-custom-settings-overriding-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providing Custom Settings &amp; Overriding Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Providing Custom Settings & Overriding Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manually
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-the-help-of-a-custom-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      With the Help of a Custom File
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples-advanced-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples &amp; Advanced Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples & Advanced Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-very-basic-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      A Very Basic Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adjusting-and-extending-the-very-basic-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adjusting and Extending The Very Basic Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-signing" class="md-nav__link">
+    <span class="md-ellipsis">
+      DKIM Signing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abusix-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Abusix Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../debugging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Debugging
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pop3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mail Delivery with POP3
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup.sh/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About setup.sh
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Advanced Configuration
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            Advanced Configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/optional-config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Optional Configuration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8_2" id="__nav_4_8_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Maintenance
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            Maintenance
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Update and Cleanup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8_3" id="__nav_4_8_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Override the Default Configs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            Override the Default Configs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/override-defaults/dovecot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dovecot
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/override-defaults/postfix/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Postfix
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/override-defaults/user-patches/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modifications via Script
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/auth-ldap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LDAP Authentication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/auth-oauth2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OAuth2 Authentication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/mail-sieve/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Email Filtering with Sieve
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/mail-fetchmail/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Email Gathering with Fetchmail
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/mail-getmail/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Email Gathering with Getmail
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8_9" id="__nav_4_8_9_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Email Forwarding
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_9">
+            <span class="md-nav__icon md-icon"></span>
+            Email Forwarding
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Relay Hosts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/mail-forwarding/aws-ses/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AWS SES
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configure Gmail as a relay host
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/full-text-search/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Full-Text Search
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/kubernetes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Kubernetes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/ipv6/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IPv6
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/podman/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Podman
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/dovecot-master-accounts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dovecot Master Accounts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/tutorials/basic-installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basic Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mailserver behind Proxy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/tutorials/crowdsec/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Crowdsec
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/tutorials/docker-build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Building your own Docker image
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/tutorials/blog-posts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Blog Posts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Use Cases
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Use Cases
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Forward-Only Mail-Server with LDAP
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/use-cases/imap-folders/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Customize IMAP Folders
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    iOS Mail Push Support
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/use-cases/auth-lua/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Lua Authentication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bind outbound SMTP to a specific network
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/use-cases/external-relay-only-mailserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Relay inbound and outbound mail for an internal DMS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Contributing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/general/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    General Information
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/tests/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tests
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/issues-and-pull-requests/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Issues and Pull Requests
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://hub.docker.com/r/mailserver/docker-mailserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    <span class="icon-external-link"></span>DockerHub
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    <span class="icon-external-link"></span>GHCR
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about" class="md-nav__link">
+    <span class="md-ellipsis">
+      About
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Environment Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-default-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Default Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Default Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other-anti-spam-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Anti-Spam-Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mode-of-operation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mode of Operation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistence-with-redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Persistence with Redis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#web-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      Web Interface
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      DNS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modules
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#disabled-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabled By Default
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anti-virus-clamav" class="md-nav__link">
+    <span class="md-ellipsis">
+      Anti-Virus (ClamAV)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists" class="md-nav__link">
+    <span class="md-ellipsis">
+      RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#providing-custom-settings-overriding-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providing Custom Settings &amp; Overriding Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Providing Custom Settings & Overriding Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manually
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-the-help-of-a-custom-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      With the Help of a Custom File
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples-advanced-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples &amp; Advanced Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples & Advanced Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-very-basic-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      A Very Basic Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adjusting-and-extending-the-very-basic-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adjusting and Extending The Very Basic Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dkim-signing" class="md-nav__link">
+    <span class="md-ellipsis">
+      DKIM Signing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#abusix-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Abusix Integration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/security/rspamd.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/security/rspamd.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
+    </a>
+  
+
+
+  <h1>Rspamd</h1>
+
+<h2 id="about"><a class="toclink" href="#about">About</a></h2>
+<p>Rspamd is a <a href="https://rspamd.com/">"fast, free and open-source spam filtering system"</a>. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd.</p>
+<p>If you want to take a look at the default configuration files for Rspamd that DMS packs, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd"><code>target/rspamd/</code> inside the repository</a>. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
+<h2 id="related-environment-variables"><a class="toclink" href="#related-environment-variables">Related Environment Variables</a></h2>
+<p>The following environment variables are related to Rspamd:</p>
+<ol>
+<li><a href="../../environment/#enable_rspamd"><code>ENABLE_RSPAMD</code></a></li>
+<li><a href="../../environment/#enable_rspamd_redis"><code>ENABLE_RSPAMD_REDIS</code></a></li>
+<li><a href="../../environment/#rspamd_check_authenticated"><code>RSPAMD_CHECK_AUTHENTICATED</code></a></li>
+<li><a href="../../environment/#rspamd_greylisting"><code>RSPAMD_GREYLISTING</code></a></li>
+<li><a href="../../environment/#rspamd_hfilter"><code>RSPAMD_HFILTER</code></a></li>
+<li><a href="../../environment/#rspamd_hfilter_hostname_unknown_score"><code>RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE</code></a></li>
+<li><a href="../../environment/#rspamd_learn"><code>RSPAMD_LEARN</code></a></li>
+<li><a href="../../environment/#spam_subject"><code>SPAM_SUBJECT</code></a></li>
+<li><a href="../../environment/#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK</code></a></li>
+<li><a href="../../environment/#mark_spam_as_read"><code>MARK_SPAM_AS_READ</code></a></li>
+</ol>
+<p>With these variables, you can enable Rspamd itself, and you can enable / disable certain features related to Rspamd.</p>
+<h2 id="the-default-configuration"><a class="toclink" href="#the-default-configuration">The Default Configuration</a></h2>
+<h3 id="other-anti-spam-services"><a class="toclink" href="#other-anti-spam-services">Other Anti-Spam-Services</a></h3>
+<p>DMS packs other anti-spam services, like SpamAssassin or Amavis, next to Rspamd. There exist services, like ClamAV (<code>ENABLE_CLAMAV</code>), that Rspamd can utilize to improve the scanning. Except for ClamAV, we recommend disabling <strong>all other</strong> anti-spam services when using Rspamd. The <a href="#a-very-basic-configuration">basic configuration shown below</a> provides a good starting point.</p>
+<h3 id="mode-of-operation"><a class="toclink" href="#mode-of-operation">Mode of Operation</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Attention</p>
+<p>Read this section carefully if you want to understand how Rspamd is integrated into DMS and how it works (on a surface level).</p>
+</div>
+<p>Rspamd is integrated as a milter into DMS. When enabled, Postfix's <code>main.cf</code> configuration file includes the parameter <code>rspamd_milter = inet:localhost:11332</code>, which is added to <code>smtpd_milters</code>. As a milter, Rspamd can inspect incoming and outgoing e-mails.</p>
+<p>Each mail is assigned what Rspamd calls symbols: when an e-mail matches a specific criterion, the e-mail receives a symbol. Afterward, Rspamd applies a <em>spam score</em> (as usual with anti-spam software) to the e-mail.</p>
+<ul>
+<li>The score itself is calculated by adding the values of the individual symbols applied earlier. The higher the spam score is, the more likely the e-mail is spam.</li>
+<li>Symbol values can be negative (i.e., these symbols indicate the mail is legitimate, maybe because <a href="../../best-practices/dkim_dmarc_spf/">SPF and DKIM</a> are verified successfully). On the other hand, symbol scores can be positive (i.e., these symbols indicate the e-mail is spam, perhaps because the e-mail contains numerous links).</li>
+</ul>
+<p>Rspamd then adds (a few) headers to the e-mail based on the spam score. Most important is <code>X-Spamd-Result</code>, which contains an overview of which symbols were applied. It could look like this:</p>
+<div class="highlight"><pre><span></span><code>X-Spamd-Result     default: False [-2.80 / 11.00]; R_SPF_NA(1.50)[no SPF record]; R_DKIM_ALLOW(-1.00)[example.com:s=dtag1]; DWL_DNSWL_LOW(-1.00)[example.com:dkim]; RWL_AMI_LASTHOP(-1.00)[192.0.2.42:from]; DMARC_POLICY_ALLOW(-1.00)[example.com,none]; RWL_MAILSPIKE_EXCELLENT(-0.40)[192.0.2.42:from]; FORGED_SENDER(0.30)[noreply@example.com,some-reply-address@bounce.example.com]; RCVD_IN_DNSWL_LOW(-0.10)[192.0.2.42:from]; MIME_GOOD(-0.10)[multipart/mixed,multipart/related,multipart/alternative,text/plain]; MIME_TRACE(0.00)[0:+,1:+,2:+,3:+,4:~,5:~,6:~]; RCVD_COUNT_THREE(0.00)[3]; RCPT_COUNT_ONE(0.00)[1]; REPLYTO_DN_EQ_FROM_DN(0.00)[]; ARC_NA(0.00)[]; TO_MATCH_ENVRCPT_ALL(0.00)[]; RCVD_TLS_LAST(0.00)[]; DKIM_TRACE(0.00)[example.com:+]; HAS_ATTACHMENT(0.00)[]; TO_DN_NONE(0.00)[]; FROM_NEQ_ENVFROM(0.00)[noreply@example.com,some-reply-address@bounce.example.com]; FROM_HAS_DN(0.00)[]; REPLYTO_DOM_NEQ_FROM_DOM(0.00)[]; PREVIOUSLY_DELIVERED(0.00)[receiver@anotherexample.com]; ASN(0.00)[asn:3320, ipnet:192.0.2.0/24, country:DE]; MID_RHS_MATCH_FROM(0.00)[]; MISSING_XM_UA(0.00)[]; HAS_REPLYTO(0.00)[some-reply-address@dms-reply.example.com]
+</code></pre></div>
+<p>And then there is a corresponding <code>X-Rspamd-Action</code> header, which shows the overall result and the action that is taken. In our example, it would be:</p>
+<div class="highlight"><pre><span></span><code>X-Rspamd-Action    no action
+</code></pre></div>
+<p>Since the score is <code>-2.80</code>, nothing will happen and the e-mail is not classified as spam. Our custom <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v14.0.0/target/rspamd/local.d/actions.conf"><code>actions.conf</code></a> defines what to do at certain scores:</p>
+<ol>
+<li>At a score of 4, the e-mail is to be <em>greylisted</em>;</li>
+<li>At a score of 6, the e-mail is <em>marked with a header</em> (<code>X-Spam: Yes</code>);</li>
+<li>At a score of 11, the e-mail is outright <em>rejected</em>.</li>
+</ol>
+<hr />
+<p>There is more to spam analysis than meets the eye: we have not covered the <a href="https://rspamd.com/doc/configuration/statistic.html">Bayes training and filters</a> here, nor have we discussed <a href="../../environment/#move_spam_to_junk">Sieve rules for e-mails that are marked as spam</a>.</p>
+<p>Even the calculation of the score with the individual symbols has been presented to you in a simplified manner. But with the knowledge from above, you're equipped to read on and use Rspamd confidently. Keep on reading to understand the integration even better - you will want to know about your anti-spam software, not only to keep the bad e-mail out, but also to make sure the good e-mail arrive properly!</p>
+<h3 id="workers"><a class="toclink" href="#workers">Workers</a></h3>
+<p>The proxy worker operates in <a href="https://rspamd.com/doc/workers/rspamd_proxy.html#self-scan-mode">self-scan mode</a>. This simplifies the setup as we do not require a normal worker. You can easily change this though by <a href="#providing-custom-settings-overriding-settings">overriding the configuration by DMS</a>.</p>
+<p>DMS does not set a default password for the controller worker. You may want to do that yourself. In setups where you already have an authentication provider in front of the Rspamd webpage, you may want to <a href="#with-the-help-of-a-custom-file">set the <code>secure_ip</code> option to <code>"0.0.0.0/0"</code> for the controller worker</a> to disable password authentication inside Rspamd completely.</p>
+<h3 id="persistence-with-redis"><a class="toclink" href="#persistence-with-redis">Persistence with Redis</a></h3>
+<p>When Rspamd is enabled, we implicitly also start an instance of Redis in the container:</p>
+<ul>
+<li>Redis is configured to persist its data via RDB snapshots to disk in the directory <code>/var/lib/redis</code> (<em>or the <a href="../../advanced/optional-config/#volumes-state"><code>/var/mail-state/</code></a> volume when present</em>).</li>
+<li>With the volume mount, the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.</li>
+</ul>
+<p>Redis uses <code>/etc/redis/redis.conf</code> for configuration:</p>
+<ul>
+<li>We adjust this file when enabling the internal Redis service.</li>
+<li>If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV <a href="../../environment/#enable_rspamd_redis"><code>ENABLE_RSPAMD_REDIS=0</code></a> (<em>link also details required changes to the DMS Rspamd config</em>).</li>
+</ul>
+<h3 id="web-interface"><a class="toclink" href="#web-interface">Web Interface</a></h3>
+<p>Rspamd provides a <a href="https://rspamd.com/webui/">web interface</a>, which contains statistics and data Rspamd collects. The interface is enabled by default and reachable on port 11334.</p>
+<p><img alt="Rspamd Web Interface" src="https://rspamd.com/img/webui.png" /></p>
+<p>To use the web interface you will need to configure a password, <a href="https://www.rspamd.com/doc/tutorials/quickstart.html#setting-the-controller-password">otherwise you won't be able to log in</a>.</p>
+<details class="example">
+<summary>Set a custom password</summary>
+<p>Add this line to <a href="#with-the-help-of-a-custom-file">your rspamd <code>custom-commands.conf</code> config</a> which sets the <code>password</code> option of the <em>controller worker</em>:</p>
+<div class="highlight"><pre><span></span><code>set-option-for-controller password &quot;your hashed password here&quot;
+</code></pre></div>
+<p>The password hash can be generated via the <code>rspamadm pw</code> command:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>&lt;CONTAINER_NAME&gt;<span class="w"> </span>rspamadm<span class="w"> </span>pw
+</code></pre></div>
+</details>
+<h3 id="dns"><a class="toclink" href="#dns">DNS</a></h3>
+<p>DMS does not supply custom values for DNS servers (to Rspamd). If you need to use custom DNS servers, which could be required when using <a href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists">DNS-based deny/allowlists</a>, you need to adjust <a href="https://rspamd.com/doc/configuration/options.html"><code>options.inc</code></a> yourself. Make sure to also read our <a href="../../../faq/#what-about-dns-servers">FAQ page on DNS servers</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Rspamd heavily relies on a properly working DNS server that it can use to resolve DNS queries. If your DNS server is misconfigured, you will encounter issues when Rspamd queries DNS to assess if mail is spam. Legitimate mail is then unintentionally marked as spam or worse, rejected entirely.</p>
+<p>When Rspamd is deciding if mail is spam, it will check DNS records for SPF, DKIM and DMARC. Each of those has an associated symbol for DNS temporary errors with a non-zero weight assigned. That weight contributes towards the spam score assessed by Rspamd which is normally desirable - provided your network DNS is functioning correctly, otherwise when DNS is broken all mail is biased towards spam due to these failed DNS lookups.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>While we do not provide values for custom DNS servers by default, we set <code>soft_reject_on_timeout = true;</code> by default. This setting will cause a soft reject if a task (presumably a DNS request) timeout takes place.</p>
+<p>This setting is enabled to not allow spam to proceed just because DNS requests did not succeed. It could deny legitimate e-mails to pass though too in case your DNS setup is incorrect or not functioning properly.</p>
+</div>
+<h3 id="logs"><a class="toclink" href="#logs">Logs</a></h3>
+<p>You can find the Rspamd logs at <code>/var/log/mail/rspamd.log</code>, and the corresponding logs for <a href="#persistence-with-redis">Redis</a>, if it is enabled, at <code>/var/log/supervisor/rspamd-redis.log</code>. We recommend inspecting these logs (with <code>docker exec -it &lt;CONTAINER NAME&gt; less /var/log/mail/rspamd.log</code>) in case Rspamd does not work as expected.</p>
+<h3 id="modules"><a class="toclink" href="#modules">Modules</a></h3>
+<p>You can find a list of all Rspamd modules <a href="https://rspamd.com/doc/modules/">on their website</a>.</p>
+<h4 id="disabled-by-default"><a class="toclink" href="#disabled-by-default">Disabled By Default</a></h4>
+<p>DMS disables certain modules (<code>clickhouse</code>, <code>elastic</code>, <code>neural</code>, <code>reputation</code>, <code>spamassassin</code>, <code>url_redirector</code>, <code>metric_exporter</code>) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.</p>
+<h4 id="anti-virus-clamav"><a class="toclink" href="#anti-virus-clamav">Anti-Virus (ClamAV)</a></h4>
+<p>You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable <code>ENABLE_CLAMAV=1</code>.</p>
+<h4 id="rbls-real-time-blacklists-dnsbls-dns-based-blacklists"><a class="toclink" href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists">RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)</a></h4>
+<p>The <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a> is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body [<a href="https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&amp;comment=119818">source</a>].</p>
+<div class="admonition danger">
+<p class="admonition-title">Rspamd and DNS Block Lists</p>
+<p>When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.</p>
+<p>If you want to use DNSBLs, <strong>try to use your own DNS resolver</strong> and make sure it is set up correctly, i.e. it should be a non-public &amp; <strong>recursive</strong> resolver. Otherwise, you might not be able (<a href="https://www.spamhaus.org/faq/section/DNSBL%20Usage#365">see this Spamhaus post</a>) to make use of the block lists.</p>
+</div>
+<h2 id="providing-custom-settings-overriding-settings"><a class="toclink" href="#providing-custom-settings-overriding-settings">Providing Custom Settings &amp; Overriding Settings</a></h2>
+<p>DMS brings sane default settings for Rspamd. They are located at <code>/etc/rspamd/local.d/</code> inside the container (or <code>target/rspamd/local.d/</code> in the repository).</p>
+<h3 id="manually"><a class="toclink" href="#manually">Manually</a></h3>
+<div class="admonition question">
+<p class="admonition-title">What is <a href="../../advanced/optional-config/#volumes-config"><code>docker-data/dms/config/</code></a>?</p>
+</div>
+<p>If you want to overwrite the default settings or provide your settings, you can place files at <code>docker-data/dms/config/rspamd/override.d/</code>. Files from this directory are copied to <code>/etc/rspamd/override.d/</code> during startup. These files <a href="https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories">forcibly override</a> Rspamd and DMS default settings.</p>
+<div class="admonition question">
+<p class="admonition-title">What is the <a href="https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories"><code>local.d</code> directory and how does it compare to <code>override.d</code></a>?</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Clashing Overrides</p>
+<p>Note that when also <a href="#with-the-help-of-a-custom-file">using the <code>custom-commands.conf</code> file</a>, files in <code>override.d</code> may be overwritten in case you adjust them manually and with the help of the file.</p>
+</div>
+<h3 id="with-the-help-of-a-custom-file"><a class="toclink" href="#with-the-help-of-a-custom-file">With the Help of a Custom File</a></h3>
+<p>DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called <code>custom-commands.conf</code> into <code>docker-data/dms/config/rspamd/</code>. If this file is present, DMS will evaluate it. The structure is simple, as each line in the file looks like this:</p>
+<div class="highlight"><pre><span></span><code>COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
+</code></pre></div>
+<p>where <code>COMMAND</code> can be:</p>
+<ol>
+<li><code>disable-module</code>: disables the module with name <code>ARGUMENT1</code></li>
+<li><code>enable-module</code>: explicitly enables the module with name <code>ARGUMENT1</code></li>
+<li><code>set-option-for-module</code>: sets the value for option <code>ARGUMENT2</code> to <code>ARGUMENT3</code> inside module <code>ARGUMENT1</code></li>
+<li><code>set-option-for-controller</code>: set the value of option <code>ARGUMENT1</code> to <code>ARGUMENT2</code> for the controller worker</li>
+<li><code>set-option-for-proxy</code>: set the value of option <code>ARGUMENT1</code> to <code>ARGUMENT2</code> for the proxy worker</li>
+<li><code>set-common-option</code>: set the option <code>ARGUMENT1</code> that <a href="https://rspamd.com/doc/configuration/options.html">defines basic Rspamd behavior</a> to value <code>ARGUMENT2</code></li>
+<li><code>add-line</code>: this will add the complete line after <code>ARGUMENT1</code> (with all characters) to the file <code>/etc/rspamd/override.d/&lt;ARGUMENT1&gt;</code></li>
+</ol>
+<div class="admonition example">
+<p class="admonition-title">An Example Is <a href="#adjusting-and-extending-the-very-basic-configuration">Shown Down Below</a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">File Names &amp; Extensions</p>
+<p>For command 1 - 3, we append the <code>.conf</code> suffix to the module name to get the correct file name automatically. For commands 4 - 6, the file name is fixed (you don't even need to provide it). For command 7, you will need to provide the whole file name (including the suffix) yourself!</p>
+</div>
+<p>You can also have comments (the line starts with <code>#</code>) and blank lines in <code>custom-commands.conf</code> - they are properly handled and not evaluated.</p>
+<div class="admonition tip">
+<p class="admonition-title">Adjusting Modules This Way</p>
+<p>These simple commands are meant to give users the ability to <em>easily</em> alter modules and their options. As a consequence, they are not powerful enough to enable multi-line adjustments. If you need to do something more complex, we advise to do that <a href="#manually">manually</a>!</p>
+</div>
+<h2 id="examples-advanced-configuration"><a class="toclink" href="#examples-advanced-configuration">Examples &amp; Advanced Configuration</a></h2>
+<h3 id="a-very-basic-configuration"><a class="toclink" href="#a-very-basic-configuration">A Very Basic Configuration</a></h3>
+<p>Do you want to start using Rspamd? Rspamd is disabled by default, so you need to set the following environment variables:</p>
+<div class="highlight"><pre><span></span><code><span class="na">ENABLE_RSPAMD</span><span class="o">=</span><span class="s">1</span>
+<span class="c1"># ClamAV is compatible with Rspamd. Optionally enable it for anti-virus support:</span>
+<span class="na">ENABLE_CLAMAV</span><span class="o">=</span><span class="s">1</span>
+
+<span class="c1"># Rspamd replaces the functionality of all these anti-spam services, disable them:</span>
+<span class="na">ENABLE_OPENDKIM</span><span class="o">=</span><span class="s">0</span>
+<span class="na">ENABLE_OPENDMARC</span><span class="o">=</span><span class="s">0</span>
+<span class="na">ENABLE_POLICYD_SPF</span><span class="o">=</span><span class="s">0</span>
+<span class="na">ENABLE_AMAVIS</span><span class="o">=</span><span class="s">0</span>
+<span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">0</span>
+
+<span class="c1"># Provided you&#39;ve set `RSPAMD_GREYLISTING=1`, also disable Postgrey:</span>
+<span class="na">ENABLE_POSTGREY</span><span class="o">=</span><span class="s">0</span>
+</code></pre></div>
+<p>This will enable Rspamd and disable services you don't need when using Rspamd.</p>
+<h3 id="adjusting-and-extending-the-very-basic-configuration"><a class="toclink" href="#adjusting-and-extending-the-very-basic-configuration">Adjusting and Extending The Very Basic Configuration</a></h3>
+<p>Rspamd is running, but you want or need to adjust it? First, create a file named <code>custom-commands.conf</code> under <code>docker-data/dms/config/rspamd</code> (which translates to <code>/tmp/docker-mailserver/rspamd/</code> inside the container). Then add your changes:</p>
+<ol>
+<li>Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will have to adjust the controller worker: <code>set-option-for-controller secure_ip "0.0.0.0/0"</code>.</li>
+<li>Do you additionally want to enable the auto-spam-learning for the Bayes module? No problem: <code>set-option-for-module classifier-bayes autolearn true</code>.</li>
+<li>But the chartable module gets on your nerves? Easy: <code>disable-module chartable</code>.</li>
+</ol>
+<details class="example">
+<summary>What Does the Result Look Like?</summary>
+<p>Here is what the file looks like in the end:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># See 1.</span>
+<span class="c1"># ATTENTION: this disables authentication on the website - make sure you know what you&#39;re doing!</span>
+set-option-for-controller<span class="w"> </span>secure_ip<span class="w"> </span><span class="s2">&quot;0.0.0.0/0&quot;</span>
+
+<span class="c1"># See 2.</span>
+set-option-for-module<span class="w"> </span>classifier-bayes<span class="w"> </span>autolearn<span class="w"> </span><span class="nb">true</span>
+
+<span class="c1"># See 3.</span>
+disable-module<span class="w"> </span>chartable
+</code></pre></div>
+</details>
+<h3 id="dkim-signing"><a class="toclink" href="#dkim-signing">DKIM Signing</a></h3>
+<p>There is a dedicated <a href="../../best-practices/dkim_dmarc_spf/#dkim">section for setting up DKIM with Rspamd in our documentation</a>.</p>
+<h3 id="abusix-integration"><a class="toclink" href="#abusix-integration"><em>Abusix</em> Integration</a></h3>
+<p>This subsection provides information about the integration of <a href="https://abusix.com/">Abusix</a>, "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:</p>
+<ol>
+<li><a href="https://app.abusix.com/signup">Create an account</a></li>
+<li>Retrieve your API key</li>
+<li>Navigate to the <a href="https://abusix.com/docs/rspamd/">"Getting Started" documentation for Rspamd</a> and follow the steps described there</li>
+<li>Make sure to change <code>&lt;APIKEY&gt;</code> to your private API key</li>
+</ol>
+<p>We recommend mounting the files directly into the container, as they are rather big and not manageable with our <a href="#with-the-help-of-a-custom-file"><code>custom-command.conf</code> script</a>. If mounted to the correct location, Rspamd will automatically pick them up.</p>
+<p>While <em>Abusix</em> can be integrated into Postfix, Postscreen and a multitude of other software, we recommend integrating <em>Abusix</em> only into a single piece of software running in your mail server - everything else would be excessive and wasting queries. Moreover, we recommend the integration into suitable filtering software and not Postfix itself, as software like Postscreen or Rspamd can properly evaluate the return codes and other configuration.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      <p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.081f42fc.min.js"></script>
+      
+    
+  </body>
+</html>
