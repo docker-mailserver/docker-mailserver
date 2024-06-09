@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file. The format 
 
 #### Fixes
 - **Dovecot:**
-  - `logwatch`  Update logwatch ignore.conf to exclude Xapian messages about pending documents
+  - `logwatch`  Update logwatch `ignore.conf` to exclude Xapian messages about pending documents
 
 ## [v14.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v14.0.0)
 
