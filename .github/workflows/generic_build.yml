@@ -83,7 +83,7 @@ jobs:
 
       # NOTE: AMD64 can build within 2 minutes
       - name: 'Build images'
-        uses: docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@v5.4.0
         with:
           context: .
           # Build at least the AMD64 image (which runs against the test suite).
