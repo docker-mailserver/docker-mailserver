@@ -157,6 +157,8 @@ function __environment_variables_general_setup() {
   VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
   VARS[TZ]="${TZ:=}"
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
+  VARS[DEFAULT_DESTINATION_RATE_DELAY]="${DEFAULT_DESTINATION_RATE_DELAY:=0s}"
+
 }
 
 function _environment_variables_oauth2() {

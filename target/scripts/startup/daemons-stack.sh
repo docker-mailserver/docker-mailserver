@@ -45,7 +45,10 @@ function _start_daemon_rsyslog        { _default_start_daemon 'rsyslog'        ;
 function _start_daemon_update_check   { _default_start_daemon 'update-check'   ; }
 
 function _start_daemon_saslauthd() {
-  _default_start_daemon "saslauthd_${SASLAUTHD_MECHANISMS}"
+  #if one of ldap|shadow|mysql|rimap , start the daemon
+  if [[ ${SASLAUTHD_MECHANISMS} =~ (ldap|shadow|mysql|rimap) ]]; then
+    _default_start_daemon "saslauthd_${SASLAUTHD_MECHANISMS}"
+  fi
 }
 
 function _start_daemon_postfix() {

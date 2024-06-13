@@ -921,6 +921,7 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 - `shadow` => authenticate against local user db
 - `mysql` => authenticate against mysql db
 - `rimap` => authenticate against imap server
+- `cyrus` => authenticate aganinst sasl2db
 - NOTE: can be a list of mechanisms like pam ldap shadow
 
 ##### SASLAUTHD_MECH_OPTIONS
