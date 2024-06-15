@@ -259,6 +259,12 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
     postconf -P 12525/inet/postscreen_upstream_proxy_protocol=haproxy 12525/inet/syslog_name=smtp-proxyprotocol
     ```
 
+    Supporting port 25 with an additional PROXY protocol port will also require a `postfix-main.cf` override line for `postscreen` to work correctly:
+
+    ```cf  title="docker-data/dms/config/postfix-main.cf"
+    postscreen_cache_map = proxy:btree:$data_directory/postscreen_cache
+    ```
+
     ---
 
     Dovecot is mostly the same as before:
