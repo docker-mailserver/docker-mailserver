@@ -17,7 +17,7 @@ services:
     restart: always
 ```
 
-We'll assume dms will connect internally to solr, so either append the above docker composer snippet to your dms compose.yml or make sure both containers use the same docker network.
+We'll assume dms will connect internally to solr, so either append the above docker composer snippet to your dms `compose.yml` or make sure both containers use the same docker network.
 The enviroment setting SOLR_JAVA_MEM is optional, but solr can be quite resource hungry so the default of 512MB can be exhausted rather quickly.
 
 Once started you need to configure a solr core for dovecot:
