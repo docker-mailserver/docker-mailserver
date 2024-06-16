@@ -1,7 +1,7 @@
 *Dovecot full text search using solr backend*
 
 Dovecot can use several fts backends to support efficient and fast full text searching of e-mails directly from the imap server. Especially if you have one or more large mail folders this can make a huge difference, since the alternative is dovecot searching through each and every email all by itself on the spot, again and again. The latter most times means one cannot search through a large pile off emails with clients that don't store all imap mail locally, for example mobile clients like Gmail or webmail clients.
-One of these is Apache SOLR, an fast and efficient multi-purpose search indexer.
+One of these is Apache SOLR, a fast and efficient multi-purpose search indexer.
 
 Firstly you need a working solr container, for this the official docker container will do:
 
