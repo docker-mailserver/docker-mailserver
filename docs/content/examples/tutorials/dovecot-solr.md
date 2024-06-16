@@ -40,7 +40,7 @@ Both files should be owned by uid and gid 8983.
 
 Start the solr container once again, you should now have a working dovecot fts specific solr core. All that is left is to connect dms dovecot to this solr core:
 
-Create a 10-plugin.conf file in your config/dovecot folder and link it in your compose.yml like so:
+Create a `10-plugin.conf` file in your `config/dovecot` folder and link it in your `compose.yml` like so:
 ```
 volumes:
   ...
