@@ -35,8 +35,8 @@ As of writing of this guide solr 9 is current, so you need the 2 solr 9 config f
 - `solr-config-9.xml`
 - `solr-schema-9.xml`
 
-Copy solr-config-9.xml to the data/dovecot folder and name it: solrconfig.xml
-Copy solr-schema-9.xml to the data/dovecot folder and name it: schema.xml, remove managed-schema.xml
+Copy `solr-config-9.xml` to the `data/dovecot` folder and name it: `solrconfig.xml`
+Copy `solr-schema-9.xml` to the `data/dovecot` folder and name it: `schema.xml`, remove `managed-schema.xml`
 Both files should be owned by uid and gid 8983.
 
 Start the solr container once again, you should now have a working dovecot fts specific solr core. All that is left is to connect dms dovecot to this solr core:
