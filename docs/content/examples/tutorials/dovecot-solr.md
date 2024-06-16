@@ -32,8 +32,8 @@ Stop the container, you should now have a data/dovecot folder. All that is neede
 https://github.com/dovecot/core/tree/main/doc
 
 As of writing of this guide solr 9 is current, so you need the 2 solr 9 config files:
-- solr-config-9.xml
-- solr-schema-9.xml
+- `solr-config-9.xml`
+- `solr-schema-9.xml`
 
 Copy solr-config-9.xml to the data/dovecot folder and name it: solrconfig.xml
 Copy solr-schema-9.xml to the data/dovecot folder and name it: schema.xml, remove managed-schema.xml
