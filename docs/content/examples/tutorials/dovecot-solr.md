@@ -27,8 +27,7 @@ solr create -c dovecot
 cp -R /opt/solr/contrib/analysis-extras/lib /var/solr/data/dovecot
 ```
 
-Stop the container, you should now have a data/dovecot folder. All that is needed on the solr part is a schema that is tailored specifically for dovecot fts. Luckally dovecot provides these:
-https://github.com/dovecot/core/tree/main/doc
+Stop the container, you should now have a data/dovecot folder. All that is needed on the solr part is a schema that is tailored specifically for dovecot fts. [Luckilly, Dovecot provides these](https://github.com/dovecot/core/tree/main/doc).
 
 As of writing of this guide solr 9 is current, so you need the 2 solr 9 config files:
 - `solr-config-9.xml`
