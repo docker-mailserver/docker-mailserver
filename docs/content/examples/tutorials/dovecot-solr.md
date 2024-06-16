@@ -7,7 +7,6 @@ Firstly you need a working solr container, for this the official docker containe
 
 ```
 ---
-version: "3.3"
 
 services:
   solr:
