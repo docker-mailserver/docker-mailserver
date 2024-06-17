@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# version   v1.0.0
+# version   v1.0.0.1
 # executed  manually / via Make
 # task      wrapper for various setup scripts
 
