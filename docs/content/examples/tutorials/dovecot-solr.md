@@ -1,65 +1,94 @@
 # Dovecot Full Text Search (FTS) using the Solr Backend
 
-Dovecot can use several fts backends to support efficient and fast full text searching of e-mails directly from the imap server. Especially if you have one or more large mail folders this can make a huge difference, since the alternative is dovecot searching through each and every email all by itself on the spot, again and again. The latter most times means one cannot search through a large pile off emails with clients that don't store all imap mail locally, for example mobile clients like Gmail or webmail clients.
-One of these is Apache SOLR, a fast and efficient multi-purpose search indexer.
+Dovecot supports several FTS backends for providing fast and efficient full text searching of e-mails directly from the IMAP server.
 
-Firstly you need a working solr container, for this the official docker container will do:
+As the size of your mail storage grows, the benefits of FTS is especially notable:
+
+- Without FTS, Dovecot would perform a search query by checking each individual email stored for a match, and then repeat this process again from scratch for the exact same query in future.
+- Some mail clients (_like Thunderbird_) may provide their own indexing and search features when all mail to search is stored locally, otherwise Dovecot needs to handle the search query (_for example webmail and mobile clients, like Gmail_).
+- FTS indexes each mail into a database for querying instead, where it can skip the cost of inspecting irrelevant emails for a query.
+
+## Setup Solr for DMS
+
+An FTS backend supported by Dovecot is [Apache Solr][github-solr], a fast and efficient multi-purpose search indexer.
+
+### `compose.yaml` config
+
+Firstly you need a working Solr container, for this the [official docker image][dockerhub-solr] will do:
 
 ```yaml
----
 services:
   solr:
     image: solr:latest
+    container_name: dms-solr
     environment:
+      # As Solr can be quite resource hungry, raise the memory limit to 2GB.
+      # The default is 512MB, which may be exhausted quickly.
       SOLR_JAVA_MEM: "-Xms2g -Xmx2g"
     volumes:
-      - <local folder>:/var/solr
+      - ./docker-data/solr:/var/solr
     restart: always
 ```
 
-We'll assume dms will connect internally to solr, so either append the above docker composer snippet to your dms `compose.yml` or make sure both containers use the same docker network.
-The enviroment setting SOLR_JAVA_MEM is optional, but solr can be quite resource hungry so the default of 512MB can be exhausted rather quickly.
+DMS will connect internally to the `solr` service above. Either have both services in the same `compose.yaml` file, or ensure that the containers are connected to the same docker network.
 
-Once started you need to configure a solr core for dovecot:
+### Configure Solr for Dovecot
+
+1. Once the Solr container is started, you need to configure a "Solr core" for Dovecot:
+
+    ```bash
+    docker exec -it dms-solr /bin/sh
+    solr create -c dovecot
+    cp -R /opt/solr/contrib/analysis-extras/lib /var/solr/data/dovecot
+    ```
+
+    Stop the `dms-solr` container and you should now have a `./data/dovecot` folder in the local bind mount volume.
+
+2. Solr needs a schema that is specifically tailored for Dovecot FTS.
+
+    As of writing of this guide, Solr 9 is the current release. [Dovecot provides the required schema configs][github-dovecot::core-docs] for Solr, copy the following two v9 config files to `./data/dovecot` and rename them accordingly:
+
+    - `solr-config-9.xml` (_rename to `solrconfig.xml`_)
+    - `solr-schema-9.xml` (_rename to `schema.xml`_)
+
+    Additionally, remove the `managed-schema.xml` file from `./data/dovecot` and ensure the two files you copied have a [UID and GID of `8983`][dockerfile-solr-uidgid] assigned.
+
+    Start the Solr container once again, you should now have a working Solr core specifically for Dovecot FTS.
+
+3. Configure Dovecot in DMS to connect to this Solr core:
+
+    Create a `10-plugin.conf` file in your `./config/dovecot` folder with this contents:
+
+    ```config
+    mail_plugins = $mail_plugins fts fts_solr
+
+    plugin {
+      fts = solr
+      fts_autoindex = yes
+      fts_solr = url=http://solr_solr_1:8983/solr/dovecot/
+    }
+    ```
+
+    Add a volume mount for that config to your DMS service in `compose.yaml`:
+
+    ```yaml
+    volumes:
+      - ./docker-data/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
+    ```
+
+### Trigger Dovecot FTS indexing
+
+After following the previous steps, restart DMS and run this command to have Dovecot re-index all mail:
 
 ```bash
-docker exec -it solr_solr_1 /bin/sh
-solr create -c dovecot
-cp -R /opt/solr/contrib/analysis-extras/lib /var/solr/data/dovecot
+docker compose exec mailserver doveadm fts rescan -A
 ```
 
-Stop the container, you should now have a data/dovecot folder. All that is needed on the solr part is a schema that is tailored specifically for dovecot fts. [Luckilly, Dovecot provides these](https://github.com/dovecot/core/tree/main/doc).
+!!! info "Indexing will take a while depending on how large your mail folders"
 
-As of writing of this guide solr 9 is current, so you need the 2 solr 9 config files:
-- `solr-config-9.xml`
-- `solr-schema-9.xml`
+    Usually within 15 minutes or so, you should be able to search your mail using the Dovecot FTS feature! :tada:
 
-Copy `solr-config-9.xml` to the `data/dovecot` folder and name it: `solrconfig.xml`
-Copy `solr-schema-9.xml` to the `data/dovecot` folder and name it: `schema.xml`, remove `managed-schema.xml`
-Both files should be owned by uid and gid 8983.
-
-Start the solr container once again, you should now have a working dovecot fts specific solr core. All that is left is to connect dms dovecot to this solr core:
-
-Create a `10-plugin.conf` file in your `config/dovecot` folder and link it in your `compose.yml` like so:
-
-```yaml
-volumes:
-  ...
-  <local dms folder>/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
-  ...
-```
-
-It's content should be:
-```config
-mail_plugins = $mail_plugins fts fts_solr
-
-plugin {
-  fts = solr
-  fts_autoindex = yes
-  fts_solr = url=http://solr_solr_1:8983/solr/dovecot/
-}
-```
-
-Once you restarted your dms instance, you have to tell dovecot it should reindex all mail: `docker compose exec mailserver doveadm fts rescan -A`
-
-Indexing will take a while depending on how large your mail folders are, but in general after 15 minutes or so you should be able to search your mail using dovecot fts feature!
+[dockerhub-solr]: https://hub.docker.com/_/solr
+[dockerfile-solr-uidgid]: https://github.com/apache/solr-docker/blob/9cd850b72309de05169544395c83a85b329d6b86/9.6/Dockerfile#L89-L92
+[github-solr]: https://github.com/apache/solr
+[github-dovecot::core-docs]: https://github.com/dovecot/core/tree/main/doc
