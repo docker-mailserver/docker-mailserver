@@ -98,7 +98,7 @@ function __account_already_exists() {
 
 # Also used by addsaslpassword
 function _password_request_if_missing() {
-  local CONFIRM
+  local PASSWD_CONFIRM
   if [[ -z ${PASSWD} ]]; then
     read -r -s -p 'Enter Password: ' PASSWD
     echo
@@ -106,6 +106,6 @@ function _password_request_if_missing() {
 
     read -r -s -p 'Confirm Password: ' CONFIRM
     echo
-    [[ ${PASSWD} != "${CONFIRM}" ]] && _exit_with_error 'Passwords do not match!'
+    [[ ${PASSWD} != "${PASSWD_CONFIRM}" ]] && _exit_with_error 'Passwords do not match!'
   fi
 }
