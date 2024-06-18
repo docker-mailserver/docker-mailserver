@@ -33,6 +33,20 @@ When DKIM is enabled:
 
 DKIM requires a public/private key pair to enable **signing (_via private key_)** your outgoing mail, while the receiving end must query DNS to **verify (_via public key_)** that the signature is trustworthy.
 
+??? info "Verification expiry"
+
+    Unlike your TLS certificate, your DKIM keypair does not have a fixed expiry associated to it.
+
+    Instead an expiry may be included in your DKIM signature for each mail sent, where a receiver will refuse to validate the signature for an email after that expiry date. This is an added precaution to mitigate malicious activity like "DKIM replay attacks", where a trustworthy DKIM signature from an existing mail from a third-party is recycled enable a spammer to bypass security precautions.
+
+    Unlike a TLS handshake where you are authenticating trust with future communications; with DKIM once the mail has been received and trust of the signature has been verified, the value of verifying the signature again at a later date is less meaningful since the signature was to ensure no tampering had occurred during delivery through the network.
+
+??? tip "DKIM key rotation"
+
+    You can rotate your DKIM keypair by switching to a new DKIM selector (_and DNS updates_), while the previous key and selector remains valid for verification until the last mail signed with that key reaches it's expiry.
+
+    DMS does not provide any automation or support for key rotation, [nor is it likely to provide a notable security benefit][gh-discussion::dkim-key-rotation-expiry] to the typical small scale DMS deployment.
+
 ### Generating Keys
 
 You'll need to repeat this process if you add any new domains.
@@ -72,7 +86,7 @@ You should have:
 
         According to [RFC 8301][rfc-8301], keys are preferably between 1024 and 2048 bits. Keys of size 4096-bit or larger may not be compatible to all systems your mail is intended for.
 
-        You [should not need a key length beyond 2048-bit][github-issue-dkimlength]. If 2048-bit does not meet your security needs, you may want to instead consider adopting key rotation or switching from RSA to ECC keys for DKIM.
+        You [should not need a key length beyond 2048-bit][gh-issue::dkim-length]. If 2048-bit does not meet your security needs, you may want to instead consider adopting key rotation or switching from RSA to ECC keys for DKIM.
 
 ??? note "You may need to specify mail domains explicitly"
 
@@ -352,7 +366,8 @@ volumes:
 [docs-rspamd-config-dropin]: ../security/rspamd.md#manually
 [cloudflare-dkim-dmarc-spf]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
 [rfc-8301]: https://datatracker.ietf.org/doc/html/rfc8301#section-3.2
-[github-issue-dkimlength]: https://github.com/docker-mailserver/docker-mailserver/issues/1854#issuecomment-806280929
+[gh-discussion::dkim-key-rotation-expiry]: https://github.com/orgs/docker-mailserver/discussions/4068#discussioncomment-9784263
+[gh-issue::dkim-length]: https://github.com/docker-mailserver/docker-mailserver/issues/1854#issuecomment-806280929
 [rspamd-docs-dkim-checks]: https://www.rspamd.com/doc/modules/dkim.html
 [rspamd-docs-dkim-signing]: https://www.rspamd.com/doc/modules/dkim_signing.html
 [dns::example-webui]: https://www.vultr.com/docs/introduction-to-vultr-dns/
