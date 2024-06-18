@@ -104,7 +104,7 @@ function _password_request_if_missing() {
     echo
     [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
 
-    read -r -s -p 'Confirm Password: ' CONFIRM
+    read -r -s -p 'Confirm Password: ' PASSWD_CONFIRM
     echo
     [[ ${PASSWD} != "${PASSWD_CONFIRM}" ]] && _exit_with_error 'Passwords do not match!'
   fi
