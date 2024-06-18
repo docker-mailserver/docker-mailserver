@@ -2,11 +2,15 @@
 
 Dovecot supports several FTS backends for providing fast and efficient full text searching of e-mails directly from the IMAP server.
 
-As the size of your mail storage grows, the benefits of FTS is especially notable:
+As the size of your mail storage grows, the benefits of FTS are especially notable:
 
 - Without FTS, Dovecot would perform a search query by checking each individual email stored for a match, and then repeat this process again from scratch for the exact same query in future.
 - Some mail clients (_like Thunderbird_) may provide their own indexing and search features when all mail to search is stored locally, otherwise Dovecot needs to handle the search query (_for example webmail and mobile clients, like Gmail_).
 - FTS indexes each mail into a database for querying instead, where it can skip the cost of inspecting irrelevant emails for a query.
+
+!!! warning "This is a community contributed guide"
+
+    It extends [our official docs for Dovecot FTS][docs::dovecot::full-text-search] with a focus on Apache Solr. DMS does not officially support this integration.
 
 ## Setup Solr for DMS
 
@@ -136,7 +140,8 @@ docker compose exec mailserver doveadm fts rescan -A
 
     Usually within 15 minutes or so, you should be able to search your mail using the Dovecot FTS feature! :tada:
 
-[docs::user-patches]: ../config/advanced/override-defaults/user-patches.md
+[docs::user-patches]: ../../config/advanced/override-defaults/user-patches.md
+[docs::dovecot::full-text-search]: ../../config/advanced/full-text-search.md
 [gh-dms::feature-request::dovecot-solr-package]: https://github.com/docker-mailserver/docker-mailserver/issues/4052
 
 [dockerhub-solr]: https://hub.docker.com/_/solr
