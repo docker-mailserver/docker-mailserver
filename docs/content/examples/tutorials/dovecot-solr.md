@@ -12,6 +12,52 @@ As the size of your mail storage grows, the benefits of FTS is especially notabl
 
 An FTS backend supported by Dovecot is [Apache Solr][github-solr], a fast and efficient multi-purpose search indexer.
 
+### Add the required `dovecot-solr` package
+
+As the official DMS image does not provide `dovecot-solr`, you'll need to include the package in your own image (_extending a DMS release as a base image_), or via our [`user-patches.sh` feature][docs::user-patches]:
+
+=== "`user-patches.sh`"
+
+    If you'd prefer to avoid a custom image build. This approach is simpler but with the caveat that any time the container is restarted, you'll have a delay as the package is installed each time.
+
+    ```bash
+    #!/bin/bash
+
+    apt-get update && apt-get install dovecot-solr
+    ```
+
+=== "`compose.yaml`"
+
+    A custom DMS image does not add much friction. You do not need a separate `Dockerfile` as Docker Compose supports building from an inline `Dockerfile` in your `compose.yaml`.
+
+    The `image` key of the service is swapped for the `build` key instead, as shown below:
+
+    ```yaml
+    services:
+      mailserver:
+        hostname: mail.example.com
+        # Do not use `image` anymore, unless referring to the tagged image build below
+        # Add this `build` section to your real `compose.yaml` for your DMS service:
+        build:
+          tags:
+            - local/dms:14.0
+          dockerfile_inline: |
+            FROM docker.io/mailserver/docker-mailserver:14.0
+            RUN apt-get update && apt-get install dovecot-solr
+    ```
+
+    - Just run `docker compose up` and it will pull DMS and build your custom image to run a container.
+    - Updating to a new DMS release is straight-forward, just adjust the version tag as you normally would. If you make future changes that don't apply, you may need to force a rebuild.
+    - This approach only needs to install the package once with the image build itself. This minimizes delay of container startup.
+
+!!! note "Why doesn't DMS include `dovecot-solr`?"
+
+    This integration is not officially supported in DMS as no maintainer is able to provide troubleshooting support.
+
+    Prior to v14, the package was included but the community contributed guide had been outdated for several years that it was non-functional. It was decided that it was better to drop support and docs, however some DMS users voiced active use of Solr and it's benefits over Xapian for FTS which led to these revised docs.
+
+    **ARM64 builds do not have support for `dovecot-solr`**. Additionally the [user demand for including `dovecot-solr` is presently too low][gh-dms::feature-request::dovecot-solr-package] to justify vs the minimal effort to add additional packages as shown above.
+
 ### `compose.yaml` config
 
 Firstly you need a working Solr container, for this the [official docker image][dockerhub-solr] will do:
@@ -65,15 +111,17 @@ DMS will connect internally to the `solr` service above. Either have both servic
     plugin {
       fts = solr
       fts_autoindex = yes
-      fts_solr = url=http://solr_solr_1:8983/solr/dovecot/
+      fts_solr = url=http://dms-solr:8983/solr/dovecot/
     }
     ```
 
     Add a volume mount for that config to your DMS service in `compose.yaml`:
 
     ```yaml
-    volumes:
-      - ./docker-data/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
+    services:
+      mailserver:
+        volumes:
+          - ./docker-data/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
     ```
 
 ### Trigger Dovecot FTS indexing
@@ -87,6 +135,9 @@ docker compose exec mailserver doveadm fts rescan -A
 !!! info "Indexing will take a while depending on how large your mail folders"
 
     Usually within 15 minutes or so, you should be able to search your mail using the Dovecot FTS feature! :tada:
+
+[docs::user-patches]: ../config/advanced/override-defaults/user-patches.md
+[gh-dms::feature-request::dovecot-solr-package]: https://github.com/docker-mailserver/docker-mailserver/issues/4052
 
 [dockerhub-solr]: https://hub.docker.com/_/solr
 [dockerfile-solr-uidgid]: https://github.com/apache/solr-docker/blob/9cd850b72309de05169544395c83a85b329d6b86/9.6/Dockerfile#L89-L92
