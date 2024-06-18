@@ -12,26 +12,28 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/contributing/issues-and-pull-requests/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/dovecot-solr/">
       
       
-        <link rel="prev" href="../tests/">
+        <link rel="prev" href="../blog-posts/">
       
       
+        <link rel="next" href="../../use-cases/forward-only-mailserver-with-ldap-authentication/">
       
-      <link rel="icon" href="../../assets/logo/favicon-32x32.png">
+      
+      <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
-        <title>Contributing | Issues and Pull Requests - Docker Mailserver</title>
+        <title>Dovecot FTS with Apache Solr - Docker Mailserver</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,9 +52,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/css/customizations.css">
+      <link rel="stylesheet" href="../../../assets/css/customizations.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#opening-an-issue" class="md-skip">
+        <a href="#dovecot-full-text-search-fts-using-the-solr-backend" class="md-skip">
           Skip to content
         </a>
       
@@ -96,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Contributing | Issues and Pull Requests
+              Dovecot FTS with Apache Solr
             
           </span>
         </div>
@@ -222,7 +224,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
     
@@ -239,7 +241,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../introduction/" class="md-tabs__link">
+      <a href="../../../introduction/" class="md-tabs__link">
         
   
     
@@ -256,7 +258,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../usage/" class="md-tabs__link">
+      <a href="../../../usage/" class="md-tabs__link">
         
   
     
@@ -275,7 +277,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../config/environment/" class="md-tabs__link">
+        <a href="../../../config/environment/" class="md-tabs__link">
           
   
   Configuration
@@ -289,17 +291,21 @@
         
   
   
+    
+  
   
     
     
       
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../examples/tutorials/basic-installation/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../basic-installation/" class="md-tabs__link">
           
   
   Examples
@@ -318,7 +324,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../faq/" class="md-tabs__link">
+      <a href="../../../faq/" class="md-tabs__link">
         
   
     
@@ -333,13 +339,11 @@
         
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../general/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../../contributing/general/" class="md-tabs__link">
           
   
   Contributing
@@ -406,9 +410,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     Docker Mailserver
@@ -435,7 +439,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -455,7 +459,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../introduction/" class="md-nav__link">
+      <a href="../../../introduction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -475,7 +479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/" class="md-nav__link">
+      <a href="../../../usage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -535,7 +539,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/environment/" class="md-nav__link">
+      <a href="../../../config/environment/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -556,7 +560,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/user-management/" class="md-nav__link">
+      <a href="../../../config/user-management/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -617,7 +621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/best-practices/autodiscover/" class="md-nav__link">
+      <a href="../../../config/best-practices/autodiscover/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -638,7 +642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/best-practices/dkim_dmarc_spf/" class="md-nav__link">
+      <a href="../../../config/best-practices/dkim_dmarc_spf/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -659,7 +663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/best-practices/mta-sts/" class="md-nav__link">
+      <a href="../../../config/best-practices/mta-sts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -728,7 +732,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/security/understanding-the-ports/" class="md-nav__link">
+      <a href="../../../config/security/understanding-the-ports/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -749,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/security/ssl/" class="md-nav__link">
+      <a href="../../../config/security/ssl/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -770,7 +774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/security/fail2ban/" class="md-nav__link">
+      <a href="../../../config/security/fail2ban/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -791,7 +795,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/security/mail_crypt/" class="md-nav__link">
+      <a href="../../../config/security/mail_crypt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -812,7 +816,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/security/rspamd/" class="md-nav__link">
+      <a href="../../../config/security/rspamd/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -841,7 +845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/debugging/" class="md-nav__link">
+      <a href="../../../config/debugging/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -862,7 +866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/pop3/" class="md-nav__link">
+      <a href="../../../config/pop3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -883,7 +887,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/setup.sh/" class="md-nav__link">
+      <a href="../../../config/setup.sh/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -944,7 +948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/optional-config/" class="md-nav__link">
+      <a href="../../../config/advanced/optional-config/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1005,7 +1009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+      <a href="../../../config/advanced/maintenance/update-and-cleanup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1074,7 +1078,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/override-defaults/dovecot/" class="md-nav__link">
+      <a href="../../../config/advanced/override-defaults/dovecot/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1095,7 +1099,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/override-defaults/postfix/" class="md-nav__link">
+      <a href="../../../config/advanced/override-defaults/postfix/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1116,7 +1120,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/override-defaults/user-patches/" class="md-nav__link">
+      <a href="../../../config/advanced/override-defaults/user-patches/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1145,7 +1149,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/auth-ldap/" class="md-nav__link">
+      <a href="../../../config/advanced/auth-ldap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1166,7 +1170,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/auth-oauth2/" class="md-nav__link">
+      <a href="../../../config/advanced/auth-oauth2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1187,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/mail-sieve/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-sieve/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1208,7 +1212,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/mail-fetchmail/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-fetchmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1229,7 +1233,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/mail-getmail/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-getmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1290,7 +1294,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1311,7 +1315,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/mail-forwarding/aws-ses/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-forwarding/aws-ses/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1332,7 +1336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
+      <a href="../../../config/advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1361,7 +1365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/full-text-search/" class="md-nav__link">
+      <a href="../../../config/advanced/full-text-search/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1382,7 +1386,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/kubernetes/" class="md-nav__link">
+      <a href="../../../config/advanced/kubernetes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1403,7 +1407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/ipv6/" class="md-nav__link">
+      <a href="../../../config/advanced/ipv6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1424,7 +1428,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/podman/" class="md-nav__link">
+      <a href="../../../config/advanced/podman/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1445,7 +1449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../config/advanced/dovecot-master-accounts/" class="md-nav__link">
+      <a href="../../../config/advanced/dovecot-master-accounts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1478,25 +1482,28 @@
       
   
   
+    
   
   
+  
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1507,7 +1514,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Examples
@@ -1518,8 +1525,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1527,13 +1536,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" checked>
         
           
           <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
@@ -1547,7 +1554,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_1">
             <span class="md-nav__icon md-icon"></span>
             Tutorials
@@ -1561,7 +1568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/basic-installation/" class="md-nav__link">
+      <a href="../basic-installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1582,7 +1589,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+      <a href="../mailserver-behind-proxy/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1603,7 +1610,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/crowdsec/" class="md-nav__link">
+      <a href="../crowdsec/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1624,7 +1631,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/docker-build/" class="md-nav__link">
+      <a href="../docker-build/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1645,7 +1652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/blog-posts/" class="md-nav__link">
+      <a href="../blog-posts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1663,10 +1670,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../examples/tutorials/dovecot-solr/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Dovecot FTS with Apache Solr
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1675,6 +1702,77 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup-solr-for-dms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setup Solr for DMS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup Solr for DMS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-the-required-dovecot-solr-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add the required dovecot-solr package
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#composeyaml-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      compose.yaml config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-solr-for-dovecot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure Solr for Dovecot
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trigger-dovecot-fts-indexing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trigger Dovecot FTS indexing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1735,7 +1833,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+      <a href="../../use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1756,7 +1854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/imap-folders/" class="md-nav__link">
+      <a href="../../use-cases/imap-folders/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1777,7 +1875,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
+      <a href="../../use-cases/ios-mail-push-support/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1798,7 +1896,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/auth-lua/" class="md-nav__link">
+      <a href="../../use-cases/auth-lua/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1819,7 +1917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
+      <a href="../../use-cases/bind-smtp-network-interface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1840,7 +1938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/external-relay-only-mailserver/" class="md-nav__link">
+      <a href="../../use-cases/external-relay-only-mailserver/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1876,7 +1974,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
+      <a href="../../../faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1893,28 +1991,25 @@
       
   
   
-    
   
   
-  
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1925,7 +2020,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             Contributing
@@ -1939,7 +2034,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../general/" class="md-nav__link">
+      <a href="../../../contributing/general/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1960,7 +2055,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tests/" class="md-nav__link">
+      <a href="../../../contributing/tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1978,28 +2073,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Issues and Pull Requests
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../contributing/issues-and-pull-requests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2008,72 +2085,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#opening-an-issue" class="md-nav__link">
-    <span class="md-ellipsis">
-      Opening an Issue
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Opening an Issue">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#filing-a-bug-report" class="md-nav__link">
-    <span class="md-ellipsis">
-      Filing a Bug Report
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pull-requests" class="md-nav__link">
-    <span class="md-ellipsis">
-      Pull Requests
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Pull Requests">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#submit-a-pull-request" class="md-nav__link">
-    <span class="md-ellipsis">
-      Submit a Pull-Request
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2143,6 +2154,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -2151,43 +2164,46 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#opening-an-issue" class="md-nav__link">
+  <a href="#setup-solr-for-dms" class="md-nav__link">
     <span class="md-ellipsis">
-      Opening an Issue
+      Setup Solr for DMS
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Opening an Issue">
+    <nav class="md-nav" aria-label="Setup Solr for DMS">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#filing-a-bug-report" class="md-nav__link">
+  <a href="#add-the-required-dovecot-solr-package" class="md-nav__link">
     <span class="md-ellipsis">
-      Filing a Bug Report
+      Add the required dovecot-solr package
     </span>
   </a>
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pull-requests" class="md-nav__link">
+          <li class="md-nav__item">
+  <a href="#composeyaml-config" class="md-nav__link">
     <span class="md-ellipsis">
-      Pull Requests
+      compose.yaml config
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Pull Requests">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
-  <a href="#submit-a-pull-request" class="md-nav__link">
+  <a href="#configure-solr-for-dovecot" class="md-nav__link">
     <span class="md-ellipsis">
-      Submit a Pull-Request
+      Configure Solr for Dovecot
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trigger-dovecot-fts-indexing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Trigger Dovecot FTS indexing
     </span>
   </a>
   
@@ -2213,7 +2229,7 @@
                   
 
   
-    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/contributing/issues-and-pull-requests.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/tutorials/dovecot-solr.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -2222,59 +2238,138 @@
     
       
     
-    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/contributing/issues-and-pull-requests.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/examples/tutorials/dovecot-solr.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-  <h1>Issues and Pull Requests</h1>
+<h1 id="dovecot-full-text-search-fts-using-the-solr-backend"><a class="toclink" href="#dovecot-full-text-search-fts-using-the-solr-backend">Dovecot Full Text Search (FTS) using the Solr Backend</a></h1>
+<p>Dovecot supports several FTS backends for providing fast and efficient full text searching of e-mails directly from the IMAP server.</p>
+<p>As the size of your mail storage grows, the benefits of FTS are especially notable:</p>
+<ul>
+<li>Without FTS, Dovecot would perform a search query by checking each individual email stored for a match, and then repeat this process again from scratch for the exact same query in future.</li>
+<li>Some mail clients (<em>like Thunderbird</em>) may provide their own indexing and search features when all mail to search is stored locally, otherwise Dovecot needs to handle the search query (<em>for example webmail and mobile clients, like Gmail</em>).</li>
+<li>FTS indexes each mail into a database for querying instead, where it can skip the cost of inspecting irrelevant emails for a query.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">This is a community contributed guide</p>
+<p>It extends <a href="../../../config/advanced/full-text-search/">our official docs for Dovecot FTS</a> with a focus on Apache Solr. DMS does not officially support this integration.</p>
+</div>
+<h2 id="setup-solr-for-dms"><a class="toclink" href="#setup-solr-for-dms">Setup Solr for DMS</a></h2>
+<p>An FTS backend supported by Dovecot is <a href="https://github.com/apache/solr">Apache Solr</a>, a fast and efficient multi-purpose search indexer.</p>
+<h3 id="add-the-required-dovecot-solr-package"><a class="toclink" href="#add-the-required-dovecot-solr-package">Add the required <code>dovecot-solr</code> package</a></h3>
+<p>As the official DMS image does not provide <code>dovecot-solr</code>, you'll need to include the package in your own image (<em>extending a DMS release as a base image</em>), or via our <a href="../../../config/advanced/override-defaults/user-patches/"><code>user-patches.sh</code> feature</a>:</p>
+<!-- This empty quote block is purely for a visual border -->
+<div class="admonition quote">
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="user-patchessh" name="__tabbed_1" type="radio" /><input id="composeyaml" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="user-patchessh"><code>user-patches.sh</code></label><label for="composeyaml"><code>compose.yaml</code></label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>If you'd prefer to avoid a custom image build. This approach is simpler but with the caveat that any time the container is restarted, you'll have a delay as the package is installed each time.</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 
-<p>This project is Open Source. That means that you can contribute on enhancements, bug fixing or improving the documentation.</p>
-<h2 id="opening-an-issue"><a class="toclink" href="#opening-an-issue">Opening an Issue</a></h2>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p><strong>Before opening an issue</strong>, read the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"><code>README</code></a> carefully, study the docs for your version (maybe <a href="https://docker-mailserver.github.io/docker-mailserver/latest">latest</a>), the Postfix/Dovecot documentation and your search engine you trust. The issue tracker is not meant to be used for unrelated questions!</p>
+apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>dovecot-solr
+</code></pre></div>
 </div>
-<p>When opening an issue, please provide details use case to let the community reproduce your problem. Please start DMS with the environment variable <code>LOG_LEVEL</code> set to <code>debug</code> or <code>trace</code> and paste the output into the issue.</p>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p><strong>Use the issue templates</strong> to provide the necessary information. Issues which do not use these templates are not worked on and closed.</p>
+<div class="tabbed-block">
+<p>A custom DMS image does not add much friction. You do not need a separate <code>Dockerfile</code> as Docker Compose supports building from an inline <code>Dockerfile</code> in your <code>compose.yaml</code>.</p>
+<p>The <code>image</code> key of the service is swapped for the <code>build</code> key instead, as shown below:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
+<span class="w">    </span><span class="c1"># Do not use `image` anymore, unless referring to the tagged image build below</span>
+<span class="w">    </span><span class="c1"># Add this `build` section to your real `compose.yaml` for your DMS service:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local/dms:14.0</span>
+<span class="w">      </span><span class="nt">dockerfile_inline</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">FROM docker.io/mailserver/docker-mailserver:14.0</span>
+<span class="w">        </span><span class="no">RUN apt-get update &amp;&amp; apt-get install dovecot-solr</span>
+</code></pre></div>
+<ul>
+<li>Just run <code>docker compose up</code> and it will pull DMS and build your custom image to run a container.</li>
+<li>Updating to a new DMS release is straight-forward, just adjust the version tag as you normally would. If you make future changes that don't apply, you may need to force a rebuild.</li>
+<li>This approach only needs to install the package once with the image build itself. This minimizes delay of container startup.</li>
+</ul>
 </div>
-<p>By raising issues, I agree to these terms and I understand, that the rules set for the issue tracker will help both maintainers as well as everyone to find a solution.</p>
-<p>Maintainers take the time to improve on this project and help by solving issues together. It is therefore expected from others to make an effort and <strong>comply with the rules</strong>.</p>
-<h3 id="filing-a-bug-report"><a class="toclink" href="#filing-a-bug-report">Filing a Bug Report</a></h3>
-<p>Thank you for participating in this project and reporting a bug. Docker Mail Server (DMS) is a community-driven project, and each contribution counts!</p>
-<p>Maintainers and moderators are volunteers. We greatly appreciate reports that take the time to provide detailed information via the template, enabling us to help you in the best and quickest way. Ignoring the template provided may seem easier, but discourages receiving any support (<em>via assignment of the label <code>meta/no template - no support</code></em>).</p>
-<p>Markdown formatting can be used in almost all text fields (<em>unless stated otherwise in the description</em>).</p>
-<p>Be as precise as possible, and if in doubt, it's best to add more information that too few.</p>
-<p>When an option is marked with "not officially supported" / "unsupported", then support is dependent on availability from specific maintainers.</p>
-<h2 id="pull-requests"><a class="toclink" href="#pull-requests">Pull Requests</a></h2>
-<div class="admonition question">
-<p class="admonition-title">Motivation</p>
-<p>You want to add a feature? Feel free to start creating an issue explaining what you want to do and how you're thinking doing it. Other users may have the same need and collaboration may lead to better results.</p>
 </div>
-<h3 id="submit-a-pull-request"><a class="toclink" href="#submit-a-pull-request">Submit a Pull-Request</a></h3>
-<p>The development workflow is the following:</p>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Why doesn't DMS include <code>dovecot-solr</code>?</p>
+<p>This integration is not officially supported in DMS as no maintainer is able to provide troubleshooting support.</p>
+<p>Prior to v14, the package was included but the community contributed guide had been outdated for several years that it was non-functional. It was decided that it was better to drop support and docs, however some DMS users voiced active use of Solr and it's benefits over Xapian for FTS which led to these revised docs.</p>
+<p><strong>ARM64 builds do not have support for <code>dovecot-solr</code></strong>. Additionally the <a href="https://github.com/docker-mailserver/docker-mailserver/issues/4052">user demand for including <code>dovecot-solr</code> is presently too low</a> to justify vs the minimal effort to add additional packages as shown above.</p>
+</div>
+<h3 id="composeyaml-config"><a class="toclink" href="#composeyaml-config"><code>compose.yaml</code> config</a></h3>
+<p>Firstly you need a working Solr container, for this the <a href="https://hub.docker.com/_/solr">official docker image</a> will do:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">solr</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">solr:latest</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-solr</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># As Solr can be quite resource hungry, raise the memory limit to 2GB.</span>
+<span class="w">      </span><span class="c1"># The default is 512MB, which may be exhausted quickly.</span>
+<span class="w">      </span><span class="nt">SOLR_JAVA_MEM</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;-Xms2g</span><span class="nv"> </span><span class="s">-Xmx2g&quot;</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/solr:/var/solr</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
+</code></pre></div>
+<p>DMS will connect internally to the <code>solr</code> service above. Either have both services in the same <code>compose.yaml</code> file, or ensure that the containers are connected to the same docker network.</p>
+<h3 id="configure-solr-for-dovecot"><a class="toclink" href="#configure-solr-for-dovecot">Configure Solr for Dovecot</a></h3>
 <ol>
-<li>Fork the project and clone your fork with <code>git clone --recurse-submodules ...</code> or run <code>git submodule update --init --recursive</code> after you cloned your fork</li>
-<li>Write the code that is needed :D</li>
-<li>Add integration tests if necessary</li>
-<li><a href="../general/#tests">Prepare your environment and run linting and tests</a></li>
-<li>Document your improvements if necessary (e.g. if you introduced new environment variables, describe those in the <a href="../../config/environment/">ENV documentation</a>) and add your changes the changelog under the "Unreleased" section</li>
-<li><a href="https://help.github.com/articles/closing-issues-via-commit-messages/">Commit</a> (and <a href="https://docs.github.com/en/github/authenticating-to-github/generating-a-new-gpg-key">sign your commit</a>), push and create a pull-request to merge into <code>master</code>. Please <strong>use the pull-request template</strong> to provide a minimum of contextual information and make sure to meet the requirements of the checklist.</li>
+<li>
+<p>Once the Solr container is started, you need to configure a "Solr core" for Dovecot:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>dms-solr<span class="w"> </span>/bin/sh
+solr<span class="w"> </span>create<span class="w"> </span>-c<span class="w"> </span>dovecot
+cp<span class="w"> </span>-R<span class="w"> </span>/opt/solr/contrib/analysis-extras/lib<span class="w"> </span>/var/solr/data/dovecot
+</code></pre></div>
+<p>Stop the <code>dms-solr</code> container and you should now have a <code>./data/dovecot</code> folder in the local bind mount volume.</p>
+</li>
+<li>
+<p>Solr needs a schema that is specifically tailored for Dovecot FTS.</p>
+<p>As of writing of this guide, Solr 9 is the current release. <a href="https://github.com/dovecot/core/tree/main/doc">Dovecot provides the required schema configs</a> for Solr, copy the following two v9 config files to <code>./data/dovecot</code> and rename them accordingly:</p>
+<ul>
+<li><code>solr-config-9.xml</code> (<em>rename to <code>solrconfig.xml</code></em>)</li>
+<li><code>solr-schema-9.xml</code> (<em>rename to <code>schema.xml</code></em>)</li>
+</ul>
+<p>Additionally, remove the <code>managed-schema.xml</code> file from <code>./data/dovecot</code> and ensure the two files you copied have a <a href="https://github.com/apache/solr-docker/blob/9cd850b72309de05169544395c83a85b329d6b86/9.6/Dockerfile#L89-L92">UID and GID of <code>8983</code></a> assigned.</p>
+<p>Start the Solr container once again, you should now have a working Solr core specifically for Dovecot FTS.</p>
+</li>
+<li>
+<p>Configure Dovecot in DMS to connect to this Solr core:</p>
+<p>Create a <code>10-plugin.conf</code> file in your <code>./config/dovecot</code> folder with this contents:</p>
+<div class="highlight"><pre><span></span><code>mail_plugins = $mail_plugins fts fts_solr
+
+plugin {
+  fts = solr
+  fts_autoindex = yes
+  fts_solr = url=http://dms-solr:8983/solr/dovecot/
+}
+</code></pre></div>
+<p>Add a volume mount for that config to your DMS service in <code>compose.yaml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro</span>
+</code></pre></div>
+</li>
 </ol>
-<p>Pull requests are automatically tested against the CI and will be reviewed when tests pass. When your changes are validated, your branch is merged. CI builds the new <code>:edge</code> image immediately and your changes will be includes in the next version release.</p>
+<h3 id="trigger-dovecot-fts-indexing"><a class="toclink" href="#trigger-dovecot-fts-indexing">Trigger Dovecot FTS indexing</a></h3>
+<p>After following the previous steps, restart DMS and run this command to have Dovecot re-index all mail:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>fts<span class="w"> </span>rescan<span class="w"> </span>-A
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Indexing will take a while depending on how large your mail folders</p>
+<p>Usually within 15 minutes or so, you should be able to search your mail using the Dovecot FTS feature! <img alt="🎉" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f389.svg" title=":tada:" /></p>
+</div>
 
 
 
 
 
 
-
-  
-  
 
 
 
@@ -2325,10 +2420,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>
