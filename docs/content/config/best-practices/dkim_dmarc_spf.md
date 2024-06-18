@@ -37,7 +37,7 @@ DKIM requires a public/private key pair to enable **signing (_via private key_)*
 
     Unlike your TLS certificate, your DKIM keypair does not have a fixed expiry associated to it.
 
-    Instead an expiry may be included in your DKIM signature for each mail sent, where a receiver will refuse to validate the signature for an email after that expiry date. This is an added precaution to mitigate malicious activity like "DKIM replay attacks", where a trustworthy DKIM signature from an existing mail from a third-party is recycled enable a spammer to bypass security precautions.
+    Instead an expiry may be included in your DKIM signature for each mail sent, where a receiver will [refuse to validate the signature for an email after that expiry date][dkim-verification-expiry-refusal]. This is an added precaution to mitigate malicious activity like "DKIM replay attacks", where a trustworthy DKIM signature from an existing mail from a third-party is recycled enable a spammer to bypass security precautions.
 
     Unlike a TLS handshake where you are authenticating trust with future communications; with DKIM once the mail has been received and trust of the signature has been verified, the value of verifying the signature again at a later date is less meaningful since the signature was to ensure no tampering had occurred during delivery through the network.
 
@@ -375,6 +375,7 @@ volumes:
 [dns::wikipedia-zonefile]: https://en.wikipedia.org/wiki/Zone_file
 [dns::webui-dkim]: https://serverfault.com/questions/763815/route-53-doesnt-allow-adding-dkim-keys-because-length-is-too-long
 [dkim-ed25519-support]: https://serverfault.com/questions/1023674/is-ed25519-well-supported-for-the-dkim-validation/1074545#1074545
+[dkim-verification-expiry-refusal]: https://mxtoolbox.com/problem/dkim/dkim-signature-expiration
 [mxtoolbox-dkim-verifier]: https://mxtoolbox.com/dkim.aspx
 [dmarc-howto-configtags]: https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md#overview-of-dmarc-configuration-tags
 [dmarc-tool-gca]: https://dmarcguide.globalcyberalliance.org
