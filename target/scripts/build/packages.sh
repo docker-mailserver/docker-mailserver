@@ -189,8 +189,8 @@ function _install_fail2ban() {
 
   gpg --keyserver "${FAIL2BAN_GPG_PUBLIC_KEY_SERVER}" --recv-keys "${FAIL2BAN_GPG_PUBLIC_KEY_ID}" 2>&1
 
-  curl -Lkso fail2ban.deb "${FAIL2BAN_DEB_URL}"
-  curl -Lkso fail2ban.deb.asc "${FAIL2BAN_DEB_ASC_URL}"
+  curl -fsSLo fail2ban.deb "${FAIL2BAN_DEB_URL}"
+  curl -fsSLo fail2ban.deb.asc "${FAIL2BAN_DEB_ASC_URL}"
 
   FINGERPRINT=$(LANG=C gpg --verify fail2ban.deb.asc fail2ban.deb |& sed -n 's#Primary key fingerprint: \(.*\)#\1#p')
 
