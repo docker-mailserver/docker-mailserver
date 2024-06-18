@@ -37,9 +37,10 @@ DKIM requires a public/private key pair to enable **signing (_via private key_)*
 
     Unlike your TLS certificate, your DKIM keypair does not have a fixed expiry associated to it.
 
-    Instead an expiry may be included in your DKIM signature for each mail sent, where a receiver will [refuse to validate the signature for an email after that expiry date][dkim-verification-expiry-refusal]. This is an added precaution to mitigate malicious activity like "DKIM replay attacks", where a trustworthy DKIM signature from an existing mail from a third-party is recycled enable a spammer to bypass security precautions.
 
-    Unlike a TLS handshake where you are authenticating trust with future communications; with DKIM once the mail has been received and trust of the signature has been verified, the value of verifying the signature again at a later date is less meaningful since the signature was to ensure no tampering had occurred during delivery through the network.
+    Instead an expiry may be included in your DKIM signature for each mail sent, where a receiver will [refuse to validate the signature for an email after that expiry date][dkim-verification-expiry-refusal]. This is an added precaution to mitigate malicious activity like "DKIM replay attacks", where a trustworthy DKIM signature from an existing mail from a third-party is recycled to enable a spammer to bypass security precautions.
+
+    Unlike a TLS handshake where you are authenticating trust with future communications, with DKIM once the mail has been received and trust of the signature has been verified, the value of verifying the signature again at a later date is less meaningful since the signature was to ensure no tampering had occurred during delivery through the network.
 
 ??? tip "DKIM key rotation"
 
