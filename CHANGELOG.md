@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Added
+
+- **Internal:**
+  - Add password confirmation to several `setup.sh` commands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
+
 ### Updates
 
 - **Fail2ban**:

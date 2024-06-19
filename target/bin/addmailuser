@@ -7,8 +7,7 @@ function _main() {
   _require_n_parameters_or_print_usage 1 "${@}"
 
   local MAIL_ACCOUNT="${1}"
-  shift
-  local PASSWD="${*}"
+  local PASSWD="${2}"
 
   _manage_accounts_create "${MAIL_ACCOUNT}" "${PASSWD}"
 
