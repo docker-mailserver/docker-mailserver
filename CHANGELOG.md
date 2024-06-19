@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Fail2ban**:
   - Ensure a secure connection, when downloading the fail2ban package ([#4080](https://github.com/docker-mailserver/docker-mailserver/pull/4080))
+### Added
+
+- **Internal:**
+  - Add password confirmation to several `setup.sh` commands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
 
 ### Updates
 
