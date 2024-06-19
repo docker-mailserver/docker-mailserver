@@ -2338,6 +2338,17 @@
 <li>Outbound mail is signed (<em>when you're sending domain has a configured DKIM key</em>)</li>
 </ol>
 <p>DKIM requires a public/private key pair to enable <strong>signing (<em>via private key</em>)</strong> your outgoing mail, while the receiving end must query DNS to <strong>verify (<em>via public key</em>)</strong> that the signature is trustworthy.</p>
+<details class="info">
+<summary>Verification expiry</summary>
+<p>Unlike your TLS certificate, your DKIM keypair does not have a fixed expiry associated to it.</p>
+<p>Instead, an expiry may be included in your DKIM signature for each mail sent, where a receiver will <a href="https://mxtoolbox.com/problem/dkim/dkim-signature-expiration">refuse to validate the signature for an email after that expiry date</a>. This is an added precaution to mitigate malicious activity like "DKIM replay attacks", where an already delivered email from a third-party with a trustworthy DKIM signature is leveraged by a spammer when sending mail to an MTA which verifies the DKIM signature successfully, enabling the spammer to bypass spam protections.</p>
+<p>Unlike a TLS handshake where you are authenticating trust with future communications, with DKIM once the mail has been received and trust of the signature has been verified, the value of verifying the signature again at a later date is less meaningful since the signature was to ensure no tampering had occurred during delivery through the network.</p>
+</details>
+<details class="tip">
+<summary>DKIM key rotation</summary>
+<p>You can rotate your DKIM keypair by switching to a new DKIM selector (<em>and DNS updates</em>), while the previous key and selector remains valid for verification until the last mail signed with that key reaches it's expiry.</p>
+<p>DMS does not provide any automation or support for key rotation, <a href="https://github.com/orgs/docker-mailserver/discussions/4068#discussioncomment-9784263">nor is it likely to provide a notable security benefit</a> to the typical small scale DMS deployment.</p>
+</details>
 <h3 id="generating-keys"><a class="toclink" href="#generating-keys">Generating Keys</a></h3>
 <p>You'll need to repeat this process if you add any new domains.</p>
 <p>You should have:</p>
