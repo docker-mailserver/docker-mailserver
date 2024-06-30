@@ -4,8 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    reviewers:
-      - "docker-mailserver/maintainers"
     labels:
       - "area/ci"
       - "kind/update"
@@ -15,8 +13,6 @@ updates:
     directory: /
     schedule:
       interval: "weekly"
-    reviewers:
-      - "docker-mailserver/maintainers"
     labels:
       - "area/ci"
       - "kind/update"
