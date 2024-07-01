@@ -82,5 +82,19 @@ Postfix supports so-called address tags, in the form of plus (+) tags - i.e. `ad
     recipient_delimiter = -
     ```
 
+### Send-Only Aliases
+
+Sometimes, it may be useful to allow certain accounts to send as other accounts, even when [the `SPOOF_PROTECTION` environment variable is enabled][spoof-protection]. This may be used to allow services to send accounts as other addresses/users without needing to disable spoof protection entirely, and without affecting incoming mail (which traditional [aliases](#aliases) would do).
+
+To configure these aliases, add them to `docker-data/dms/config/postfix-regexp-send-only.cf` in the same format as [the other regexp aliases](#configuring-regexp-aliases). For example:
+
+```cf
+/^.*@example.com$/ admin@example.com
+/^.*$/ superadmin@example.com
+```
+
+In this example, `admin@example.com` would be able to send as any address at `example.com` and `superadmin@example.com` would be able to send as any address at any domain.
+
+[spoof-protection]: ./environment.md#spoof_protection
 [postfix-docs-alias]: http://www.postfix.org/VIRTUAL_README.html#virtual_alias
 [postfix-docs-extension-delimiters]: http://www.postfix.org/postconf.5.html#recipient_delimiter
