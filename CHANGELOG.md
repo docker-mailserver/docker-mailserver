@@ -22,7 +22,8 @@ All notable changes to this project will be documented in this file. The format 
 
 #### Fixes
 - **Dovecot:**
-  - `logwatch`  Update logwatch `ignore.conf` to exclude Xapian messages about pending documents
+  - `logwatch`  Update logwatch `ignore.conf` to exclude Xapian messages about pending documents ([#4060](https://github.com/docker-mailserver/docker-mailserver/pull/4060))
+  - `dovecot-fts-xapian` plugin was updated to `1.7.13`, fixing a regression with indexing ([#4095](https://github.com/docker-mailserver/docker-mailserver/pull/4095))
 
 ## [v14.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v14.0.0)
 

@@ -16,7 +16,7 @@ function _compile_dovecot_fts_xapian() {
   apt-get "${QUIET}" --no-install-recommends install \
     automake libtool pkg-config libicu-dev libsqlite3-dev libxapian-dev make build-essential dh-make devscripts dovecot-dev
 
-  local XAPIAN_VERSION='1.7.12'
+  local XAPIAN_VERSION='1.7.13'
   curl -sSfL -o dovecot-fts-xapian.tar.gz \
     "https://github.com/grosjo/fts-xapian/releases/download/${XAPIAN_VERSION}/dovecot-fts-xapian-${XAPIAN_VERSION}.tar.gz"
   tar xf dovecot-fts-xapian.tar.gz
