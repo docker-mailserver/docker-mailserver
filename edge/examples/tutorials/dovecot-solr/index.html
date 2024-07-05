@@ -2278,11 +2278,12 @@ apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&am
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
-<span class="w">    </span><span class="c1"># Do not use `image` anymore, unless referring to the tagged image build below</span>
+<span class="w">    </span><span class="c1"># The `image` setting now represents the tag for the local build configured below:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local/dms:14.0</span>
+<span class="w">    </span><span class="c1"># Local build (no need to try pull `image` remotely):</span>
+<span class="w">    </span><span class="nt">pull_policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build</span>
 <span class="w">    </span><span class="c1"># Add this `build` section to your real `compose.yaml` for your DMS service:</span>
 <span class="w">    </span><span class="nt">build</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">tags</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local/dms:14.0</span>
 <span class="w">      </span><span class="nt">dockerfile_inline</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">        </span><span class="no">FROM docker.io/mailserver/docker-mailserver:14.0</span>
 <span class="w">        </span><span class="no">RUN apt-get update &amp;&amp; apt-get install dovecot-solr</span>
