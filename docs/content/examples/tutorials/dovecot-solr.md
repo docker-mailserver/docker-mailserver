@@ -43,11 +43,12 @@ As the official DMS image does not provide `dovecot-solr`, you'll need to includ
         services:
           mailserver:
             hostname: mail.example.com
-            # Do not use `image` anymore, unless referring to the tagged image build below
+            # The `image` setting now represents the tag for the local build configured below:
+            image: local/dms:14.0
+            # Local build (no need to try pull `image` remotely):
+            pull_policy: build
             # Add this `build` section to your real `compose.yaml` for your DMS service:
             build:
-              tags:
-                - local/dms:14.0
               dockerfile_inline: |
                 FROM docker.io/mailserver/docker-mailserver:14.0
                 RUN apt-get update && apt-get install dovecot-solr
