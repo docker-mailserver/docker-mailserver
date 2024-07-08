@@ -79,7 +79,7 @@ jobs:
           platforms: arm64
 
       - name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v3.3.0
+        uses: docker/setup-buildx-action@v3.4.0
 
       # NOTE: AMD64 can build within 2 minutes
       - name: 'Build images'
