@@ -4,27 +4,46 @@ title: 'Account Management | File Provisioner'
 
 ## Accounts
 
-Users (email accounts) are managed in `/tmp/docker-mailserver/postfix-accounts.cf`.
+**Config file:** `docker-data/dms/config/postfix-accounts.cf`.
 
-The best way to manage accounts is to use our `setup` CLI provided inside the container.
+The best way to manage DMS accounts and related config files is through our `setup` CLI provided within the container.
 
-!!! example "Using `setup` within the container"
+!!! example "Using the `setup` CLI"
 
     Try the following within the DMS container (`docker exec -it <CONTAINER NAME> bash`):
 
-    - Add an account: `setup email add <NEW ADDRESS>`
-    - Add an alias: `setup alias add <FROM ALIAS> <TO ADDRESS>`
-    - Learn more about subcommands available: `setup help`
+    - Add an account: `setup email add <EMAIL ADDRESS>`
+    - Add an alias: `setup alias add <FROM ALIAS> <TO TARGET ADDRESS>`
+    - Learn more about the available subcommands via: `setup help`
+
+    ```console
+    # Spin up a basic DMS instance and then shells into the container to provision accounts:
+    $ docker run --rm -itd --name dms --hostname mail.example.com ghcr.io/docker-mailserver/docker-mailserver:latest
+    $ docker exec -it dms bash
+
+    # Create some accounts:
+    $ setup email add john.doe@example.com bad-password
+    $ setup email add jane.doe@example.com bad-password
+
+    # Create an alias:
+    $ setup alias add your-alias-here@example.com john.doe@example.com
+    ```
+
+!!! info
+
+    The email address chosen will also represent the login username credential for mail clients.
+
+    Account creation will also normalize the provided address to lowercase, as DMS does not support multiple address variants relying on case-sensitivity.
 
 ### Quotas
 
-`/tmp/docker-mailserver/dovecot-quotas.cf`
+**Config file:** `docker-data/dms/config/dovecot-quotas.cf`
 
-- When the mailbox is deleted, the quota directive is deleted as well.
+When the mailbox is deleted, the quota directive is deleted as well.
 
 ### Aliases
 
-`/tmp/docker-mailserver/postfix-virtual.cf`
+**Config file:** `docker-data/dms/config/postfix-virtual.cf`
 
 Alias and target are space separated. An example on a server with `example.com` as its domain:
 

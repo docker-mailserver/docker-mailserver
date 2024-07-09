@@ -2,11 +2,28 @@
 
 ## Mail Accounts - Domains, Addresses, Aliases
 
-`ACCOUNT_PROVISIONER` and supplementary pages referenced here.
+**TODO:** `ACCOUNT_PROVISIONER` and supplementary pages referenced here.
 
-An account has an email address `local-part@domain-part`.
+An email address should conform to the [expected syntax](https://en.wikipedia.org/wiki/Email_address#Syntax).
+
+!!! info
+
+    In the DMS docs, there may be references to the sub-components of an address (`local-part@domain-part`).
 
 ### Accounts
+
+To receive or send mail, you'll need to provision users into DMS with accounts. A DMS account will provide information such as their email address, login username, and any aliases.
+
+The email address assigned to an account is relevant for:
+
+- Receiving delivery to an inbox, when DMS receives mail for that address as the recipient (_or an alias that resolves to it_).
+- Mail submission with:
+    - `SPOOF_PROTECTION=1` restricts the sender address to the DMS account email address, unless additional sender addresses have been permitted via supported config.
+    - `SPOOF_PROTECTION=0` allows DMS accounts to use any sender address, only a single DMS account is necessary to send mail with different sender addresses.
+
+!!! warning
+
+    Ensure that you avoid configuring email addresses with the [sub-address tag delimiter](#sub-addressing), otherwise opt-out of the sub-addressing feature.
 
 ### Aliases
 
