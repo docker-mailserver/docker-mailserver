@@ -567,7 +567,7 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 
 !!! warning "Caddy certificate location varies"
 
-    The path contains the certificate provisioner used. This path may be different from the example above for you and may change over time when multiple provisioner services are used][dms-pr-feedback::caddy-provisioning-gotcha].
+    The path contains the certificate provisioner used. This path may be different from the example above for you and may change over time when [multiple ACME provisioner services are used][dms-pr-feedback::caddy-provisioning-gotcha].
 
     This can make the volume mounting for DMS to find the certificates non-deterministic, but you can [restrict provisioning to single service via the `acme_ca` setting][caddy::restrict-acme-provisioner].
 
@@ -583,7 +583,7 @@ This setup only comes with one caveat - The domain has to be configured on anoth
 
 ???+ example "Example Code"
 
-    Here is an example setup for [`docker-compose`](https://docs.docker.com/compose/):
+    Here is an example setup for [`Docker Compose`](https://docs.docker.com/compose/):
 
     ```yaml
     services:
