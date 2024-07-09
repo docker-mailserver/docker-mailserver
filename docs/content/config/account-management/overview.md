@@ -10,7 +10,7 @@ An account has an email address `local-part@domain-part`.
 
 ### Aliases
 
-You may read [Postfix's documentation on virtual aliases][postfix-docs-alias] first.
+You may read [Postfix's documentation on virtual aliases][postfix-docs::virtual-alias] first.
 
 An alias is a full email address that will either be:
 
@@ -21,22 +21,55 @@ Known issues
 Alias and Account names cannot overlap
 Wildcard and need to alias each real account.. (no longer supported?)
 
-### Sub-addressing (aka Plus Addressing / Extension Tags)
+### Sub-addressing
 
-Postfix supports so-called address tags, in the form of plus (+) tags - i.e. `address+tag@example.com` will end up at `address@example.com`.
+!!! info
 
-This is configured by default and the (configurable!) separator is set to `+`. For more info, see [Postfix's official documentation][postfix-docs-extension-delimiters].
+    [Subaddressing][wikipedia::subaddressing] (_aka Plus Addressing or Address Tags_) is a feature that allows you to receive mail to an address which includes a tag appended to the `local-part` of a valid account address.
 
-!!! note
+    - A subaddress has a tag delimiter (default: `+`), followed by the tag: `<local-part>+<tag>@<domain-part>`
+    - The subaddress `user+github@example.com` would deliver mail to the same mailbox as `user@example.com`.
+    - Tags are dynamic. Anything between the `+` and `@` is understood as the tag, no additional configuration required.
+    - Only the first occurence of the tag delimiter is recognized. Any additional occurences become part of the tag value itself.
 
-    If you do decide to change the configurable separator, you must add the same line to *both* `docker-data/dms/config/postfix-main.cf` and `docker-data/dms/config/dovecot.cf`, because Dovecot is acting as the delivery agent. For example, to switch to `-`, add:
+!!! tip "When is subaddressing useful?"
 
-    ```cf
-    recipient_delimiter = -
-    ```
+    A common use-case is to use a unique tag for each service you register your email address with.
 
-[postfix-docs-alias]: http://www.postfix.org/VIRTUAL_README.html#virtual_alias
-[postfix-docs-extension-delimiters]: http://www.postfix.org/postconf.5.html#recipient_delimiter
+    - Routing delivery to different folders in your mailbox based on the tag (_via a [Sieve filter][docs::sieve::subaddressing]_).
+    - Data leaks or bulk sales of email addresses.
+        - If spam / phishing mail you receive has not removed the tag, you will have better insight into where your address was compromised from.
+        - When the expected tag is missing, this additionally helps identify bad actors. Especially when mail delivery is routed to subfolders by tag.
+    - For more use-cases, view the end of [this article][web::subaddress-use-cases].
+
+??? tip "Changing the tag delimiter"
+
+    Add `recipient_delimiter = +` to these config override files (_replacing `+` with your preferred delimiter_):
+
+    - Postfix: `docker-data/dms/config/postfix-main.cf`
+    - Dovecot: `docker-data/dms/config/dovecot.cf`
+
+??? tip "Opt-out of subaddressing"
+
+    Follow the advice to change the tag delimiter, but instead set an empty value (`recipient_delimiter =`).
+
+??? warning "Only for receiving, not sending"
+
+    Do not attempt to send mail from these tagged addresses, they are not equivalent to aliases.
+
+    This feature is only intended to be used when a mail client sends to a DMS managed recipient address. While DMS does not restrict the sender address you choose to send mail from (_provided `SPOOF_PROTECTION` has not been enabled_), it is often [forbidden by mail services][ms-exchange-docs::limitations].
+
+??? abstract "Technical Details"
+
+    The configured tag delimiter (`+`) allows both Postfix and Dovecot to recognize subaddresses. Without this feature configured, the subaddresses would be considered as separate mail accounts rather than routed to a common account address.
+
+    ---
+
+    Internally DMS has the tag delimiter configured by:
+
+    - Applying the Postfix `main.cf` setting: [`recipient_delimiter = +`][postfix-docs::recipient-delimiter]
+    - Dovecot has the equivalent setting set as `+` by default: [`recipient_delimiter = +`][dovecot-docs::config::recipient-delimiter]
+
 
 ### Quotas
 
@@ -76,3 +109,12 @@ default feature enabled, dovecot creates dummy accounts to workaround alias limi
 
     - A [PassDB][dovecot::docs::passdb] lookup most importantly authenticates the user. It may also provide any other necessary pre-login information.
     - A [UserDB][dovecot::docs::userdb] lookup retrieves post-login information specific to a user.
+
+[docs::sieve::subaddressing]: ../advanced/mail-sieve.md#subaddress-mailbox-routing
+[web::subaddress-use-cases]: https://www.codetwo.com/admins-blog/plus-addressing/
+[wikipedia::subaddressing]: https://en.wikipedia.org/wiki/Email_address#Sub-addressing
+[ms-exchange-docs::limitations]: https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/plus-addressing-in-exchange-online#using-plus-addresses
+
+[postfix-docs::virtual-alias]: http://www.postfix.org/VIRTUAL_README.html#virtual_alias
+[postfix-docs::recipient-delimiter]: http://www.postfix.org/postconf.5.html#recipient_delimiter
+[dovecot-docs::config::recipient-delimiter]: https://doc.dovecot.org/settings/core/#core_setting-recipient_delimiter
