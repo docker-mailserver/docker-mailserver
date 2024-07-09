@@ -2979,7 +2979,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 </details>
 <div class="admonition warning">
 <p class="admonition-title">Caddy certificate location varies</p>
-<p>The path contains the certificate provisioner used. This path may be different from the example above for you and may change over time when multiple provisioner services are used]<a href="https://github.com/docker-mailserver/docker-mailserver/pull/3485/files#r1297512818">dms-pr-feedback::caddy-provisioning-gotcha</a>.</p>
+<p>The path contains the certificate provisioner used. This path may be different from the example above for you and may change over time when <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3485/files#r1297512818">multiple ACME provisioner services are used</a>.</p>
 <p>This can make the volume mounting for DMS to find the certificates non-deterministic, but you can <a href="https://caddy.community/t/is-there-a-way-on-a-caddyfile-to-force-a-specific-acme-ca/14506">restrict provisioning to single service via the <code>acme_ca</code> setting</a>.</p>
 </div>
 <h3 id="traefik"><a class="toclink" href="#traefik">Traefik</a></h3>
@@ -2989,7 +2989,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <p>This setup only comes with one caveat - The domain has to be configured on another service for Traefik to actually request it from <em>Let's Encrypt</em> (<em>i.e. Traefik will not issue a certificate without a service / router demanding it</em>).</p>
 <details class="example" open="open">
 <summary>Example Code</summary>
-<p>Here is an example setup for <a href="https://docs.docker.com/compose/"><code>docker-compose</code></a>:</p>
+<p>Here is an example setup for <a href="https://docs.docker.com/compose/"><code>Docker Compose</code></a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
