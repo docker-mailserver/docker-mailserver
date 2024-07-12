@@ -1,5 +1,5 @@
 ---
-title: 'Account Management | LDAP Provisioner'
+title: 'Account Management | Provisioner (LDAP)'
 ---
 
 ## Introduction

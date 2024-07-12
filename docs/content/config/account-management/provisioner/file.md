@@ -1,10 +1,10 @@
 ---
-title: 'Account Management | File Provisioner'
+title: 'Account Management | Provisioner (File)'
 ---
 
 ## Accounts
 
-**Config file:** `docker-data/dms/config/postfix-accounts.cf`.
+**Config file:** `docker-data/dms/config/postfix-accounts.cf`
 
 The best way to manage DMS accounts and related config files is through our `setup` CLI provided within the container.
 
@@ -16,32 +16,32 @@ The best way to manage DMS accounts and related config files is through our `set
     - Add an alias: `setup alias add <FROM ALIAS> <TO TARGET ADDRESS>`
     - Learn more about the available subcommands via: `setup help`
 
-    ```console
-    # Spin up a basic DMS instance and then shells into the container to provision accounts:
-    $ docker run --rm -itd --name dms --hostname mail.example.com ghcr.io/docker-mailserver/docker-mailserver:latest
-    $ docker exec -it dms bash
+    ```bash
+    # Starts a basic DMS instance and then shells into the container to use the `setup` CLI:
+    docker run --rm -itd --name dms --hostname mail.example.com ghcr.io/docker-mailserver/docker-mailserver:latest
+    docker exec -it dms bash
 
     # Create some accounts:
-    $ setup email add john.doe@example.com bad-password
-    $ setup email add jane.doe@example.com bad-password
+    setup email add john.doe@example.com bad-password
+    setup email add jane.doe@example.com bad-password
 
     # Create an alias:
-    $ setup alias add your-alias-here@example.com john.doe@example.com
+    setup alias add your-alias-here@example.com john.doe@example.com
     ```
 
 !!! info
 
-    The email address chosen will also represent the login username credential for mail clients.
+    Account creation will normalize the provided email address to lowercase, as DMS does not support multiple case-sensitive address variants.
 
-    Account creation will also normalize the provided address to lowercase, as DMS does not support multiple address variants relying on case-sensitivity.
+    The email address chosen will also represent the _login username_ credential for mail clients to authenticate with.
 
-### Quotas
+## Quotas
 
 **Config file:** `docker-data/dms/config/dovecot-quotas.cf`
 
 When the mailbox is deleted, the quota directive is deleted as well.
 
-### Aliases
+## Aliases
 
 **Config file:** `docker-data/dms/config/postfix-virtual.cf`
 

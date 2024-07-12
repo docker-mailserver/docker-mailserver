@@ -6,7 +6,7 @@ title: 'Account Management | OAuth2 Support'
 
 !!! warning "This is only a supplement to the existing account provisioners"
 
-    Accounts must still be managed via the configured [`ACCOUNT_PROVISIONER`][env::account-provisioner] (FILE or LDAP).
+    Accounts must still be managed via the configured [`ACCOUNT_PROVISIONER`][env::account-provisioner] (`FILE` or `LDAP`).
 
     Reasoning for this can be found in [#3480][gh-pr::oauth2]. Future iterations on this feature may allow it to become a full account provisioner.
 
@@ -15,13 +15,13 @@ title: 'Account Management | OAuth2 Support'
 
 The present OAuth2 support provides the capability for 3rd-party applications such as Roundcube to authenticate with DMS (dovecot) by using a token obtained from an OAuth2 provider, instead of passing passwords around.
 
-## Example (Authentik & Roundcube)
+## Example (Authentik with Roundcube)
 
-This example assumes you have:
+This example assumes you have already set up:
 
-- A working DMS server set up
-- An Authentik server set up ([documentation](https://goauthentik.io/docs/installation/))
-- A Roundcube server set up (either [docker](https://hub.docker.com/r/roundcube/roundcubemail/) or [bare metal](https://github.com/roundcube/roundcubemail/wiki/Installation))
+- A working DMS server
+- An Authentik server ([documentation](https://goauthentik.io/docs/installation/))
+- A Roundcube server (either [docker](https://hub.docker.com/r/roundcube/roundcubemail/) or [bare metal](https://github.com/roundcube/roundcubemail/wiki/Installation))
 
 !!! example "Setup Instructions"
 

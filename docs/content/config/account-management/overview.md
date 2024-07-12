@@ -4,8 +4,6 @@
 
 **TODO:** `ACCOUNT_PROVISIONER` and supplementary pages referenced here.
 
-An email address should conform to the [expected syntax](https://en.wikipedia.org/wiki/Email_address#Syntax).
-
 !!! info
 
     In the DMS docs, there may be references to the sub-components of an address (`local-part@domain-part`).
@@ -21,9 +19,13 @@ The email address assigned to an account is relevant for:
     - `SPOOF_PROTECTION=1` restricts the sender address to the DMS account email address, unless additional sender addresses have been permitted via supported config.
     - `SPOOF_PROTECTION=0` allows DMS accounts to use any sender address, only a single DMS account is necessary to send mail with different sender addresses.
 
-!!! warning
+??? warning "Email address considerations"
 
-    Ensure that you avoid configuring email addresses with the [sub-address tag delimiter](#sub-addressing), otherwise opt-out of the sub-addressing feature.
+    An email address should conform to the standard [permitted charset and format](https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address/2049510#2049510).
+
+    DMS has features that need to reserve special characters to work correctly. Ensure those characters are not present in email addresses you configure for DMS, or disable / opt-out of the feature.
+
+    - [Sub-addressing](#sub-addressing) is enabled by default with the _tag delimiter_ `+`. This can be configured, or be unset to opt-out.
 
 ### Aliases
 
@@ -42,9 +44,9 @@ Wildcard and need to alias each real account.. (no longer supported?)
 
 !!! info
 
-    [Subaddressing][wikipedia::subaddressing] (_aka Plus Addressing or Address Tags_) is a feature that allows you to receive mail to an address which includes a tag appended to the `local-part` of a valid account address.
+    [Subaddressing][wikipedia::subaddressing] (_aka **Plus Addressing** or **Address Tags**_) is a feature that allows you to receive mail to an address which includes a tag appended to the `local-part` of a valid account address.
 
-    - A subaddress has a tag delimiter (default: `+`), followed by the tag: `<local-part>+<tag>@<domain-part>`
+    - A subaddress has a tag delimiter (_default: `+`_), followed by the tag: `<local-part>+<tag>@<domain-part>`
     - The subaddress `user+github@example.com` would deliver mail to the same mailbox as `user@example.com`.
     - Tags are dynamic. Anything between the `+` and `@` is understood as the tag, no additional configuration required.
     - Only the first occurence of the tag delimiter is recognized. Any additional occurences become part of the tag value itself.
@@ -86,7 +88,6 @@ Wildcard and need to alias each real account.. (no longer supported?)
 
     - Applying the Postfix `main.cf` setting: [`recipient_delimiter = +`][postfix-docs::recipient-delimiter]
     - Dovecot has the equivalent setting set as `+` by default: [`recipient_delimiter = +`][dovecot-docs::config::recipient-delimiter]
-
 
 ### Quotas
 

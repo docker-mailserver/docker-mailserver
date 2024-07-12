@@ -144,8 +144,8 @@ nav:
         - 'File Based': config/account-management/provisioner/file.md
         - 'LDAP Service': config/account-management/provisioner/ldap.md
       - 'Supplementary':
-        - 'OAuth2 Authentication': config/account-management/supplementary/oauth2.md
         - 'Dovecot Master Accounts': config/account-management/supplementary/master-accounts.md
+        - 'OAuth2 Authentication': config/account-management/supplementary/oauth2.md
     - 'Best Practices':
       - 'Auto-discovery': config/best-practices/autodiscover.md
       - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md
