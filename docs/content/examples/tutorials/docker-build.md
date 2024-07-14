@@ -32,7 +32,7 @@ We make use of build features that require a recent version of Docker. v23.0 or 
 
 The `Dockerfile` includes several build [`ARG`][docker-docs::builder-arg] instructions that can be configured:
 
-- `DOVECOT_COMMUNITY_REPO`: Install Dovecot from the community repo instead of from Debian (default = 1) 
+- `DOVECOT_COMMUNITY_REPO`: Install Dovecot from the community repo instead of from Debian (default = 0) 
 - `DMS_RELEASE`: The image version (default = edge)
 - `VCS_REVISION`: The git commit hash used for the build (default = unknown)
 
