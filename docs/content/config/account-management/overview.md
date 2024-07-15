@@ -29,16 +29,33 @@ The email address assigned to an account is relevant for:
 
 ### Aliases
 
-You may read [Postfix's documentation on virtual aliases][postfix-docs::virtual-alias] first.
+An alias is typically a full email address that will either be:
 
-An alias is a full email address that will either be:
+- Delivered to an existing local DMS account address.
+- Redirected to one or more other email addresses (_these may also be forwarded to external addresses not managed by DMS_).
 
-- Delivered to an existing account
-- Redirected to one or more other email addresses
+??? abstract "Technical Details (_Local vs Virtual aliases_)"
 
-Known issues
-Alias and Account names cannot overlap
-Wildcard and need to alias each real account.. (no longer supported?)
+    Aliases are managed through Postfix which supports _local_ and _virtual_ aliases:
+
+    - **Local aliases** are for mail routed to the [`local` delivery agent][postfix::delivery-agent::local] (see [associated alias config format][postfix::config-table::local-alias])
+        - You rarely need to configure this. It is used internally for system unix accounts belonging to the services running in DMS (_including `root`_).
+        - `postmaster` may be a local alias to `root`, and `root` to a virtual alias or real email address.
+        - Any mail sent through the `local` delivery agent will not be delivered to an inbox managed by Dovecot (_unless you have configured a local alias to redirect mail to a valid address or alias_).
+        - The domain-part of an these aliases belongs to your DMS FQDN (_`hostname: mail.example.com`, thus `user@mail.example.com`_). Technically there is no domain-part at this point, that context is used when routing delivery, the local delivery agent only knows of the local-part (_an alias or unix account_).
+    - [**Virtual aliases**][postfix-docs::virtual-alias] are for mail routed to the [`virtual` delivery agent][postfix::delivery-agent::virtual] (see [associated alias config format][postfix::config-table::virtual-alias])
+        - When alias support in DMS is discussed without the context of being a local or virtual alias, it's likely the virtual kind (_but could also be agnostic_).
+        - The domain-part of an these aliases belongs to a mail domain managed by DMS (_like `user@example.com`_).
+
+    !!! tip "Verify alias resolves correctly"
+
+        You can run `postmap -q <alias> <table>` in the container to verify an alias resolves to the expected target. If the target is also an alias, the command will not expand that to resolve the actual recipient(s).
+
+        For the `FILE` provisioner, an example would be: `postmap -q alias1@example.com /etc/postfix/virtual`. For the `LDAP` provisioner you'd need to adjust the table path.
+
+    !!! info "Side effect - Dovecot Quotas (`ENABLE_QUOTAS=1`)"
+
+        As a side effect of the alias workaround for the `FILE` provisioner with this feature, aliases can be used for account login. This is not intentional.
 
 ### Sub-addressing
 
@@ -178,3 +195,8 @@ Wildcard and need to alias each real account.. (no longer supported?)
 [postfix-docs::virtual-alias]: http://www.postfix.org/VIRTUAL_README.html#virtual_alias
 [postfix-docs::recipient-delimiter]: http://www.postfix.org/postconf.5.html#recipient_delimiter
 [dovecot-docs::config::recipient-delimiter]: https://doc.dovecot.org/settings/core/#core_setting-recipient_delimiter
+
+[postfix::delivery-agent::local]: https://www.postfix.org/local.8.html
+[postfix::delivery-agent::virtual]: https://www.postfix.org/virtual.8.html
+[postfix::config-table::local-alias]: https://www.postfix.org/aliases.5.html
+[postfix::config-table::virtual-alias]: https://www.postfix.org/virtual.5.html
