@@ -81,7 +81,7 @@ For more examples or a detailed description of the Sieve language have a look at
 [sieve-info::examples]: http://sieve.info/examplescripts
 [third-party::sieve-examples]: https://support.tigertech.net/sieve#sieve-example-rules-jmp
 
-## Automatic Sorting Based on Subaddresses { #subaddress-mailbox-routing }
+## Automatic Sorting Based on Sub-addresses { #subaddress-mailbox-routing }
 
 When mail is delivered to your account, it is possible to organize storing mail into folders by the [subaddress (tag)][docs::accounts-subaddressing] used.
 
@@ -89,7 +89,7 @@ When mail is delivered to your account, it is possible to organize storing mail 
 
     This example sorts mail into inbox folders by their tag:
 
-    ```sieve
+    ```sieve title="docker-data/dms/config/user@example.com.dovecot.sieve"
     require ["envelope", "fileinto", "mailbox", "subaddress", "variables"];
 
     # Check if the mail recipient address has a tag (:detail)
@@ -110,22 +110,22 @@ When mail is delivered to your account, it is possible to organize storing mail 
 
 ??? tip "Only redirect mail for specific tags"
 
-    If you want to handle only specific tags this way, you could adjust these two lines from the prior example:
+    If you want to only handle specific tags, you could replace the envelope condition and tag assignment from the prior example with:
 
-    ```sieve
+    ```sieve title="docker-data/dms/config/user@example.com.dovecot.sieve"
     # Instead of `:matches`, use the default comparator `:is` (exact match)
     if envelope :detail "to" "social" {
       set "tag" "Social";
     ```
 
-    ```sieve
-    # You can provide a list of values to match for:
+    ```sieve title="docker-data/dms/config/user@example.com.dovecot.sieve"
+    # Alternatively you can also provide a list of values to match:
     if envelope :detail "to" ["azure", "aws"] {
       set "tag" "Cloud";
     ```
 
-    ```sieve
-    # Similar to `:matches`, but `:regex` is more full featured for pattern matching.
+    ```sieve title="docker-data/dms/config/user@example.com.dovecot.sieve"
+    # Similar to `:matches`, except `:regex` provides enhanced pattern matching.
     # NOTE: This example needs you to `require` the "regex" extension
     if envelope :detail :regex "to" "^cloud-(azure|aws)$" {
       # Normalize the captured azure/aws tag as the resolved value is no longer fixed:
@@ -158,8 +158,7 @@ The [Manage Sieve](https://doc.dovecot.org/admin_manual/pigeonhole_managesieve_s
 
 !!! example
 
-    ```yaml
-    # compose.yaml
+    ```yaml title="compose.yaml"
     ports:
       - "4190:4190"
     environment:
