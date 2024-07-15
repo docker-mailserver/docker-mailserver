@@ -20,34 +20,34 @@ The present OAuth2 support provides the capability for 3rd-party applications su
 This example assumes you have already set up:
 
 - A working DMS server
-- An Authentik server ([documentation](https://goauthentik.io/docs/installation/))
-- A Roundcube server (either [docker](https://hub.docker.com/r/roundcube/roundcubemail/) or [bare metal](https://github.com/roundcube/roundcubemail/wiki/Installation))
+- An Authentik server ([documentation][authentik::docs::install])
+- A Roundcube server ([docker image][roundcube::dockerhub-image] or [bare metal install][roundcube::docs::install])
 
 !!! example "Setup Instructions"
 
     === "1. Docker Mailserver"
-        Edit the following values in `mailserver.env`:
 
-        ```env
-        # -----------------------------------------------
-        # --- OAUTH2 Section ----------------------------
-        # -----------------------------------------------
+        Update your Docker Compose ENV config to include:
 
-        # empty => OAUTH2 authentication is disabled
-        # 1 => OAUTH2 authentication is enabled
-        ENABLE_OAUTH2=1
-
-        # Specify the user info endpoint URL of the oauth2 provider
-        OAUTH2_INTROSPECTION_URL=https://authentik.example.com/application/o/userinfo/
+        ```env title="compose.yaml"
+        services:
+          mailserver:
+            env:
+              # Enable the feature:
+              - ENABLE_OAUTH2=1
+              # Specify the user info endpoint URL of the oauth2 server for token inspection:
+              - OAUTH2_INTROSPECTION_URL=https://authentik.example.com/application/o/userinfo/
         ```
 
     === "2. Authentik"
-        1. Create a new OAuth2 provider
-        2. Note the client id and client secret
+
+        1. Create a new OAuth2 provider.
+        2. Note the client id and client secret. Roundcube will need this.
         3. Set the allowed redirect url to the equivalent of `https://roundcube.example.com/index.php/login/oauth` for your RoundCube instance.
 
     === "3. Roundcube"
-        Add the following to `oauth2.inc.php` ([documentation](https://github.com/roundcube/roundcubemail/wiki/Configuration)):
+
+        Add the following to `oauth2.inc.php` ([documentation][roundcube::docs::config]):
 
         ```php
         $config['oauth_provider'] = 'generic';
@@ -68,3 +68,8 @@ This example assumes you have already set up:
         // Boolean: automatically redirect to OAuth login when opening Roundcube without a valid session
         $config['oauth_login_redirect'] = false;
         ```
+
+[authentik::docs::install]: https://goauthentik.io/docs/installation/
+[roundcube::dockerhub-image]: https://hub.docker.com/r/roundcube/roundcubemail
+[roundcube::docs::install]: https://github.com/roundcube/roundcubemail/wiki/Installation
+[roundcube::docs::config]: https://github.com/roundcube/roundcubemail/wiki/Configuration
