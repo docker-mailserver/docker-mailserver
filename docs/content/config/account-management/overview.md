@@ -91,14 +91,22 @@ Wildcard and need to alias each real account.. (no longer supported?)
 
 ### Quotas
 
-Enables the capability for a mail client to query the storage usage and limit (quota) of a mailbox.
+!!! info
 
-- **Not implemented** for the LDAP provisioner (_PR welcome! [feature request with implementation advice][gh-issue::dms-feature-request::dovecot-quotas-ldap]_)
-- The [Dovecot `imap-quota` plugin][dovecot-docs::plugin::imap-quota] is enabled by default. Opt-out via [`ENABLE_QUOTAS=0`][docs::env::enable-quotas]
+    Enables mail clients with the capability to query a mailbox for disk-space used and capacity limit.
+
+    - This feature is enabled by default, opt-out via [`ENABLE_QUOTAS=0`][docs::env::enable-quotas]
+    - **Not implemented** for the LDAP provisioner (_PR welcome! View the [feature request for implementation advice][gh-issue::dms-feature-request::dovecot-quotas-ldap]_)
+
+!!! tip "How are quotas useful?"
+
+    Without quota limits for disk storage, a mailbox could fill up the available storage which would cause delivery failures to all mailboxes.
+
+    Quotas help by preventing that abuse, so that only a mailbox exceeding the assigned quota experiences a delivery failure instead of negatively impacting others (_provided disk space is available_).
 
 ??? abstract "Technical Details"
 
-    The [Dovecot quotas feature][gh-pr::dms-feature::dovecot-quotas] is configured to use the [`count` quota backend][dovecot-docs::config::quota-backend-count].
+    The [Dovecot Quotas feature][gh-pr::dms-feature::dovecot-quotas] is configured by enabling the [Dovecot `imap-quota` plugin][dovecot-docs::plugin::imap-quota] and using the [`count` quota backend][dovecot-docs::config::quota-backend-count].
 
     ---
 
