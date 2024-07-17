@@ -59,9 +59,14 @@ function teardown_file() {
 }
 
 @test "should authenticate with XOAUTH2" {
-  # curl packaged in Debian 12 (and the latest release as of Jan 2024) broke XOAUTH2 support
+  # curl 7.80.0 (Nov 2021) broke XOAUTH2 support (DMS v14 release with Debian 12 packages curl 7.88.1)
   # https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1907100624
-  skip 'unable to test XOAUTH mechanism due to bug since curl 7.80'
+  #
+  # Fixed in curl 8.6.0 (Jan 31 2024):
+  # - https://github.com/curl/curl/issues/10259
+  # - https://github.com/curl/curl/commit/7b2d98dfadf209108aa7772ee21ae42e3dab219f (referenced in release changelog by commit title)
+  # - https://github.com/curl/curl/releases/tag/curl-8_6_0
+  skip 'unable to test XOAUTH2 mechanism due to bug in curl versions 7.80.0 --> 8.5.0'
 
   __should_login_successfully_with 'XOAUTH2'
 }
