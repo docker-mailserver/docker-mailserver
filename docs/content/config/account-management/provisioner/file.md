@@ -18,7 +18,7 @@ The best way to manage DMS accounts and related config files is through our `set
 
     ```bash
     # Starts a basic DMS instance and then shells into the container to use the `setup` CLI:
-    docker run --rm -itd --name dms --hostname mail.example.com ghcr.io/docker-mailserver/docker-mailserver:latest
+    docker run --rm -itd --name dms --hostname mail.example.com mailserver/docker-mailserver
     docker exec -it dms bash
 
     # Create some accounts:
@@ -49,11 +49,11 @@ Each line in the config file is a value pair (**alias** --> **target address**),
 
 !!! example "`postfix-virtual.cf` config file"
 
-    With DMS configured to manage mail for `example.com`:
+    In this example DMS manages mail for the domain `example.com`:
 
     ```cf-extra title="postfix-virtual.cf"
     # Alias delivers to an existing account:
-    alias1@example.com user1@example.com
+    alias1@example.com hello@example.com
 
     # Alias forwards to an external email address:
     alias2@example.com external-account@gmail.com
@@ -63,9 +63,9 @@ Each line in the config file is a value pair (**alias** --> **target address**),
 
     **`setup` CLI prevents an alias and account sharing an address:**
 
-    You cannot presently add a new account (`setup email add`) or alias `setup alias add` with an address when that already exists as an alias or account.
+    You cannot presently add a new account (`setup email add`) or alias (`setup alias add`) with an address which already exists as an alias or account in DMS.
 
-    This [restriction was enforced][gh-issue::bugs::account-alias-overlap] due to problems it could cause, although there are [use-cases where you may legitimately require this functionality][gh-issue::feature-request::allow-account-alias-overlap].
+    This [restriction was enforced][gh-issue::bugs::account-alias-overlap] due to [problems it could cause][gh-issue::bugs::account-alias-overlap-problem], although there are [use-cases where you may legitimately require this functionality][gh-issue::feature-request::allow-account-alias-overlap].
 
     For now you must manually edit the `postfix-virtual.cf` file as a workaround. There are no run-time checks outside of the `setup` CLI related to this restriction.
 
@@ -111,6 +111,7 @@ This config file is similar to the above `postfix-virtual.cf`, but the alias val
     These files are both copied internally to `/etc/postfix/` and configured in `main.cf` for the `virtual_alias_maps` setting. As `postfix-virtual.cf` is declared first for that setting, it will be processed before using `postfix-regexp.cf` as a fallback.
 
 [gh-issue::feature-request::allow-account-alias-overlap]: https://github.com/docker-mailserver/docker-mailserver/issues/3528
+[gh-issue::bugs::account-alias-overlap-problem]: https://github.com/docker-mailserver/docker-mailserver/issues/3350#issuecomment-1550528898
 [gh-issue::bugs::account-alias-overlap]: https://github.com/docker-mailserver/docker-mailserver/issues/3022#issuecomment-1807816689
 [gh-issue::bugs::wildcard-catchall]: https://github.com/docker-mailserver/docker-mailserver/issues/3022#issuecomment-1610452561
 [gh-issue::bugs::alias-nested]: https://github.com/docker-mailserver/docker-mailserver/issues/3622#issuecomment-1794504849

@@ -1,37 +1,67 @@
 # Account Management - Overview
 
-## Mail Accounts - Domains, Addresses, Aliases
+This page provides a technical reference for account management in DMS.
 
-**TODO:** `ACCOUNT_PROVISIONER` and supplementary pages referenced here.
+!!! note "Account provisioners and alternative authentication support"
 
-!!! info
+    Each [`ACCOUNT_PROVISIONER`][docs::env::account-provisioner] has a separate page for configuration guidance and caveats:
 
-    In the DMS docs, there may be references to the sub-components of an address (`local-part@domain-part`).
+    - [`FILE` provisioner docs][docs::account-provisioner::file]
+    - [`LDAP` provisioner docs][docs::account-provisioner::ldap]
 
-### Accounts
+    Authentication from the provisioner can be supplemented with additional methods:
 
-To receive or send mail, you'll need to provision users into DMS with accounts. A DMS account will provide information such as their email address, login username, and any aliases.
+    - [OAuth2 / OIDC][docs::account-auth::oauth2] (_allow login from an external authentication service_)
+    - [Master Accounts][docs::account-auth::master-accounts] (_access the mailbox of any DMS account_)
 
-The email address assigned to an account is relevant for:
+    ---
 
-- Receiving delivery to an inbox, when DMS receives mail for that address as the recipient (_or an alias that resolves to it_).
-- Mail submission with:
-    - `SPOOF_PROTECTION=1` restricts the sender address to the DMS account email address, unless additional sender addresses have been permitted via supported config.
-    - `SPOOF_PROTECTION=0` allows DMS accounts to use any sender address, only a single DMS account is necessary to send mail with different sender addresses.
+    For custom authentication requirements, you could [implement this with Lua][docs::examples::auth-lua].
 
-??? warning "Email address considerations"
+## Accounts
 
-    An email address should conform to the standard [permitted charset and format](https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address/2049510#2049510).
+To receive or send mail, you'll need to provision user accounts into DMS (_as each provisioner page demonstrates_).
 
-    DMS has features that need to reserve special characters to work correctly. Ensure those characters are not present in email addresses you configure for DMS, or disable / opt-out of the feature.
+A DMS account represents a user with their login username + password, along with related features like aliases and quotas.
 
-    - [Sub-addressing](#sub-addressing) is enabled by default with the _tag delimiter_ `+`. This can be configured, or be unset to opt-out.
+- Sending mail from different addresses **does not require** aliases or separate accounts.
+- Each account is configured with a _primary email address_ that a mailbox is associated to. Aliases allow for sharing delivery to a common mailbox.
+
+??? info "Primary email address"
+
+    The email address associated to an account creates a mailbox. This address is relevant:
+
+    - When DMS **receives mail** for that address as the recipient (_or an alias that resolves to it_), to identify which mailbox to deliver into.
+    - With **mail submission**:
+        - `SPOOF_PROTECTION=1` **restricts the sender address** to the DMS account email address (_unless additional sender addresses have been permitted via supported config_).
+        - `SPOOF_PROTECTION=0` allows DMS accounts to **use any sender address** (_only a single DMS account is necessary to send mail with different sender addresses_).
+
+    ---
+
+    For more details, see the [Technical Overview](#technical-overview) section.
+
+??? note "Support for multiple mail domains"
+
+    No extra configuration in DMS is required after provisioning an account with an email address.
+
+    - The DNS records for a domain should direct mail to DMS and allow DMS to send mail on behalf of that domain.
+    - DMS does not need TLS certificates for your mail domains, only for the DMS FQDN (_the `hostname` setting_).
+
+??? warning "Choosing a compatible email address"
+
+    An email address should conform to the standard [permitted charset and format](https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address/2049510#2049510) (`local-part@domain-part`).
+
+    ---
+
+    DMS has features that need to reserve special characters to work correctly. Ensure those characters are not present in email addresses you configure for DMS, otherwise disable / opt-out of the feature.
+
+    - [Sub-addressing](#sub-addressing) is enabled by default with `+` as the _tag delimiter_. The tag can be changed, feature opt-out when the tag is explicitly unset.
 
 ### Aliases
 
 An alias is typically a full email address that will either be:
 
-- Delivered to an existing local DMS account address.
+- Delivered to the mailbox of a DMS account.
 - Redirected to one or more other email addresses (_these may also be forwarded to external addresses not managed by DMS_).
 
 ??? abstract "Technical Details (_Local vs Virtual aliases_)"
@@ -49,7 +79,7 @@ An alias is typically a full email address that will either be:
 
     !!! tip "Verify alias resolves correctly"
 
-        You can run `postmap -q <alias> <table>` in the container to verify an alias resolves to the expected target. If the target is also an alias, the command will not expand that to resolve the actual recipient(s).
+        You can run `postmap -q <alias> <table>` in the container to verify an alias resolves to the expected target. If the target is also an alias, the command will not expand that alias to resolve the actual recipient(s).
 
         For the `FILE` provisioner, an example would be: `postmap -q alias1@example.com /etc/postfix/virtual`. For the `LDAP` provisioner you'd need to adjust the table path.
 
@@ -68,7 +98,7 @@ An alias is typically a full email address that will either be:
     - Tags are dynamic. Anything between the `+` and `@` is understood as the tag, no additional configuration required.
     - Only the first occurence of the tag delimiter is recognized. Any additional occurences become part of the tag value itself.
 
-!!! tip "When is subaddressing useful?"
+??? tip "When is subaddressing useful?"
 
     A common use-case is to use a unique tag for each service you register your email address with.
 
@@ -115,7 +145,7 @@ An alias is typically a full email address that will either be:
     - This feature is enabled by default, opt-out via [`ENABLE_QUOTAS=0`][docs::env::enable-quotas]
     - **Not implemented** for the LDAP provisioner (_PR welcome! View the [feature request for implementation advice][gh-issue::dms-feature-request::dovecot-quotas-ldap]_)
 
-!!! tip "How are quotas useful?"
+??? tip "How are quotas useful?"
 
     Without quota limits for disk storage, a mailbox could fill up the available storage which would cause delivery failures to all mailboxes.
 
@@ -148,8 +178,10 @@ An alias is typically a full email address that will either be:
 
 ## Technical Overview
 
+This section provides insight for understanding how Postfix and Dovecot services are involved. It is intended as a reference for maintainers and contributors.
+
 - Postfix handles when mail is delivered (inbound) to DMS, or sent (outbound) from DMS.
-- Dovecot manages mailbox storage for mail delivered to your DMS user accounts.
+- Dovecot manages mailbox storage for mail delivered to the DMS accounts of your users.
 
 ??? abstract "Technical Details - Postfix"
 
@@ -177,8 +209,15 @@ An alias is typically a full email address that will either be:
     - A [PassDB][dovecot::docs::passdb] lookup most importantly authenticates the user. It may also provide any other necessary pre-login information.
     - A [UserDB][dovecot::docs::userdb] lookup retrieves post-login information specific to a user.
 
+[docs::env::account-provisioner]: ../environment.md#account_provisioner
+[docs::account-provisioner::file]: ./provisioner/file.md
+[docs::account-provisioner::ldap]: ./provisioner/ldap.md
+[docs::account-auth::oauth2]: ./supplementary/oauth2.md
+[docs::account-auth::master-accounts]: ./supplementary/master-accounts.md
+[docs::examples::auth-lua]: ../../../examples/use-cases/auth-lua.md
+
 [docs::sieve::subaddressing]: ../advanced/mail-sieve.md#subaddress-mailbox-routing
-[web::subaddress-use-cases]: https://www.codetwo.com/admins-blog/plus-addressing/
+[web::subaddress-use-cases]: https://www.codetwo.com/admins-blog/plus-addressing
 [wikipedia::subaddressing]: https://en.wikipedia.org/wiki/Email_address#Sub-addressing
 [ms-exchange-docs::limitations]: https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/plus-addressing-in-exchange-online#using-plus-addresses
 
@@ -200,3 +239,6 @@ An alias is typically a full email address that will either be:
 [postfix::delivery-agent::virtual]: https://www.postfix.org/virtual.8.html
 [postfix::config-table::local-alias]: https://www.postfix.org/aliases.5.html
 [postfix::config-table::virtual-alias]: https://www.postfix.org/virtual.5.html
+
+[dovecot::docs::passdb]: https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb
+[dovecot::docs::userdb]: https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb
