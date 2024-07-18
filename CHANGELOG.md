@@ -22,7 +22,8 @@ All notable changes to this project will be documented in this file. The format 
   - Bump version to [1.1.0](https://github.com/fail2ban/fail2ban/releases/tag/1.1.0). For more information, check the [changelog](https://github.com/fail2ban/fail2ban/blob/1.1.0/ChangeLog).
 - **Documentation:**
   - Rewritten and organized the pages for Account Management and Authentication ([#4122](https://github.com/docker-mailserver/docker-mailserver/pull/4122))
-
+- **Postfix**
+  - Disable Microsoft reactions to outgoing mail. ([#4120](https://github.com/docker-mailserver/docker-mailserver/pull/4120))
 
 #### Fixes
 
