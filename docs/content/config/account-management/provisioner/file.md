@@ -80,6 +80,14 @@ The best way to manage DMS accounts and related config files is through our `set
     hello@example.com|{SHA512-CRYPT}$6$W4rxRQwI6HNMt9n3$riCi5/OqUxnU8eZsOlZwoCnrNgu1gBGPkJc.ER.LhJCu7sOg9i1kBrRIistlBIp938GdBgMlYuoXYUU5A4Qiv0
     ```
 
+    ---
+
+    **Dovecot "extra fields"**
+
+    [Appending a third column will customize "extra fields"][gh-issue::provisioner-file::accounts-extra-fields] when converting account data into a Dovecot UserDB entry.
+
+    DMS is not aware of these customizations beyond carrying them over, expect potential for bugs when this feature breaks any assumed conventions used in the scripts (_such as changing the mailbox path or type_).
+
 !!! note
 
     Account creation will normalize the provided email address to lowercase, as DMS does not support multiple case-sensitive address variants.
@@ -186,6 +194,7 @@ The best way to manage DMS accounts and related config files is through our `set
     hello@example.com:5G
     ```
 
+[gh-issue::provisioner-file::accounts-extra-fields]: https://github.com/docker-mailserver/docker-mailserver/issues/4117
 [gh-issue::feature-request::allow-account-alias-overlap]: https://github.com/docker-mailserver/docker-mailserver/issues/3528
 [gh-issue::bugs::account-alias-overlap-problem]: https://github.com/docker-mailserver/docker-mailserver/issues/3350#issuecomment-1550528898
 [gh-issue::bugs::account-alias-overlap]: https://github.com/docker-mailserver/docker-mailserver/issues/3022#issuecomment-1807816689
