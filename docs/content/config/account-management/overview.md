@@ -93,7 +93,47 @@ This page provides a technical reference for account management in DMS.
 
         As a side effect of the alias workaround for the `FILE` provisioner with this feature, aliases can be used for account login. This is not intentional.
 
-### Sub-addressing { #subaddressing }
+### Quotas
+
+!!! info
+
+    Enables mail clients with the capability to query a mailbox for disk-space used and capacity limit.
+
+    - This feature is enabled by default, opt-out via [`ENABLE_QUOTAS=0`][docs::env::enable-quotas]
+    - **Not implemented** for the LDAP provisioner (_PR welcome! View the [feature request for implementation advice][gh-issue::dms-feature-request::dovecot-quotas-ldap]_)
+
+??? tip "How are quotas useful?"
+
+    Without quota limits for disk storage, a mailbox could fill up the available storage which would cause delivery failures to all mailboxes.
+
+    Quotas help by preventing that abuse, so that only a mailbox exceeding the assigned quota experiences a delivery failure instead of negatively impacting others (_provided disk space is available_).
+
+??? abstract "Technical Details"
+
+    The [Dovecot Quotas feature][gh-pr::dms-feature::dovecot-quotas] is configured by enabling the [Dovecot `imap-quota` plugin][dovecot-docs::plugin::imap-quota] and using the [`count` quota backend][dovecot-docs::config::quota-backend-count].
+
+    ---
+
+    **Dovecot workaround for Postfix aliases**
+
+    When mail is delivered to DMS, Postfix will query Dovecot with the recipient(s) to verify quota has not been exceeded.
+
+    This allows early rejection of mail arriving to DMS, preventing a spammer from taking advantage of a [backscatter][wikipedia::backscatter] source if the mail was accepted by Postfix, only to later be rejected by Dovecot for storage when the quota limit was already reached.
+
+    However, Postfix does not resolve aliases until after the incoming mail is accepted.
+
+    1. Postfix queries Dovecot (_a [`check_policy_service` restriction tied to the Dovecot `quota-status` service][dms::workaround::dovecot-quotas::notes-1]_) with the recipient (_the alias_).
+    2. `dovecot: auth: passwd-file(alias@example.com): unknown user` is logged, Postfix is then informed that the recipient mailbox is not full even if it actually was (_since no such user exists in the Dovecot UserDB_).
+    3. However, when the real mailbox address that the alias would later resolve into does have a quota that exceeded the configured limit, Dovecot will refuse the mail delivery from Postfix which introduces a backscatter source for spammers.
+
+    As a [workaround to this problem with the `ENABLE_QUOTAS=1` feature][dms::workaround::dovecot-quotas::summary], DMS will add aliases as fake users into Dovecot UserDB (_that are configured with the same data as the real address the alias would resolve to, thus sharing the same mailbox location and quota limit_). This allows Postfix to properly be aware of an aliased mailbox having exceeded the allowed quota.
+
+    **NOTE:** This workaround **only supports** aliases to a single target recipient of a real account address / mailbox.
+
+    - Additionally, aliases that resolve to another alias or to an external address would both fail the UserDB lookup, unable to determine if enough storage is available.
+    - A proper fix would [implement a Postfix policy service][dms::workaround::dovecot-quotas::notes-2] that could correctly resolve aliases to valid entries in the Dovecot UserDB, querying the `quota-status` service and returning that response to Postfix.
+
+## Sub-addressing { #subaddressing }
 
 !!! info
 
@@ -142,46 +182,6 @@ This page provides a technical reference for account management in DMS.
     - Applying the Postfix `main.cf` setting: [`recipient_delimiter = +`][postfix-docs::recipient-delimiter]
     - Dovecot has the equivalent setting set as `+` by default: [`recipient_delimiter = +`][dovecot-docs::config::recipient-delimiter]
 
-### Quotas
-
-!!! info
-
-    Enables mail clients with the capability to query a mailbox for disk-space used and capacity limit.
-
-    - This feature is enabled by default, opt-out via [`ENABLE_QUOTAS=0`][docs::env::enable-quotas]
-    - **Not implemented** for the LDAP provisioner (_PR welcome! View the [feature request for implementation advice][gh-issue::dms-feature-request::dovecot-quotas-ldap]_)
-
-??? tip "How are quotas useful?"
-
-    Without quota limits for disk storage, a mailbox could fill up the available storage which would cause delivery failures to all mailboxes.
-
-    Quotas help by preventing that abuse, so that only a mailbox exceeding the assigned quota experiences a delivery failure instead of negatively impacting others (_provided disk space is available_).
-
-??? abstract "Technical Details"
-
-    The [Dovecot Quotas feature][gh-pr::dms-feature::dovecot-quotas] is configured by enabling the [Dovecot `imap-quota` plugin][dovecot-docs::plugin::imap-quota] and using the [`count` quota backend][dovecot-docs::config::quota-backend-count].
-
-    ---
-
-    **Dovecot workaround for Postfix aliases**
-
-    When mail is delivered to DMS, Postfix will query Dovecot with the recipient(s) to verify quota has not been exceeded.
-
-    This allows early rejection of mail arriving to DMS, preventing a spammer from taking advantage of a [backscatter][wikipedia::backscatter] source if the mail was accepted by Postfix, only to later be rejected by Dovecot for storage when the quota limit was already reached.
-
-    However, Postfix does not resolve aliases until after the incoming mail is accepted.
-
-    1. Postfix queries Dovecot (_a [`check_policy_service` restriction tied to the Dovecot `quota-status` service][dms::workaround::dovecot-quotas::notes-1]_) with the recipient (_the alias_).
-    2. `dovecot: auth: passwd-file(alias@example.com): unknown user` is logged, Postfix is then informed that the recipient mailbox is not full even if it actually was (_since no such user exists in the Dovecot UserDB_).
-    3. However, when the real mailbox address that the alias would later resolve into does have a quota that exceeded the configured limit, Dovecot will refuse the mail delivery from Postfix which introduces a backscatter source for spammers.
-
-    As a [workaround to this problem with the `ENABLE_QUOTAS=1` feature][dms::workaround::dovecot-quotas::summary], DMS will add aliases as fake users into Dovecot UserDB (_that are configured with the same data as the real address the alias would resolve to, thus sharing the same mailbox location and quota limit_). This allows Postfix to properly be aware of an aliased mailbox having exceeded the allowed quota.
-
-    **NOTE:** This workaround **only supports** aliases to a single target recipient of a real account address / mailbox.
-
-    - Additionally, aliases that resolve to another alias or to an external address would both fail the UserDB lookup, unable to determine if enough storage is available.
-    - A proper fix would [implement a Postfix policy service][dms::workaround::dovecot-quotas::notes-2] that could correctly resolve aliases to valid entries in the Dovecot UserDB, querying the `quota-status` service and returning that response to Postfix.
-
 ## Technical Overview
 
 !!! info
@@ -224,10 +224,13 @@ This page provides a technical reference for account management in DMS.
 [docs::account-auth::master-accounts]: ./supplementary/master-accounts.md
 [docs::examples::auth-lua]: ../../../examples/use-cases/auth-lua.md
 
-[docs::sieve::subaddressing]: ../advanced/mail-sieve.md#subaddress-mailbox-routing
-[web::subaddress-use-cases]: https://www.codetwo.com/admins-blog/plus-addressing
-[wikipedia::subaddressing]: https://en.wikipedia.org/wiki/Email_address#Sub-addressing
-[ms-exchange-docs::limitations]: https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/plus-addressing-in-exchange-online#using-plus-addresses
+[postfix-docs::virtual-alias]: http://www.postfix.org/VIRTUAL_README.html#virtual_alias
+[postfix-docs::recipient-delimiter]: http://www.postfix.org/postconf.5.html#recipient_delimiter
+[dovecot-docs::config::recipient-delimiter]: https://doc.dovecot.org/settings/core/#core_setting-recipient_delimiter
+[postfix::delivery-agent::local]: https://www.postfix.org/local.8.html
+[postfix::delivery-agent::virtual]: https://www.postfix.org/virtual.8.html
+[postfix::config-table::local-alias]: https://www.postfix.org/aliases.5.html
+[postfix::config-table::virtual-alias]: https://www.postfix.org/virtual.5.html
 
 [docs::env::enable-quotas]: ../environment.md#enable_quotas
 [gh-issue::dms-feature-request::dovecot-quotas-ldap]: https://github.com/docker-mailserver/docker-mailserver/issues/2957
@@ -239,14 +242,10 @@ This page provides a technical reference for account management in DMS.
 [dms::workaround::dovecot-quotas::notes-2]: https://github.com/docker-mailserver/docker-mailserver/pull/2248#issuecomment-953754532
 [dms::workaround::dovecot-quotas::summary]: https://github.com/docker-mailserver/docker-mailserver/pull/2248#issuecomment-955088677
 
-[postfix-docs::virtual-alias]: http://www.postfix.org/VIRTUAL_README.html#virtual_alias
-[postfix-docs::recipient-delimiter]: http://www.postfix.org/postconf.5.html#recipient_delimiter
-[dovecot-docs::config::recipient-delimiter]: https://doc.dovecot.org/settings/core/#core_setting-recipient_delimiter
-
-[postfix::delivery-agent::local]: https://www.postfix.org/local.8.html
-[postfix::delivery-agent::virtual]: https://www.postfix.org/virtual.8.html
-[postfix::config-table::local-alias]: https://www.postfix.org/aliases.5.html
-[postfix::config-table::virtual-alias]: https://www.postfix.org/virtual.5.html
+[docs::sieve::subaddressing]: ../advanced/mail-sieve.md#subaddress-mailbox-routing
+[web::subaddress-use-cases]: https://www.codetwo.com/admins-blog/plus-addressing
+[wikipedia::subaddressing]: https://en.wikipedia.org/wiki/Email_address#Sub-addressing
+[ms-exchange-docs::limitations]: https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/plus-addressing-in-exchange-online#using-plus-addresses
 
 [dovecot::docs::passdb]: https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb
 [dovecot::docs::userdb]: https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb
