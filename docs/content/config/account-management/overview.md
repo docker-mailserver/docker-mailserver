@@ -20,12 +20,16 @@ This page provides a technical reference for account management in DMS.
 
 ## Accounts
 
-To receive or send mail, you'll need to provision user accounts into DMS (_as each provisioner page demonstrates_).
+!!! info
 
-A DMS account represents a user with their login username + password, along with related features like aliases and quotas.
+    To receive or send mail, you'll need to provision user accounts into DMS (_as each provisioner page documents_).
 
-- Sending mail from different addresses **does not require** aliases or separate accounts.
-- Each account is configured with a _primary email address_ that a mailbox is associated to. Aliases allow for sharing delivery to a common mailbox.
+    ---
+
+    A DMS account represents a user with their _login username_ + password, and optional config like aliases and quota.
+
+    - Sending mail from different addresses **does not require** aliases or separate accounts.
+    - Each account is configured with a _primary email address_ that a mailbox is associated to.
 
 ??? info "Primary email address"
 
@@ -59,10 +63,12 @@ A DMS account represents a user with their login username + password, along with
 
 ### Aliases
 
-An alias is typically a full email address that will either be:
+!!! info
 
-- Delivered to the mailbox of a DMS account.
-- Redirected to one or more other email addresses (_these may also be forwarded to external addresses not managed by DMS_).
+    Aliases allow receiving mail:
+
+    - As an alternative delivery address for a DMS account mailbox.
+    - To redirect / forward to an external address outside of DMS like `@gmail.com`.
 
 ??? abstract "Technical Details (_Local vs Virtual aliases_)"
 
@@ -178,12 +184,14 @@ An alias is typically a full email address that will either be:
 
 ## Technical Overview
 
-This section provides insight for understanding how Postfix and Dovecot services are involved. It is intended as a reference for maintainers and contributors.
+!!! info
 
-- Postfix handles when mail is delivered (inbound) to DMS, or sent (outbound) from DMS.
-- Dovecot manages mailbox storage for mail delivered to the DMS accounts of your users.
+    This section provides insight for understanding how Postfix and Dovecot services are involved. It is intended as a reference for maintainers and contributors.
 
-??? abstract "Technical Details - Postfix"
+    - **Postfix** - Handles when mail is delivered (inbound) to DMS, or sent (outbound) from DMS.
+    - **Dovecot** - Manages access and storage for mail delivered to the DMS account mailboxes of your users.
+
+??? abstract "Technical Details - Postfix (Inbound vs Outbound)"
 
     Postfix needs to know how to handle inbound and outbound mail by asking these queries:
 
@@ -197,7 +205,7 @@ This section provides insight for understanding how Postfix and Dovecot services
 
         - When `SPOOF_PROTECTION=1`, how should DMS restrict the sender address? (_eg: Users may only send mail from their associated mailbox address_)
 
-??? abstract "Technical Details - Dovecot"
+??? abstract "Technical Details - Dovecot (Authentication)"
 
     Dovecot additionally handles authenticating user accounts for sending and retrieving mail:
 
