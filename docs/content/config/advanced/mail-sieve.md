@@ -138,9 +138,9 @@ When mail is delivered to your account, it is possible to organize storing mail 
 
 ??? abstract "Technical Details"
 
-     - Dovecot supports this feature via the _Sieve subaddress extension_ ([RFC 5233][rfc::5233::sieve-subaddress]).
-     - Only a single tag per subaddress is supported. Any additional tag delimiters are part of the tag value itself.
-     - The Dovecot setting [`recipient_delimiter`][dovecot-docs::config::recipient_delimiter] (default: `+`) configures the tag delimiter. This is where the `local-part` of the recipient address will split at, providing the `:detail` (tag) value for Sieve.
+    - Dovecot supports this feature via the _Sieve subaddress extension_ ([RFC 5233][rfc::5233::sieve-subaddress]).
+    - Only a single tag per subaddress is supported. Any additional tag delimiters are part of the tag value itself.
+    - The Dovecot setting [`recipient_delimiter`][dovecot-docs::config::recipient_delimiter] (default: `+`) configures the tag delimiter. This is where the `local-part` of the recipient address will split at, providing the `:detail` (tag) value for Sieve.
 
     ---
 
