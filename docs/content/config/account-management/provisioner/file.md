@@ -51,6 +51,8 @@ The best way to manage DMS accounts and related config files is through our `set
 
 ## Config Reference
 
+These config files belong to the [Config Volume][docs::volumes::config].
+
 ### Accounts
 
 !!! info
@@ -194,6 +196,7 @@ The best way to manage DMS accounts and related config files is through our `set
     hello@example.com:5G
     ```
 
+[docs::volumes::config]: ../../advanced/optional-config.md#volumes-config
 [gh-issue::provisioner-file::accounts-extra-fields]: https://github.com/docker-mailserver/docker-mailserver/issues/4117
 [gh-issue::feature-request::allow-account-alias-overlap]: https://github.com/docker-mailserver/docker-mailserver/issues/3528
 [gh-issue::bugs::account-alias-overlap-problem]: https://github.com/docker-mailserver/docker-mailserver/issues/3350#issuecomment-1550528898

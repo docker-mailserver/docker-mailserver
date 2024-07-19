@@ -53,7 +53,7 @@ This page provides a technical reference for account management in DMS.
 
 ??? warning "Choosing a compatible email address"
 
-    An email address should conform to the standard [permitted charset and format](https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address/2049510#2049510) (`local-part@domain-part`).
+    An email address should conform to the standard [permitted charset and format][email-syntax::valid-charset-format] (`local-part@domain-part`).
 
     ---
 
@@ -223,6 +223,7 @@ This page provides a technical reference for account management in DMS.
 [docs::account-auth::oauth2]: ./supplementary/oauth2.md
 [docs::account-auth::master-accounts]: ./supplementary/master-accounts.md
 [docs::examples::auth-lua]: ../../../examples/use-cases/auth-lua.md
+[email-syntax::valid-charset-format]: https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address/2049510#2049510
 
 [postfix-docs::virtual-alias]: http://www.postfix.org/VIRTUAL_README.html#virtual_alias
 [postfix-docs::recipient-delimiter]: http://www.postfix.org/postconf.5.html#recipient_delimiter

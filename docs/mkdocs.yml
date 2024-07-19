@@ -144,7 +144,7 @@ nav:
         - 'File Based': config/account-management/provisioner/file.md
         - 'LDAP Service': config/account-management/provisioner/ldap.md
       - 'Supplementary':
-        - 'Dovecot Master Accounts': config/account-management/supplementary/master-accounts.md
+        - 'Master Accounts': config/account-management/supplementary/master-accounts.md
         - 'OAuth2 Authentication': config/account-management/supplementary/oauth2.md
     - 'Best Practices':
       - 'Auto-discovery': config/best-practices/autodiscover.md
