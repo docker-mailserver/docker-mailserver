@@ -176,7 +176,7 @@ The extension is known to work with the following ManageSieve clients:
 - **[Sieve Editor](https://github.com/thsmi/sieve)**  a portable standalone application based on the former Thunderbird plugin.
 - **[Kmail](https://kontact.kde.org/components/kmail/)**  the mail client of [KDE](https://kde.org/)'s Kontact Suite.
 
-[docs::accounts-subaddressing]: ../account-management/overview.md#subaddressing
+[docs::accounts-subaddressing]: ../account-management/overview.md#sub-addressing
 
 [dovecot-docs::namespace]: https://doc.dovecot.org/configuration_manual/namespace/
 [dovecot-docs::mailbox-names]: https://doc.dovecot.org/configuration_manual/sieve/usage/#mailbox-names

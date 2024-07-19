@@ -133,7 +133,7 @@ This page provides a technical reference for account management in DMS.
     - Additionally, aliases that resolve to another alias or to an external address would both fail the UserDB lookup, unable to determine if enough storage is available.
     - A proper fix would [implement a Postfix policy service][dms::workaround::dovecot-quotas::notes-2] that could correctly resolve aliases to valid entries in the Dovecot UserDB, querying the `quota-status` service and returning that response to Postfix.
 
-## Sub-addressing { #subaddressing }
+## Sub-addressing
 
 !!! info
 
@@ -222,7 +222,7 @@ This page provides a technical reference for account management in DMS.
 [docs::account-provisioner::ldap]: ./provisioner/ldap.md
 [docs::account-auth::oauth2]: ./supplementary/oauth2.md
 [docs::account-auth::master-accounts]: ./supplementary/master-accounts.md
-[docs::examples::auth-lua]: ../../../examples/use-cases/auth-lua.md
+[docs::examples::auth-lua]: ../../examples/use-cases/auth-lua.md
 [email-syntax::valid-charset-format]: https://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-an-email-address/2049510#2049510
 
 [postfix-docs::virtual-alias]: http://www.postfix.org/VIRTUAL_README.html#virtual_alias

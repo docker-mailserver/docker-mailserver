@@ -123,7 +123,7 @@ This could be from outdated software, or running a system that isn't able to pro
 [docs::faq-bare-domain]: ../faq.md#can-i-use-a-nakedbare-domain-ie-no-hostname
 [docs-ipv6]: ./advanced/ipv6.md
 [docs-introduction]: ../introduction.md
-[docs-rootless-portdriver]: ./security/fail2ban.md#running-inside-a-rootless-container
+[docs::fail2ban::rootless-portdriver]: ./security/fail2ban.md#rootless-container
 [docs-usage]: ../usage.md
 
 [gh-issues]: https://github.com/docker-mailserver/docker-mailserver/issues

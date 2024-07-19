@@ -107,7 +107,7 @@ The `PERMIT_DOCKER` variable in the `mailserver.env` file allows to specify trus
 #### Use the slip4netns network driver
 
 The second workaround is slightly more complicated because the `compose.yaml` has to be modified.
-As shown in the [fail2ban section](../security/fail2ban.md#podman-with-slirp4netns-port-driver) the `slirp4netns` network driver has to be enabled.
+As shown in the [fail2ban section][docs::fail2ban::rootless] the `slirp4netns` network driver has to be enabled.
 This network driver enables podman to correctly resolve IP addresses but it is not compatible with
 user defined networks which might be a problem depending on your setup.
 
@@ -150,7 +150,7 @@ Remember to run this command as root user.
 
 ### Port Forwarding
 
-When it comes to forwarding ports using `firewalld`, see <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/securing_networks/using-and-configuring-firewalld_securing-networks#port-forwarding_using-and-configuring-firewalld> for more information.
+When it comes to forwarding ports using `firewalld`, see [these port forwarding docs][firewalld-port-forwarding] for more information.
 
 ```bash
 firewall-cmd --permanent --add-forward-port=port=<25|143|465|587|993>:proto=<tcp>:toport=<10025|10143|10465|10587|10993>
@@ -171,5 +171,7 @@ firewall-cmd --reload
 
 Just map all the privilege port with non-privilege port you set in compose.yaml before as root user.
 
+[docs::fail2ban::rootless]: ../security/fail2ban.md#rootless-container
 [rootless::podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
 [rootless::podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264
+[firewalld-port-forwarding]: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/securing_networks/using-and-configuring-firewalld_securing-networks#port-forwarding_using-and-configuring-firewalld

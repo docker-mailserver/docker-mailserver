@@ -6,7 +6,7 @@ There are multiple options to enable SSL (via [`SSL_TYPE`][docs-env::ssl-type]):
 
 - Using [letsencrypt](#lets-encrypt-recommended) (recommended)
 - Using [Caddy](#caddy)
-- Using [Traefik](#traefik-v2)
+- Using [Traefik](#traefik)
 - Using [self-signed certificates](#self-signed-certificates)
 - Using [your own certificates](#bring-your-own-certificates)
 
