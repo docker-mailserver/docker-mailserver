@@ -1,5 +1,5 @@
 ---
-title: 'Advanced | LDAP Authentication'
+title: 'Account Management | Provisioner (LDAP)'
 ---
 
 ## Introduction
@@ -304,5 +304,5 @@ The changes on the configurations necessary to work with Active Directory (**onl
           - NET_ADMIN
     ```
 
-[docs-environment]: ../environment.md
-[docs-userpatches]: ./override-defaults/user-patches.md
+[docs-environment]: ../../environment.md
+[docs-userpatches]: ../../advanced/override-defaults/user-patches.md

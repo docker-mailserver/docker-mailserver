@@ -18,10 +18,7 @@ DMS has several locations in the container which may be worth persisting externa
     - [Config](#volumes-config): `docker-data/dms/config/` => `/tmp/docker-mailserver/`
     - [Mail Storage](#volumes-mail): `docker-data/dms/mail-data/` => `/var/mail/`
     - [State](#volumes-state): `docker-data/dms/mail-state/` => `/var/mail-state/`
-    - [Logs](#volumes-logs): `docker-data/dms/mail-logs/` => `/var/log/mail/`
-
-[docker-docs::volumes]: https://docs.docker.com/storage/volumes/
-[docker-docs::volumes::bind-mount]: https://docs.docker.com/storage/bind-mounts/
+    - [Logs](#volumes-log): `docker-data/dms/mail-logs/` => `/var/log/mail/`
 
 ### Mail Storage Volume { #volumes-mail }
 
@@ -80,8 +77,8 @@ This is a list of all configuration files and directories which are optional, au
 - **postfix-send-access.cf:** List of users denied sending. Modify via [`setup.sh email restrict`][docs-setupsh].
 - **postfix-receive-access.cf:** List of users denied receiving. Modify via [`setup.sh email restrict`][docs-setupsh].
 - **postfix-virtual.cf:** Alias configuration file. Modify via [`setup.sh alias`][docs-setupsh].
-- **postfix-sasl-password.cf:** listing of relayed domains with their respective `<username>:<password>`. Modify via `setup.sh relay add-auth <domain> <username> [<password>]`. (Docs: [Relay-Hosts Auth][docs-relayhosts-senderauth])
-- **postfix-relaymap.cf:** domain-specific relays and exclusions. Modify via `setup.sh relay add-domain` and `setup.sh relay exclude-domain`. (Docs: [Relay-Hosts Senders][docs-relayhosts-senderhost])
+- **postfix-sasl-password.cf:** listing of relayed domains with their respective `<username>:<password>`. Modify via `setup.sh relay add-auth <domain> <username> [<password>]`. (Docs: [Relay-Hosts Auth][docs::relay-hosts::advanced])
+- **postfix-relaymap.cf:** domain-specific relays and exclusions. Modify via `setup.sh relay add-domain` and `setup.sh relay exclude-domain`. (Docs: [Relay-Hosts Senders][docs::relay-hosts::advanced])
 - **postfix-regexp.cf:** Regular expression alias file. (Docs: [Aliases][docs-aliases-regex])
 - **ldap-users.cf:** Configuration for the virtual user mapping `virtual_mailbox_maps`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
 - **ldap-groups.cf:** Configuration for the virtual alias mapping `virtual_alias_maps`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
@@ -97,16 +94,18 @@ This is a list of all configuration files and directories which are optional, au
 - **user-patches.sh:** this file will be run after all configuration files are set up, but before the postfix, amavis and other daemons are started. (Docs: [FAQ - How to adjust settings with the `user-patches.sh` script][docs-faq-userpatches])
 - **rspamd/custom-commands.conf:** list of simple commands to adjust Rspamd modules in an easy way (Docs: [Rspamd][docs-rspamd-commands])
 
-[docs-accounts-quota]: ../../config/user-management.md#quotas
-[docs-aliases-regex]: ../../config/user-management.md#configuring-regexp-aliases
+[docker-docs::volumes]: https://docs.docker.com/storage/volumes/
+[docker-docs::volumes::bind-mount]: https://docs.docker.com/storage/bind-mounts/
+
+[docs-accounts-quota]: ../../config/account-management/provisioner/file.md#quotas
+[docs-aliases-regex]: ../../config/account-management/provisioner/file.md#configuring-regex-aliases
 [docs-dkim]: ../../config/best-practices/dkim_dmarc_spf.md#dkim
 [docs-fail2ban]: ../../config/security/fail2ban.md
 [docs-faq-spamrules]: ../../faq.md#how-can-i-manage-my-custom-spamassassin-rules
 [docs-faq-userpatches]: ../../faq.md#how-to-adjust-settings-with-the-user-patchessh-script
 [docs-override-postfix]: ./override-defaults/postfix.md
 [docs-override-dovecot]: ./override-defaults/dovecot.md
-[docs-relayhosts-senderauth]: ./mail-forwarding/relay-hosts.md#sender-dependent-authentication
-[docs-relayhosts-senderhost]: ./mail-forwarding/relay-hosts.md#sender-dependent-relay-host
+[docs::relay-hosts::advanced]: ./mail-forwarding/relay-hosts.md#advanced-configuration
 [docs-sieve]: ./mail-sieve.md
 [docs-setupsh]: ../../config/setup.sh.md
 [docs-ssl]: ../../config/security/ssl.md

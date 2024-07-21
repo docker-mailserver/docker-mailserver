@@ -78,7 +78,7 @@ docker exec <CONTAINER NAME> setup fail2ban [<ban|unban> <IP>]
 docker exec <CONTAINER NAME> setup fail2ban log
 ```
 
-## Running Inside A Rootless Container
+## Running Inside A Rootless Container { #rootless-container }
 
 [`RootlessKit`][rootless::rootless-kit] is the _fakeroot_ implementation for supporting _rootless mode_ in Docker and Podman. By default, RootlessKit uses the [`builtin` port forwarding driver][rootless::port-drivers], which does not propagate source IP addresses.
 
