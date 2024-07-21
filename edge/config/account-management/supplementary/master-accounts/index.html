@@ -12,28 +12,28 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/examples/use-cases/imap-folders/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/account-management/supplementary/master-accounts/">
       
       
-        <link rel="prev" href="../forward-only-mailserver-with-ldap-authentication/">
+        <link rel="prev" href="../../provisioner/ldap/">
       
       
-        <link rel="next" href="../ios-mail-push-support/">
+        <link rel="next" href="../oauth2/">
       
       
-      <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
+      <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
-        <title>Use Cases | Customize Mailbox Folders - Docker Mailserver</title>
+        <title>Account Management | Master Accounts (Dovecot) - Docker Mailserver</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.6543a935.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -52,9 +52,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/css/customizations.css">
+      <link rel="stylesheet" href="../../../../assets/css/customizations.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mailboxes-aka-imap-folders" class="md-skip">
+        <a href="#login-via-master-account" class="md-skip">
           Skip to content
         </a>
       
@@ -98,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Use Cases | Customize Mailbox Folders
+              Account Management | Master Accounts (Dovecot)
             
           </span>
         </div>
@@ -224,7 +224,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../../../.." class="md-tabs__link">
         
   
     
@@ -241,7 +241,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../introduction/" class="md-tabs__link">
+      <a href="../../../../introduction/" class="md-tabs__link">
         
   
     
@@ -258,7 +258,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../usage/" class="md-tabs__link">
+      <a href="../../../../usage/" class="md-tabs__link">
         
   
     
@@ -273,11 +273,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../../config/environment/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../environment/" class="md-tabs__link">
           
   
   Configuration
@@ -291,21 +293,17 @@
         
   
   
-    
-  
   
     
     
       
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../tutorials/basic-installation/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../../../examples/tutorials/basic-installation/" class="md-tabs__link">
           
   
   Examples
@@ -324,7 +322,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../faq/" class="md-tabs__link">
+      <a href="../../../../faq/" class="md-tabs__link">
         
   
     
@@ -343,7 +341,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../contributing/general/" class="md-tabs__link">
+        <a href="../../../../contributing/general/" class="md-tabs__link">
           
   
   Contributing
@@ -412,9 +410,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     Docker Mailserver
@@ -441,7 +439,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -461,7 +459,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../introduction/" class="md-nav__link">
+      <a href="../../../../introduction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -481,7 +479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../usage/" class="md-nav__link">
+      <a href="../../../../usage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -498,25 +496,28 @@
       
   
   
+    
   
   
+  
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -527,7 +528,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Configuration
@@ -541,7 +542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/environment/" class="md-nav__link">
+      <a href="../../../environment/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -559,8 +560,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -568,13 +571,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
         
           
           <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
@@ -588,7 +589,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_2">
             <span class="md-nav__icon md-icon"></span>
             Account Management
@@ -602,7 +603,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/account-management/overview/" class="md-nav__link">
+      <a href="../../overview/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -663,7 +664,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/account-management/provisioner/file/" class="md-nav__link">
+      <a href="../../provisioner/file/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -684,7 +685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/account-management/provisioner/ldap/" class="md-nav__link">
+      <a href="../../provisioner/ldap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -710,8 +711,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -719,13 +722,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" checked>
         
           
           <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
@@ -739,7 +740,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_2_3">
             <span class="md-nav__icon md-icon"></span>
             Supplementary
@@ -750,10 +751,28 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../config/account-management/supplementary/master-accounts/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Master Accounts
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -762,6 +781,33 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#login-via-master-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      Login via Master Account
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -774,7 +820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/account-management/supplementary/oauth2/" class="md-nav__link">
+      <a href="../oauth2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -851,7 +897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/best-practices/autodiscover/" class="md-nav__link">
+      <a href="../../../best-practices/autodiscover/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -872,7 +918,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/best-practices/dkim_dmarc_spf/" class="md-nav__link">
+      <a href="../../../best-practices/dkim_dmarc_spf/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -893,7 +939,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/best-practices/mta-sts/" class="md-nav__link">
+      <a href="../../../best-practices/mta-sts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -962,7 +1008,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/security/understanding-the-ports/" class="md-nav__link">
+      <a href="../../../security/understanding-the-ports/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -983,7 +1029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/security/ssl/" class="md-nav__link">
+      <a href="../../../security/ssl/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1004,7 +1050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/security/fail2ban/" class="md-nav__link">
+      <a href="../../../security/fail2ban/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1025,7 +1071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/security/mail_crypt/" class="md-nav__link">
+      <a href="../../../security/mail_crypt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1046,7 +1092,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/security/rspamd/" class="md-nav__link">
+      <a href="../../../security/rspamd/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1075,7 +1121,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/debugging/" class="md-nav__link">
+      <a href="../../../debugging/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1096,7 +1142,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/pop3/" class="md-nav__link">
+      <a href="../../../pop3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1117,7 +1163,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/setup.sh/" class="md-nav__link">
+      <a href="../../../setup.sh/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1178,7 +1224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/optional-config/" class="md-nav__link">
+      <a href="../../../advanced/optional-config/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1239,7 +1285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+      <a href="../../../advanced/maintenance/update-and-cleanup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1308,7 +1354,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/override-defaults/dovecot/" class="md-nav__link">
+      <a href="../../../advanced/override-defaults/dovecot/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1329,7 +1375,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/override-defaults/postfix/" class="md-nav__link">
+      <a href="../../../advanced/override-defaults/postfix/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1350,7 +1396,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/override-defaults/user-patches/" class="md-nav__link">
+      <a href="../../../advanced/override-defaults/user-patches/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1379,7 +1425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/mail-sieve/" class="md-nav__link">
+      <a href="../../../advanced/mail-sieve/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1400,7 +1446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/mail-fetchmail/" class="md-nav__link">
+      <a href="../../../advanced/mail-fetchmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1421,7 +1467,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/mail-getmail/" class="md-nav__link">
+      <a href="../../../advanced/mail-getmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1482,7 +1528,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
+      <a href="../../../advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1503,7 +1549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/mail-forwarding/aws-ses/" class="md-nav__link">
+      <a href="../../../advanced/mail-forwarding/aws-ses/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1524,7 +1570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
+      <a href="../../../advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1553,7 +1599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/full-text-search/" class="md-nav__link">
+      <a href="../../../advanced/full-text-search/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1574,7 +1620,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/kubernetes/" class="md-nav__link">
+      <a href="../../../advanced/kubernetes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1595,7 +1641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/ipv6/" class="md-nav__link">
+      <a href="../../../advanced/ipv6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1616,7 +1662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../config/advanced/podman/" class="md-nav__link">
+      <a href="../../../advanced/podman/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1649,28 +1695,25 @@
       
   
   
-    
   
   
-  
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1681,7 +1724,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Examples
@@ -1735,7 +1778,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/basic-installation/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/basic-installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1756,7 +1799,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/mailserver-behind-proxy/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1777,7 +1820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/crowdsec/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/crowdsec/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1798,7 +1841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/docker-build/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/docker-build/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1819,7 +1862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/blog-posts/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/blog-posts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1840,7 +1883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/dovecot-solr/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/dovecot-solr/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1866,8 +1909,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1877,11 +1918,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
         
           
           <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
@@ -1895,7 +1938,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
             Use Cases
@@ -1909,7 +1952,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1927,30 +1970,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Customize IMAP Folders
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../../examples/use-cases/imap-folders/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1959,86 +1982,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#adding-a-mailbox-folder" class="md-nav__link">
-    <span class="md-ellipsis">
-      Adding a mailbox folder
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#caution" class="md-nav__link">
-    <span class="md-ellipsis">
-      Caution
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Caution">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#adding-folders-to-an-existing-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      Adding folders to an existing setup
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#support-for-special-use-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Support for SPECIAL-USE attributes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#internationalization-i18n" class="md-nav__link">
-    <span class="md-ellipsis">
-      Internationalization (i18n)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#email-clients-support" class="md-nav__link">
-    <span class="md-ellipsis">
-      Email Clients Support
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2051,7 +1994,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ios-mail-push-support/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2072,7 +2015,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../auth-lua/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/auth-lua/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2093,7 +2036,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bind-smtp-network-interface/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2114,7 +2057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../external-relay-only-mailserver/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/external-relay-only-mailserver/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2150,7 +2093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../faq/" class="md-nav__link">
+      <a href="../../../../faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2210,7 +2153,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../contributing/general/" class="md-nav__link">
+      <a href="../../../../contributing/general/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2231,7 +2174,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../contributing/tests/" class="md-nav__link">
+      <a href="../../../../contributing/tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2252,7 +2195,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../contributing/issues-and-pull-requests/" class="md-nav__link">
+      <a href="../../../../contributing/issues-and-pull-requests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2332,8 +2275,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -2342,62 +2283,11 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#adding-a-mailbox-folder" class="md-nav__link">
+  <a href="#login-via-master-account" class="md-nav__link">
     <span class="md-ellipsis">
-      Adding a mailbox folder
+      Login via Master Account
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#caution" class="md-nav__link">
-    <span class="md-ellipsis">
-      Caution
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Caution">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#adding-folders-to-an-existing-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      Adding folders to an existing setup
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#support-for-special-use-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Support for SPECIAL-USE attributes
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#internationalization-i18n" class="md-nav__link">
-    <span class="md-ellipsis">
-      Internationalization (i18n)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#email-clients-support" class="md-nav__link">
-    <span class="md-ellipsis">
-      Email Clients Support
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2416,7 +2306,7 @@
                   
 
   
-    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/examples/use-cases/imap-folders.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/account-management/supplementary/master-accounts.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -2425,57 +2315,61 @@
     
       
     
-    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/examples/use-cases/imap-folders.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/account-management/supplementary/master-accounts.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-<h1 id="mailboxes-aka-imap-folders"><a class="toclink" href="#mailboxes-aka-imap-folders">Mailboxes (<em>aka IMAP Folders</em>)</a></h1>
-<p><code>INBOX</code> is setup as the private <a href="https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox"><code>inbox</code> namespace</a>. By default <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf"><code>target/dovecot/15-mailboxes.conf</code></a> configures the special IMAP folders <code>Drafts</code>, <code>Sent</code>, <code>Junk</code> and <code>Trash</code> to be automatically created and subscribed. They are all assigned to the private <a href="https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox"><code>inbox</code> namespace</a> (<em>which implicitly provides the <code>INBOX</code> folder</em>).</p>
-<p>These IMAP folders are considered special because they add a <a href="https://datatracker.ietf.org/doc/html/rfc6154"><em>"SPECIAL-USE"</em> attribute</a>, which is a standardized way to communicate to mail clients that the folder serves a purpose like storing spam/junk mail (<code>\Junk</code>) or deleted mail (<code>\Trash</code>). This differentiates them from regular mail folders that you may use for organizing.</p>
-<h2 id="adding-a-mailbox-folder"><a class="toclink" href="#adding-a-mailbox-folder">Adding a mailbox folder</a></h2>
-<p>See <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf"><code>target/dovecot/15-mailboxes.conf</code></a> for existing mailbox folders which you can modify or uncomment to enable some other common mailboxes. For more information try the <a href="https://doc.dovecot.org/configuration_manual/namespace/#mailbox-settings">official Dovecot documentation</a>.</p>
-<p>The <code>Archive</code> special IMAP folder may be useful to enable. To do so, make a copy of <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf"><code>target/dovecot/15-mailboxes.conf</code></a> and uncomment the <code>Archive</code> mailbox definition. Mail clients should understand that this folder is intended for archiving mail due to the <a href="https://datatracker.ietf.org/doc/html/rfc6154"><code>\Archive</code> <em>"SPECIAL-USE"</em> attribute</a>.</p>
-<p>With the provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml">compose.yaml</a> example, a volume bind mounts the host directory <code>docker-data/dms/config/</code> to the container location <code>/tmp/docker-mailserver/</code>. Config file overrides should instead be mounted to a different location as described in <a href="../../../config/advanced/override-defaults/dovecot/#override-configuration">Overriding Configuration for Dovecot</a>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro</span>
-</code></pre></div>
-<h2 id="caution"><a class="toclink" href="#caution">Caution</a></h2>
-<h3 id="adding-folders-to-an-existing-setup"><a class="toclink" href="#adding-folders-to-an-existing-setup">Adding folders to an existing setup</a></h3>
-<p>Handling of newly added mailbox folders can be inconsistent across mail clients:</p>
-<ul>
-<li>Users may experience issues such as archived emails only being available locally.</li>
-<li>Users may need to migrate emails manually between two folders.</li>
-</ul>
-<h3 id="support-for-special-use-attributes"><a class="toclink" href="#support-for-special-use-attributes">Support for <code>SPECIAL-USE</code> attributes</a></h3>
-<p>Not all mail clients support the <code>SPECIAL-USE</code> attribute for mailboxes (<em>defined in <a href="https://datatracker.ietf.org/doc/html/rfc6154">RFC 6154</a></em>). These clients will treat the mailbox folder as any other, using the name assigned to it instead.</p>
-<p>Some clients may still know to treat these folders for their intended purpose if the mailbox name matches the common names that the <code>SPECIAL-USE</code> attributes represent (<em>eg <code>Sent</code> as the mailbox name for <code>\Sent</code></em>).</p>
-<h3 id="internationalization-i18n"><a class="toclink" href="#internationalization-i18n">Internationalization (i18n)</a></h3>
-<p>Usually the mail client will know via context such as the <code>SPECIAL-USE</code> attribute or common English mailbox names, to provide a localized label for the users preferred language.</p>
-<p>Take care to test localized names work well as well.</p>
-<h3 id="email-clients-support"><a class="toclink" href="#email-clients-support">Email Clients Support</a></h3>
-<ul>
-<li>If a new mail account is added without the <code>SPECIAL-USE</code> attribute enabled for archives:<ul>
-<li><strong>Thunderbird</strong> suggests and may create an <code>Archives</code> folder on the server.</li>
-<li><strong>Outlook for Android</strong> archives to a local folder.</li>
-<li><strong>Spark for Android</strong> archives to server folder named <code>Archive</code>.</li>
-</ul>
-</li>
-<li>If a new mail account is added after the <code>SPECIAL-USE</code> attribute is enabled for archives:<ul>
-<li><strong>Thunderbird</strong>, <strong>Outlook for Android</strong> and <strong>Spark for Android</strong> will use the mailbox folder name assigned.</li>
-</ul>
-</li>
-</ul>
-<div class="admonition caution">
-<p class="admonition-title">Windows Mail</p>
-<p><strong>Windows Mail</strong> has been said to ignore <code>SPECIAL-USE</code> attribute and look only at the mailbox folder name assigned.</p>
-</div>
+  <h1>Master Accounts</h1>
+
+<p>This feature is useful for administrative tasks like hot backups.</p>
 <div class="admonition note">
-<p class="admonition-title">Needs citation</p>
-<p>This information is provided by the community.</p>
-<p>It presently lacks references to confirm the behavior. If any information is incorrect please let us know! <img alt="😄" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f604.svg" title=":smile:" /></p>
+<p class="admonition-title">Note</p>
+<p>This feature is presently <a href="https://github.com/docker-mailserver/docker-mailserver/pull/2535#issuecomment-1118056745">not supported with <code>ACCOUNT_PROVISIONER=LDAP</code></a>.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>A <em>Master Account</em>:</p>
+<ul>
+<li>Can login as any user (DMS account) and access their mailbox.</li>
+<li>Is not associated to a separate DMS account, nor is it a DMS account itself.</li>
+</ul>
+<hr />
+<p><strong><code>setup</code> CLI support</strong></p>
+<p>Use the <code>setup dovecot-master &lt;add|update|del|list&gt;</code> commands. These are roughly equivalent to the <code>setup email</code> subcommands.</p>
+<hr />
+<p><strong>Config file:</strong> <code>docker-data/dms/config/dovecot-masters.cf</code></p>
+<p>The config format is the same as <a href="../../provisioner/file/#accounts"><code>postfix-accounts.cf</code> for <code>ACCOUNT_PROVISIONER=FILE</code></a>.</p>
+<p>The only difference is the account field has no <code>@domain-part</code> suffix, it is only a username.</p>
+</div>
+<details class="abstract">
+<summary>Technical Details</summary>
+<p><a href="https://github.com/docker-mailserver/docker-mailserver/pull/2535">The <em>Master Accounts</em> feature</a> in DMS configures the <a href="https://doc.dovecot.org/configuration_manual/authentication/master_users/">Dovecot Master Users</a> feature with the Dovecot setting <a href="https://doc.dovecot.org/settings/core/#core_setting-auth_master_user_separator"><code>auth_master_user_separator</code></a> (<em>where the default value is <code>*</code></em>).</p>
+</details>
+<h2 id="login-via-master-account"><a class="toclink" href="#login-via-master-account">Login via Master Account</a></h2>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>To login as another DMS account (<code>user@example.com</code>) with POP3 or IMAP, use the following credentials format:</p>
+<ul>
+<li>Username: <code>&lt;LOGIN USERNAME&gt;*&lt;MASTER USER&gt;</code> (<code>user@example.com*admin</code>)</li>
+<li>Password: <code>&lt;MASTER PASSWORD&gt;</code></li>
+</ul>
+</div>
+<div class="admonition example">
+<p class="admonition-title">Verify login functionality</p>
+<p>In the DMS container, you can verify with the <code>testsaslauthd</code> command:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Prerequisites:</span>
+<span class="c1"># A regular DMS account to test login through a Master Account:</span>
+setup<span class="w"> </span>email<span class="w"> </span>add<span class="w"> </span>user@example.com<span class="w"> </span>secret
+<span class="c1"># Add a new Master Account:</span>
+setup<span class="w"> </span>dovecot-master<span class="w"> </span>add<span class="w"> </span>admin<span class="w"> </span>top-secret
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Login with credentials format as described earlier:</span>
+testsaslauthd<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;user@example.com*admin&#39;</span><span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;top-secret&#39;</span>
+</code></pre></div>
+<p>Alternatively, any mail client should be able to login the equivalent credentials.</p>
 </div>
 
 
@@ -2538,10 +2432,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

@@ -12,28 +12,28 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/user-management/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/account-management/provisioner/file/">
       
       
-        <link rel="prev" href="../environment/">
+        <link rel="prev" href="../../overview/">
       
       
-        <link rel="next" href="../best-practices/autodiscover/">
+        <link rel="next" href="../ldap/">
       
       
-      <link rel="icon" href="../../assets/logo/favicon-32x32.png">
+      <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
-        <title>User Management - Docker Mailserver</title>
+        <title>Account Management | Provisioner (File) - Docker Mailserver</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.6543a935.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -52,9 +52,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/css/customizations.css">
+      <link rel="stylesheet" href="../../../../assets/css/customizations.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#user-management" class="md-skip">
+        <a href="#provisioner-file" class="md-skip">
           Skip to content
         </a>
       
@@ -98,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              User Management
+              Account Management | Provisioner (File)
             
           </span>
         </div>
@@ -224,7 +224,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../../.." class="md-tabs__link">
         
   
     
@@ -241,7 +241,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../introduction/" class="md-tabs__link">
+      <a href="../../../../introduction/" class="md-tabs__link">
         
   
     
@@ -258,7 +258,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../usage/" class="md-tabs__link">
+      <a href="../../../../usage/" class="md-tabs__link">
         
   
     
@@ -279,7 +279,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../environment/" class="md-tabs__link">
+        <a href="../../../environment/" class="md-tabs__link">
           
   
   Configuration
@@ -303,7 +303,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../examples/tutorials/basic-installation/" class="md-tabs__link">
+        <a href="../../../../examples/tutorials/basic-installation/" class="md-tabs__link">
           
   
   Examples
@@ -322,7 +322,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../faq/" class="md-tabs__link">
+      <a href="../../../../faq/" class="md-tabs__link">
         
   
     
@@ -341,7 +341,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../contributing/general/" class="md-tabs__link">
+        <a href="../../../../contributing/general/" class="md-tabs__link">
           
   
   Contributing
@@ -408,9 +408,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     Docker Mailserver
@@ -437,7 +437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -457,7 +457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../introduction/" class="md-nav__link">
+      <a href="../../../../introduction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -477,7 +477,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../usage/" class="md-nav__link">
+      <a href="../../../../usage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -540,7 +540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../environment/" class="md-nav__link">
+      <a href="../../../environment/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -562,6 +562,107 @@
   
   
   
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Account Management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Account Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Provisioner
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Provisioner
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
@@ -574,7 +675,7 @@
           
   
   <span class="md-ellipsis">
-    User Management
+    File Based
   </span>
   
 
@@ -585,7 +686,7 @@
         
   
   <span class="md-ellipsis">
-    User Management
+    File Based
   </span>
   
 
@@ -607,38 +708,47 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#management-via-the-setup-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      Management via the setup CLI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Config Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Config Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#accounts" class="md-nav__link">
     <span class="md-ellipsis">
       Accounts
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Accounts">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#adding-a-new-account" class="md-nav__link">
-    <span class="md-ellipsis">
-      Adding a new Account
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Adding a new Account">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#via-setup-inside-the-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      Via setup inside the container
-    </span>
-  </a>
-  
 </li>
         
           <li class="md-nav__item">
-  <a href="#manually" class="md-nav__link">
+  <a href="#aliases" class="md-nav__link">
     <span class="md-ellipsis">
-      Manually
+      Aliases
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Aliases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-regex-aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring RegEx aliases
     </span>
   </a>
   
@@ -663,51 +773,136 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#aliases" class="md-nav__link">
-    <span class="md-ellipsis">
-      Aliases
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Aliases">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#about" class="md-nav__link">
-    <span class="md-ellipsis">
-      About
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configuring-regexp-aliases" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuring RegExp Aliases
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#address-tags-extension-delimiters-as-an-alternative-to-aliases" class="md-nav__link">
-    <span class="md-ellipsis">
-      Address Tags (Extension Delimiters) as an alternative to Aliases
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ldap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LDAP Service
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Supplementary
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Supplementary
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../supplementary/master-accounts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Master Accounts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../supplementary/oauth2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OAuth2 Authentication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -761,7 +956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/autodiscover/" class="md-nav__link">
+      <a href="../../../best-practices/autodiscover/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -782,7 +977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/dkim_dmarc_spf/" class="md-nav__link">
+      <a href="../../../best-practices/dkim_dmarc_spf/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -803,7 +998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../best-practices/mta-sts/" class="md-nav__link">
+      <a href="../../../best-practices/mta-sts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -872,7 +1067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/understanding-the-ports/" class="md-nav__link">
+      <a href="../../../security/understanding-the-ports/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -893,7 +1088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/ssl/" class="md-nav__link">
+      <a href="../../../security/ssl/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -914,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/fail2ban/" class="md-nav__link">
+      <a href="../../../security/fail2ban/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -935,7 +1130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/mail_crypt/" class="md-nav__link">
+      <a href="../../../security/mail_crypt/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -956,7 +1151,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/rspamd/" class="md-nav__link">
+      <a href="../../../security/rspamd/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -985,7 +1180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../debugging/" class="md-nav__link">
+      <a href="../../../debugging/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1006,7 +1201,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pop3/" class="md-nav__link">
+      <a href="../../../pop3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1027,7 +1222,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../setup.sh/" class="md-nav__link">
+      <a href="../../../setup.sh/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1088,7 +1283,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/optional-config/" class="md-nav__link">
+      <a href="../../../advanced/optional-config/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1149,7 +1344,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+      <a href="../../../advanced/maintenance/update-and-cleanup/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1218,7 +1413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/override-defaults/dovecot/" class="md-nav__link">
+      <a href="../../../advanced/override-defaults/dovecot/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1239,7 +1434,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/override-defaults/postfix/" class="md-nav__link">
+      <a href="../../../advanced/override-defaults/postfix/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1260,7 +1455,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/override-defaults/user-patches/" class="md-nav__link">
+      <a href="../../../advanced/override-defaults/user-patches/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1289,49 +1484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/auth-ldap/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    LDAP Authentication
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../advanced/auth-oauth2/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    OAuth2 Authentication
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../advanced/mail-sieve/" class="md-nav__link">
+      <a href="../../../advanced/mail-sieve/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1352,7 +1505,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-fetchmail/" class="md-nav__link">
+      <a href="../../../advanced/mail-fetchmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1373,7 +1526,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-getmail/" class="md-nav__link">
+      <a href="../../../advanced/mail-getmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1406,10 +1559,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_9" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_7" >
         
           
-          <label class="md-nav__link" for="__nav_4_8_9" id="__nav_4_8_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_8_7" id="__nav_4_8_7_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1420,8 +1573,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8_9">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_7">
             <span class="md-nav__icon md-icon"></span>
             Email Forwarding
           </label>
@@ -1434,7 +1587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
+      <a href="../../../advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1455,7 +1608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-forwarding/aws-ses/" class="md-nav__link">
+      <a href="../../../advanced/mail-forwarding/aws-ses/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1476,7 +1629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
+      <a href="../../../advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1505,7 +1658,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/full-text-search/" class="md-nav__link">
+      <a href="../../../advanced/full-text-search/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1526,7 +1679,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/kubernetes/" class="md-nav__link">
+      <a href="../../../advanced/kubernetes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1547,7 +1700,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/ipv6/" class="md-nav__link">
+      <a href="../../../advanced/ipv6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1568,32 +1721,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced/podman/" class="md-nav__link">
+      <a href="../../../advanced/podman/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Podman
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../advanced/dovecot-master-accounts/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Dovecot Master Accounts
   </span>
   
 
@@ -1705,7 +1837,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/basic-installation/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/basic-installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1726,7 +1858,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1747,7 +1879,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/crowdsec/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/crowdsec/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1768,7 +1900,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/docker-build/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/docker-build/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1789,7 +1921,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/blog-posts/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/blog-posts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1810,7 +1942,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/tutorials/dovecot-solr/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/dovecot-solr/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1879,7 +2011,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1900,7 +2032,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/imap-folders/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/imap-folders/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1921,7 +2053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1942,7 +2074,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/auth-lua/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/auth-lua/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1963,7 +2095,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1984,7 +2116,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../examples/use-cases/external-relay-only-mailserver/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/external-relay-only-mailserver/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2020,7 +2152,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../faq/" class="md-nav__link">
+      <a href="../../../../faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2080,7 +2212,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/general/" class="md-nav__link">
+      <a href="../../../../contributing/general/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2101,7 +2233,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/tests/" class="md-nav__link">
+      <a href="../../../../contributing/tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2122,7 +2254,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/issues-and-pull-requests/" class="md-nav__link">
+      <a href="../../../../contributing/issues-and-pull-requests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2210,38 +2342,47 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#management-via-the-setup-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      Management via the setup CLI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Config Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Config Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#accounts" class="md-nav__link">
     <span class="md-ellipsis">
       Accounts
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Accounts">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#adding-a-new-account" class="md-nav__link">
-    <span class="md-ellipsis">
-      Adding a new Account
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Adding a new Account">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#via-setup-inside-the-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      Via setup inside the container
-    </span>
-  </a>
-  
 </li>
         
           <li class="md-nav__item">
-  <a href="#manually" class="md-nav__link">
+  <a href="#aliases" class="md-nav__link">
     <span class="md-ellipsis">
-      Manually
+      Aliases
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Aliases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-regex-aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring RegEx aliases
     </span>
   </a>
   
@@ -2256,48 +2397,6 @@
   <a href="#quotas" class="md-nav__link">
     <span class="md-ellipsis">
       Quotas
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aliases" class="md-nav__link">
-    <span class="md-ellipsis">
-      Aliases
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Aliases">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#about" class="md-nav__link">
-    <span class="md-ellipsis">
-      About
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configuring-regexp-aliases" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuring RegExp Aliases
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#address-tags-extension-delimiters-as-an-alternative-to-aliases" class="md-nav__link">
-    <span class="md-ellipsis">
-      Address Tags (Extension Delimiters) as an alternative to Aliases
     </span>
   </a>
   
@@ -2323,7 +2422,7 @@
                   
 
   
-    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/user-management.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/account-management/provisioner/file.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -2332,67 +2431,159 @@
     
       
     
-    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/user-management.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/account-management/provisioner/file.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-<h1 id="user-management"><a class="toclink" href="#user-management">User Management</a></h1>
-<h2 id="accounts"><a class="toclink" href="#accounts">Accounts</a></h2>
-<p>Users (email accounts) are managed in <code>/tmp/docker-mailserver/postfix-accounts.cf</code>. The best way to manage accounts is to use the reliable <code>setup</code> command inside the container. Just run <code>docker exec &lt;CONTAINER NAME&gt; setup help</code> and have a look at the section about subcommands, specifically the <code>email</code> subcommand.</p>
-<h3 id="adding-a-new-account"><a class="toclink" href="#adding-a-new-account">Adding a new Account</a></h3>
-<h4 id="via-setup-inside-the-container"><a class="toclink" href="#via-setup-inside-the-container">Via <code>setup</code> inside the container</a></h4>
-<p>You can add an account by running <code>docker exec -ti &lt;CONTAINER NAME&gt; setup email add &lt;NEW ADDRESS&gt;</code>. This method is strongly preferred.</p>
-<h4 id="manually"><a class="toclink" href="#manually">Manually</a></h4>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This method is discouraged!</p>
-</div>
-<p>Alternatively, you may directly add the full email address and its encrypted password, separated by a pipe. To generate a new mail account data, directly from your host, you could for example run the following:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w">                                      </span><span class="se">\</span>
-<span class="w">  </span>--env<span class="w"> </span><span class="nv">MAIL_USER</span><span class="o">=</span>user1@example.com<span class="w">                      </span><span class="se">\</span>
-<span class="w">  </span>--env<span class="w"> </span><span class="nv">MAIL_PASS</span><span class="o">=</span>mypassword<span class="w">                             </span><span class="se">\</span>
-<span class="w">  </span>ghcr.io/docker-mailserver/docker-mailserver:latest<span class="w">     </span><span class="se">\</span>
-<span class="w">  </span>/bin/bash<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="s1">&#39;echo &quot;${MAIL_USER}|$(doveadm pw -s SHA512-CRYPT -u ${MAIL_USER} -p ${MAIL_PASS})&quot; &gt;&gt;docker-data/dms/config/postfix-accounts.cf&#39;</span>
-</code></pre></div>
-<p>You will then be asked for a password, and be given back the data for a new account entry, as text. To actually <em>add</em> this new account, just copy all the output text in <code>docker-data/dms/config/postfix-accounts.cf</code> file of your running container.</p>
-<p>The result could look like this:</p>
-<div class="highlight"><pre><span></span><code><span class="na">user1@example.com|{SHA512-CRYPT}$6$2YpW1nYtPBs2yLYS$z.5PGH1OEzsHHNhl3gJrc3D.YMZkvKw/vp.r5WIiwya6z7P/CQ9GDEJDr2G2V0cAfjDFeAQPUoopsuWPXLk3u1</span>
-</code></pre></div>
-<h3 id="quotas"><a class="toclink" href="#quotas">Quotas</a></h3>
+<h1 id="provisioner-file"><a class="toclink" href="#provisioner-file">Provisioner - File</a></h1>
+<h2 id="management-via-the-setup-cli"><a class="toclink" href="#management-via-the-setup-cli">Management via the <code>setup</code> CLI</a></h2>
+<p>The best way to manage DMS accounts and related config files is through our <code>setup</code> CLI provided within the container.</p>
+<div class="admonition example">
+<p class="admonition-title">Using the <code>setup</code> CLI</p>
+<p>Try the following within the DMS container (<code>docker exec -it &lt;CONTAINER NAME&gt; bash</code>):</p>
 <ul>
-<li><code>imap-quota</code> is enabled and allow clients to query their mailbox usage.</li>
-<li>When the mailbox is deleted, the quota directive is deleted as well.</li>
-<li>Dovecot quotas support LDAP, <strong>but it's not implemented</strong> (<em>PRs are welcome!</em>).</li>
+<li>Add an account: <code>setup email add &lt;EMAIL ADDRESS&gt;</code></li>
+<li>Add an alias: <code>setup alias add &lt;FROM ALIAS&gt; &lt;TO TARGET ADDRESS&gt;</code></li>
+<li>Learn more about the available subcommands via: <code>setup help</code></li>
 </ul>
-<h2 id="aliases"><a class="toclink" href="#aliases">Aliases</a></h2>
-<p>The best way to manage aliases is to use the reliable <code>setup</code> script inside the container. Just run <code>docker exec &lt;CONTAINER NAME&gt; setup help</code> and have a look at the section about subcommands, specifically the <code>alias</code>-subcommand.</p>
-<h3 id="about"><a class="toclink" href="#about">About</a></h3>
-<p>You may read <a href="http://www.postfix.org/VIRTUAL_README.html#virtual_alias">Postfix's documentation on virtual aliases</a> first. Aliases are managed in <code>/tmp/docker-mailserver/postfix-virtual.cf</code>. An alias is a full email address that will either be:</p>
-<ul>
-<li>delivered to an existing account registered in <code>/tmp/docker-mailserver/postfix-accounts.cf</code></li>
-<li>redirected to one or more other email addresses</li>
-</ul>
-<p>Alias and target are space separated. An example on a server with <code>example.com</code> as its domain:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Alias delivered to an existing account</span>
-<span class="na">alias1@example.com user1@example.com</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># Starts a basic DMS instance and then shells into the container to use the `setup` CLI:</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-itd<span class="w"> </span>--name<span class="w"> </span>dms<span class="w"> </span>--hostname<span class="w"> </span>mail.example.com<span class="w"> </span>mailserver/docker-mailserver
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>dms<span class="w"> </span>bash
 
-<span class="c1"># Alias forwarded to an external email address</span>
-<span class="na">alias2@example.com external-account@gmail.com</span>
+<span class="c1"># Create an account:</span>
+setup<span class="w"> </span>email<span class="w"> </span>add<span class="w"> </span>hello@example.com<span class="w"> </span>your-password-here
+
+<span class="c1"># Create an alias:</span>
+setup<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>add<span class="w"> </span>your-alias-here@example.com<span class="w"> </span>hello@example.com
+
+<span class="c1"># Limit the mailbox capacity to 10 MiB:</span>
+setup<span class="w"> </span>quota<span class="w"> </span><span class="nb">set</span><span class="w"> </span>hello@example.com<span class="w"> </span>10M
 </code></pre></div>
-<h3 id="configuring-regexp-aliases"><a class="toclink" href="#configuring-regexp-aliases">Configuring RegExp Aliases</a></h3>
-<p>Additional regexp aliases can be configured by placing them into <code>docker-data/dms/config/postfix-regexp.cf</code>. The regexp aliases get evaluated after the virtual aliases (container path: <code>/tmp/docker-mailserver/postfix-virtual.cf</code>). For example, the following <code>docker-data/dms/config/postfix-regexp.cf</code> causes all email sent to "test" users to be delivered to <code>qa@example.com</code> instead:</p>
-<div class="highlight"><pre><span></span><code><span class="na">/^test[0-9][0-9]*@example.com/ qa@example.com</span>
+<details class="tip">
+<summary>Secure password input</summary>
+<p>When you don't provide a password to the command, you will be prompted for one. This avoids the password being captured in your shell history.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># As you input your password it will not update.</span>
+<span class="c1"># Press the ENTER key to apply the hidden password input.</span>
+$<span class="w"> </span>setup<span class="w"> </span>email<span class="w"> </span>add<span class="w"> </span>hello@example.com
+Enter<span class="w"> </span>Password:
+Confirm<span class="w"> </span>Password:
 </code></pre></div>
-<h3 id="address-tags-extension-delimiters-as-an-alternative-to-aliases"><a class="toclink" href="#address-tags-extension-delimiters-as-an-alternative-to-aliases">Address Tags (Extension Delimiters) as an alternative to Aliases</a></h3>
-<p>Postfix supports so-called address tags, in the form of plus (+) tags - i.e. <code>address+tag@example.com</code> will end up at <code>address@example.com</code>. This is configured by default and the (configurable!) separator is set to <code>+</code>. For more info, see <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">Postfix's official documentation</a>.</p>
+</details>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Account removal via <code>setup email del</code></p>
+<p>When you remove a DMS account with this command, it will also remove any associated aliases and quota.</p>
+<p>The command will also prompt for deleting the account mailbox from disk, or can be forced with the <code>-y</code> flag.</p>
+</div>
+<h2 id="config-reference"><a class="toclink" href="#config-reference">Config Reference</a></h2>
+<p>These config files belong to the <a href="../../../advanced/optional-config/#volumes-config">Config Volume</a>.</p>
+<h3 id="accounts"><a class="toclink" href="#accounts">Accounts</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p><strong>Config file:</strong> <code>docker-data/dms/config/postfix-accounts.cf</code></p>
+<hr />
+<p>The config format is line-based with two fields separated by the delimiter <code>|</code>:</p>
+<ul>
+<li><strong>User:</strong> The primary email address for the account mailbox to use.</li>
+<li><strong>Password:</strong> A SHA512-CRYPT hash of the account password (<em>in this example it is <code>secret</code></em>).</li>
+</ul>
+<details class="tip">
+<summary>Password hash without the <code>setup email add</code> command</summary>
+<p>A compatible password hash can be generated with:</p>
+<div class="highlight"><pre><span></span><code>doveadm<span class="w"> </span>pw<span class="w"> </span>-s<span class="w"> </span>SHA512-CRYPT<span class="w"> </span>-u<span class="w"> </span>hello@example.com<span class="w"> </span>-p<span class="w"> </span>secret
+</code></pre></div>
+</details>
+</div>
+<div class="admonition example">
+<p class="admonition-title"><code>postfix-accounts.cf</code> config file</p>
+<p>In this example DMS manages mail for the domain <code>example.com</code>:</p>
+<div class="highlight"><span class="filename">postfix-accounts.cf</span><pre><span></span><code><span class="na">hello@example.com|{SHA512-CRYPT}$6$W4rxRQwI6HNMt9n3$riCi5/OqUxnU8eZsOlZwoCnrNgu1gBGPkJc.ER.LhJCu7sOg9i1kBrRIistlBIp938GdBgMlYuoXYUU5A4Qiv0</span>
+</code></pre></div>
+<hr />
+<p><strong>Dovecot "extra fields"</strong></p>
+<p><a href="https://github.com/docker-mailserver/docker-mailserver/issues/4117">Appending a third column will customize "extra fields"</a> when converting account data into a Dovecot UserDB entry.</p>
+<p>DMS is not aware of these customizations beyond carrying them over, expect potential for bugs when this feature breaks any assumed conventions used in the scripts (<em>such as changing the mailbox path or type</em>).</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you do decide to change the configurable separator, you must add the same line to <em>both</em> <code>docker-data/dms/config/postfix-main.cf</code> and <code>docker-data/dms/config/dovecot.cf</code>, because Dovecot is acting as the delivery agent. For example, to switch to <code>-</code>, add:</p>
-<div class="highlight"><pre><span></span><code><span class="na">recipient_delimiter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-</span>
+<p>Account creation will normalize the provided email address to lowercase, as DMS does not support multiple case-sensitive address variants.</p>
+<p>The email address chosen will also represent the <em>login username</em> credential for mail clients to authenticate with.</p>
+</div>
+<h3 id="aliases"><a class="toclink" href="#aliases">Aliases</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p><strong>Config file:</strong> <code>docker-data/dms/config/postfix-virtual.cf</code></p>
+<hr />
+<p>The config format is line-based with key value pairs (<strong>alias</strong> --&gt; <strong>target address</strong>), with white-space as a delimiter.</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title"><code>postfix-virtual.cf</code> config file</p>
+<p>In this example DMS manages mail for the domain <code>example.com</code>:</p>
+<div class="highlight"><span class="filename">postfix-virtual.cf</span><pre><span></span><code><span class="c"># Alias delivers to an existing account:</span>
+alias1<span class="s">@example.com hello@example.com</span>
+
+<span class="c"># Alias forwards to an external email address:</span>
+alias2<span class="s">@example.com external-account@gmail.com</span>
+</code></pre></div>
+</div>
+<details class="warning">
+<summary>Known Issues</summary>
+<p><strong><code>setup</code> CLI prevents an alias and account sharing an address:</strong></p>
+<p>You cannot presently add a new account (<code>setup email add</code>) or alias (<code>setup alias add</code>) with an address which already exists as an alias or account in DMS.</p>
+<p>This <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3022#issuecomment-1807816689">restriction was enforced</a> due to <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3350#issuecomment-1550528898">problems it could cause</a>, although there are <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3528">use-cases where you may legitimately require this functionality</a>.</p>
+<p>For now you must manually edit the <code>postfix-virtual.cf</code> file as a workaround. There are no run-time checks outside of the <code>setup</code> CLI related to this restriction.</p>
+<hr />
+<p><strong>Wildcard catch-all support (<code>@example.com</code>):</strong></p>
+<p>While this type of alias without a local-part is supported, you must keep in mind that aliases in Postfix have a higher precedence than a real address associated to a DMS account.</p>
+<p>As a result, the wildcard is matched first and will direct mail for that entire domain to the alias target address. To work around this, <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3022#issuecomment-1610452561">you will need an alias for each non-alias address of that domain</a>.</p>
+<p>Additionally, Postfix will read the alias config and choose the alias value that matches the recipient address first. Ensure your more specific aliases for the domain are declared above the wildcard alias in the config file.</p>
+<hr />
+<p><strong>Aliasing to another alias or multiple recipients:</strong></p>
+<p><a href="https://github.com/orgs/docker-mailserver/discussions/3805#discussioncomment-8215417">While aliasing to multiple recipients is possible</a>, DMS does not officially support that.</p>
+<ul>
+<li>You may experience issues when our feature integrations don't expect more than one target per alias.</li>
+<li>These concerns also apply to the usage of nested aliases (<em>where the recipient target provided is to an alias instead of a real address</em>). An example is the <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3622#issuecomment-1794504849">incompatibility with <code>setup alias add</code></a>.</li>
+</ul>
+</details>
+<h4 id="configuring-regex-aliases"><a class="toclink" href="#configuring-regex-aliases">Configuring RegEx aliases</a></h4>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p><strong>Config file:</strong> <code>docker-data/dms/config/postfix-regexp.cf</code></p>
+<hr />
+<p>This config file is similar to the above <code>postfix-virtual.cf</code>, but the alias value is instead configured with a regex pattern.</p>
+<p>There is <strong>no <code>setup</code> CLI support</strong> for this feature, it is config only.</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title"><code>postfix-regexp.cf</code> config file</p>
+<p>Deliver all mail for <code>test</code> users to <code>qa@example.com</code> instead:</p>
+<div class="highlight"><span class="filename">postfix-regexp.cf</span><pre><span></span><code><span class="c"># Remember to escape regex tokens like `.` =&gt; `\.`, otherwise</span>
+<span class="c"># your alias pattern may be more permissive than you intended:</span>
+<span class="s">/^test[0-9][0-9]*@example\.com/ qa@example.com</span>
+</code></pre></div>
+</div>
+<details class="abstract">
+<summary>Technical Details</summary>
+<p><code>postfix-virtual.cf</code> has precedence, <code>postfix-regexp.cf</code> will only be checked if no alias match was found in <code>postfix-virtual.cf</code>.</p>
+<p>These files are both copied internally to <code>/etc/postfix/</code> and configured in <code>main.cf</code> for the <code>virtual_alias_maps</code> setting. As <code>postfix-virtual.cf</code> is declared first for that setting, it will be processed before using <code>postfix-regexp.cf</code> as a fallback.</p>
+</details>
+<h3 id="quotas"><a class="toclink" href="#quotas">Quotas</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p><strong>Config file:</strong> <code>docker-data/dms/config/dovecot-quotas.cf</code></p>
+<hr />
+<p>The config format is line-based with two fields separated by the delimiter <code>:</code>:</p>
+<ul>
+<li><strong>Dovecot UserDB account:</strong> The user DMS account. It should have a matching field in <code>postfix-accounts.cf</code>.</li>
+<li><strong>Quota limit:</strong> Expressed in bytes (<em>binary unit suffix is supported: <code>M</code> =&gt; <code>MiB</code>, <code>G</code> =&gt; <code>GiB</code></em>).</li>
+</ul>
+</div>
+<div class="admonition example">
+<p class="admonition-title"><code>dovecot-quotas.cf</code> config file</p>
+<p>For the account with the mailbox address of <code>hello@example.com</code>, it may not exceed 5 GiB in storage:</p>
+<div class="highlight"><span class="filename">dovecot-quotas.cf</span><pre><span></span><code>hello<span class="s">@example.com</span><span class="p">:</span><span class="m">5</span><span class="s">G</span>
 </code></pre></div>
 </div>
 
@@ -2401,6 +2592,9 @@
 
 
 
+
+  
+  
 
 
 
@@ -2451,10 +2645,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

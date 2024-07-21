@@ -12,28 +12,28 @@
         <meta name="author" content="docker-mailserver (Github Organization)">
       
       
-        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/auth-ldap/">
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/config/account-management/provisioner/ldap/">
       
       
-        <link rel="prev" href="../override-defaults/user-patches/">
+        <link rel="prev" href="../file/">
       
       
-        <link rel="next" href="../auth-oauth2/">
+        <link rel="next" href="../../supplementary/master-accounts/">
       
       
-      <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
+      <link rel="icon" href="../../../../assets/logo/favicon-32x32.png">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
-        <title>Advanced | LDAP Authentication - Docker Mailserver</title>
+        <title>Account Management | Provisioner (LDAP) - Docker Mailserver</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.6543a935.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -52,9 +52,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/css/customizations.css">
+      <link rel="stylesheet" href="../../../../assets/css/customizations.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -98,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Advanced | LDAP Authentication
+              Account Management | Provisioner (LDAP)
             
           </span>
         </div>
@@ -224,7 +224,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../../../.." class="md-tabs__link">
         
   
     
@@ -241,7 +241,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../introduction/" class="md-tabs__link">
+      <a href="../../../../introduction/" class="md-tabs__link">
         
   
     
@@ -258,7 +258,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../usage/" class="md-tabs__link">
+      <a href="../../../../usage/" class="md-tabs__link">
         
   
     
@@ -279,7 +279,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../environment/" class="md-tabs__link">
+        <a href="../../../environment/" class="md-tabs__link">
           
   
   Configuration
@@ -303,7 +303,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../examples/tutorials/basic-installation/" class="md-tabs__link">
+        <a href="../../../../examples/tutorials/basic-installation/" class="md-tabs__link">
           
   
   Examples
@@ -322,7 +322,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../faq/" class="md-tabs__link">
+      <a href="../../../../faq/" class="md-tabs__link">
         
   
     
@@ -341,7 +341,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../contributing/general/" class="md-tabs__link">
+        <a href="../../../../contributing/general/" class="md-tabs__link">
           
   
   Contributing
@@ -408,9 +408,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+    <a href="../../../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
       
-  <img src="../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+  <img src="../../../../assets/logo/dmo-logo-white.min.svg" alt="logo">
 
     </a>
     Docker Mailserver
@@ -437,7 +437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -457,7 +457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../introduction/" class="md-nav__link">
+      <a href="../../../../introduction/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -477,7 +477,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../usage/" class="md-nav__link">
+      <a href="../../../../usage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -540,359 +540,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../environment/" class="md-nav__link">
+      <a href="../../../environment/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Environment Variables
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../user-management/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    User Management
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Best Practices
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            Best Practices
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../best-practices/autodiscover/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Auto-discovery
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../best-practices/dkim_dmarc_spf/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    DKIM, DMARC & SPF
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../best-practices/mta-sts/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    MTA-STS
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Security
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4">
-            <span class="md-nav__icon md-icon"></span>
-            Security
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../security/understanding-the-ports/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Understanding the Ports
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../security/ssl/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    SSL/TLS
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../security/fail2ban/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Fail2Ban
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../security/mail_crypt/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Mail Encryption
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../security/rspamd/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Rspamd
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../debugging/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Debugging
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../pop3/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Mail Delivery with POP3
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../setup.sh/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    About setup.sh
   </span>
   
 
@@ -921,24 +573,24 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Advanced Configuration
+    Account Management
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_8">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
             <span class="md-nav__icon md-icon"></span>
-            Advanced Configuration
+            Account Management
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -949,11 +601,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../optional-config/" class="md-nav__link">
+      <a href="../../overview/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Optional Configuration
+    Overview
   </span>
   
 
@@ -967,8 +619,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -976,99 +630,28 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_8_2" id="__nav_4_8_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
-    Maintenance
+    Provisioner
   </span>
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2_2">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../maintenance/update-and-cleanup/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Update and Cleanup
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_8_3" id="__nav_4_8_3_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Override the Default Configs
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8_3">
-            <span class="md-nav__icon md-icon"></span>
-            Override the Default Configs
+            Provisioner
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1079,65 +662,15 @@
   
   
     <li class="md-nav__item">
-      <a href="../override-defaults/dovecot/" class="md-nav__link">
+      <a href="../file/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Dovecot
+    File Based
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../override-defaults/postfix/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Postfix
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../override-defaults/user-patches/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Modifications via Script
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1161,7 +694,7 @@
           
   
   <span class="md-ellipsis">
-    LDAP Authentication
+    LDAP Service
   </span>
   
 
@@ -1172,7 +705,7 @@
         
   
   <span class="md-ellipsis">
-    LDAP Authentication
+    LDAP Service
   </span>
   
 
@@ -1287,6 +820,54 @@
 
               
             
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Supplementary
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Supplementary
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
               
                 
   
@@ -1294,11 +875,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../auth-oauth2/" class="md-nav__link">
+      <a href="../../supplementary/master-accounts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    OAuth2 Authentication
+    Master Accounts
   </span>
   
 
@@ -1315,7 +896,612 @@
   
   
     <li class="md-nav__item">
-      <a href="../mail-sieve/" class="md-nav__link">
+      <a href="../../supplementary/oauth2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OAuth2 Authentication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Best Practices
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            Best Practices
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../best-practices/autodiscover/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Auto-discovery
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../best-practices/dkim_dmarc_spf/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DKIM, DMARC & SPF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../best-practices/mta-sts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MTA-STS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Security
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Security
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/understanding-the-ports/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Understanding the Ports
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/ssl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SSL/TLS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/fail2ban/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Fail2Ban
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/mail_crypt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mail Encryption
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/rspamd/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rspamd
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../debugging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Debugging
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../pop3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mail Delivery with POP3
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../setup.sh/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About setup.sh
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Advanced Configuration
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            Advanced Configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../advanced/optional-config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Optional Configuration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8_2" id="__nav_4_8_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Maintenance
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            Maintenance
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Update and Cleanup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8_3" id="__nav_4_8_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Override the Default Configs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            Override the Default Configs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../advanced/override-defaults/dovecot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dovecot
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../advanced/override-defaults/postfix/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Postfix
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../advanced/override-defaults/user-patches/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modifications via Script
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../advanced/mail-sieve/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1336,7 +1522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mail-fetchmail/" class="md-nav__link">
+      <a href="../../../advanced/mail-fetchmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1357,7 +1543,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mail-getmail/" class="md-nav__link">
+      <a href="../../../advanced/mail-getmail/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1390,10 +1576,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_9" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_7" >
         
           
-          <label class="md-nav__link" for="__nav_4_8_9" id="__nav_4_8_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_8_7" id="__nav_4_8_7_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1404,8 +1590,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8_9">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_7">
             <span class="md-nav__icon md-icon"></span>
             Email Forwarding
           </label>
@@ -1418,7 +1604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mail-forwarding/relay-hosts/" class="md-nav__link">
+      <a href="../../../advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1439,7 +1625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mail-forwarding/aws-ses/" class="md-nav__link">
+      <a href="../../../advanced/mail-forwarding/aws-ses/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1460,7 +1646,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mail-forwarding/gmail-smtp/" class="md-nav__link">
+      <a href="../../../advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1489,7 +1675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../full-text-search/" class="md-nav__link">
+      <a href="../../../advanced/full-text-search/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1510,7 +1696,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kubernetes/" class="md-nav__link">
+      <a href="../../../advanced/kubernetes/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1531,7 +1717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ipv6/" class="md-nav__link">
+      <a href="../../../advanced/ipv6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1552,32 +1738,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../podman/" class="md-nav__link">
+      <a href="../../../advanced/podman/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     Podman
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../dovecot-master-accounts/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Dovecot Master Accounts
   </span>
   
 
@@ -1689,7 +1854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/tutorials/basic-installation/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/basic-installation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1710,7 +1875,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1731,7 +1896,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/tutorials/crowdsec/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/crowdsec/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1752,7 +1917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/tutorials/docker-build/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/docker-build/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1773,7 +1938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/tutorials/blog-posts/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/blog-posts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1794,7 +1959,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/tutorials/dovecot-solr/" class="md-nav__link">
+      <a href="../../../../examples/tutorials/dovecot-solr/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1863,7 +2028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1884,7 +2049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/use-cases/imap-folders/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/imap-folders/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1905,7 +2070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1926,7 +2091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/use-cases/auth-lua/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/auth-lua/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1947,7 +2112,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1968,7 +2133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/use-cases/external-relay-only-mailserver/" class="md-nav__link">
+      <a href="../../../../examples/use-cases/external-relay-only-mailserver/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2004,7 +2169,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../faq/" class="md-nav__link">
+      <a href="../../../../faq/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2064,7 +2229,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../contributing/general/" class="md-nav__link">
+      <a href="../../../../contributing/general/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2085,7 +2250,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../contributing/tests/" class="md-nav__link">
+      <a href="../../../../contributing/tests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2106,7 +2271,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../contributing/issues-and-pull-requests/" class="md-nav__link">
+      <a href="../../../../contributing/issues-and-pull-requests/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2293,7 +2458,7 @@
                   
 
   
-    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/advanced/auth-ldap.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/account-management/provisioner/ldap.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
     </a>
@@ -2302,14 +2467,14 @@
     
       
     
-    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/advanced/auth-ldap.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/account-management/provisioner/ldap.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-  <h1>LDAP Authentication</h1>
+  <h1>LDAP Service</h1>
 
 <h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
 <p>Getting started with ldap and DMS we need to take 3 parts in account:</p>
@@ -2319,7 +2484,7 @@
 <li><code>saslauthd</code> for SMTP authentication (this can also be delegated to dovecot)</li>
 </ul>
 <h2 id="variables-to-control-provisioning-by-the-container"><a class="toclink" href="#variables-to-control-provisioning-by-the-container">Variables to Control Provisioning by the Container</a></h2>
-<p>Have a look at <a href="../../environment/">the ENV page</a> for information on the default values.</p>
+<p>Have a look at <a href="../../../environment/">the ENV page</a> for information on the default values.</p>
 <h3 id="ldap_query_filter_"><a class="toclink" href="#ldap_query_filter_"><code>LDAP_QUERY_FILTER_*</code></a></h3>
 <p>Those variables contain the LDAP lookup filters for postfix, using <code>%s</code> as the placeholder for the domain or email address in question. This means that...</p>
 <ul>
@@ -2387,7 +2552,7 @@
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=qmailUser)(uid=%u)(accountStatus=active))</span>
 </code></pre></div>
 </details>
-<p>The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in <a href="../../environment/">the environment section in the docs</a>.</p>
+<p>The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in <a href="../../../environment/">the environment section in the docs</a>.</p>
 <h3 id="dovecot_auth_bind"><a class="toclink" href="#dovecot_auth_bind"><code>DOVECOT_AUTH_BIND</code></a></h3>
 <p>Set this to <code>yes</code> to enable authentication binds (<a href="https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds">more details in the dovecot documentation</a>). Currently, only DN lookup is supported without further changes to the configuration files, so this is only useful when you want to bind as a readonly user without the permission to read passwords.</p>
 <h3 id="saslauthd_ldap_filter"><a class="toclink" href="#saslauthd_ldap_filter"><code>SASLAUTHD_LDAP_FILTER</code></a></h3>
@@ -2419,7 +2584,7 @@
 <li>The username equivalent in Active Directory is: <code>sAMAccountName</code>.</li>
 <li><code>proxyAddresses</code> can be used to store email aliases of single users. The convention is to prefix the email aliases with <code>smtp:</code> (e.g: <code>smtp:some.name@example.com</code>).</li>
 <li>Active Directory is used typically not only as LDAP Directory storage, but also as a <em>domain controller</em>, i.e., it will do many things including authenticating users. Mixing Linux and Windows clients requires the usage of <a href="https://wiki.samba.org/index.php/Administer_Unix_Attributes_in_AD_using_samba-tool_and_ldb-tools">RFC2307 attributes</a>, namely <code>uidNumber</code>, <code>gidNumber</code> instead of the typical <code>uid</code>. Assigning different owner to email folders can also be done in this approach, nevertheless <a href="https://github.com/docker-mailserver/docker-mailserver/pull/2256">there is a bug at the moment in Docker Mailserver that overwrites all permissions</a> when starting the container. Either a manual fix is necessary now, or a temporary workaround to use a hard-coded <code>ldap:uidNumber</code> that equals to <code>5000</code> until this issue is fixed.</li>
-<li>To deliver the emails to different members of Active Directory <strong>Security Group</strong> or <strong>Distribution Group</strong> (similar to mailing lists), use a <a href="../override-defaults/user-patches/"><code>user-patches.sh</code> script</a> to modify <code>ldap-groups.cf</code> so that it includes <code>leaf_result_attribute = mail</code> and <code>special_result_attribute = member</code>. This can be achieved simply by:</li>
+<li>To deliver the emails to different members of Active Directory <strong>Security Group</strong> or <strong>Distribution Group</strong> (similar to mailing lists), use a <a href="../../../advanced/override-defaults/user-patches/"><code>user-patches.sh</code> script</a> to modify <code>ldap-groups.cf</code> so that it includes <code>leaf_result_attribute = mail</code> and <code>special_result_attribute = member</code>. This can be achieved simply by:</li>
 </ul>
 <p>The configuration shown to get the Group to work is from <a href="https://doc.zarafa.com/trunk/Administrator_Manual/en-US/html/_MTAIntegration.html">here</a> and <a href="https://kb.kopano.io/display/WIKI/Postfix">here</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># user-patches.sh</span>
@@ -2637,10 +2802,10 @@ update-ca-certificates
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>
