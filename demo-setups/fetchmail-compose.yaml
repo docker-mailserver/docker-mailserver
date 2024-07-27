@@ -1,4 +1,4 @@
-More information: https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570
+# More information: https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570
 services:
   dms-fetch:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
