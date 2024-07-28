@@ -3,7 +3,7 @@
 services:
   # This would represent your actual DMS container:
   dms-sender:
-    image: mailserver/docker-mailserver:14.0
+    image: mailserver/docker-mailserver:latest # :14.0
     hostname: mail.example.test
     environment:
       # All outbound mail will be relayed through this host
