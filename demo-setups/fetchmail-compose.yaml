@@ -1,4 +1,6 @@
-# More information: https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570
+# Docs: https://docker-mailserver.github.io/docker-mailserver/v14.0/config/advanced/mail-fetchmail
+# Additional context, with CLI commands for verification:
+# https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570
 
 services:
   dms-fetch:
