@@ -4,7 +4,7 @@
 
 services:
   dms-fetch:
-    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest # :14.0
     hostname: mail.example.test
     environment:
       ENABLE_FETCHMAIL: 1
