@@ -60,7 +60,7 @@ services:
 
   # Pretend this is another mail server that your target recipient belongs to (like Gmail):
   dms-destination:
-    image: mailserver/docker-mailserver:14.0
+    image: mailserver/docker-mailserver:latest # :14.0
     hostname: mail.destination.test
     # Same workaround for purposes of the example, with the target recipient provisioned to accept mail
     environment:
