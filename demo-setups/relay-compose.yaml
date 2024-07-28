@@ -35,7 +35,7 @@ services:
 
   # Pretend this is your third-party relay service:
   dms-relay:
-    image: mailserver/docker-mailserver:14.0
+    image: mailserver/docker-mailserver:latest # :14.0
     hostname: smtp.relay-service.test
     environment:
       # WORKAROUND: Bypass security checks from the mail-client (dms-sender container)
