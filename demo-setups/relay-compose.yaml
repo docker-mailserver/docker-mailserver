@@ -1,4 +1,6 @@
-# More information: https://github.com/docker-mailserver/docker-mailserver/issues/4136#issuecomment-2253693490
+# Docs: https://docker-mailserver.github.io/docker-mailserver/v14.0/config/advanced/mail-forwarding/relay-hosts/
+# Additional context, with CLI commands for verification:
+# https://github.com/docker-mailserver/docker-mailserver/issues/4136#issuecomment-2253693490
 
 services:
   # This would represent your actual DMS container:
