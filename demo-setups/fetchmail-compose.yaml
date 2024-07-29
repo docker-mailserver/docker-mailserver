@@ -18,7 +18,7 @@ services:
     #ports:
     #  - "465:465"  # ESMTP (implicit TLS)
     #  - "993:993"  # IMAP4 (implicit TLS)
-    # You'd normally use volumes here, for simplicity of the example, all config is contained within `compose.yaml`:
+    # You'd normally use `volumes` here but for simplicity of the example, all config is contained within `compose.yaml`:
     configs:
       - source: dms-accounts-fetch
         target: /tmp/docker-mailserver/postfix-accounts.cf
