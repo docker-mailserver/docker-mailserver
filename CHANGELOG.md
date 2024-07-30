@@ -25,11 +25,15 @@ All notable changes to this project will be documented in this file. The format 
 - **Postfix**
   - Disable Microsoft reactions to outgoing mail. ([#4120](https://github.com/docker-mailserver/docker-mailserver/pull/4120))
 
-#### Fixes
+### Fixes
 
 - **Dovecot:**
   - `logwatch`  Update logwatch `ignore.conf` to exclude Xapian messages about pending documents ([#4060](https://github.com/docker-mailserver/docker-mailserver/pull/4060))
   - `dovecot-fts-xapian` plugin was updated to `1.7.13`, fixing a regression with indexing ([#4095](https://github.com/docker-mailserver/docker-mailserver/pull/4095))
+
+### CI
+
+- Workflow for `CONTRIBUTORS.md` updates removed. `CONTRIBUTORS.md` file and dependencies removed. ([#4141](https://github.com/docker-mailserver/docker-mailserver/pull/4141))
 
 ## [v14.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v14.0.0)
 
