@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Added
 
 - **Internal:**
-  - Add password confirmation to several `setup.sh` commands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
+  - Add password confirmation to several `setup` CLI subcommands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
 
 ### Updates
 
@@ -22,13 +22,14 @@ All notable changes to this project will be documented in this file. The format 
   - Bump version to [1.1.0](https://github.com/fail2ban/fail2ban/releases/tag/1.1.0). For more information, check the [changelog](https://github.com/fail2ban/fail2ban/blob/1.1.0/ChangeLog).
 - **Documentation:**
   - Rewritten and organized the pages for Account Management and Authentication ([#4122](https://github.com/docker-mailserver/docker-mailserver/pull/4122))
-- **Postfix**
-  - Disable Microsoft reactions to outgoing mail. ([#4120](https://github.com/docker-mailserver/docker-mailserver/pull/4120))
+  - Add caveat for `DMS_VMAIL_UID` not being compatible with `0` / root ([#4143](https://github.com/docker-mailserver/docker-mailserver/pull/4143))
+- **Postfix:**
+  - Disable Microsoft reactions to outgoing mail ([#4120](https://github.com/docker-mailserver/docker-mailserver/pull/4120))
 
 ### Fixes
 
 - **Dovecot:**
-  - `logwatch`  Update logwatch `ignore.conf` to exclude Xapian messages about pending documents ([#4060](https://github.com/docker-mailserver/docker-mailserver/pull/4060))
+  - Update logwatch `ignore.conf` to exclude Xapian messages about pending documents ([#4060](https://github.com/docker-mailserver/docker-mailserver/pull/4060))
   - `dovecot-fts-xapian` plugin was updated to `1.7.13`, fixing a regression with indexing ([#4095](https://github.com/docker-mailserver/docker-mailserver/pull/4095))
 
 ### CI
