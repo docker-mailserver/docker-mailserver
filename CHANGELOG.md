@@ -31,6 +31,8 @@ All notable changes to this project will be documented in this file. The format 
 - **Dovecot:**
   - Update logwatch `ignore.conf` to exclude Xapian messages about pending documents ([#4060](https://github.com/docker-mailserver/docker-mailserver/pull/4060))
   - `dovecot-fts-xapian` plugin was updated to `1.7.13`, fixing a regression with indexing ([#4095](https://github.com/docker-mailserver/docker-mailserver/pull/4095))
+- **Internal:**
+  - The main `mail.log` followed to stdout now correctly begins from the first log line ([#4146](https://github.com/docker-mailserver/docker-mailserver/pull/4146))
 
 ### CI
 
