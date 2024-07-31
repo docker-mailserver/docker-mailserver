@@ -39,6 +39,12 @@ Default: 5000
 
 The User ID assigned to the static vmail user for `/var/mail` (_Mail storage managed by Dovecot_).
 
+!!! warning "Incompatible UID values"
+
+    - A value of [`0` (root) is not compatible][gh-issue::vmail-uid-cannot-be-root].
+    - This feature will attempt to adjust the `uid` for the `docker` user (`/etc/passwd`), hence the error emitted to logs if the UID is already assigned to another user.
+    - The feature appears to work with other UID values that are already assigned in `/etc/passwd`, even though Dovecot by default has a setting for the minimum UID as `500`.
+
 ##### DMS_VMAIL_GID
 
 Default: 5000
@@ -1122,6 +1128,8 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
     - Credentials can be explicitly configured for specific relay hosts instead of sender domains:
         - Add the exact relayhost value (`host:port` / `[host]:port`) from the generated `/etc/postfix/relayhost_map`, or `main.cf:relayhost` (`DEFAULT_RELAY_HOST`).
         - `setup relay ...` is missing support, you must instead add these manually to `postfix-sasl-password.cf`.
+
+[gh-issue::vmail-uid-cannot-be-root]: https://github.com/docker-mailserver/docker-mailserver/issues/4098#issuecomment-2257201025
 
 [docs-rspamd]: ./security/rspamd.md
 [docs-tls]: ./security/ssl.md
