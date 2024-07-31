@@ -28,7 +28,6 @@ Makefile
 *.yaml              text
 
 ## PROJECT
-.all-contributorsrc text export-ignore
 .editorconfig       text export-ignore
 .gitattributes      text export-ignore
 .gitignore          text export-ignore
