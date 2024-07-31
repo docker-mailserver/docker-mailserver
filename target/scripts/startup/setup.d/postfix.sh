@@ -129,7 +129,7 @@ function __postfix__setup_override_configuration() {
     # Do not directly output to 'main.cf' as this causes a read-write-conflict.
     # `postconf` output is filtered to skip expected warnings regarding overrides:
     # https://github.com/docker-mailserver/docker-mailserver/pull/3880#discussion_r1510414576
-    postconf -n >/tmp/postfix-main-new.cf 2> >(grep -v 'overriding earlier entry')
+    postconf -n 1>/tmp/postfix-main-new.cf 2> >(grep -v 'overriding earlier entry')
 
     mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
     _adjust_mtime_for_postfix_maincf
