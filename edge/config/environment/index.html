@@ -5053,6 +5053,14 @@
 <h5 id="dms_vmail_uid"><a class="toclink" href="#dms_vmail_uid">DMS_VMAIL_UID</a></h5>
 <p>Default: 5000</p>
 <p>The User ID assigned to the static vmail user for <code>/var/mail</code> (<em>Mail storage managed by Dovecot</em>).</p>
+<div class="admonition warning">
+<p class="admonition-title">Incompatible UID values</p>
+<ul>
+<li>A value of <a href="https://github.com/docker-mailserver/docker-mailserver/issues/4098#issuecomment-2257201025"><code>0</code> (root) is not compatible</a>.</li>
+<li>This feature will attempt to adjust the <code>uid</code> for the <code>docker</code> user (<code>/etc/passwd</code>), hence the error emitted to logs if the UID is already assigned to another user.</li>
+<li>The feature appears to work with other UID values that are already assigned in <code>/etc/passwd</code>, even though Dovecot by default has a setting for the minimum UID as <code>500</code>.</li>
+</ul>
+</div>
 <h5 id="dms_vmail_gid"><a class="toclink" href="#dms_vmail_gid">DMS_VMAIL_GID</a></h5>
 <p>Default: 5000</p>
 <p>The Group ID assigned to the static vmail group for <code>/var/mail</code> (<em>Mail storage managed by Dovecot</em>).</p>
