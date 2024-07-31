@@ -199,5 +199,8 @@ _start_daemons
 
 _log 'info' "${HOSTNAME} is up and running"
 
+# NOTE: This file should already exist with log output from rsyslogd:
 touch /var/log/mail/mail.log
-exec tail -Fn 0 /var/log/mail/mail.log
+# Container logs will receive updates to this log file,
+# `-n +0` ensures we output to stdout from the first line of the file.
+exec tail -Fn +0 /var/log/mail/mail.log
