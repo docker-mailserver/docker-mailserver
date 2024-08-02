@@ -194,7 +194,7 @@ fi
 # marker to check if container was restarted
 date >/CONTAINER_START
 
-# Container logs will receive updates to this log file:
+# Container logs will receive updates from this log file:
 MAIN_LOGFILE=/var/log/mail/mail.log
 # NOTE: rsyslogd would usually create this later during `_start_daemons`, however it would already exist if the container was restarted.
 touch "${MAIN_LOGFILE}"
