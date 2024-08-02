@@ -194,13 +194,16 @@ fi
 # marker to check if container was restarted
 date >/CONTAINER_START
 
+# Container logs will receive updates to this log file:
+MAIN_LOGFILE=/var/log/mail/mail.log
+# NOTE: rsyslogd would usually create this later during `_start_daemons`, however it would already exist if the container was restarted.
+touch "${MAIN_LOGFILE}"
+# Ensure `tail` follows the correct position of the log file for this container start (new logs begin once `_start_daemons` is called)
+TAIL_START=$(wc -l < "${MAIN_LOGFILE}")
+
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 _start_daemons
 
+# Container start-up scripts completed. `tail` will now pipe the log updates to stdout:
 _log 'info' "${HOSTNAME} is up and running"
-
-# NOTE: This file should already exist with log output from rsyslogd:
-touch /var/log/mail/mail.log
-# Container logs will receive updates to this log file,
-# `-n +0` ensures we output to stdout from the first line of the file.
-exec tail -Fn +0 /var/log/mail/mail.log
+exec tail -Fn "+${TAIL_START}" "${MAIN_LOGFILE}"
