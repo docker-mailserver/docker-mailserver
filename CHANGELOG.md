@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file. The format 
   - Update logwatch `ignore.conf` to exclude Xapian messages about pending documents ([#4060](https://github.com/docker-mailserver/docker-mailserver/pull/4060))
   - `dovecot-fts-xapian` plugin was updated to `1.7.13`, fixing a regression with indexing ([#4095](https://github.com/docker-mailserver/docker-mailserver/pull/4095))
 - **Internal:**
+  - The main `mail.log` which is piped to stdout via `tail` now correctly begins from the first log line of the active container run. Previously some daemon logs and potential warnings/errors were omitted. ([#4146](https://github.com/docker-mailserver/docker-mailserver/pull/4146))
   - Fixed a regression introduced in v14 where `postfix-main.cf` appended `stderr` output into `/etc/postfix/main.cf`, causing Postfix startup to fail ([#4147](https://github.com/docker-mailserver/docker-mailserver/pull/4147))
 
 ### CI
