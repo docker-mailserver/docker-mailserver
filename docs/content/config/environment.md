@@ -191,6 +191,12 @@ In the majority of cases, you want `letsencrypt` or `manual`.
 
 Please read [the SSL page in the documentation][docs-tls] for more information.
 
+##### SSL_SNI_DOMAINS
+
+Comma separated list of domains.
+
+Certificates will be exported for each domain from traefik `acme.json` and added to Postfix and Dovecot for SNI support.
+
 ##### TLS_LEVEL
 
 - **empty** => modern
