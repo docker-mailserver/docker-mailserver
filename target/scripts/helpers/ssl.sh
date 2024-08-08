@@ -127,6 +127,42 @@ function _setup_ssl() {
       fi
 
       _log 'trace' "letsencrypt (acme.json) extracted certificate using ${EXTRACTED_DOMAIN[0]}: '${EXTRACTED_DOMAIN[1]}'"
+
+      # Extracting certificates for SNI support
+      if [[ -n ${SSL_SNI_DOMAINS} ]] ; then
+        # add empty dovecot & postfix config
+        echo -n "" > /etc/dovecot/conf.d/10-sni.conf
+        echo -n "" > /etc/postfix/sni.map
+        
+        # add tls_server_sni_maps if not exist
+        local SNI_MAPS="tls_server_sni_maps = hash:/etc/postfix/sni.map"
+        grep -qxF -- "${SNI_MAPS}" "/etc/postfix/main.cf" || echo ${SNI_MAPS} >> /etc/postfix/main.cf
+        
+        for SNI_DOMAIN in ${SSL_SNI_DOMAINS//,/ }
+        do
+          if _extract_certs_from_acme "${SNI_DOMAIN}"; then
+            local PRIVATE_KEY="/etc/letsencrypt/live/${SNI_DOMAIN}/key.pem"
+            local CERT_CHAIN="/etc/letsencrypt/live/${SNI_DOMAIN}/fullchain.pem"
+            
+            # add domain certificate to postfix
+            echo "${SNI_DOMAIN} ${PRIVATE_KEY} ${CERT_CHAIN}" >> /etc/postfix/sni.map
+            
+            # add domain certificate to dovecot
+            echo "local_name ${SNI_DOMAIN} {" >> /etc/dovecot/conf.d/10-sni.conf
+            echo "  ssl_cert = <${CERT_CHAIN}" >> /etc/dovecot/conf.d/10-sni.conf
+            echo "  ssl_key = <${PRIVATE_KEY}" >> /etc/dovecot/conf.d/10-sni.conf
+            echo "}" >> /etc/dovecot/conf.d/10-sni.conf
+            
+            _log 'trace' "SNI: extracted domain: ${SNI_DOMAIN}"
+          else
+            _log 'warn' "SNI: letsencrypt (acme.json) failed to extract SNI domain: ${SNI_DOMAIN}"
+          fi
+        done
+        
+        # create postfix SNI table
+        postmap -F hash:/etc/postfix/sni.map
+        _log 'trace' "SNI: creating postfix db (sni.map.db)"
+      fi
     fi
   }
 
