@@ -131,7 +131,7 @@ function _setup_ssl() {
       # Extracting certificates for SNI support
       if [[ -n ${SSL_SNI_DOMAINS} ]] ; then
         # add empty dovecot & postfix config
-        echo -n "" > /etc/dovecot/conf.d/10-sni.conf
+        echo -n "" > /etc/dovecot/conf.d/20-sni.conf
         echo -n "" > /etc/postfix/sni.map
 
         # add tls_server_sni_maps if not exist
@@ -153,7 +153,7 @@ function _setup_ssl() {
               echo "  ssl_cert = <${CERT_CHAIN}"
               echo "  ssl_key = <${PRIVATE_KEY}"
               echo "}"
-            } >> /etc/dovecot/conf.d/10-sni.conf
+            } >> /etc/dovecot/conf.d/20-sni.conf
 
             _log 'trace' "SNI: extracted domain: ${SNI_DOMAIN}"
           else
