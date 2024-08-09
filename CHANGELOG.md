@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Breaking
+
+- [**getmail6**](https://github.com/docker-mailserver/docker-mailserver/pull/4156)
+  - Introducing `getmailrc_general` config file. This allows to easily change the base options used for every getmail RC file.
+  - IMAP/POP3 configs added to `config-examples` directory
+  - `GETMAIL_POLL` variable is not limited to 30 minutes anymore
+  - Instead of cron, a new supervisord service was created to make the periodic polls.
+  - getmail configurations are now stored in their own directory: `/tmp/docker-mailserver/getmail`.
+  - The `message_log` option has been removed. No log file for each getmail configuration is created anymore. Instead, like the other services, logging goes to syslog and end up in `mail.log`.
+  - The getmail state-dir is changed from `/tmp/docker-mailserver/getmail` to `/var/mail-state/getmail`.
+
 ### Security
 
 - **Fail2ban:**
