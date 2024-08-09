@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file. The format 
   - Instead of cron, a new supervisord service was created to make the periodic polls.
   - getmail configurations are now stored in their own directory: `/tmp/docker-mailserver/getmail`.
   - The `message_log` option has been removed. No log file for each getmail configuration is created anymore. Instead, like the other services, logging goes to syslog and end up in `mail.log`.
-  - The getmail state-dir is changed from `/tmp/docker-mailserver/getmail` to `/var/mail-state/getmail`.
+  - The getmail state-dir is changed from `/tmp/docker-mailserver/getmail` to `/var/mail-state/getmail`. **You'll have to migrate your current "oldfiles" manually to the new directory.**
 
 ### Security
 
