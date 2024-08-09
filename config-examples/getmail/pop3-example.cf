@@ -1,0 +1,13 @@
+# https://getmail6.org/configuration.html
+
+[retriever]
+type = SimplePOP3SSLRetriever
+server = pop3.gmail.com
+username = alice
+password = notsecure
+
+[destination]
+type = MDA_external
+path = /usr/lib/dovecot/deliver
+allow_root_commands = true
+arguments =("-d","user1@example.com")
