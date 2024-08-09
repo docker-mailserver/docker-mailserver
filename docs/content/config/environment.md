@@ -450,7 +450,7 @@ Default: 6 (which corresponds to the `add_header` action)
 
 ##### RSPAMD_NEURAL
 
-Can be used to enable or disable the [Neural network module][rspamd-docs-neural-network]. This is an experimental anti-spam weigh method using three neural networks in the configuration added here. As far as we can tell it trains itself by using other modules to find out what spam is. It will take a while (a week or more) to train its first neural network. The config trains new networks all the time and discards old networks. 
+Can be used to enable or disable the [Neural network module][rspamd-docs-neural-network]. This is an experimental anti-spam weigh method using three neural networks in the configuration added here. As far as we can tell it trains itself by using other modules to find out what spam is. It will take a while (a week or more) to train its first neural network. The config trains new networks all the time and discards old networks.
 Since it is experimental, it is switched off by default.
 
 - **0** => Disabled
@@ -732,7 +732,7 @@ Enable or disable `getmail`.
 
 ##### GETMAIL_POLL
 
-- **5** => `getmail` The number of minutes for the interval. Min: 1; Max: 30; Default: 5.
+- **5** => `getmail` The number of minutes for the interval. Min: 1; Default: 5.
 
 
 #### OAUTH2

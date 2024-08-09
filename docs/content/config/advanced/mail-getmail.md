@@ -10,14 +10,17 @@ environment:
   - GETMAIL_POLL=5
 ```
 
-In your DMS config volume (eg: `docker-data/dms/config/`), create a `getmail-<ID>.cf` file for each remote account that you want to retrieve mail and store into a local DMS account. `<ID>` should be replaced by you, and is just the rest of the filename (eg: `getmail-example.cf`). The contents of each file should be configuration like documented below.
+In your DMS config volume (eg: `docker-data/dms/config/`), create a new directory `getmail`. Then you can place a `<ID>.cf` file inside for each remote account that you want to retrieve mail and store into a local DMS account. `<ID>` should be replaced by you, and is just the rest of the filename (eg: `imap-example.cf`). The contents of each file should be configuration like documented below.
 
-The directory structure should similar to this:
+The directory structure should look similar to this:
 
 ```txt
 ├── docker-data/dms/config
 │   ├── dovecot.cf
-│   ├── getmail-example.cf
+│   ├── getmail
+│   │   ├── getmailrc_general.cf
+│   │   ├── imap-example.cf
+│   │   ├── pop3-example.cf
 │   ├── postfix-accounts.cf
 │   └── postfix-virtual.cf
 ├── docker-compose.yml
@@ -42,9 +45,9 @@ received = false
 delivered_to = false
 ```
 
-If you want to use a different base config, mount a file to `/etc/getmailrc_general`. This file will replace the default "Common Options" base config above, that all `getmail-<ID>.cf` files will extend with their configs when used.
+If you want to use a different base config, place it in `docker-data/dms/config/getmail/getmailrc_general.cf`. This file will replace the default "Common Options" base config above, that all `<ID>.cf` files will extend with their configs when used.
 
-??? example "IMAP Configuration" 
+??? example "IMAP Configuration"
 
     This example will:
 
@@ -54,7 +57,7 @@ If you want to use a different base config, mount a file to `/etc/getmailrc_gene
 
     ```getmailrc
     [retriever]
-    type = SimpleIMAPRetriever
+    type = SimpleIMAPSSLRetriever
     server = imap.gmail.com
     username = alice
     password = notsecure
@@ -71,7 +74,7 @@ If you want to use a different base config, mount a file to `/etc/getmailrc_gene
 
     ```getmailrc
     [retriever]
-    type = SimplePOP3Retriever
+    type = SimplePOP3SSLRetriever
     server = pop3.gmail.com
     username = alice
     password = notsecure
@@ -84,7 +87,7 @@ If you want to use a different base config, mount a file to `/etc/getmailrc_gene
 
 ### Polling Interval
 
-By default the `getmail` service checks external mail accounts for new mail every 5 minutes. That polling interval is configurable via the `GETMAIL_POLL` ENV variable, with a value in minutes (_default: 5, min: 1, max: 30_):
+By default the `getmail` service checks external mail accounts for new mail every 5 minutes. That polling interval is configurable via the `GETMAIL_POLL` ENV variable, with a value in minutes (_default: 5, min: 1_):
 
 ```yaml
 environment:
