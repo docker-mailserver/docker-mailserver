@@ -19,8 +19,8 @@ The directory structure should look similar to this:
 │   ├── dovecot.cf
 │   ├── getmail
 │   │   ├── getmailrc_general.cf
-│   │   ├── imap-example.cf
-│   │   ├── pop3-example.cf
+│   │   ├── remote-account1.cf
+│   │   ├── remote-account2.cf
 │   ├── postfix-accounts.cf
 │   └── postfix-virtual.cf
 ├── docker-compose.yml
