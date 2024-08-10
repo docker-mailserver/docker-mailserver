@@ -13,9 +13,9 @@ All notable changes to this project will be documented in this file. The format 
   - IMAP/POP3 configs added to `config-examples` directory
   - `GETMAIL_POLL` variable is not limited to 30 minutes anymore
   - Instead of cron, a new supervisord service was created to make the periodic polls.
-  - getmail configurations are now stored in their own directory: `/tmp/docker-mailserver/getmail`.
   - The `message_log` option has been removed. No log file for each getmail configuration is created anymore. Instead, like the other services, logging goes to syslog and end up in `mail.log`.
-  - The getmail state-dir is changed from `/tmp/docker-mailserver/getmail` to `/var/mail-state/getmail`. **You'll have to migrate your current "oldfiles" manually to the new directory.**
+  - Instead of `docker-data/dms/config`, getmail configurations are now stored in their own sub directory: `docker-data/dms/config/getmail`. **You'll have to migrate your getmail configurations manually to the new directory.**
+  - The getmail state-dir is changed from `docker-data/dms/config/getmail` to `docker-data/dms/mail-state/lib-getmail`. **You'll have to migrate your current "oldfiles" manually to the new directory.**
 
 ### Security
 
