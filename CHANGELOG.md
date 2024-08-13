@@ -15,7 +15,9 @@ All notable changes to this project will be documented in this file. The format 
   - Added `getmail` as a new service for `supervisor` to manage, replacing cron for periodic polling.
   - Generated getmail configuration files no longer set the `message_log` option. Instead of individual log files per config, the [default base settings DMS configures](https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/getmail/getmailrc_general) now enables `message_log_syslog`. This aligns with how other services in DMS log to syslog where it is captured in `mail.log`.
   - Getmail configurations have changed location from the base of the DMS Config Volume, to the `getmail/` subdirectory. Any existing configurations **must be migrated manually.**
-  - The getmail state-dir is changed from `docker-data/dms/config/getmail` to `docker-data/dms/mail-state/lib-getmail`. **You'll have to migrate your current "oldfiles" manually to the new directory.**
+  - DMS v14 mistakenly relocated the getmail state directory to the DMS Config Volume as a `getmail/` subdirectory.
+    - This has been corrected to `/var/lib/getmail` (_if you have mounted a DMS State Volume to `/var/mail-state`, `/var/lib/getmail` will be symlinked to `/var/mail-state/lib-getmail`_).
+    - To preserve this state when upgrading to DMS v15, **you must manually migrate `getmail/` from the _DMS Config Volume_ to `lib-getmail/` in the _DMS State Volume_.**
 
 ### Security
 
