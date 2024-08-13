@@ -16,6 +16,9 @@ GETMAIL_DIR=/var/lib/getmail
 # If the nullglob option is set, and no matches are found, the word is removed.
 shopt -s nullglob
 
+# Dump configuration from each RC file.
 for RC_FILE in /etc/getmailrc.d/*; do
+  echo "${RC_FILE##*/}:"
+  echo
   getmail --getmaildir "${GETMAIL_DIR}" --rcfile "${RC_FILE}" --dump | tail -n +6
 done
