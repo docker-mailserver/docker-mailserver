@@ -49,6 +49,7 @@ function _setup_getmail() {
         cat "${GETMAIL_RC_GENERAL}" "${FILE}" >"${GETMAIL_RC}"
       fi
     done
+    # Strip read access from non-root due to files containing secrets:
     chmod -R 600 "${GETMAIL_RC_DIR}"
 
     # Directory, where "oldmail" files are stored
