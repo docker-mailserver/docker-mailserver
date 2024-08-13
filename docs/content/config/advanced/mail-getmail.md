@@ -10,7 +10,9 @@ environment:
   - GETMAIL_POLL=5
 ```
 
-In your DMS config volume (eg: `docker-data/dms/config/`), create a new directory `getmail`. Then you can place a `<ID>.cf` file inside for each remote account that you want to retrieve mail and store into a local DMS account. `<ID>` should be replaced by you, and is just the rest of the filename (eg: `imap-example.cf`). The contents of each file should be configuration like documented below.
+In your DMS config volume (eg: `docker-data/dms/config/`), add a subdirectory `getmail/` for including your getmail config files (eg: `imap-example.cf`) for each remote account that you want to retrieve mail from and deliver to the mailbox of a DMS account.
+
+These config files content is documented in the next section with an IMAP and POP3 example to reference.
 
 The directory structure should look similar to this:
 
