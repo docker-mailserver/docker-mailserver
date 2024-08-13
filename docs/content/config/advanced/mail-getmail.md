@@ -47,7 +47,11 @@ received = false
 delivered_to = false
 ```
 
-If you want to use a different base config, place it in `docker-data/dms/config/getmail/getmailrc_general.cf`. This file will replace the default "Common Options" base config above, that all `<ID>.cf` files will extend with their configs when used.
+The DMS integration for Getmail generates a `getmailrc` config that prepends the common options of the base config to each remote account config provided.
+
+!!! tip "Change the base options"
+
+    Add your own base config as `getmail/getmailrc_general.cf` into the DMS Config Volume. It will replace the DMS defaults shown above.
 
 ??? example "IMAP Configuration"
 
