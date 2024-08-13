@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - [**getmail6**](https://github.com/docker-mailserver/docker-mailserver/pull/4156)
   - The [DMS config volume](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/optional-config/#volumes) now has support for `getmailrc_general.cf` for overriding [common default settings](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-getmail/#common-options). If you previously mounted this config file directly to `/etc/getmailrc_general` you should switch to our config volume support.
-  - IMAP/POP3 configs added to `config-examples` directory
+  - IMAP/POP3 example configs added to our [`config-examples`](https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/config-examples/getmail).
   - `GETMAIL_POLL` variable is not limited to 30 minutes anymore
   - Instead of cron, a new supervisord service was created to make the periodic polls.
   - The `message_log` option has been removed. No log file for each getmail configuration is created anymore. Instead, like the other services, logging goes to syslog and end up in `mail.log`.
