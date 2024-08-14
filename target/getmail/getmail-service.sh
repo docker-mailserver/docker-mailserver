@@ -39,7 +39,7 @@ while :; do
 
   # Stop service if no configuration is found.
   if [[ -z ${RC_FILE} ]]; then
-    _syslog_error 'No configration found'
+    _syslog_error 'No configuration found'
     _stopService
   fi
 
