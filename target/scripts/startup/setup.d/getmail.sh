@@ -4,13 +4,6 @@ function _setup_getmail() {
   if [[ ${ENABLE_GETMAIL} -eq 1 ]]; then
     _log 'trace' 'Preparing Getmail configuration'
 
-    # Verify correct value for GETMAIL_POLL. Valid are any numbers greater than 0.
-    if ! [[ ${GETMAIL_POLL} =~ ^[0-9]+$ && ${GETMAIL_POLL} -gt 0 ]]; then
-      _log 'warn' "Invalid value for GETMAIL_POLL: ${GETMAIL_POLL}"
-      _log 'warn' "Getmail will be disabled"
-      # return 1
-    fi
-
     local GETMAIL_RC ID GETMAIL_DIR
 
     local GETMAIL_CONFIG_DIR='/tmp/docker-mailserver/getmail'
@@ -20,13 +13,6 @@ function _setup_getmail() {
 
     # Create the directory /etc/getmailrc.d to place the user config in later.
     mkdir -p "${GETMAIL_RC_DIR}"
-
-    # Check if getmail config directory exists and at least one <ID>.cf file is present.
-    # getmailrc_general.cf is not mandatory and excluded.
-    if ! find "${GETMAIL_CONFIG_DIR}" -type f -name '*.cf' -not -name getmailrc_general.cf 2>/dev/null | grep -q .; then
-      _log 'warn' 'No getmail configration found'
-      _log 'warn' "Getmail will be disabled"
-    fi
 
     # Check if custom getmailrc_general.cf file is present.
     if [[ -f "${GETMAIL_RC_GENERAL_CF}" ]]; then
