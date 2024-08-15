@@ -17,7 +17,6 @@ function _syslog_error() {
 
 function _stopService() {
   _syslog_error "Stopping service"
-  sleep 2
   exec supervisorctl stop getmail
 }
 
