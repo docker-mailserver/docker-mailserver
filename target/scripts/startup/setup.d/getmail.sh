@@ -40,7 +40,7 @@ function _setup_getmail() {
 
     # Directory, where "oldmail" files are stored.
     # For more information see: https://getmail6.org/faq.html#faq-about-oldmail
-    # The debug command for getmail expect this location to exist.
+    # The debug command for getmail expects this location to exist.
     GETMAIL_DIR=/var/lib/getmail
     _log 'debug' "Creating getmail state-dir '${GETMAIL_DIR}'"
     mkdir -p "${GETMAIL_DIR}"
