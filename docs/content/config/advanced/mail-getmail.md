@@ -47,7 +47,7 @@ received = false
 delivered_to = false
 ```
 
-The DMS integration for Getmail generates a `getmailrc` config that prepends the common options of the base config to each remote account config provided.
+The DMS integration for Getmail generates a `getmailrc` config that prepends the common options of the base config to each remote account config file (`*.cf`) found in the DMS Config Volume `getmail/` directory.
 
 !!! tip "Change the base options"
 
