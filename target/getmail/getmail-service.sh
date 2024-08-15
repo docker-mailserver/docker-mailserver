@@ -12,7 +12,7 @@ GETMAIL_DIR=/var/lib/getmail
 trap 'pkill --parent $$' EXIT
 
 function _syslog_error() {
-  logger --id "${$}" --priority mail.err --tag getmail6 "${1}"
+  logger --id "${$}" --priority mail.err --tag getmail "${1}"
 }
 
 function _stopService() {
