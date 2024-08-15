@@ -38,8 +38,8 @@ function _setup_getmail() {
     # Strip read access from non-root due to files containing secrets:
     chmod -R 600 "${GETMAIL_RC_DIR}"
 
-    # Directory, where "oldmail" files are stored
-    # getmail stores its state - its "memory" of what it has seen in your POP/IMAP account - in the oldmail files.
+    # Directory, where "oldmail" files are stored.
+    # For more information see: https://getmail6.org/faq.html#faq-about-oldmail
     # The debug command for getmail expect this location to exist.
     GETMAIL_DIR=/var/lib/getmail
     _log 'debug' "Creating getmail state-dir '${GETMAIL_DIR}'"
