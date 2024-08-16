@@ -26,7 +26,7 @@ function _setup_getmail() {
 
     # Generate getmailrc configs, starting with the `/etc/getmailrc_general` base config, then appending users own config to the end.
     for FILE in "${GETMAIL_CONFIG_DIR}"/*.cf; do
-      if [[ ${FILE} =~ /getmail/(.+)\.cf && ${FILE} != "${GETMAIL_RC_GENERAL_CF}" ]]; then
+      if [[ ${FILE} =~ /getmail/(.+)\.cf ]] && [[ ${FILE} != "${GETMAIL_RC_GENERAL_CF}" ]]; then
         ID=${BASH_REMATCH[1]}
 
         _log 'debug' "Processing getmail config '${ID}'"
