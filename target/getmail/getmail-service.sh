@@ -9,21 +9,21 @@ GETMAIL_DIR=/var/lib/getmail
 
 # Kill all child processes on EXIT.
 # Otherwise 'supervisorctl restart getmail' leads to zombie 'sleep' processes.
-trap 'pkill --parent $$' EXIT
+trap 'pkill --parent ${$}' EXIT
 
 function _syslog_error() {
   logger --priority mail.err --tag getmail "${1}"
 }
 
-function _stopService() {
+function _stop_service() {
   _syslog_error "Stopping service"
   exec supervisorctl stop getmail
 }
 
 # Verify the correct value for GETMAIL_POLL. Valid are any numbers greater than 0.
-if ! [[ ${GETMAIL_POLL} =~ ^[0-9]+$ && ${GETMAIL_POLL} -gt 0 ]]; then
+if [[ ! ${GETMAIL_POLL} =~ ^[0-9]+$ ]] || [[ ${GETMAIL_POLL} -lt 1 ]]; then
   _syslog_error "Invalid value for GETMAIL_POLL: ${GETMAIL_POLL}"
-  _stopService
+  _stop_service
 fi
 
 # If no matching filenames are found, and the shell option nullglob is disabled, the word is left unchanged.
@@ -40,7 +40,7 @@ while :; do
   # Stop service if no configuration is found.
   if [[ -z ${RC_FILE} ]]; then
     _syslog_error 'No configuration found'
-    _stopService
+    _stop_service
   fi
 
   sleep "${GETMAIL_POLL}m"
