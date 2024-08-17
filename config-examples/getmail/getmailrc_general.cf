@@ -1,3 +1,5 @@
+# https://getmail6.org/configuration.html#conf-options
+
 [options]
 verbose = 0
 read_all = false
@@ -5,3 +7,5 @@ delete = false
 max_messages_per_session = 500
 received = false
 delivered_to = false
+message_log_syslog = true
+

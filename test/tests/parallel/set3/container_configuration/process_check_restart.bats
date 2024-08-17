@@ -18,6 +18,7 @@ function teardown() { _default_teardown ; }
 # dovecot (/usr/sbin/dovecot)
 # fetchmail (/usr/bin/fetchmail)
 # fail2ban-server (/usr/bin/python3 /usr/bin/fail2ban-server) - NOTE: python3 is due to the shebang
+# getmail (/bin/bash /usr/local/bin/getmail-service.sh)
 # mta-sts-daemon (/usr/bin/bin/python3 /usr/bin/mta-sts-daemon)
 # postgrey (postgrey) - NOTE: This process command uses perl via shebang, but unlike python3 the context is missing
 # postsrsd (/usr/sbin/postsrsd)
@@ -41,6 +42,7 @@ ENV_PROCESS_LIST=(
   dovecot
   fail2ban-server
   fetchmail
+  getmail
   mta-sts-daemon
   opendkim
   opendmarc
@@ -56,6 +58,7 @@ ENV_PROCESS_LIST=(
     --env ENABLE_CLAMAV=0
     --env ENABLE_FAIL2BAN=0
     --env ENABLE_FETCHMAIL=0
+    --env ENABLE_GETMAIL=0
     --env ENABLE_MTA_STS=0
     --env ENABLE_OPENDKIM=0
     --env ENABLE_OPENDMARC=0
@@ -92,6 +95,7 @@ ENV_PROCESS_LIST=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_FAIL2BAN=1
     --env ENABLE_FETCHMAIL=1
+    --env ENABLE_GETMAIL=1
     --env ENABLE_MTA_STS=1
     --env ENABLE_OPENDKIM=1
     --env ENABLE_OPENDMARC=1
