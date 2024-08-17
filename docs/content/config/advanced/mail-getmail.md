@@ -12,7 +12,7 @@ environment:
 
 In your DMS config volume (eg: `docker-data/dms/config/`), add a subdirectory `getmail/` for including your getmail config files (eg: `imap-example.cf`) for each remote account that you want to retrieve mail from and deliver to the mailbox of a DMS account.
 
-These config files content is documented in the next section with an IMAP and POP3 example to reference.
+The content of these config files is documented in the next section with an IMAP and POP3 example to reference.
 
 The directory structure should look similar to this:
 
