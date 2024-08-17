@@ -62,7 +62,7 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # which would require an extra memory of 500MB+ during an image build.
 # When using `COPY --link`, the `--chown` option is only compatible with numeric ID values.
 # hadolint ignore=DL3021
-COPY --link --chown=200 --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
+COPY --link --chown=200 --from=docker.io/clamav/clamav-debian:latest /var/lib/clamav /var/lib/clamav
 
 RUN <<EOF
   # `COPY --link --chown=200` has a bug when built by the buildx docker-container driver.
