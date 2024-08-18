@@ -1,7 +1,11 @@
 #!/bin/bash
 
+# When 'pipefail' is enabled, the exit status of the pipeline reflects the exit status of the last command that fails.
+# Without 'pipefail', the exit status of a pipeline is determined by the exit status of the last command in the pipeline.
 set -o pipefail
-shopt -s globstar inherit_errexit
+
+# Allows the usage of '**' in patterns, e.g. ls **/*
+shopt -s globstar
 
 # ------------------------------------------------------------
 # ? >> Sourcing helpers & stacks

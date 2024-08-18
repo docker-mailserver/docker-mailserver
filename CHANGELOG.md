@@ -47,6 +47,7 @@ All notable changes to this project will be documented in this file. The format 
 - **Internal:**
   - The main `mail.log` which is piped to stdout via `tail` now correctly begins from the first log line of the active container run. Previously some daemon logs and potential warnings/errors were omitted. ([#4146](https://github.com/docker-mailserver/docker-mailserver/pull/4146))
   - Fixed a regression introduced in v14 where `postfix-main.cf` appended `stderr` output into `/etc/postfix/main.cf`, causing Postfix startup to fail ([#4147](https://github.com/docker-mailserver/docker-mailserver/pull/4147))
+  - Unused `shopt -s inherit_errexit` removed from `start-mailserver.sh` ([#4161](https://github.com/docker-mailserver/docker-mailserver/pull/4161))
 
 ### CI
 
