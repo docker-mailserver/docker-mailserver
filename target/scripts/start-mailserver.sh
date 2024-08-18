@@ -4,7 +4,7 @@
 # Without 'pipefail', the exit status of a pipeline is determined by the exit status of the last command in the pipeline.
 set -o pipefail
 
-# allows usage of '**' in patterns, e.g. ls **/*
+# Allows the usage of '**' in patterns, e.g. ls **/*
 shopt -s globstar
 
 # ------------------------------------------------------------
