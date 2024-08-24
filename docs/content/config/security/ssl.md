@@ -240,7 +240,7 @@ After completing the steps above, your certificate should be ready to use.
         image: certbot/dns-cloudflare:latest
         command: renew --dns-cloudflare --dns-cloudflare-credentials /run/secrets/cloudflare-api-token
         volumes:
-          - ./docker-data/certbot/certs/:/etc/letsencrtypt/
+          - ./docker-data/certbot/certs/:/etc/letsencrypt/
           - ./docker-data/certbot/logs/:/var/log/letsencrypt/
         secrets:
           - cloudflare-api-token
