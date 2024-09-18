@@ -96,6 +96,94 @@ docker compose up -d mailserver
 docker compose ps
 ```
 
+### Dockermailserver as a rootless Quadlet
+
+Podman generate systemd is now deprecated and has been integrated into Quadlet. A quadlet is a ini-file with the same structure as a systemd unit file. Writing a Quadlet and placing it on your system will generate a systemd-service on your machine for containers, pods, volumes, networks, kubes, images and builds. Quadlets created as root will then auto-start.
+
+To make a rootless Quadlet auto-start make sure your user is *lingering*.
+
+```bash
+loginctl enable-linger user
+```
+
+Forcing a daemon-reload when a Quadlet-file is present in any of the accepted directories for Quadlets, will automatically generate a systemd-service that will auto-start at boot.
+
+```bash
+systemctl --user daemon-reload
+```
+
+Quadlet files for non-root users can be placed in the following directories
+
+- $XDG_RUNTIME_DIR/containers/systemd/
+- $XDG_CONFIG_HOME/containers/systemd/ or ~/.config/containers/systemd/
+- /etc/containers/systemd/users/$(UID)
+- /etc/containers/systemd/users/
+
+#### Example Quadlet file
+
+We have to use the .container extension for the quadlet generator to pick up the service.
+Because dockermailserver uses multiple users inside the container, we will either have to use our own user as root, resulting in our e-mails being owned by a subuid. Alternatively, using UIDMap we can map our rootless user to UID 5000 in the container who owns our e-mails. Using UIDMap also maps root user 0 inside the container to an available sub-uid of our rootless user. Otherwise the container will not have permission to configure itself.
+
+The example uses `Network=pasta` to use the pasta network driver, which will replace `slirp4netns`.
+
+`dockermailservice.container`
+
+```
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
+
+[Unit]
+Wants=network-online.target 
+After=network-online.target
+
+[Container]
+ContainerName=dms
+Image=docker.io/mailserver/docker-mailserver:latest 
+# DMS uses uid 5000 for mailstate, but creates other folders for different users, which will be mapped to different sub-uids
+UIDMap=5000:0:1
+UIDMap=0:1:5000
+UIDMap=5001:5001:60536
+Network=pasta
+PublishPort=25:25
+PublishPort=143:143
+PublishPort=587:587
+PublishPort=993:993
+
+# Volumes
+Volume=/tank/dms/certs:/tmp/ssl
+Volume=/tank/dms/maildata:/var/mail
+Volume=/tank/dms/mailstate:/var/mail-state
+Volume=/tank/dms/maillogs:/var/log/mail
+Volume=/tank/dms/config:/tmp/docker-mailserver/
+
+# If you want to use podmans auto-update service:
+AutoUpdate=registry 
+
+# Environment variables
+# General Settings
+
+Environment=HOSTNAME=example
+Environment=DOMAINNAME=example.com
+Environment=CONTAINER_NAME=dockermailserver
+...
+```
+Stopping the service with systemd will result in the container being removed. Restarting will use the existing container. You do not need to enable services with Quadlet.
+
+Start container:
+
+`systemctl --user start dockermailserver`
+
+Stop container:
+
+`systemctl --user stop dockermailserver`
+
+Using root with machinectl (used for some Ansible versions):
+
+`machinectl -q shell yourrootlessuser@ /bin/systemctl --user start dockermailserver`
+
 ### Security in Rootless Mode
 
 In rootless mode, podman resolves all incoming IPs as localhost, which results in an open gateway in the default configuration. There are two workarounds to fix this problem, both of which have their own drawbacks.
@@ -103,6 +191,9 @@ In rootless mode, podman resolves all incoming IPs as localhost, which results i
 #### Enforce authentication from localhost
 
 The `PERMIT_DOCKER` variable in the `mailserver.env` file allows to specify trusted networks that do not need to authenticate. If the variable is left empty, only requests from localhost and the container IP are allowed, but in the case of rootless podman any IP will be resolved as localhost. Setting `PERMIT_DOCKER=none` enforces authentication also from localhost, which prevents sending unauthenticated emails.
+
+#### Use the pasta network driver
+As of podman 5.0 pasta is the default network driver of rootless containers. This will have the same functionality and caveats as the `slirp4netns` driver. You do not need to set and interface name.
 
 #### Use the slip4netns network driver
 
