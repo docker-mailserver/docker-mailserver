@@ -96,7 +96,7 @@ docker compose up -d mailserver
 docker compose ps
 ```
 
-### Dockermailserver as a rootless Quadlet
+### Rootless Quadlet
 
 Podman generate systemd is now deprecated and has been integrated into Quadlet. A quadlet is a ini-file with the same structure as a systemd unit file. Writing a Quadlet and placing it on your system will generate a systemd-service on your machine for containers, pods, volumes, networks, kubes, images and builds. Quadlets created as root will then auto-start.
 
