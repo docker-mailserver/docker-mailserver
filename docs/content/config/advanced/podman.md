@@ -193,7 +193,7 @@ In rootless mode, podman resolves all incoming IPs as localhost, which results i
 The `PERMIT_DOCKER` variable in the `mailserver.env` file allows to specify trusted networks that do not need to authenticate. If the variable is left empty, only requests from localhost and the container IP are allowed, but in the case of rootless podman any IP will be resolved as localhost. Setting `PERMIT_DOCKER=none` enforces authentication also from localhost, which prevents sending unauthenticated emails.
 
 #### Use the pasta network driver
-As of podman 5.0 pasta is the default network driver of rootless containers. This will have the same functionality and caveats as the `slirp4netns` driver. You do not need to set and interface name.
+As of podman 5.0 pasta is the default network driver of rootless containers. This will have the same functionality and caveats as the `slirp4netns` driver. You do not need to set an interface name.
 
 #### Use the slip4netns network driver
 
