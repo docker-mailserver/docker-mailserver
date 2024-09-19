@@ -103,7 +103,7 @@ docker compose ps
     [`podman generate systemd`][podman-docs::cli::generate-systemd] has been deprecated in favor of Quadlets (_since Podman v4.4_).
 
 !!! info "What is a Quadlet?"
- 
+
     A [Quadlet][podman::quadlet::introduction] file uses the [systemd config format](https://www.freedesktop.org/software/systemd/man/latest/systemd.syntax.html) which is similar to the INI format.
 
     [Quadlets define your podman configuration][podman-docs::quadlet::example-configs] (_pods, volumes, networks, images, etc_) which are [adapted into the equivalent systemd service config files][podman::quadlet::generated-output-example] at [boot or when reloading the systemd daemon][podman-docs::config::quadlet-generation] (`systemctl daemon-reload` / `systemctl --user daemon-reload`).
