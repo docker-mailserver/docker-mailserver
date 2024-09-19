@@ -122,7 +122,7 @@ Quadlet files for non-root users can be placed in the following directories
 #### Example Quadlet file
 
 We have to use the .container extension for the quadlet generator to pick up the service.
-Because dockermailserver uses multiple users inside the container, we will either have to use our own user as root, resulting in our e-mails being owned by a subuid. Alternatively, using UIDMap we can map our rootless user to UID 5000 in the container who owns our e-mails. Using UIDMap also maps root user 0 inside the container to an available sub-uid of our rootless user. Otherwise the container will not have permission to configure itself.
+Because docker-mailserver uses multiple users inside the container, we will either have to use our own user as root, resulting in our e-mails being owned by a subuid. Alternatively, using UIDMap we can map our rootless user to UID 5000 in the container who owns our e-mails. Using UIDMap also maps root user 0 inside the container to an available sub-uid of our rootless user. Otherwise the container will not have permission to configure itself.
 
 The example uses `Network=pasta` to use the pasta network driver, which will replace `slirp4netns`.
 
