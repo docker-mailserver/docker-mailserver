@@ -131,18 +131,6 @@ docker compose ps
 [systemd-docs::loginctl::linger]: https://www.freedesktop.org/software/systemd/man/latest/loginctl.html#enable-linger%20USER%E2%80%A6
 [podman-docs::quadlet::config-search-path]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podman-rootful-unit-search-path
 
-Forcing a daemon-reload when a Quadlet-file is present in any of the accepted directories for Quadlets, will automatically generate a systemd-service that will auto-start at boot.
-
-```bash
-systemctl --user daemon-reload
-```
-
-Quadlet files for non-root users can be placed in the following directories
-
-- $XDG_RUNTIME_DIR/containers/systemd/
-- $XDG_CONFIG_HOME/containers/systemd/ or ~/.config/containers/systemd/
-- /etc/containers/systemd/users/$(UID)
-- /etc/containers/systemd/users/
 
 #### Example Quadlet file
 
