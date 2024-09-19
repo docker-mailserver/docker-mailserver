@@ -170,7 +170,7 @@ Environment=DOMAINNAME=example.com
 Environment=CONTAINER_NAME=dockermailserver
 ...
 ```
-Stopping the service with systemd will result in the container being removed. Restarting will use the existing container. You do not need to enable services with Quadlet.
+Stopping the service with systemd will result in the container being removed. Restarting will use the existing container, which is however not recommended. You do not need to enable services with Quadlet.
 
 Start container:
 
