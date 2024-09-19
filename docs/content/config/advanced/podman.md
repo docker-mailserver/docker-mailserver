@@ -114,11 +114,22 @@ docker compose ps
 [podman::quadlet::introduction]: https://mo8it.com/blog/quadlet/
 [podman::quadlet::generated-output-example]: https://blog.while-true-do.io/podman-quadlets/#writing-quadlets
 
-To make a rootless Quadlet auto-start make sure your user is *lingering*.
+!!! tip "Rootless compatibility"
 
-```bash
-loginctl enable-linger user
-```
+    Quadlets can [support rootless with a few differences][podman::rootless-differences]:
+
+    - `Network=pasta` configures [`pasta`][network-driver::pasta] as a rootless compatible network driver (_a popular alternative to `slirp4netns`. `pasta` is the default for rootless since Podman v5_).
+    - `Restart=always` will auto-start your Quadlet at login, rootless support requires to enable [lingering][systemd-docs::loginctl::linger] for your user:
+
+        ```bash
+        loginctl enable-linger user
+        ```
+    - [Config locations between rootful vs rootless][podman-docs::quadlet::config-search-path].
+
+[podman::rootless-differences]: https://matduggan.com/replace-compose-with-quadlet/#rootless
+[network-driver::pasta]: https://passt.top/passt/about/#pasta
+[systemd-docs::loginctl::linger]: https://www.freedesktop.org/software/systemd/man/latest/loginctl.html#enable-linger%20USER%E2%80%A6
+[podman-docs::quadlet::config-search-path]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podman-rootful-unit-search-path
 
 Forcing a daemon-reload when a Quadlet-file is present in any of the accepted directories for Quadlets, will automatically generate a systemd-service that will auto-start at boot.
 
