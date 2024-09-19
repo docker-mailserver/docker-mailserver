@@ -304,6 +304,17 @@ RUN chmod +x /usr/local/bin/*
 COPY target/scripts/helpers /usr/local/bin/helpers
 COPY target/scripts/startup/setup.d /usr/local/bin/setup.d
 
+# Add Python and Flask
+RUN apt-get update && apt-get install -y python3 python3-pip
+RUN pip3 install Flask
+
+# Add health check script
+COPY target/scripts/healthcheck.py /usr/local/bin/healthcheck.py
+RUN chmod +x /usr/local/bin/healthcheck.py
+
+# Add supervisor config for the web server
+COPY target/supervisor/conf.d/webserver.conf /etc/supervisor/conf.d/webserver.conf
+
 #
 # Final stage focuses only on image config
 #
@@ -313,7 +324,7 @@ ARG DMS_RELEASE=edge
 ARG VCS_REVISION=unknown
 
 WORKDIR /
-EXPOSE 25 587 143 465 993 110 995 4190
+EXPOSE 25 587 143 465 993 110 995 4190 3000
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
