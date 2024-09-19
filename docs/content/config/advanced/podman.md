@@ -98,7 +98,21 @@ docker compose ps
 
 ### Rootless Quadlet
 
-Podman generate systemd is now deprecated and has been integrated into Quadlet. A quadlet is a ini-file with the same structure as a systemd unit file. Writing a Quadlet and placing it on your system will generate a systemd-service on your machine for containers, pods, volumes, networks, kubes, images and builds. Quadlets created as root will then auto-start.
+!!! warning "`podman generate systemd` is deprecated"
+
+    [`podman generate systemd`][podman-docs::cli::generate-systemd] has been deprecated in favor of Quadlets (_since Podman v4.4_).
+
+!!! info "What is a Quadlet?"
+ 
+    A [Quadlet][podman::quadlet::introduction] file uses the [systemd config format](https://www.freedesktop.org/software/systemd/man/latest/systemd.syntax.html) which is similar to the INI format.
+
+    [Quadlets define your podman configuration][podman-docs::quadlet::example-configs] (_pods, volumes, networks, images, etc_) which are [adapted into the equivalent systemd service config files][podman::quadlet::generated-output-example] at [boot or when reloading the systemd daemon][podman-docs::config::quadlet-generation] (`systemctl daemon-reload` / `systemctl --user daemon-reload`).
+
+[podman-docs::cli::generate-systemd]: https://docs.podman.io/en/latest/markdown/podman-generate-systemd.1.html
+[podman-docs::quadlet::example-configs]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#examples
+[podman-docs::config::quadlet-generation]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#description
+[podman::quadlet::introduction]: https://mo8it.com/blog/quadlet/
+[podman::quadlet::generated-output-example]: https://blog.while-true-do.io/podman-quadlets/#writing-quadlets
 
 To make a rootless Quadlet auto-start make sure your user is *lingering*.
 
