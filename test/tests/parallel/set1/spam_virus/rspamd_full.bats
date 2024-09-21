@@ -46,7 +46,8 @@ function setup_file() {
 
   # We will send 5 emails:
   #   1. The first one should pass just fine
-  _send_email_with_msgid 'rspamd-test-email-pass'
+  _send_email_with_msgid 'rspamd-test-email-pass' \
+    --body 'AJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
   #   2. The second one should be rejected (Rspamd-specific GTUBE pattern for rejection)
   _send_spam --expect-rejection
   #   3. The third one should be rejected due to a virus (ClamAV EICAR pattern)
@@ -54,7 +55,7 @@ function setup_file() {
   _send_email_with_msgid 'rspamd-test-email-virus' --expect-rejection \
     --body 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
   #   4. The fourth one will receive an added header (Rspamd-specific GTUBE pattern for adding a spam header)
-  #      ref: https://rspamd.com/doc/gtube_patterns.html
+  #      ref: https://rspamd.com/doc/other/gtube_patterns.html
   _send_email_with_msgid 'rspamd-test-email-header' \
     --body "YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
   #   5. The fifth one will have its subject rewritten, but now spam header is applied.
