@@ -38,7 +38,7 @@ function _pre_installation_steps() {
 function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
   _log 'trace' 'Installing jaq'
-  local JAQ_TAG='v1.3.0'
+  local JAQ_TAG='v1.6.0'
   curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-${JAQ_TAG}-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq
   chmod +x /usr/bin/jaq
 
