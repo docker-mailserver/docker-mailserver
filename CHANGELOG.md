@@ -28,6 +28,12 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Internal:**
   - Add password confirmation to several `setup` CLI subcommands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
+- **Features**
+  - `postfix_exporter` to get metrics from Postfix, such as queued messages.
+- **Environment Variables**
+  - `ENABLE_EXPORTER` to start the Postfix exporter (default: 0)
+- **Tests**
+  - Add tests to see if the exporter starts correctly.
 
 ### Updates
 
