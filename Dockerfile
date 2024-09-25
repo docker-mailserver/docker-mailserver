@@ -276,11 +276,10 @@ COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
 COPY target/logwatch/ignore.conf /etc/logwatch/conf/ignore.conf
 
 # -----------------------------------------------
-# --- postfix-exporter --------------------------
+# --- Prometheus Postfix-Exporter ---------------
 # -----------------------------------------------
 
-COPY --from=stage-compile /root/go/bin/postfix_exporter /usr/local/bin/postfix_exporter
-
+COPY --from=stage-compile /root/go/bin/postfix_exporter /usr/local/bin/prometheus_postfix_exporter
 # -----------------------------------------------
 # --- Supervisord & Start -----------------------
 # -----------------------------------------------

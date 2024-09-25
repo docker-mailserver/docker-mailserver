@@ -50,7 +50,7 @@ A production-ready fullstack but simple containerized mail server (SMTP, IMAP, L
 - [Getmail6](https://getmail6.org/documentation.html)
 - [Postscreen](http://www.postfix.org/POSTSCREEN_README.html)
 - [Postgrey](https://postgrey.schweikert.ch/)
-- [Postfix_exporter](https://github.com/kumina/postfix_exporter)
+- [Prometheus Postfix Exporter](https://github.com/kumina/postfix_exporter)
 - Support for [LetsEncrypt](https://letsencrypt.org/), manual and self-signed certificates
 - A [setup script](https://docker-mailserver.github.io/docker-mailserver/latest/config/setup.sh) for easy configuration and maintenance
 - SASLauthd with LDAP authentication

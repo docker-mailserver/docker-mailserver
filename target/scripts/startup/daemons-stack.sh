@@ -44,7 +44,7 @@ function _start_daemon_rspamd         { _default_start_daemon 'rspamd'         ;
 function _start_daemon_rspamd_redis   { _default_start_daemon 'rspamd-redis'   ; }
 function _start_daemon_rsyslog        { _default_start_daemon 'rsyslog'        ; }
 function _start_daemon_update_check   { _default_start_daemon 'update-check'   ; }
-function _start_daemon_exporter       { _default_start_daemon 'exporter'       ; }
+function _start_daemon_postfix_prometheus_exporter { _default_start_daemon 'prometheus-postfix-exporter' ; }
 
 function _start_daemon_saslauthd() {
   _default_start_daemon "saslauthd_${SASLAUTHD_MECHANISMS}"

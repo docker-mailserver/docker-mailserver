@@ -360,7 +360,7 @@ Default: empty (no prefix will be added to e-mails)
 
     Add trailing white-space by quote wrapping the value: `SPAM_SUBJECT='[SPAM] '`
 
-##### ENABLE_EXPORTER
+##### ENABLE_PROMETHEUS_POSTFIX_EXPORTER
 
 - **0** => disabled
 - 1 => enable
