@@ -105,6 +105,7 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_SPAMASSASSIN_KAM]="${ENABLE_SPAMASSASSIN_KAM:=0}"
   VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
   VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
+  VARS[ENABLE_EXPORTER]="${ENABLE_EXPORTER:=0}"
 
   _log 'trace' 'Setting IP, DNS and SSL environment variables'
 

@@ -166,6 +166,7 @@ function _register_functions() {
   [[ ${ENABLE_AMAVIS}           -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
   [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
   [[ ${ENABLE_GETMAIL}          -eq 1 ]] && _register_start_daemon '_start_daemon_getmail'
+  [[ ${ENABLE_EXPORTER}         -eq 1 ]] && _register_start_daemon '_start_daemon_exporter'
 }
 
 # ------------------------------------------------------------

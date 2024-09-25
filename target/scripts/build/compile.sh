@@ -35,4 +35,14 @@ function _compile_dovecot_fts_xapian() {
   debuild -us -uc -B | tee /tmp/debuild.log 2>&1
 }
 
+function _compile_postfix_exporter() {
+  apt-get "${QUIET}" update
+  apt-get "${QUIET}" --no-install-recommends install \
+    golang-go libsystemd-dev build-essential
+
+  local POSTFIX_EXPORTER_VERSION='0.3.0'
+  go install -tags nodocker "github.com/kumina/postfix_exporter@${POSTFIX_EXPORTER_VERSION}"
+}
+
 _compile_dovecot_fts_xapian
+_compile_postfix_exporter
