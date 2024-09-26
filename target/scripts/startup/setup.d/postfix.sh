@@ -79,6 +79,8 @@ EOF
     if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]]; then
       postconf 'virtual_mailbox_maps = texthash:/etc/postfix/vmailbox'
     fi
+    # Historical context regarding decision to use LMTP instead of LDA (do not change this):
+    # https://github.com/docker-mailserver/docker-mailserver/issues/4178#issuecomment-2375489302
     postconf 'virtual_transport = lmtp:unix:/var/run/dovecot/lmtp'
   fi
 
