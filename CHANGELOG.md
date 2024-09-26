@@ -30,7 +30,7 @@ All notable changes to this project will be documented in this file. The format 
   - Add password confirmation to several `setup` CLI subcommands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
     
 - **Documentation**
-  - Updated the Podman documentation with new technologies such as rootless Quadlets and Pasta networking ([#4183](https://github.com/docker-mailserver/docker-mailserver/pull/4183))
+  - Updated the Podman documentation with deprecation warnings and up-to-date technologies such as rootless Quadlets and Pasta networking ([#4183](https://github.com/docker-mailserver/docker-mailserver/pull/4183))
     
 
 ### Updates
