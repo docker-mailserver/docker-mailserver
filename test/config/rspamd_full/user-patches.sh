@@ -5,7 +5,7 @@
 #
 # We do not use `custom-commands.conf` because this a feature
 # we are testing too.
-echo "enable_test_patterns = true;" >>/etc/rspamd/local.d/options.inc
+echo 'gtube_patterns = "all"' >>/etc/rspamd/local.d/options.inc
 
 # We want Dovecot to be very detailed about what it is doing,
 # specifically for Sieve because we need to check whether the
