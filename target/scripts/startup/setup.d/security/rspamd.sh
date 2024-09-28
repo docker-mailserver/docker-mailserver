@@ -76,8 +76,9 @@ function __rspamd__run_early_setup_and_checks() {
   mkdir -p /var/lib/rspamd/
   : >/var/lib/rspamd/stats.ucl
 
-  if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]]; then
-    cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
+  # Copy if directory exists and is not empty
+  if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]] && [[ -z $(find "${RSPAMD_DMS_OVERRIDE_D}" -maxdepth 0 -empty) ]]; then
+    cp "${RSPAMD_DMS_OVERRIDE_D}/"* "${RSPAMD_OVERRIDE_D}"
   fi
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
