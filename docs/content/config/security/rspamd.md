@@ -251,7 +251,7 @@ There is a dedicated [section for setting up DKIM with Rspamd in our documentati
 
 This subsection provides information about the integration of [Abusix][abusix-web], "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:
 
-1. [Create an account](https://app.abusix.com/signup)
+1. [Create an account](https://app.abusix.com/)
 2. Retrieve your API key
 3. Navigate to the ["Getting Started" documentation for Rspamd][abusix-docs::rspamd-integration] and follow the steps described there
 4. Make sure to change `<APIKEY>` to your private API key
