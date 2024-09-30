@@ -70,3 +70,45 @@ SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/
   assert_failure
   assert_output --partial "ENV var name must be provided to _env_var_expect_integer"
 }
+
+@test '(utils.sh) _convert_crlf_to_lf_if_necessary' {
+  # shellcheck source=../../../../../target/scripts/helpers/log.sh
+  source "${SOURCE_BASE_PATH}/log.sh"
+  # shellcheck source=../../../../../target/scripts/helpers/utils.sh
+  source "${SOURCE_BASE_PATH}/utils.sh"
+
+  # Create a temporary file in the BATS test-case folder:
+  local TMP_DMS_CONFIG=$(mktemp -p "${BATS_TEST_TMPDIR}" -t 'dms_XXX.cf')
+  # A file with mixed line-endings including CRLF:
+  echo -en 'line one\nline two\r\n' > "${TMP_DMS_CONFIG}"
+
+  # Confirm CRLF detected:
+  run file "${TMP_DMS_CONFIG}"
+  assert_output --partial 'CRLF'
+
+  # Helper method detects and fixes:
+  _convert_crlf_to_lf_if_necessary "${TMP_DMS_CONFIG}"
+  run file "${TMP_DMS_CONFIG}"
+  refute_output --partial 'CRLF'
+}
+
+@test '(utils.sh) _append_final_newline_if_missing' {
+  # shellcheck source=../../../../../target/scripts/helpers/log.sh
+  source "${SOURCE_BASE_PATH}/log.sh"
+  # shellcheck source=../../../../../target/scripts/helpers/utils.sh
+  source "${SOURCE_BASE_PATH}/utils.sh"
+
+  # Create a temporary file in the BATS test-case folder:
+  local TMP_DMS_CONFIG=$(mktemp -p "${BATS_TEST_TMPDIR}" -t 'dms_XXX.cf')
+  # A file missing a final newline:
+  echo -en 'line one\nline two' > "${TMP_DMS_CONFIG}"
+
+  # Confirm missing newline:
+  run bash -c "tail -c 1 '${TMP_DMS_CONFIG}' | wc -l"
+  assert_output '0'
+
+  # Helper method detects and fixes:
+  _append_final_newline_if_missing "${TMP_DMS_CONFIG}"
+  run bash -c "tail -c 1 '${TMP_DMS_CONFIG}' | wc -l"
+  assert_output '1'
+}

@@ -16,7 +16,7 @@ The [dovecot-fts-xapian](https://github.com/grosjo/fts-xapian) plugin makes use 
 
 The indexes will be stored as a subfolder named `xapian-indexes` inside your local `mail-data` folder (_`/var/mail` internally_). With the default settings, 10GB of email data may generate around 4GB of indexed data.
 
-While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB) as compared to Solr.
+While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB).
 
 #### Setup
 
@@ -136,53 +136,6 @@ While indexing is memory intensive, you can configure the plugin to limit the am
         volumes:
           - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
     ```
-
-
-### Solr
-
-The [dovecot-solr Plugin](https://wiki2.dovecot.org/Plugins/FTS/Solr) is used in conjunction with [Apache Solr](https://lucene.apache.org/solr/) running in a separate container. This is quite straightforward to setup using the following instructions.
-
-Solr is a mature and fast indexing backend that runs on the JVM. The indexes are relatively compact compared to the size of your total email.
-
-However, Solr also requires a fair bit of RAM. While Solr is [highly tuneable](https://solr.apache.org/guide/7_0/query-settings-in-solrconfig.html), it may require a bit of testing to get it right.
-
-#### Setup
-
-1. `compose.yaml`:
-
-    ```yaml
-      solr:
-        image: lmmdock/dovecot-solr:latest
-        volumes:
-          - ./docker-data/dms/config/dovecot/solr-dovecot:/opt/solr/server/solr/dovecot
-        restart: always
-
-      mailserver:
-        depends_on:
-          - solr
-        image: ghcr.io/docker-mailserver/docker-mailserver:latest
-        ...
-        volumes:
-          ...
-          - ./docker-data/dms/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
-        ...
-    ```
-
-2. `./docker-data/dms/config/dovecot/10-plugin.conf`:
-
-    ```conf
-    mail_plugins = $mail_plugins fts fts_solr
-
-    plugin {
-      fts = solr
-      fts_autoindex = yes
-      fts_solr = url=http://solr:8983/solr/dovecot/
-    }
-    ```
-
-3. Recreate containers: `docker compose down ; docker compose up -d`
-
-4. Flag all user mailbox FTS indexes as invalid, so they are rescanned on demand when they are next searched: `docker compose exec mailserver doveadm fts rescan -A`
 
 #### Further Discussion
 

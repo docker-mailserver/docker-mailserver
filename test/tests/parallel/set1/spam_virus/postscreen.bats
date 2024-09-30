@@ -37,46 +37,30 @@ function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
 }
 
+# `POSTSCREEN_ACTION=enforce` (DMS default) should reject delivery with a 550 SMTP reply
+# A legitimate mail client should speak SMTP by waiting it's turn, which postscreen defaults enforce (only on port 25)
+# https://www.postfix.org/postconf.5.html#postscreen_greet_wait
+#
+# Use `nc` to send all SMTP commands at once instead (emulate a misbehaving client that should be rejected)
+# NOTE: Postscreen only runs on port 25, avoid implicit ports in test methods
 @test 'should fail send when talking out of turn' {
-  CONTAINER_NAME=${CONTAINER2_NAME} _send_email 'email-templates/postscreen' "${CONTAINER1_IP} 25"
+  CONTAINER_NAME=${CONTAINER2_NAME} _nc_wrapper 'emails/nc_raw/postscreen.txt' "${CONTAINER1_IP} 25"
+  # Expected postscreen log entry:
   assert_output --partial 'Protocol error'
 
-  # Expected postscreen log entry:
-  _run_in_container cat /var/log/mail/mail.log
+  _run_in_container cat /var/log/mail.log
   assert_output --partial 'COMMAND PIPELINING'
+  assert_output --partial 'DATA without valid RCPT'
 }
 
 @test "should successfully pass postscreen and get postfix greeting message (respecting postscreen_greet_wait time)" {
-  # NOTE: Sometimes fails on first attempt (trying too soon?),
-  # Instead of a `run` + asserting partial, Using repeat + internal grep match:
-  _repeat_until_success_or_timeout 10 _should_wait_turn_speaking_smtp \
-    "${CONTAINER2_NAME}" \
-    "${CONTAINER1_IP}" \
-    '/tmp/docker-mailserver-test/email-templates/postscreen.txt' \
-    '220 mail.example.test ESMTP'
+  # Configure `send_email()` to send from the mail client container (CONTAINER2_NAME) via ENV override,
+  # mail is sent to the DMS server container (CONTAINER1_NAME) via `--server` parameter:
+  CONTAINER_NAME=${CONTAINER2_NAME} _send_email --expect-rejection --server "${CONTAINER1_IP}" --port 25 --data 'postscreen.txt'
+  # TODO: Use _send_email_with_msgid when proper resolution of domain names is possible:
+  # CONTAINER_NAME=${CONTAINER2_NAME} _send_email_with_msgid 'msgid-postscreen' --server "${CONTAINER1_IP}" --data 'postscreen.txt'
+  # _print_mail_log_for_msgid 'msgid-postscreen'
+  # assert_output --partial "stored mail into mailbox 'INBOX'"
 
-  # Expected postscreen log entry:
-  _run_in_container cat /var/log/mail/mail.log
-  assert_output --partial 'PASS NEW'
-}
-
-# When postscreen is active, it prevents the usual method of piping a file through nc:
-# (Won't work: CONTAINER_NAME=${CLIENT_CONTAINER_NAME} _send_email "${SMTP_TEMPLATE}" "${TARGET_CONTAINER_IP} 25")
-# The below workaround respects `postscreen_greet_wait` time (default 6 sec), talking to the mail-server in turn:
-# https://www.postfix.org/postconf.5.html#postscreen_greet_wait
-function _should_wait_turn_speaking_smtp() {
-  local CLIENT_CONTAINER_NAME=$1
-  local TARGET_CONTAINER_IP=$2
-  local SMTP_TEMPLATE=$3
-  local EXPECTED=$4
-
-  # shellcheck disable=SC2016
-  local UGLY_WORKAROUND='exec 3<>/dev/tcp/'"${TARGET_CONTAINER_IP}"'/25 && \
-    while IFS= read -r cmd; do \
-      head -1 <&3; \
-      [[ ${cmd} == "EHLO"* ]] && sleep 6; \
-      echo ${cmd} >&3; \
-    done < '"${SMTP_TEMPLATE}"
-
-  docker exec "${CLIENT_CONTAINER_NAME}" bash -c "${UGLY_WORKAROUND}" | grep "${EXPECTED}"
+  _service_log_should_contain_string 'mail' 'PASS NEW'
 }

@@ -14,15 +14,6 @@ function _check() {
   done
 }
 
-function _check_improper_restart() {
-  _log 'debug' 'Checking for improper restart'
-
-  if [[ -f /CONTAINER_START ]]; then
-    _log 'warn' 'This container was (likely) improperly restarted which can result in undefined behavior'
-    _log 'warn' 'Please destroy the container properly and then start DMS again'
-  fi
-}
-
 function _check_hostname() {
   _log 'debug' 'Checking that hostname/domainname is provided or overridden'
 
@@ -50,5 +41,13 @@ function _check_log_level() {
     # shellcheck disable=SC2034
     VARS[LOG_LEVEL]="${DEFAULT_LOG_LEVEL}"
     LOG_LEVEL="${DEFAULT_LOG_LEVEL}"
+  fi
+}
+
+function _check_spam_prefix() {
+  # This check should be independent of ENABLE_POP3 and ENABLE_IMAP
+  if [[ ${MOVE_SPAM_TO_JUNK} -eq 0 ]] \
+  && [[ -z ${SPAM_SUBJECT} ]]; then
+    _log 'warn' "'MOVE_SPAM_TO_JUNK=0' and 'SPAM_SUBJECT' is empty - make sure this is intended: spam e-mails might not be immediately recognizable in this configuration"
   fi
 }

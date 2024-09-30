@@ -5,6 +5,9 @@ biff = no
 append_dot_mydomain = no
 readme_directory = no
 
+# Disabled as not compatible with Dovecot
+smtputf8_enable = no
+
 # Basic configuration
 # myhostname =
 alias_maps = hash:/etc/aliases
@@ -51,13 +54,21 @@ smtpd_helo_required = yes
 smtpd_delay_reject = yes
 smtpd_helo_restrictions = permit_mynetworks, reject_invalid_helo_hostname, permit
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_unauth_pipelining, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
-smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_unauth_pipelining
+smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_invalid_helo_hostname, reject_non_fqdn_helo_hostname, reject_unknown_recipient_domain
+smtpd_client_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
 smtpd_sender_restrictions = $dms_smtpd_sender_restrictions
 smtpd_discard_ehlo_keywords = silent-discard, dsn
+smtpd_data_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_pipelining
 disable_vrfy_command = yes
 
+# Security - Prevent SMTP Smuggling attack
+# https://www.postfix.org/smtp-smuggling.html#long
+smtpd_forbid_bare_newline = yes
+# It is possible to exclude clients on trusted networks from this restriction (the upstream default is `$mynetwork`):
+# smtpd_forbid_bare_newline_exclusions = $mynetworks
+
 # Custom defined parameters for DMS:
+# reject_unknown_sender_domain: https://github.com/docker-mailserver/docker-mailserver/issues/3716#issuecomment-1868033234
 dms_smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
 # Submission ports 587 and 465 support for SPOOF_PROTECTION=1
 mua_sender_restrictions = reject_authenticated_sender_login_mismatch, $dms_smtpd_sender_restrictions
@@ -75,7 +86,7 @@ postscreen_dnsbl_sites =
     list.dnswl.org=127.0.[0..255].1*-3
     list.dnswl.org=127.0.[0..255].[2..3]*-4
 postscreen_dnsbl_threshold = 3
-postscreen_dnsbl_whitelist_threshold = -1
+postscreen_dnsbl_allowlist_threshold = -1
 postscreen_greet_action = enforce
 postscreen_bare_newline_action = enforce
 
@@ -88,10 +99,10 @@ smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain = $mydomain
 broken_sasl_auth_clients = yes
 
-# Mail directory
-virtual_transport = lmtp:unix:/var/run/dovecot/lmtp
+# Postfix lookup tables for verifying valid users and managed mail domains:
+# Populated during startup in: scripts/helpers/postfix.sh
 virtual_mailbox_domains = /etc/postfix/vhost
-virtual_mailbox_maps = texthash:/etc/postfix/vmailbox
+# Populated during startup in: scripts/helpers/aliases.sh
 virtual_alias_maps = texthash:/etc/postfix/virtual
 
 # Milters used by DKIM
@@ -108,9 +119,6 @@ smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
 
 # The default compatibility_level is 0 - which retains legacy settings defaults:
 # http://www.postfix.org/COMPATIBILITY_README.html
-# If backwards-compaitibilty log messages appear, fix them by explicitly adding
+# If backwards-compatibility log messages appear, fix them by explicitly adding
 # the legacy or new default value (alternatively raise the compatibility_level)
-#
-# TODO: The next compatibility_level is 3.6, when Postfix 3.6 is available consider
-# bumping this value after taking the compaitibilty changes into account.
-compatibility_level = 2
+compatibility_level = 3.6

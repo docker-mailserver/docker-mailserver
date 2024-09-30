@@ -207,7 +207,7 @@ function _should_have_correct_mail_headers() {
   # (eg: OVERRIDE_HOSTNAME or `--hostname mail --domainname example.test`)
   local EXPECTED_HOSTNAME=${3:-${EXPECTED_FQDN}}
 
-  _send_email 'email-templates/existing-user1'
+  _send_email --from 'user@external.tld'
   _wait_for_empty_mail_queue_in_container
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/new/' '1'
 

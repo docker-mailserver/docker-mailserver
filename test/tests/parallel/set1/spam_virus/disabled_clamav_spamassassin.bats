@@ -12,28 +12,31 @@ function setup_file() {
     --env ENABLE_CLAMAV=0
     --env ENABLE_SPAMASSASSIN=0
     --env AMAVIS_LOGLEVEL=2
+    --env PERMIT_DOCKER=container
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_smtp_port_in_container
 
-  _send_email 'email-templates/existing-user1'
+  _send_email
   _wait_for_empty_mail_queue_in_container
 }
 
 function teardown_file() { _default_teardown ; }
 
 @test "ClamAV - Amavis integration should not be active" {
-  _run_in_container grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' 'Found secondary av scanner ClamAV-clamscan'
 }
 
 @test "SA - Amavis integration should not be active" {
-  _run_in_container_bash "grep -i 'ANTI-SPAM-SA code' /var/log/mail/mail.log | grep 'NOT loaded'"
+  # Wait until Amavis has finished initializing:
+  run _repeat_in_container_until_success_or_timeout 20 "${CONTAINER_NAME}" grep 'Deleting db files  in /var/lib/amavis/db' /var/log/mail/mail.log
   assert_success
+
+  # Amavis module for SA should not be loaded (`SpamControl: scanner SpamAssassin, module Amavis::SpamControl::SpamAssassin`):
+  _service_log_should_not_contain_string 'mail' 'scanner SpamAssassin'
 }
 
 @test "SA - should not have been called" {
-  _run_in_container grep -i 'connect to /var/run/clamav/clamd.ctl failed' /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' 'connect to /var/run/clamav/clamd.ctl failed'
 }

@@ -11,6 +11,9 @@ function _setup_spoof_protection() {
         postconf 'smtpd_sender_login_maps = ldap:/etc/postfix/ldap-senders.cf'
       fi
     else
+      # NOTE: This file is always created at startup, it potentially has content added.
+      # TODO: From section: "SPOOF_PROTECTION=1 handling for smtpd_sender_login_maps"
+      # https://github.com/docker-mailserver/docker-mailserver/issues/2819#issue-1402114383
       if [[ -f /etc/postfix/regexp ]]; then
         postconf 'smtpd_sender_login_maps = unionmap:{ texthash:/etc/postfix/virtual, hash:/etc/aliases, pcre:/etc/postfix/maps/sender_login_maps.pcre, pcre:/etc/postfix/regexp }'
       else

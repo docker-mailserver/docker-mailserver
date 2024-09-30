@@ -44,24 +44,22 @@ function teardown_file() { _default_teardown ; }
   # The other spam checks in `main.cf:smtpd_recipient_restrictions` would interfere with testing postgrey.
   _run_in_container sed -i \
     -e 's/permit_sasl_authenticated.*policyd-spf,$//g' \
-    -e 's/reject_unauth_pipelining.*reject_unknown_recipient_domain,$//g' \
+    -e 's/reject_invalid_helo_hostname.*reject_unknown_recipient_domain,$//g' \
     -e 's/reject_rbl_client.*inet:127\.0\.0\.1:10023$//g' \
     -e 's/smtpd_recipient_restrictions =/smtpd_recipient_restrictions = check_policy_service inet:127.0.0.1:10023/g' \
     /etc/postfix/main.cf
   _reload_postfix
 
   # Send test mail (it should fail to deliver):
-  _send_test_mail '/tmp/docker-mailserver-test/email-templates/postgrey.txt' '25'
+  _send_email --expect-rejection --from 'user@external.tld' --port 25 --data 'postgrey.txt'
+  assert_failure
+  assert_output --partial 'Recipient address rejected: Delayed by Postgrey'
 
   # Confirm mail was greylisted:
   _should_have_log_entry \
     'action=greylist' \
     'reason=new' \
-    'client_address=127.0.0.1/32, sender=user@external.tld, recipient=user1@localhost.localdomain'
-
-  _repeat_until_success_or_timeout 10 _run_in_container grep \
-    'Recipient address rejected: Delayed by Postgrey' \
-    /var/log/mail/mail.log
+    'client_address=127.0.0.1, sender=user@external.tld, recipient=user1@localhost.localdomain'
 }
 
 # NOTE: This test case depends on the previous one
@@ -69,17 +67,18 @@ function teardown_file() { _default_teardown ; }
   # Wait until `$POSTGREY_DELAY` seconds pass before trying again:
   sleep 3
   # Retry delivering test mail (it should be trusted this time):
-  _send_test_mail '/tmp/docker-mailserver-test/email-templates/postgrey.txt' '25'
+  _send_email --from 'user@external.tld' --port 25 --data 'postgrey.txt'
 
   # Confirm postgrey permitted delivery (triplet is now trusted):
   _should_have_log_entry \
     'action=pass' \
     'reason=triplet found' \
-    'client_address=127.0.0.1/32, sender=user@external.tld, recipient=user1@localhost.localdomain'
+    'client_address=127.0.0.1, sender=user@external.tld, recipient=user1@localhost.localdomain'
 }
 
-
-# NOTE: These two whitelist tests use `test-files/nc_templates/` instead of `test-files/email-templates`.
+# NOTE: These two whitelist tests use `files/nc/` instead of `files/emails`.
+# `nc` option `-w 0` terminates the connection after sending the template, it does not wait for a response.
+# This is required for port 10023, otherwise the connection never drops.
 # - This allows to bypass the SMTP protocol on port 25, and send data directly to Postgrey instead.
 # - Appears to be a workaround due to `client_name=localhost` when sent from Postfix.
 # - Could send over port 25 if whitelisting `localhost`,
@@ -87,43 +86,32 @@ function teardown_file() { _default_teardown ; }
 #   - It'd also cause the earlier greylist test to fail.
 # - TODO: Actually confirm whitelist feature works correctly as these test cases are using a workaround:
 @test "should whitelist sender 'user@whitelist.tld'" {
-  _send_test_mail '/tmp/docker-mailserver-test/nc_templates/postgrey_whitelist.txt' '10023'
+  _nc_wrapper 'nc/postgrey_whitelist.txt' '-w 0 0.0.0.0 10023'
 
   _should_have_log_entry \
     'action=pass' \
     'reason=client whitelist' \
-    'client_address=127.0.0.1/32, sender=test@whitelist.tld, recipient=user1@localhost.localdomain'
+    'client_address=127.0.0.1, sender=test@whitelist.tld, recipient=user1@localhost.localdomain'
 }
 
 @test "should whitelist recipient 'user2@otherdomain.tld'" {
-  _send_test_mail '/tmp/docker-mailserver-test/nc_templates/postgrey_whitelist_recipients.txt' '10023'
+  _nc_wrapper 'nc/postgrey_whitelist_recipients.txt' '-w 0 0.0.0.0 10023'
 
   _should_have_log_entry \
     'action=pass' \
     'reason=recipient whitelist' \
-    'client_address=127.0.0.1/32, sender=test@nonwhitelist.tld, recipient=user2@otherdomain.tld'
-}
-
-function _send_test_mail() {
-  local MAIL_TEMPLATE=$1
-  local PORT=${2:-25}
-
-  # `-w 0` terminates the connection after sending the template, it does not wait for a response.
-  # This is required for port 10023, otherwise the connection never drops.
-  # It could increase the number of seconds to wait for port 25 to allow for asserting a response,
-  # but that would enforce the delay in tests for port 10023.
-  _run_in_container_bash "nc -w 0 0.0.0.0 ${PORT} < ${MAIL_TEMPLATE}"
+    'client_address=127.0.0.1, sender=test@nonwhitelist.tld, recipient=user2@otherdomain.tld'
 }
 
 function _should_have_log_entry() {
-  local ACTION=$1
-  local REASON=$2
-  local TRIPLET=$3
+  local ACTION=${1}
+  local REASON=${2}
+  local TRIPLET=${3}
 
   # Allow some extra time for logs to update to avoids a false-positive failure:
   _run_until_success_or_timeout 10 _exec_in_container grep \
     "${ACTION}, ${REASON}," \
-    /var/log/mail/mail.log
+    /var/log/supervisor/postgrey.log
 
   # Log entry matched should be for the expected triplet:
   assert_output --partial "${TRIPLET}"

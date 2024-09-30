@@ -16,6 +16,7 @@ function _import_scripts() {
   source "${PATH_TO_SCRIPTS}/network.sh"
   source "${PATH_TO_SCRIPTS}/postfix.sh"
   source "${PATH_TO_SCRIPTS}/relay.sh"
+  source "${PATH_TO_SCRIPTS}/rspamd.sh"
   source "${PATH_TO_SCRIPTS}/ssl.sh"
   source "${PATH_TO_SCRIPTS}/utils.sh"
 

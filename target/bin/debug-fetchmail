@@ -5,6 +5,12 @@ source /usr/local/bin/helpers/log.sh
 # shellcheck source=../scripts/startup/setup.d/fetchmail.sh
 source /usr/local/bin/setup.d/fetchmail.sh
 
+# TODO: This should probably not implicitly enable the feature.
+# The setup method will feature gate and output a debug log if
+# the feature is not enabled.
+#
+# Dropping the ENV here will require updating legacy test:
+# test/tests/parallel/set3/scripts/setup_cli.bats
 ENABLE_FETCHMAIL=1 _setup_fetchmail
 
 su -s /bin/sh -c "/usr/bin/fetchmail \

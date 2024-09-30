@@ -47,12 +47,14 @@ function teardown_file() {
 @test "should always send a DSN when requested" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
 
-  _send_email 'email-templates/dsn-unauthenticated'
-  _send_email 'email-templates/dsn-authenticated' '0.0.0.0 465'
-  _send_email 'email-templates/dsn-authenticated' '0.0.0.0 587'
+  # TODO replace with _send_email as soon as it supports DSN
+  # TODO ref: https://github.com/jetmore/swaks/issues/41
+  _nc_wrapper 'emails/nc_raw/dsn/unauthenticated.txt'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 465'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 587'
   _wait_for_empty_mail_queue_in_container
 
-  _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
+  _filter_service_log 'mail' "${LOG_DSN}"
   _should_output_number_of_lines 3
 }
 
@@ -60,7 +62,7 @@ function teardown_file() {
 @test "should only send a DSN when requested from ports 465/587" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
 
-  _send_email 'email-templates/dsn-unauthenticated'
+  _nc_wrapper 'emails/nc_raw/dsn/unauthenticated.txt'
   _wait_for_empty_mail_queue_in_container
 
   # DSN requests can now only be made on ports 465 and 587,
@@ -68,28 +70,26 @@ function teardown_file() {
   #
   # Although external requests are discarded, anyone who has requested a DSN
   # will still receive it, but it will come from the sending mail server, not this one.
-  _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' "${LOG_DSN}"
 
   # These ports are excluded via master.cf.
-  _send_email 'email-templates/dsn-authenticated' '0.0.0.0 465'
-  _send_email 'email-templates/dsn-authenticated' '0.0.0.0 587'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 465'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 587'
   _wait_for_empty_mail_queue_in_container
 
-  _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
+  _service_log_should_contain_string 'mail' "${LOG_DSN}"
   _should_output_number_of_lines 2
 }
 
 @test "should never send a DSN" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
-  _send_email 'email-templates/dsn-unauthenticated'
-  _send_email 'email-templates/dsn-authenticated' '0.0.0.0 465'
-  _send_email 'email-templates/dsn-authenticated' '0.0.0.0 587'
+  _nc_wrapper 'emails/nc_raw/dsn/unauthenticated.txt'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 465'
+  _nc_wrapper 'emails/nc_raw/dsn/authenticated.txt' '0.0.0.0 587'
   _wait_for_empty_mail_queue_in_container
 
   # DSN requests are rejected regardless of origin.
   # This is usually a bad idea, as you won't get them either.
-  _run_in_container grep "${LOG_DSN}" /var/log/mail/mail.log
-  assert_failure
+  _service_log_should_not_contain_string 'mail' "${LOG_DSN}"
 }

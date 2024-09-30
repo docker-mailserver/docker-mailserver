@@ -1,80 +1,136 @@
 #!/bin/bash
 
-# shellcheck disable=SC2034,SC2155
-
 # ? ABOUT: Functions defined here help with sending emails in tests.
 
 # ! ATTENTION: This file is loaded by `common.sh` - do not load it yourself!
 # ! ATTENTION: This file requires helper functions from `common.sh`!
+# ! ATTENTION: Functions prefixed with `__` are intended for internal use within
+# !            this file (or other helpers) only, not in tests.
 
-# Sends a mail from localhost (127.0.0.1) to a container. To send
-# a custom email, create a file at `test/test-files/<TEST FILE>`,
-# and provide `<TEST FILE>` as an argument to this function.
+# shellcheck disable=SC2034,SC2155
+
+# Sends an e-mail from the container named by the environment variable `CONTAINER_NAME`
+# to the same or another container.
 #
-# @param ${1} = template file (path) name
-# @param ${2} = parameters for `nc` [OPTIONAL] (default: `0.0.0.0 25`)
+# To send a custom email, you can
+#
+# 1. create a file at `test/files/<TEST FILE>` and provide `<TEST FILE>` via `--data` as an argument to this function;
+# 2. use this function without the `--data` argument, in which case we provide a default;
+# 3. provide data inline (`--data <INLINE DATA>`).
+#
+# The very first parameter **may** be `--expect-rejection` - use it of you expect the mail transaction to not finish
+# successfully. All other (following) parameters include all options that one can supply to `swaks` itself.
+# As mentioned before, the `--data` parameter expects a value of either:
+#
+# - A relative path from `test/files/emails/`
+# - An "inline" data string (e.g., `Date: 1 Jan 2024\nSubject: This is a test`)
+#
+# ## Output
+#
+# This functions prints the output of the transaction that `swaks` prints.
 #
 # ## Attention
 #
 # This function assumes `CONTAINER_NAME` to be properly set (to the container
 # name the command should be executed in)!
 #
-# This function will just send the email in an "asynchronous" fashion, i.e. it will
-# send the email but it will not make sure the mail queue is empty after the mail
-# has been sent.
+# This function will send the email in an "asynchronous" fashion,
+# it will return without waiting for the Postfix mail queue to be emptied.
 function _send_email() {
-  local TEMPLATE_FILE=${1:?Must provide name of template file}
-  local NC_PARAMETERS=${2:-0.0.0.0 25}
+  local RETURN_VALUE=0
+  local COMMAND_STRING
 
-  assert_not_equal "${NC_PARAMETERS}" ''
-  assert_not_equal "${CONTAINER_NAME:-}" ''
+  function __parse_arguments() {
+    [[ -v CONTAINER_NAME ]] || return 1
 
-  _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${TEMPLATE_FILE}.txt"
-  assert_success
+    # Parameter defaults common to our testing needs:
+    local EHLO='mail.external.tld'
+    local FROM='user@external.tld'
+    local TO='user1@localhost.localdomain'
+    local SERVER='0.0.0.0'
+    local PORT=25
+    # Extra options for `swaks` that aren't covered by the default options above:
+    local ADDITIONAL_SWAKS_OPTIONS=()
+    local DATA_WAS_SUPPLIED=0
+
+    while [[ ${#} -gt 0 ]]; do
+      case "${1}" in
+        ( '--ehlo' )   EHLO=${2:?--ehlo given but no argument}     ; shift 2 ;;
+        ( '--from' )   FROM=${2:?--from given but no argument}     ; shift 2 ;;
+        ( '--to' )     TO=${2:?--to given but no argument}         ; shift 2 ;;
+        ( '--server' ) SERVER=${2:?--server given but no argument} ; shift 2 ;;
+        ( '--port' )   PORT=${2:?--port given but no argument}     ; shift 2 ;;
+        ( '--data' )
+          ADDITIONAL_SWAKS_OPTIONS+=('--data')
+          local FILE_PATH="/tmp/docker-mailserver-test/emails/${2:?--data given but no argument provided}"
+          if _exec_in_container_bash "[[ -e ${FILE_PATH} ]]"; then
+            ADDITIONAL_SWAKS_OPTIONS+=("@${FILE_PATH}")
+          else
+            ADDITIONAL_SWAKS_OPTIONS+=("'${2}'")
+          fi
+          shift 2
+          DATA_WAS_SUPPLIED=1
+          ;;
+        ( * ) ADDITIONAL_SWAKS_OPTIONS+=("'${1}'") ; shift 1 ;;
+      esac
+    done
+
+    if [[ ${DATA_WAS_SUPPLIED} -eq 0 ]]; then
+      # Fallback template (without the implicit `Message-Id` + `X-Mailer` headers from swaks):
+      # NOTE: It is better to let Postfix generate and append the `Message-Id` header itself,
+      #       as it will contain the Queue ID for tracking in logs (which is also returned in swaks output).
+      ADDITIONAL_SWAKS_OPTIONS+=('--data')
+      ADDITIONAL_SWAKS_OPTIONS+=("'Date: %DATE%\nTo: %TO_ADDRESS%\nFrom: %FROM_ADDRESS%\nSubject: test %DATE%\n%NEW_HEADERS%\n%BODY%\n'")
+    fi
+
+    echo "swaks --server '${SERVER}' --port '${PORT}' --ehlo '${EHLO}' --from '${FROM}' --to '${TO}' ${ADDITIONAL_SWAKS_OPTIONS[*]}"
+  }
+
+  if [[ ${1:-} == --expect-rejection ]]; then
+    shift 1
+    COMMAND_STRING=$(__parse_arguments "${@}")
+    _run_in_container_bash "${COMMAND_STRING}"
+    RETURN_VALUE=${?}
+  else
+    COMMAND_STRING=$(__parse_arguments "${@}")
+    _run_in_container_bash "${COMMAND_STRING}"
+    assert_success
+  fi
+
+  # shellcheck disable=SC2154
+  echo "${output}"
+  return "${RETURN_VALUE}"
 }
 
-# Like `_send_mail` with two major differences:
+# Construct the value for a 'Message-ID' header.
+# For tests we use only the local-part to identify mail activity in logs. The rest of the value is fixed.
 #
-# 1. this function waits for the mail to be processed; there is no asynchronicity
-#    because filtering the logs in a synchronous way is easier and safer!
-# 2. this function prints an ID one can later filter by to check logs
+# A Message-ID header value should be in the form of: `<local-part@domain-part>`
+# https://en.wikipedia.org/wiki/Message-ID
+# https://datatracker.ietf.org/doc/html/rfc5322#section-3.6.4
 #
-# No. 2 is especially useful in case you send more than one email in a single
-# test file and need to assert certain log entries for each mail individually.
-#
-# @param ${1} = template file (path) name
-# @param ${2} = parameters for `nc` [OPTIONAL] (default: `0.0.0.0 25`)
-#
-# ## Attention
-#
-# This function assumes `CONTAINER_NAME` to be properly set (to the container
-# name the command should be executed in)!
-#
-# ## Safety
-#
-# This functions assumes **no concurrent sending of emails to the same container**!
-# If two clients send simultaneously, there is no guarantee the correct ID is
-# chosen. Sending more than one mail at any given point in time with this function
-# is UNDEFINED BEHAVIOR!
-function _send_email_and_get_id() {
-  local TEMPLATE_FILE=${1:?Must provide name of template file}
-  local NC_PARAMETERS=${2:-0.0.0.0 25}
-  local MAIL_ID
+# @param ${1} = The local-part of a Message-ID header value (`<local-part@domain-part>`)
+function __construct_msgid() {
+  local MSG_ID_LOCALPART=${1:?The local-part for MSG_ID was not provided}
+  echo "<${MSG_ID_LOCALPART}@dms-tests>"
+}
 
-  assert_not_equal "${NC_PARAMETERS}" ''
-  assert_not_equal "${CONTAINER_NAME:-}" ''
+# Like `_send_email` but adds a "Message-ID: ${1}@dms-tests>" header,
+# which allows for filtering logs later.
+#
+# @param ${1} = The local-part of a Message-ID header value (`<local-part@domain-part>`)
+function _send_email_with_msgid() {
+  local MSG_ID=$(__construct_msgid "${1:?The local-part for MSG_ID was not provided}")
+  shift 1
 
-  _wait_for_empty_mail_queue_in_container
-  _send_email "${TEMPLATE_FILE}"
-  _wait_for_empty_mail_queue_in_container
+  _send_email "${@}" --header "Message-ID: ${MSG_ID}"
+}
 
-  # The unique ID Postfix (and other services) use may be different in length
-  # on different systems (e.g. amd64 (11) vs aarch64 (10)). Hence, we use a
-  # range to safely capture it.
-  MAIL_ID=$(_exec_in_container tac /var/log/mail.log              \
-    | grep -E -m 1 'postfix/smtpd.*: [A-Z0-9]+: client=localhost' \
-    | grep -E -o '[A-Z0-9]{9,12}' || true)
-
-  assert_not_equal "${MAIL_ID}" ''
-  echo "${MAIL_ID}"
+# Send a spam e-mail by utilizing GTUBE.
+#
+# Extra arguments given to this function will be supplied by `_send_email_with_msgid` directly.
+function _send_spam() {
+  _send_email_with_msgid 'dms-test-email-spam' "${@}" \
+    --from 'spam@external.tld' \
+    --body 'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
 }

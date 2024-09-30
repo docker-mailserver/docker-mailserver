@@ -1,0 +1,91 @@
+# Mocked OAuth2 /userinfo endpoint normally provided via an Authorization Server (AS) / Identity Provider (IdP)
+#
+# Dovecot will query the mocked `/userinfo` endpoint with the OAuth2 bearer token it was provided during login.
+# If the session for the token is valid, a response returns an attribute to perform a UserDB lookup on (default: email).
+
+# `DMS_YWNjZXNzX3Rva2Vu` is the access token our OAuth2 tests expect for an authorization request to be successful.
+# - The token was created by base64 encoding the string `access_token`, followed by adding `DMS_` as a prefix.
+# - Normally an access token is a short-lived value associated to a login session. The value does not encode any real data.
+# It is an opaque token: https://oauth.net/2/bearer-tokens/
+
+# NOTE: The main server config is at the end within the `:80 { ... }` block.
+# This is because the endpoints are extracted out into Caddy snippets, which must be defined before they're referenced.
+
+# /userinfo
+(route-userinfo) {
+  vars token "DMS_YWNjZXNzX3Rva2Vu"
+
+  # Expects to match an authorization header with a specific bearer token:
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#authentication_schemes
+  @auth header Authorization "Bearer {vars.token}"
+
+  # If the provided authorization header has the expected value (bearer token), respond with this JSON payload:
+  handle @auth {
+    # JSON inlined via HereDoc string feature:
+    # Dovecot OAuth2 defaults to `username_attribute = email`, which must be returned in the response to match
+    # with the `user` credentials field that Dovecot received via base64 encoded IMAP `AUTHENTICATE` value.
+    respond <<EOF
+    {
+      "email": "user1@localhost.localdomain",
+      "email_verified": true
+    }
+    EOF
+  }
+
+  # Failed to authorize, close connection and send a 401 status (unauthorized):
+  respond 401 {
+    close
+  }
+}
+
+# NOTE: This portion of config is only relevant for understanding what happens seamlesssly,
+# DMS tests no longer use raw IMAP commands with netcat, thus none of this is relevant beyond reference for troubleshooting.
+#
+# /imap/xoauth2
+# Generate IMAP commands for authentication testing
+# Base64 encoded credentials can alternative be done via CLI with:
+# echo -en 'user=${USERNAME}\001auth=Bearer ${ACCESS_TOKEN}\001\001' | base64 -w0; echo
+#
+# Provide `user` and `access_token` values via query string parameters:
+# curl 'http://auth.example.test/imap/xoauth2?user=user1@localhost.localdomain&access_token=DMS_YWNjZXNzX3Rva2Vu'
+# curl 'http://auth.example.test/imap/oauthbearer?user=user1@localhost.localdomain&access_token=DMS_YWNjZXNzX3Rva2Vu'
+#
+# Example Response:
+# a0 AUTHENTICATE XOAUTH2 dXNlcj11c2VyMUBsb2NhbGhvc3QubG9jYWxkb21haW4BYXV0aD1CZWFyZXIgRE1TX1lXTmpaWE56WDNSdmEyVnUBAQ==
+# a1 EXAMINE INBOX
+# a2 LOGOUT
+#
+# When Dovecot queries /userinfo endpoint, it will be after base64 decoding the IMAP `AUTHENTICATE` value,
+# and sending the `auth` value from the `credentials` variable as an HTTP Authorization header.
+(route-imap) {
+  # The login username + OAuth2 access token prior to Base64 encoding, as per the XOAUTH2 spec:
+  # https://developers.google.com/gmail/imap/xoauth2-protocol#the_sasl_xoauth2_mechanism
+  # For OAUTHBEARER `host` and `port` do not appear to affect authentication with Dovecot
+  map {path}        {sasl_mechanism}  {credentials} {
+      /xoauth2      XOAUTH2           "user={query.user}\001auth=Bearer {query.access_token}\001\001"
+      /oauthbearer  OAUTHBEARER       "n,a={query.user},\001host=localhost\001port=143\001auth=Bearer {query.access_token}\001\001"
+  }
+
+  # Responds with the raw IMAP commands for testing XOAUTH2 authentication.
+  # Uses the `b64enc` template function to encode credentials as required for `IMAP AUTHENTICATE`:
+  templates
+  respond <<EOF
+  a0 AUTHENTICATE {sasl_mechanism} {{b64enc "{credentials}"}}
+  a1 EXAMINE INBOX
+  a2 LOGOUT
+  EOF
+}
+
+# Routes the endpoints to the logical blocks extracted out as snippets above
+:80 {
+  # This is the `/userinfo` endpoint that Dovecot connects to with the OAuth2 setting (default: `introspection_mode = auth`).
+  # Example: curl http://auth.example.test/userinfo -H 'Authorization: Bearer DMS_YWNjZXNzX3Rva2Vu'
+  handle_path /userinfo {
+    import route-userinfo
+  }
+
+  # An additional endpoint for maintainers to generate `test/files/auth/imap-oauth2-auth.txt`
+  handle_path /imap/* {
+    import route-imap
+  }
+}

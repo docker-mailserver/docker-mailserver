@@ -226,7 +226,7 @@ function __should_have_expected_files() {
   # DKIM private key for signing, parse it to verify private key size is correct:
   _run_in_container_bash "openssl rsa -in '${TARGET_DIR}/mail.private' -noout -text"
   assert_success
-  assert_line --index 0 "RSA Private-Key: (${EXPECTED_KEYSIZE} bit, 2 primes)"
+  assert_line --index 0 "Private-Key: (${EXPECTED_KEYSIZE} bit, 2 primes)"
 
   # DKIM record, extract public key (base64 encoded, potentially multi-line)
   # - tail to exclude first line,
@@ -240,7 +240,7 @@ function __should_have_expected_files() {
   ) | openssl enc -base64 -d | openssl pkey -inform DER -pubin -noout -text
   "
   assert_success
-  assert_line --index 0 "RSA Public-Key: (${EXPECTED_KEYSIZE} bit)"
+  assert_line --index 0 "Public-Key: (${EXPECTED_KEYSIZE} bit)"
 
   # Contents is for expected DKIM_DOMAIN and selector (mail):
   _run_in_container cat "${TARGET_DIR}/mail.txt"

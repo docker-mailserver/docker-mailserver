@@ -67,9 +67,16 @@ function __setup__security__postscreen() {
 }
 
 function __setup__security__spamassassin() {
+  if [[ ${ENABLE_AMAVIS} -ne 1 && ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
+    _log 'warn' 'Spamassassin does not work when Amavis is disabled. Enable Amavis to fix it.'
+    ENABLE_SPAMASSASSIN=0
+  fi
+
   if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring SpamAssassin'
 
+    # Maintainers should take care in attempting to change these sed commands. Alternatives were already explored:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/3767#issuecomment-1885989591
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_tag_level_deflt (.*);|\$sa_tag_level_deflt = '"${SA_TAG}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
@@ -79,18 +86,9 @@ function __setup__security__spamassassin() {
     # shellcheck disable=SC2016
     sed -i -r 's|^\$sa_kill_level_deflt (.*);|\$sa_kill_level_deflt = '"${SA_KILL}"';|g' /etc/amavis/conf.d/20-debian_defaults
 
-    # fix cron.daily for spamassassin
-    sed -i \
-      's|invoke-rc.d spamassassin reload|/etc/init\.d/spamassassin reload|g' \
-      /etc/cron.daily/spamassassin
-
-    if [[ ${SA_SPAM_SUBJECT} == 'undef' ]]; then
-      # shellcheck disable=SC2016
-      sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = undef;|g' /etc/amavis/conf.d/20-debian_defaults
-    else
-      # shellcheck disable=SC2016
-      sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = '"'${SA_SPAM_SUBJECT}'"';|g' /etc/amavis/conf.d/20-debian_defaults
-    fi
+    # disable rewriting the subject as this is handles by _setup_spam_subject (which uses Dovecot Sieve)
+    # shellcheck disable=SC2016
+    sed -i -r 's|^\$sa_spam_subject_tag (.*);|\$sa_spam_subject_tag = undef;|g' /etc/amavis/conf.d/20-debian_defaults
 
     # activate short circuits when SA BAYES is certain it has spam or ham.
     if [[ ${SA_SHORTCIRCUIT_BAYES_SPAM} -eq 1 ]]; then
@@ -111,7 +109,7 @@ function __setup__security__spamassassin() {
 
     if [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 1 ]]; then
       _log 'trace' 'Configuring Spamassassin/Amavis to send SPAM to inbox'
-      _log 'debug'  'SPAM_TO_INBOX=1 is set. SA_KILL will be ignored.'
+      _log 'debug'  "'SPAMASSASSIN_SPAM_TO_INBOX=1' is set. The 'SA_KILL' ENV will be ignored."
 
       sed -i "s|\$final_spam_destiny.*=.*$|\$final_spam_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
       sed -i "s|\$final_bad_header_destiny.*=.*$|\$final_bad_header_destiny = D_PASS;|g" /etc/amavis/conf.d/49-docker-mailserver
@@ -196,14 +194,17 @@ function __setup__security__fail2ban() {
     _log 'debug' 'Enabling and configuring Fail2Ban'
 
     if [[ -e /tmp/docker-mailserver/fail2ban-fail2ban.cf ]]; then
+      _log 'trace' 'Custom fail2ban-fail2ban.cf found'
       cp /tmp/docker-mailserver/fail2ban-fail2ban.cf /etc/fail2ban/fail2ban.local
     fi
 
     if [[ -e /tmp/docker-mailserver/fail2ban-jail.cf ]]; then
+      _log 'trace' 'Custom fail2ban-jail.cf found'
       cp /tmp/docker-mailserver/fail2ban-jail.cf /etc/fail2ban/jail.d/user-jail.local
     fi
 
     if [[ ${FAIL2BAN_BLOCKTYPE} != 'reject' ]]; then
+      _log 'trace' "Setting fail2ban blocktype to 'drop'"
       echo -e '[Init]\nblocktype = drop' >/etc/fail2ban/action.d/nftables-common.local
     fi
 
@@ -212,6 +213,9 @@ function __setup__security__fail2ban() {
     _log 'debug' 'Fail2Ban is disabled'
     rm -f /etc/logrotate.d/fail2ban
   fi
+  _log 'trace' 'Configuring fail2ban logrotate rotate count and interval'
+  [[ ${LOGROTATE_COUNT} -ne 4 ]]          && sedfile -i "s|rotate 4$|rotate ${LOGROTATE_COUNT}|" /etc/logrotate.d/fail2ban
+  [[ ${LOGROTATE_INTERVAL} != "weekly" ]] && sedfile -i "s|weekly$|${LOGROTATE_INTERVAL}|"       /etc/logrotate.d/fail2ban
 }
 
 function __setup__security__amavis() {
@@ -241,10 +245,57 @@ function __setup__security__amavis() {
     if [[ ${ENABLE_CLAMAV} -eq 1 ]] && [[ ${ENABLE_RSPAMD} -eq 0 ]]; then
       _log 'warn' 'ClamAV will not work when Amavis & rspamd are disabled. Enable either Amavis or rspamd to fix it.'
     fi
+  fi
+}
 
-    if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
-      _log 'warn' 'Spamassassin will not work when Amavis is disabled. Enable Amavis to fix it.'
-    fi
+# If `SPAM_SUBJECT` is not empty, we create a Sieve script that alters the `Subject`
+# header, in order to prepend a user-defined string.
+function _setup_spam_subject() {
+  if [[ -z ${SPAM_SUBJECT} ]]
+  then
+    _log 'debug' 'Spam subject is not set - no prefix will be added to spam e-mails'
+  else
+    _log 'debug' "Spam subject is set - the prefix '${SPAM_SUBJECT}' will be added to spam e-mails"
+
+    _log 'trace' "Enabling '+editheader' Sieve extension"
+    # check whether sieve_global_extensions is disabled (and enabled it if so)
+    sed -i -E 's|#(sieve_global_extensions.*)|\1|' /etc/dovecot/conf.d/90-sieve.conf
+    # then append the extension
+    sedfile -i -E 's|(sieve_global_extensions.*)|\1 +editheader|' /etc/dovecot/conf.d/90-sieve.conf
+
+    _log 'trace' "Adding global (before) Sieve script for subject rewrite"
+    # This directory contains Sieve scripts that are executed before user-defined Sieve
+    # scripts run.
+    local DOVECOT_SIEVE_GLOBAL_BEFORE_DIR='/usr/lib/dovecot/sieve-global/before'
+    local DOVECOT_SIEVE_FILE='spam_subject'
+    readonly DOVECOT_SIEVE_GLOBAL_BEFORE_DIR DOVECOT_SIEVE_FILE
+
+    mkdir -p "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}"
+    # ref: https://superuser.com/a/1502589
+    cat >"${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}.sieve" << EOF
+require ["editheader","variables"];
+
+if anyof (header :contains "X-Spam-Flag" "YES",
+          header :contains "X-Spam" "Yes")
+{
+    # Match the entire subject ...
+    if header :matches "Subject" "*" {
+        # ... to get it in a match group that can then be stored in a variable:
+        set "subject" "\${1}";
+    }
+
+    # We can't "replace" a header, but we can delete (all instances of) it and
+    # re-add (a single instance of) it:
+    deleteheader "Subject";
+
+    # Note that the header is added ":last" (so it won't appear before possible
+    # "Received" headers).
+    addheader :last "Subject" "${SPAM_SUBJECT}\${subject}";
+}
+EOF
+
+    sievec "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}.sieve"
+    chown dovecot:root "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}."{sieve,svbin}
   fi
 }
 
@@ -254,18 +305,18 @@ function _setup_spam_to_junk() {
     _log 'debug' 'Spam emails will be moved to the Junk folder'
     mkdir -p /usr/lib/dovecot/sieve-global/after/
     cat >/usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve << EOF
-require ["fileinto","mailbox"];
+require ["fileinto","special-use"];
 
 if anyof (header :contains "X-Spam-Flag" "YES",
           header :contains "X-Spam" "Yes") {
-    fileinto "Junk";
+    fileinto :specialuse "\\\\Junk" "Junk";
 }
 EOF
     sievec /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve
     chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_to_junk.{sieve,svbin}
 
     if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
-      _log 'warning' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MOVE_SPAM_TO_JUNK=1' to work"
+      _log 'warn' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MOVE_SPAM_TO_JUNK=1' to work"
     fi
   else
     _log 'debug' 'Spam emails will not be moved to the Junk folder'
@@ -290,7 +341,7 @@ EOF
     chown dovecot:root /usr/lib/dovecot/sieve-global/after/spam_mark_as_read.{sieve,svbin}
 
     if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
-      _log 'warning' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MARK_SPAM_AS_READ=1' to work"
+      _log 'warn' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MARK_SPAM_AS_READ=1' to work"
     fi
   else
     _log 'debug' 'Spam emails will not be marked as read'

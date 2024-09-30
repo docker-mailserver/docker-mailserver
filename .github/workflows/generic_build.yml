@@ -64,7 +64,7 @@ jobs:
       # When full, the least accessed cache upload is evicted to free up storage.
       # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
       - name: 'Handle Docker build layer cache'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: cache-buildx-${{ steps.derive-image-cache-key.outputs.digest }}
@@ -74,16 +74,16 @@ jobs:
             cache-buildx-
 
       - name: 'Set up QEMU'
-        uses: docker/setup-qemu-action@v3.0.0
+        uses: docker/setup-qemu-action@v3.2.0
         with:
           platforms: arm64
 
       - name: 'Set up Docker Buildx'
-        uses: docker/setup-buildx-action@v3.0.0
+        uses: docker/setup-buildx-action@v3.6.1
 
       # NOTE: AMD64 can build within 2 minutes
       - name: 'Build images'
-        uses: docker/build-push-action@v5.0.0
+        uses: docker/build-push-action@v6.9.0
         with:
           context: .
           # Build at least the AMD64 image (which runs against the test suite).

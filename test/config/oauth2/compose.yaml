@@ -1,0 +1,15 @@
+# Provides support for running this container outside of tests
+# Run this with `docker compose up`
+services:
+  caddy-oauth2:
+    image: caddy:2.7
+    container_name: dms-oauth2
+    ports:
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+
+# Examples:
+# curl http://localhost:80/userinfo -H 'Authorization: Bearer DMS_YWNjZXNzX3Rva2Vu'
+# curl 'http://localhost:80/imap/xoauth2?user=user1@localhost.localdomain&access_token=DMS_YWNjZXNzX3Rva2Vu'
+# curl 'http://localhost:80/imap/oauthbearer?user=user1@localhost.localdomain&access_token=DMS_YWNjZXNzX3Rva2Vu'

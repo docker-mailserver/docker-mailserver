@@ -25,34 +25,33 @@ function setup_file() {
 
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
-  _send_email 'email-templates/amavis-virus'
+  _send_email --from 'virus@external.tld' --data 'amavis/virus.txt'
   _wait_for_empty_mail_queue_in_container
 }
 
 function teardown_file() { _default_teardown ; }
 
-@test "log files exist at /var/log/mail directory" {
-  _run_in_container_bash "ls -1 /var/log/mail/ | grep -E 'clamav|freshclam|mail.log' | wc -l"
+@test 'log files exist at /var/log/mail directory' {
+  _run_in_container_bash "ls -1 /var/log/mail/ | grep -c -E 'clamav|freshclam|mail.log'"
   assert_success
   assert_output 3
 }
 
-@test "should be identified by Amavis" {
-  _run_in_container grep -i 'Found secondary av scanner ClamAV-clamscan' /var/log/mail/mail.log
-  assert_success
+@test 'should be identified by Amavis' {
+  _service_log_should_contain_string 'mail' 'Found secondary av scanner ClamAV-clamscan'
 }
 
-@test "freshclam cron is enabled" {
+@test 'freshclam cron is enabled' {
   _run_in_container_bash "grep '/usr/bin/freshclam' -r /etc/cron.d"
   assert_success
 }
 
-@test "env CLAMAV_MESSAGE_SIZE_LIMIT is set correctly" {
+@test 'env CLAMAV_MESSAGE_SIZE_LIMIT is set correctly' {
   _run_in_container grep -q '^MaxFileSize 30M$' /etc/clamav/clamd.conf
   assert_success
 }
 
-@test "rejects virus" {
-  _run_in_container_bash "grep 'Blocked INFECTED' /var/log/mail/mail.log | grep '<virus@external.tld> -> <user1@localhost.localdomain>'"
-  assert_success
+@test 'rejects virus' {
+  _service_log_should_contain_string 'mail' 'Blocked INFECTED'
+  assert_output --partial '<virus@external.tld> -> <user1@localhost.localdomain>'
 }

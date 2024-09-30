@@ -88,7 +88,7 @@ function _initial_setup() {
   # All of these certs support both FQDNs (`mail.example.test` and `example.test`),
   # Except for the wildcard cert (`*.example.test`), that was created with `example.test` intentionally excluded from SAN.
   # We want to maintain the same FQDN (`mail.example.test`) between the _acme_ecdsa and _acme_rsa tests.
-  local LOCAL_BASE_PATH="${PWD}/test/test-files/ssl/example.test/with_ca/rsa"
+  local LOCAL_BASE_PATH="${PWD}/test/files/ssl/example.test/with_ca/rsa"
 
   function _prepare() {
     # Default `acme.json` for _acme_ecdsa test:
@@ -240,7 +240,7 @@ function _copy_to_letsencrypt_storage() {
   FQDN_DIR=$(echo "${DEST}" | cut -d '/' -f1)
   mkdir -p "${TEST_TMP_CONFIG}/letsencrypt/${FQDN_DIR}"
 
-  if ! cp "${PWD}/test/test-files/ssl/${SRC}" "${TEST_TMP_CONFIG}/letsencrypt/${DEST}"; then
+  if ! cp "${PWD}/test/files/ssl/${SRC}" "${TEST_TMP_CONFIG}/letsencrypt/${DEST}"; then
     echo "Could not copy cert file '${SRC}'' to '${DEST}'" >&2
     exit 1
   fi

@@ -1,6 +1,9 @@
 name: Lint
 
 on:
+  # A workflow that creates a PR will not trigger this workflow,
+  # Providing a manual trigger as a workaround
+  workflow_dispatch:
   pull_request:
   push:
     branches: [ master ]

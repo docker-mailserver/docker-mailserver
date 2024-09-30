@@ -12,7 +12,7 @@ Mails are stored in `/var/mail/${domain}/${username}`. Since `v9.0.0` it is poss
 
 ### How are IMAP mailboxes (_aka IMAP Folders_) set up?
 
-`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](../examples/use-cases/imap-folders) for more information.
+`INBOX` is setup by default with the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash`. You can learn how to modify or add your own folders (_including additional special folders like `Archive`_) by visiting our docs page [_Customizing IMAP Folders_](./examples/use-cases/imap-folders.md) for more information.
 
 ### How do I update DMS?
 
@@ -79,6 +79,14 @@ volumes:
 
 Optionally, you can set the `TZ` ENV variable; e.g. `TZ=Europe/Berlin`. Check [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for which values are allowed.
 
+### What About DNS Servers?
+
+Properly working DNS servers are crucial for differentiating spam from legitimate e-mails. Records like `SPF`, `DKIM` and `DMARC` records, as well as working name (resolving `A` records) and reverse name (resolving `PTR` records) resolution ensures legitimate e-mails arrive while e-mails that are more likely phishing and spam do not.
+
+Anti-spam measures (like SpamAssassin or Rspamd) make use of DNS block lists. To learn more check out our [Rspamd documentation on this topic][docs::rspamd-rbl-dnsbl]. In case you want to utilize RBL/DNSBLs, you need a recursive DNS resolver (_not big custom resolvers like Cloudflare, Quad9, Google, etc._).
+
+DMS does not integrate support for an internal DNS service as this is a [responsibility that is sensitive to the host environment][gh-discussion::dms-avoid-maintaining-internal-dns]. You can configure internal services within DMS to use your own managed DNS server, or configure for such at the host or container level (_such as with [`compose.yaml`][docker-compose::docs::config-dns]_).
+
 ### What is the file format?
 
 All files are using the Unix format with `LF` line endings. Please do not use `CRLF`.
@@ -128,7 +136,7 @@ find "${PWD}/docker-data/dms-backups/" -type f -mtime +30 -delete
 
 ### I Want to Know More About the Ports
 
-See [this part of the documentation](../config/security/understanding-the-ports/) for further details and best practice advice, **especially regarding security concerns**.
+See [this part of the documentation](./config/security/understanding-the-ports.md) for further details and best practice advice, **especially regarding security concerns**.
 
 ### How can I configure my email client?
 
@@ -210,7 +218,7 @@ baduser@example.com devnull
 
 ### What kind of SSL certificates can I use?
 
-Both RSA and ECDSA certs are supported. You can provide your own cert files manually, or mount a `letsencrypt` generated directory (_with alternative support for Traefik's `acme.json`_). Check out the [`SSL_TYPE` documentation](../config/environment/#ssl_type) for more details.
+Both RSA and ECDSA certs are supported. You can provide your own cert files manually, or mount a `letsencrypt` generated directory (_with alternative support for Traefik's `acme.json`_). Check out the [`SSL_TYPE` documentation](./config/environment.md#ssl_type) for more details.
 
 ### I just moved from my old mail server to DMS, but "it doesn't work"?
 
@@ -282,6 +290,12 @@ mydestination = localhost.$mydomain, localhost
 ```cf
 proxy_interfaces = X.X.X.X (your public IP)
 ```
+
+For reverse proxy support you will want to view [our dedicated guide][docs::examples::reverse-proxy].
+
+### How to restrict login by IP?
+
+There are a few ways you could approach this, see [this discussion answer][gh-discussion::restrict-login-by-ip] for advice.
 
 ### How to adjust settings with the `user-patches.sh` script
 
@@ -360,36 +374,11 @@ DMS does not manage those concerns, verify they are not causing your delivery pr
 - [mail-tester](https://www.mail-tester.com/) can test your deliverability.
 - [helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
 
-### Special Directories
-
-#### What About the `docker-data/dms/config/` Directory?
-
-This documentation and all example configuration files in the GitHub repository use `docker-data/dms/config/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/tmp/docker-mailserver/` inside the container.
-
-Most configuration files for Postfix, Dovecot, etc. are persisted here. [Optional configuration][docs-optional-configuration] is stored here as well.
-
-#### What About the `docker-data/dms/mail-state/` Directory?
-
-This documentation and all example configuration files in the GitHub repository use `docker-data/dms/mail-state/` to refer to the directory in the host that is mounted (e.g. via a bind mount) to `/var/mail-state/` inside the container.
-
-When you run DMS with the ENV variable `ONE_DIR=1` (default), this directory will provide support to persist Fail2Ban blocks, ClamAV signature updates, and the like when the container is restarted or recreated. Service data is [relocated to the `mail-state` folder][mail-state-folders] for the following services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd & Redis.
-
 ### SpamAssasin
 
 #### How can I manage my custom SpamAssassin rules?
 
-Antispam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
-
-#### What are acceptable `SA_SPAM_SUBJECT` values?
-
-For no subject set `SA_SPAM_SUBJECT=undef`.
-
-For a trailing white-space subject one can define the whole variable with quotes in `compose.yaml`:
-
-```yaml
-environment:
-  - "SA_SPAM_SUBJECT=[SPAM] "
-```
+Anti-spam rules are managed in `docker-data/dms/config/spamassassin-rules.cf`.
 
 #### Why are SpamAssassin `x-headers` not inserted into my `subdomain.example.com` subdomain emails?
 
@@ -401,20 +390,23 @@ The default setup `@local_domains_acl = ( ".$mydomain" );` does not match subdom
 
 Put received spams in `.Junk/` imap folder using `SPAMASSASSIN_SPAM_TO_INBOX=1` and `MOVE_SPAM_TO_JUNK=1` and add a _user_ cron like the following:
 
-```conf
-# This assumes you're having `environment: ONE_DIR=1` in the `mailserver.env`,
-# with a consolidated config in `/var/mail-state`
-#
-# m h dom mon dow command
-# Everyday 2:00AM, learn spam from a specific user
-0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
-```
+!!! example
+
+    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs::dms-volumes-state] mounted.
+
+    ```conf
+    # m h dom mon dow command
+    # Everyday 2:00AM, learn spam from a specific user
+    0 2 * * * docker exec mailserver sa-learn --spam /var/mail/example.com/username/.Junk --dbpath /var/mail-state/lib-amavis/.spamassassin
+    ```
 
 With `docker-compose` you can more easily use the internal instance of `cron` within DMS. This is less problematic than the simple solution shown above, because it decouples the learning from the host on which DMS is running, and avoids errors if the mail server is not running.
 
 The following configuration works nicely:
 
 ??? example
+
+    **NOTE:** This example assumes you have a [`/var/mail-state` volume][docs::dms-volumes-state] mounted.
 
     Create a _system_ cron file:
 
@@ -429,9 +421,6 @@ The following configuration works nicely:
     Edit the system cron file `nano ./docker-data/dms/cron/sa-learn`, and set an appropriate configuration:
 
     ```conf
-    # This assumes you're having `environment: ONE_DIR=1` in the env-mailserver,
-    # with a consolidated config in `/var/mail-state`
-    #
     # '> /dev/null' to send error notifications from 'stderr' to 'postmaster@example.com'
     #
     # m h dom mon dow user command
@@ -479,59 +468,41 @@ The following configuration works nicely:
         file: ./docker-data/dms/cron/sa-learn
     ```
 
-With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails). Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account. For further reference, see the [SpamAssassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
+With the default settings, SpamAssassin will require 200 mails trained for spam (for example with the method explained above) and 200 mails trained for ham (using the same command as above but using `--ham` and providing it with some ham mails).
+
+- Until you provided these 200+200 mails, SpamAssassin will not take the learned mails into account.
+- For further reference, see the [SpamAssassin Wiki](https://wiki.apache.org/spamassassin/BayesNotWorking).
 
 #### How do I have more control about what SpamAssassin is filtering?
 
-By default, SPAM and INFECTED emails are put to a quarantine which is not very straight forward to access. Several config settings are affecting this behavior:
+This is related to Amavis processing the mail after SpamAssassin has analyzed it and assigned a spam score.
 
-First, make sure you have the proper thresholds set:
+- DMS provides some [common SA tunables via ENV][docs::env::sa_env].
+- Additional configuration can be managed with the DMS config volume by providing `docker-data/dms/config/amavis.cf`.
 
-```conf
-SA_TAG=-100000.0
-SA_TAG2=3.75
-SA_KILL=100000.0
-```
+#### How can I send quarantined mail to a mailbox?
 
-- The very negative value in `SA_TAG` makes sure, that all emails have the SpamAssassin headers included.
-- `SA_TAG2` is the actual threshold to set the YES/NO flag for spam detection.
-- `SA_KILL` needs to be very high, to make sure nothing is bounced at all (`SA_KILL` superseeds `SPAMASSASSIN_SPAM_TO_INBOX`)
+SPAM and INFECTED emails that [reach the `SA_KILL` threshold are archived into quarantine][docs::env::sa_kill].
 
-Make sure everything (including SPAM) is delivered to the inbox and not quarantined:
-
-```conf
-SPAMASSASSIN_SPAM_TO_INBOX=1
-```
-
-Use `MOVE_SPAM_TO_JUNK=1` or create a sieve script which puts spam to the Junk folder:
-
-```sieve
-require ["comparator-i;ascii-numeric","relational","fileinto"];
-
-if header :contains "X-Spam-Flag" "YES" {
-  fileinto "Junk";
-} elsif allof (
-  not header :matches "x-spam-score" "-*",
-  header :value "ge" :comparator "i;ascii-numeric" "x-spam-score" "3.75"
-) {
-  fileinto "Junk";
-}
-```
-
-Create a dedicated mailbox for emails which are infected/bad header and everything amavis is blocking by default and put its address into `docker-data/dms/config/amavis.cf`
+Instead of a quarantine folder, you can use a dedicated mailbox instead. Create an account like `quarantine@example.com` and create `docker-data/dms/config/amavis.cf`:
 
 ```cf
-$clean_quarantine_to      = "amavis\@example.com";
-$virus_quarantine_to      = "amavis\@example.com";
-$banned_quarantine_to     = "amavis\@example.com";
-$bad_header_quarantine_to = "amavis\@example.com";
-$spam_quarantine_to       = "amavis\@example.com";
+$clean_quarantine_to      = "quarantine\@example.com";
+$virus_quarantine_to      = "quarantine\@example.com";
+$banned_quarantine_to     = "quarantine\@example.com";
+$bad_header_quarantine_to = "quarantine\@example.com";
+$spam_quarantine_to       = "quarantine\@example.com";
 ```
 
 [fail2ban-customize]: ./config/security/fail2ban.md
+[docs::dms-volumes-state]: ./config/advanced/optional-config.md#volumes-state
+[docs::rspamd-rbl-dnsbl]: ./config/security/rspamd.md#rbls-real-time-blacklists-dnsbls-dns-based-blacklists
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
+[docs::env::sa_env]: ./config/environment.md#spamassassin
+[docs::env::sa_kill]: ./config/environment.md#sa_kill
+[docs::examples::reverse-proxy]: ./examples/tutorials/mailserver-behind-proxy.md
 [github-comment-baredomain]: https://github.com/docker-mailserver/docker-mailserver/issues/3048#issuecomment-1432358353
 [github-comment-override-hostname]: https://github.com/docker-mailserver/docker-mailserver/issues/1731#issuecomment-753968425
 [github-issue-95]: https://github.com/docker-mailserver/docker-mailserver/issues/95
@@ -540,6 +511,7 @@ $spam_quarantine_to       = "amavis\@example.com";
 [github-issue-1405-comment]: https://github.com/docker-mailserver/docker-mailserver/issues/1405#issuecomment-590106498
 [github-issue-1639]: https://github.com/docker-mailserver/docker-mailserver/issues/1639
 [github-issue-1792]: https://github.com/docker-mailserver/docker-mailserver/pull/1792
+[gh-discussion::dms-avoid-maintaining-internal-dns]: https://github.com/orgs/docker-mailserver/discussions/3959#discussioncomment-8956322
+[gh-discussion::restrict-login-by-ip]: https://github.com/orgs/docker-mailserver/discussions/3847
+[docker-compose::docs::config-dns]: https://docs.docker.com/compose/compose-file/compose-file-v3/#dns
 [hanscees-userpatches]: https://github.com/hanscees/dockerscripts/blob/master/scripts/tomav-user-patches.sh
-[mail-state-folders]: https://github.com/docker-mailserver/docker-mailserver/blob/c7e498194546416fb7231cb03254e77e085d18df/target/scripts/startup/misc-stack.sh#L24-L33
-[docs-optional-configuration]: ./config/advanced/optional-config.md

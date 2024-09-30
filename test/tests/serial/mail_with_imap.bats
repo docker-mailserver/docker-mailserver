@@ -21,7 +21,8 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test '(Dovecot) LDAP RIMAP connection and authentication works' {
-  _send_email 'auth/imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/imap-auth.txt' '-w 1 0.0.0.0 143'
+  assert_success
 }
 
 @test '(SASLauthd) SASL RIMAP authentication works' {
@@ -30,13 +31,28 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test '(SASLauthd) RIMAP SMTP authentication works' {
-  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 25'
-  assert_output --partial 'Error: authentication not enabled'
+  _send_email --expect-rejection \
+    --auth PLAIN \
+    --auth-user user1@localhost.localdomain \
+    --auth-password mypassword \
+    --quit-after AUTH
+  assert_failure
+  assert_output --partial 'Host did not advertise authentication'
 
-  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 465'
+  _send_email \
+    --port 465 \
+    --auth PLAIN \
+    --auth-user user1@localhost.localdomain \
+    --auth-password mypassword \
+    --quit-after AUTH
   assert_output --partial 'Authentication successful'
 
-  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 587'
+  _send_email \
+    --port 587 \
+    --auth PLAIN \
+    --auth-user user1@localhost.localdomain \
+    --auth-password mypassword \
+    --quit-after AUTH
   assert_output --partial 'Authentication successful'
 }
 

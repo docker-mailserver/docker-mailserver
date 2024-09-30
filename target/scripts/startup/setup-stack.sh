@@ -20,6 +20,16 @@ function _setup() {
     ${FUNC}
   done
 
+  _setup_post
+}
+
+function _setup_post() {
+  # Dovecot `.svbin` files must have a newer mtime than their `.sieve` source files,
+  # Modifications during setup to these files sometimes results in a common mtime value.
+  # Handled during post-setup as setup of Dovecot Sieve scripts is not centralized.
+  find /usr/lib/dovecot/ -iname '*.sieve' -exec touch -d '2 seconds ago' {} +
+  find /usr/lib/dovecot/ -iname '*.svbin' -exec touch -d '1 seconds ago' {} +
+
   # All startup modifications to configs should have taken place before calling this:
   _prepare_for_change_detection
 }
@@ -30,7 +40,7 @@ function _early_supervisor_setup() {
   if ! grep -q "loglevel = ${SUPERVISOR_LOGLEVEL}" /etc/supervisor/supervisord.conf; then
     case "${SUPERVISOR_LOGLEVEL}" in
       ( 'critical' | 'error' | 'info' | 'debug' )
-        sed -i -E \
+        sedfile -i -E \
           "s|(loglevel).*|\1 = ${SUPERVISOR_LOGLEVEL}|g" \
           /etc/supervisor/supervisord.conf
 
@@ -84,6 +94,13 @@ function _setup_apply_fixes_after_configuration() {
 
   _log 'debug' 'Removing files and directories from older versions'
   rm -rf /var/mail-state/spool-postfix/{dev,etc,lib,pid,usr,private/auth}
+
+  _rspamd_get_envs
+  # /tmp/docker-mailserver/rspamd/dkim
+  if [[ -d ${RSPAMD_DMS_DKIM_D} ]]; then
+    _log 'debug' "Ensuring '${RSPAMD_DMS_DKIM_D}' is owned by '_rspamd:_rspamd'"
+    chown -R _rspamd:_rspamd "${RSPAMD_DMS_DKIM_D}"
+  fi
 }
 
 function _run_user_patches() {

@@ -34,7 +34,7 @@ function teardown() { _default_teardown ; }
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
-    --env SA_SPAM_SUBJECT="SPAM: "
+    --env SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MOVE_SPAM_TO_JUNK=0
     --env PERMIT_DOCKER=container
@@ -49,25 +49,30 @@ function teardown() { _default_teardown ; }
   _should_receive_spam_at '/var/mail/localhost.localdomain/user1/new/'
 }
 
-@test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into Junk folder" {
+@test "(enabled + MOVE_SPAM_TO_JUNK=1) should deliver spam message into Junk mailbox" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
+
+  _init_with_defaults
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
-    --env SA_SPAM_SUBJECT="SPAM: "
+    --env SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MOVE_SPAM_TO_JUNK=1
     --env PERMIT_DOCKER=container
   )
-  _init_with_defaults
+
+  # Adjust 'Junk' mailbox name to verify delivery to Junk mailbox based on special-use flag instead of mailbox's name
+  mv "${TEST_TMP_CONFIG}/junk-mailbox/user-patches.sh" "${TEST_TMP_CONFIG}/"
+
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   _should_send_spam_message
   _should_be_received_by_amavis 'Passed SPAM {RelayedTaggedInbound,Quarantined}'
 
-  # Should move delivered spam to Junk folder
-  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Junk/new/'
+  # Should move delivered spam to the Junk mailbox (adjusted to be located at '.Spam/')
+  _should_receive_spam_at '/var/mail/localhost.localdomain/user1/.Spam/new/'
 }
 
 # NOTE: Same as test for `CONTAINER3_NAME`, only differing by ENV `MARK_SPAM_AS_READ=1` + `_should_receive_spam_at` location
@@ -77,7 +82,7 @@ function teardown() { _default_teardown ; }
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
-    --env SA_SPAM_SUBJECT="SPAM: "
+    --env SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MARK_SPAM_AS_READ=1
     --env PERMIT_DOCKER=container
@@ -95,7 +100,7 @@ function teardown() { _default_teardown ; }
 function _should_send_spam_message() {
   _wait_for_smtp_port_in_container
   _wait_for_tcp_port_in_container 10024 # port 10024 is for Amavis
-  _send_email 'email-templates/amavis-spam'
+  _send_spam
 }
 
 function _should_be_received_by_amavis() {

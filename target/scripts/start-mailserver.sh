@@ -1,7 +1,11 @@
 #!/bin/bash
 
+# When 'pipefail' is enabled, the exit status of the pipeline reflects the exit status of the last command that fails.
+# Without 'pipefail', the exit status of a pipeline is determined by the exit status of the last command in the pipeline.
 set -o pipefail
-shopt -s globstar inherit_errexit
+
+# Allows the usage of '**' in patterns, e.g. ls **/*
+shopt -s globstar
 
 # ------------------------------------------------------------
 # ? >> Sourcing helpers & stacks
@@ -33,9 +37,9 @@ function _register_functions() {
 
   # ? >> Checks
 
-  _register_check_function '_check_improper_restart'
   _register_check_function '_check_hostname'
   _register_check_function '_check_log_level'
+  _register_check_function '_check_spam_prefix'
 
   # ? >> Setup
 
@@ -48,6 +52,7 @@ function _register_functions() {
     _register_setup_function '_setup_dovecot_sieve'
     _register_setup_function '_setup_dovecot_dhparam'
     _register_setup_function '_setup_dovecot_quota'
+    _register_setup_function '_setup_spam_subject'
     _register_setup_function '_setup_spam_to_junk'
     _register_setup_function '_setup_spam_mark_as_read'
   fi
@@ -71,6 +76,11 @@ function _register_functions() {
       ;;
   esac
 
+  if [[ ${ENABLE_OAUTH2} -eq 1 ]]; then
+      _environment_variables_oauth2
+      _register_setup_function '_setup_oauth2'
+  fi
+
   if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]; then
     _environment_variables_saslauthd
     _register_setup_function '_setup_saslauthd'
@@ -91,20 +101,22 @@ function _register_functions() {
   _register_setup_function '_setup_dovecot_hostname'
 
   _register_setup_function '_setup_postfix_early'
-  _register_setup_function '_setup_fetchmail'
-  _register_setup_function '_setup_fetchmail_parallel'
 
-  # needs to come after _setup_postfix_early
+  # Dependent upon _setup_postfix_early first calling _create_aliases
+  # Due to conditional check for /etc/postfix/regexp
   _register_setup_function '_setup_spoof_protection'
 
-  _register_setup_function '_setup_getmail'
+  _register_setup_function '_setup_postfix_late'
 
   if [[ ${ENABLE_SRS} -eq 1  ]]; then
     _register_setup_function '_setup_SRS'
     _register_start_daemon '_start_daemon_postsrsd'
   fi
 
-  _register_setup_function '_setup_postfix_late'
+  _register_setup_function '_setup_fetchmail'
+  _register_setup_function '_setup_fetchmail_parallel'
+  _register_setup_function '_setup_getmail'
+
   _register_setup_function '_setup_logrotate'
   _register_setup_function '_setup_mail_summary'
   _register_setup_function '_setup_logwatch'
@@ -113,6 +125,11 @@ function _register_functions() {
   _register_setup_function '_setup_apply_fixes_after_configuration'
   _register_setup_function '_environment_variables_export'
 
+  if [[ ${ENABLE_MTA_STS} -eq 1 ]]; then
+    _register_setup_function '_setup_mta_sts'
+    _register_start_daemon '_start_daemon_mta_sts_daemon'
+  fi
+
   # ? >> Daemons
 
   _register_start_daemon '_start_daemon_cron'
@@ -120,7 +137,13 @@ function _register_functions() {
 
   [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
 
-  [[ ${ENABLE_UPDATE_CHECK}     -eq 1 ]] && _register_start_daemon '_start_daemon_update_check'
+  if [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]]; then
+    if [[ ${DMS_RELEASE} != 'edge' ]]; then
+      _register_start_daemon '_start_daemon_update_check'
+    else
+      _log 'warn' "ENABLE_UPDATE_CHECK=1 is configured, but image is not a stable release. Update-Check is disabled."
+    fi
+  fi
 
   # The order here matters: Since Rspamd is using Redis, Redis should be started before Rspamd.
   [[ ${ENABLE_RSPAMD_REDIS}     -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_redis'
@@ -142,6 +165,7 @@ function _register_functions() {
   [[ ${ENABLE_CLAMAV}           -eq 1 ]] &&	_register_start_daemon '_start_daemon_clamav'
   [[ ${ENABLE_AMAVIS}           -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
   [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
+  [[ ${ENABLE_GETMAIL}          -eq 1 ]] && _register_start_daemon '_start_daemon_getmail'
 }
 
 # ------------------------------------------------------------
@@ -150,24 +174,41 @@ function _register_functions() {
 # ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
-_early_supervisor_setup
-_early_variables_setup
+# Ensure DMS only adjusts config files for a new container.
+# Container restarts should skip as they retain the modified config.
+if [[ ! -f /CONTAINER_START ]]; then
+  _early_supervisor_setup
+  _early_variables_setup
 
-_log 'info' "Welcome to docker-mailserver $(</VERSION)"
+  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
 
-_register_functions
-_check
-_setup
-[[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
-_run_user_patches
-_start_daemons
+  _register_functions
+  _check
+  _setup
+  _run_user_patches
+else
+  # container was restarted
+  _early_variables_setup
+
+  _log 'info' 'Container was restarted. Skipping setup routines.'
+  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
+
+  _register_functions
+fi
 
 # marker to check if container was restarted
 date >/CONTAINER_START
 
+# Container logs will receive updates from this log file:
+MAIN_LOGFILE=/var/log/mail/mail.log
+# NOTE: rsyslogd would usually create this later during `_start_daemons`, however it would already exist if the container was restarted.
+touch "${MAIN_LOGFILE}"
+# Ensure `tail` follows the correct position of the log file for this container start (new logs begin once `_start_daemons` is called)
+TAIL_START=$(( $(wc -l < "${MAIN_LOGFILE}") + 1 ))
+
+[[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
+_start_daemons
+
+# Container start-up scripts completed. `tail` will now pipe the log updates to stdout:
 _log 'info' "${HOSTNAME} is up and running"
-
-touch /var/log/mail/mail.log
-tail -Fn 0 /var/log/mail/mail.log
-
-exit 0
+exec tail -Fn "+${TAIL_START}" "${MAIN_LOGFILE}"

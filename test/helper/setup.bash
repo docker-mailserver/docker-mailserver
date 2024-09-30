@@ -98,11 +98,10 @@ function _init_with_defaults() {
 
   # Common complimentary test files, read-only safe to share across containers:
   export TEST_FILES_CONTAINER_PATH='/tmp/docker-mailserver-test'
-  export TEST_FILES_VOLUME="${REPOSITORY_ROOT}/test/test-files:${TEST_FILES_CONTAINER_PATH}:ro"
+  export TEST_FILES_VOLUME="${REPOSITORY_ROOT}/test/files:${TEST_FILES_CONTAINER_PATH}:ro"
 
   # The config volume cannot be read-only as some data needs to be written at container startup
   #
-  # - two sed failures (unknown lines)
   # - dovecot-quotas.cf (setup-stack.sh:_setup_dovecot_quotas)
   # - postfix-aliases.cf (setup-stack.sh:_setup_postfix_aliases)
   # TODO: Check how many tests need write access. Consider using `docker create` + `docker cp` for easier cleanup.
