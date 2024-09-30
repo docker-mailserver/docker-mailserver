@@ -92,8 +92,6 @@ Configuration options for `fetchmail.cf` are covered at the [official fetchmail 
       FETCHMAIL_POLL: 60
     ```
 
-<<<<<<< HEAD
-=======
 ### Parallel
 
 To run multiple fetchmail instances parallel, you should set ENV variable `FETCHMAIL_PARALLEL`:
@@ -121,7 +119,6 @@ poll 'pop3.gmail.com' proto pop3
 # __DAEMON_INTERVAL__ 120
 ```
 
->>>>>>> refs/remotes/tk/master
 ## Debugging
 
 To debug your `fetchmail.cf` configuration run this `setup debug` command:
