@@ -1,0 +1,21 @@
+# NOTE: This is effectively the same default LDAP config shipped by Dovecot
+# The only difference is the addition of the passdb mechanisms field,
+# which restricts what auth mechanisms are supported / expected.
+# This prevents unnecessary auth failure logs triggering Fail2Ban when
+# additional passdb are enabled (OAuth2).
+
+passdb {
+  driver = ldap
+  mechanisms = plain login
+
+  # Path for LDAP configuration file, see example-config/dovecot-ldap.conf.ext
+  args = /etc/dovecot/dovecot-ldap.conf.ext
+}
+
+userdb {
+  driver = ldap
+  args = /etc/dovecot/dovecot-ldap.conf.ext
+
+  # Default fields can be used to specify defaults that LDAP may override
+  #default_fields = home=/home/virtual/%u
+}

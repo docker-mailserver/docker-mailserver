@@ -13,6 +13,7 @@ function _manage_accounts() {
   local PASSWD=${4}
 
   _arg_expect_mail_account
+  _arg_check_mail_account
 
   case "${ACTION}" in
     ( 'create' | 'update' )
@@ -69,6 +70,15 @@ function _arg_expect_mail_account() {
   [[ ${MAIL_ACCOUNT} =~ .*\@.* ]] || { __usage ; _exit_with_error "'${MAIL_ACCOUNT}' should include the domain (eg: user@example.com)" ; }
 }
 
+# Checks the mail account string, e.g. on uppercase letters.
+function _arg_check_mail_account() {
+  if grep -q -E '[[:upper:]]+' <<< "${MAIL_ACCOUNT}"; then
+    local MAIL_ACCOUNT_NORMALIZED=${MAIL_ACCOUNT,,}
+    _log 'warn' "Mail account '${MAIL_ACCOUNT}' has uppercase letters and will be normalized to '${MAIL_ACCOUNT_NORMALIZED}'"
+    MAIL_ACCOUNT=${MAIL_ACCOUNT_NORMALIZED}
+  fi
+}
+
 function _account_should_not_exist_yet() {
   __account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
   if [[ -f ${DATABASE_VIRTUAL} ]] && grep -q "^${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"; then
@@ -88,9 +98,14 @@ function __account_already_exists() {
 
 # Also used by addsaslpassword
 function _password_request_if_missing() {
+  local PASSWD_CONFIRM
   if [[ -z ${PASSWD} ]]; then
     read -r -s -p 'Enter Password: ' PASSWD
     echo
     [[ -z ${PASSWD} ]] && _exit_with_error 'Password must not be empty'
+
+    read -r -s -p 'Confirm Password: ' PASSWD_CONFIRM
+    echo
+    [[ ${PASSWD} != "${PASSWD_CONFIRM}" ]] && _exit_with_error 'Passwords do not match!'
   fi
 }

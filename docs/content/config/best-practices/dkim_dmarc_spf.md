@@ -33,6 +33,21 @@ When DKIM is enabled:
 
 DKIM requires a public/private key pair to enable **signing (_via private key_)** your outgoing mail, while the receiving end must query DNS to **verify (_via public key_)** that the signature is trustworthy.
 
+??? info "Verification expiry"
+
+    Unlike your TLS certificate, your DKIM keypair does not have a fixed expiry associated to it.
+
+
+    Instead, an expiry may be included in your DKIM signature for each mail sent, where a receiver will [refuse to validate the signature for an email after that expiry date][dkim-verification-expiry-refusal]. This is an added precaution to mitigate malicious activity like "DKIM replay attacks", where an already delivered email from a third-party with a trustworthy DKIM signature is leveraged by a spammer when sending mail to an MTA which verifies the DKIM signature successfully, enabling the spammer to bypass spam protections.
+
+    Unlike a TLS handshake where you are authenticating trust with future communications, with DKIM once the mail has been received and trust of the signature has been verified, the value of verifying the signature again at a later date is less meaningful since the signature was to ensure no tampering had occurred during delivery through the network.
+
+??? tip "DKIM key rotation"
+
+    You can rotate your DKIM keypair by switching to a new DKIM selector (_and DNS updates_), while the previous key and selector remains valid for verification until the last mail signed with that key reaches it's expiry.
+
+    DMS does not provide any automation or support for key rotation, [nor is it likely to provide a notable security benefit][gh-discussion::dkim-key-rotation-expiry] to the typical small scale DMS deployment.
+
 ### Generating Keys
 
 You'll need to repeat this process if you add any new domains.
@@ -72,7 +87,7 @@ You should have:
 
         According to [RFC 8301][rfc-8301], keys are preferably between 1024 and 2048 bits. Keys of size 4096-bit or larger may not be compatible to all systems your mail is intended for.
 
-        You [should not need a key length beyond 2048-bit][github-issue-dkimlength]. If 2048-bit does not meet your security needs, you may want to instead consider adopting key rotation or switching from RSA to ECC keys for DKIM.
+        You [should not need a key length beyond 2048-bit][gh-issue::dkim-length]. If 2048-bit does not meet your security needs, you may want to instead consider adopting key rotation or switching from RSA to ECC keys for DKIM.
 
 ??? note "You may need to specify mail domains explicitly"
 
@@ -82,7 +97,7 @@ You should have:
 
     When the DMS FQDN is `mail.example.com` or `example.com`, by default this command will generate DKIM keys for `example.com` as the primary domain for your users mail accounts (eg: `hello@example.com`).
 
-    The DKIM generation does not have support to query LDAP for additionanl mail domains it should know about. If the primary mail domain is not sufficient, then you must explicitly specify any extra domains via the `domain` option:
+    The DKIM generation does not have support to query LDAP for additional mail domains it should know about. If the primary mail domain is not sufficient, then you must explicitly specify any extra domains via the `domain` option:
 
     ```sh
     # ENABLE_OPENDKIM=1 (default):
@@ -156,6 +171,13 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
         use_esld = true;
         check_pubkey = true; # you want to use this in the beginning
 
+        selector = "mail";
+        # The path location is searched for a DKIM key with these variables:
+        # - `$domain` is sourced from the MIME mail message `From` header
+        # - `$selector` is configured for `mail` (as a default fallback)
+        path = "/tmp/docker-mailserver/dkim/keys/$domain/$selector.private";
+
+        # domain specific configurations can be provided below:
         domain {
             example.com {
                 path = "/tmp/docker-mailserver/rspamd/dkim/mail.private";
@@ -295,9 +317,9 @@ The DMARC status may not be displayed instantly due to delays in DNS (caches). D
 
     [Source][wikipedia-spf]
 
-!!! note "Disabling `policyd-spf`?"
+!!! tip "Disabling the default SPF service `policy-spf`"
 
-    As of now, `policyd-spf` cannot be disabled. This is WIP.
+    Set [`ENABLE_POLICYD_SPF=0`][docs-env-spf-policyd] to opt-out of the default SPF service. Advised when Rspamd is configured to handle SPF instead.
 
 ### Adding an SPF Record
 
@@ -337,14 +359,16 @@ volumes:
   - ./docker-data/dms/config/postfix-policyd-spf.conf:/etc/postfix-policyd-spf-python/policyd-spf.conf
 ```
 
-[docs-accounts-add]: ../user-management.md#adding-a-new-account
-[docs-volumes-config]: ../advanced/optional-config.md
+[docs-accounts]: ../account-management/overview.md#accounts
+[docs-volumes-config]: ../advanced/optional-config.md#volumes-config
 [docs-env-opendkim]: ../environment.md#enable_opendkim
 [docs-env-rspamd]: ../environment.md#enable_rspamd
+[docs-env-spf-policyd]: ../environment.md#enable_policyd_spf
 [docs-rspamd-config-dropin]: ../security/rspamd.md#manually
 [cloudflare-dkim-dmarc-spf]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
 [rfc-8301]: https://datatracker.ietf.org/doc/html/rfc8301#section-3.2
-[github-issue-dkimlength]: https://github.com/docker-mailserver/docker-mailserver/issues/1854#issuecomment-806280929
+[gh-discussion::dkim-key-rotation-expiry]: https://github.com/orgs/docker-mailserver/discussions/4068#discussioncomment-9784263
+[gh-issue::dkim-length]: https://github.com/docker-mailserver/docker-mailserver/issues/1854#issuecomment-806280929
 [rspamd-docs-dkim-checks]: https://www.rspamd.com/doc/modules/dkim.html
 [rspamd-docs-dkim-signing]: https://www.rspamd.com/doc/modules/dkim_signing.html
 [dns::example-webui]: https://www.vultr.com/docs/introduction-to-vultr-dns/
@@ -352,6 +376,7 @@ volumes:
 [dns::wikipedia-zonefile]: https://en.wikipedia.org/wiki/Zone_file
 [dns::webui-dkim]: https://serverfault.com/questions/763815/route-53-doesnt-allow-adding-dkim-keys-because-length-is-too-long
 [dkim-ed25519-support]: https://serverfault.com/questions/1023674/is-ed25519-well-supported-for-the-dkim-validation/1074545#1074545
+[dkim-verification-expiry-refusal]: https://mxtoolbox.com/problem/dkim/dkim-signature-expiration
 [mxtoolbox-dkim-verifier]: https://mxtoolbox.com/dkim.aspx
 [dmarc-howto-configtags]: https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md#overview-of-dmarc-configuration-tags
 [dmarc-tool-gca]: https://dmarcguide.globalcyberalliance.org

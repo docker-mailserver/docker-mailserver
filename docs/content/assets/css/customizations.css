@@ -16,12 +16,16 @@ If you want to append instead, switch `::before` to `::after`.
   src: url('../fonts/external-link.woff') format('woff');
 }
 
-/* Matches the two nav link classes that start with `http` `href` values, regular docs pages use relative URLs instead. */
-.md-tabs__link[href^="http"]::before, .md-nav__link[href^="http"]::before {
+/*
+  Since mkdocs-material 9.5.5 broke support in our docs from DMS v13.3.1, we now use our own class name,
+  which has been included for the two external nav links in mkdocs.yml via workaround (insert HTML).
+*/
+.icon-external-link::before {
   display: inline-block; /* treat similar to text */
   font-family: 'external-link';
   content:'\0041'; /* represents "A" which our font renders as an icon instead of the "A" glyph */
   font-size: 80%; /* icon is a little too big by default, scale it down */
+  margin-right: 4px;
 }
 
 /* ============================================================================================================= */
@@ -96,5 +100,44 @@ div.md-content article.md-content__inner a.toclink code {
 }
 
 .highlight.no-copy .md-clipboard { display: none; }
+
+/* ============================================================================================================= */
+
+/* Make the left-sidebar nav categories better distinguished from page links (bold text) */
+.md-nav__item--nested > .md-nav__link {
+  font-weight: 700;
+}
+
+/* ============================================================================================================= */
+
+/*
+  TaskList style for a pro/con list. Presently only used for this type of list in the kubernetes docs.
+  Uses a custom icon for the unchecked (con) state: :octicons-x-circle-fill-24:
+  https://github.com/squidfunk/mkdocs-material/discussions/6811#discussioncomment-8700795
+
+  TODO: Can better scope the style under a class name when migrating to block extension syntax:
+  https://github.com/facelessuser/pymdown-extensions/discussions/1973
+*/
+
+:root {
+  --md-tasklist-icon--failed: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12Zm8.036-4.024a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042L10.939 12l-2.963 2.963a.749.749 0 0 0 .326 1.275.749.749 0 0 0 .734-.215L12 13.06l2.963 2.964a.75.75 0 0 0 1.061-1.06L13.061 12l2.963-2.964a.749.749 0 0 0-.326-1.275.749.749 0 0 0-.734.215L12 10.939Z"/></svg>');
+}
+
+.md-typeset [type="checkbox"] + .task-list-indicator::before {
+  background-color: rgb(216, 87, 48);
+  -webkit-mask-image: var(--md-tasklist-icon--failed);
+  mask-image: var(--md-tasklist-icon--failed);
+}
+
+/* More suitable shade of green */
+.md-typeset [type=checkbox]:checked+.task-list-indicator:before {
+  background-color: rgb(97, 216, 42);
+}
+
+/* Tiny layout shift */
+[dir=ltr] .md-typeset .task-list-indicator:before {
+  left: -1.6em;
+  top: 1px;
+}
 
 /* ============================================================================================================= */

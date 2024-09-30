@@ -45,15 +45,15 @@ The development workflow is the following:
 1. Fork the project and clone your fork with `git clone --recurse-submodules ...` or run `git submodule update --init --recursive` after you cloned your fork
 2. Write the code that is needed :D
 3. Add integration tests if necessary
-4. [Prepare your environment and run linting and tests][docs-general-tests]
-5. Document your improvements if necessary (e.g. if you introduced new environment variables, describe those in the [ENV documentation][docs-environment]) and add your changes the changelog under the "Unreleased" section
+4. [Prepare your environment and run linting and tests][docs::contributing::tests]
+5. Document your improvements if necessary (e.g. if you introduced new environment variables, describe those in the [ENV documentation][docs::env]) and add your changes the changelog under the "Unreleased" section
 6. [Commit][commit] (and [sign your commit][gpg]), push and create a pull-request to merge into `master`. Please **use the pull-request template** to provide a minimum of contextual information and make sure to meet the requirements of the checklist.
 
 Pull requests are automatically tested against the CI and will be reviewed when tests pass. When your changes are validated, your branch is merged. CI builds the new `:edge` image immediately and your changes will be includes in the next version release.
 
 [docs-latest]: https://docker-mailserver.github.io/docker-mailserver/latest
 [github-file-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md
-[docs-environment]: ../config/environment.md
-[docs-general-tests]: ./general.md#tests
+[docs::env]: ../config/environment.md
+[docs::contributing::tests]: ./tests.md
 [commit]: https://help.github.com/articles/closing-issues-via-commit-messages/
 [gpg]: https://docs.github.com/en/github/authenticating-to-github/generating-a-new-gpg-key

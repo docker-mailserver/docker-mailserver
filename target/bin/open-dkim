@@ -5,7 +5,7 @@ source /usr/local/bin/helpers/index.sh
 
 if [[ -f /etc/dms-settings ]] && [[ $(_get_dms_env_value 'ENABLE_RSPAMD') -eq 1 ]]; then
   if [[ $(_get_dms_env_value 'ENABLE_OPENDKIM') -eq 1 ]]; then
-    log 'error' "You enabled Rspamd and OpenDKIM - OpenDKIM will be implicitly used for DKIM keys"
+    _log 'warn' "Conflicting DKIM support, both Rspamd and OpenDKIM enabled - OpenDKIM will manage DKIM keys"
   else
     /usr/local/bin/rspamd-dkim "${@}"
     exit
@@ -143,6 +143,9 @@ while read -r DKIM_DOMAIN; do
       --selector="${SELECTOR}" \
       --directory="/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
   fi
+
+  # fix permissions to use the same user:group as /tmp/docker-mailserver/opendkim/keys
+  chown -R "$(stat -c '%U:%G' /tmp/docker-mailserver/opendkim/keys)" "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
 
   # write to KeyTable if necessary
   KEYTABLEENTRY="${SELECTOR}._domainkey.${DKIM_DOMAIN} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"

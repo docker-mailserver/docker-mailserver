@@ -38,7 +38,7 @@ function teardown() { _default_teardown ; }
 # - A warning is raised about usage of potentially insecure parameters.
 @test "Custom" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
-  local DH_PARAMS_CUSTOM='test/test-files/ssl/custom-dhe-params.pem'
+  local DH_PARAMS_CUSTOM='test/files/ssl/custom-dhe-params.pem'
   local DH_CHECKSUM_CUSTOM=$(sha512sum "${DH_PARAMS_CUSTOM}" | awk '{print $1}')
 
   _init_with_defaults
@@ -50,7 +50,7 @@ function teardown() { _default_teardown ; }
   # Should emit a warning:
   run docker logs "${CONTAINER_NAME}"
   assert_success
-  assert_output --partial '[ WARNING ]  Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove'
+  assert_output --partial 'Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove'
 }
 
 # Ensures the docker image services (Postfix and Dovecot) have the expected DH files:

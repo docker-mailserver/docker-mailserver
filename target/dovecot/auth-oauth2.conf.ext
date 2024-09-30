@@ -1,0 +1,14 @@
+# Allow clients to use these additional mechanisms:
+auth_mechanisms = $auth_mechanisms oauthbearer xoauth2
+
+# Dovecot docs consider the oauth2 driver as a "success/failure" type PassDB:
+# https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/#success-failure-database
+# Which implies it cannot be configured for the non-plaintext SASL mechanisms listed here:
+# https://doc.dovecot.org/configuration_manual/authentication/authentication_mechanisms/#dovecot-supports-the-following-non-plaintext-mechanisms
+# However that is not the case, these mechanisms are still valid to prevent trying other incompatible mechanisms (like `plain`).
+
+passdb {
+    driver = oauth2
+    mechanisms = xoauth2 oauthbearer
+    args = /etc/dovecot/dovecot-oauth2.conf.ext
+}

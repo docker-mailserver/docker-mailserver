@@ -43,21 +43,28 @@ function _vhost_collect_postfix_domains() {
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
   local DOMAIN UNAME
 
-  # getting domains FROM mail accounts
+  # Extract domains from mail accounts:
   if [[ -f ${DATABASE_ACCOUNTS} ]]; then
-    while IFS=$'|' read -r LOGIN _; do
-      DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
+    while IFS=$'|' read -r MAIL_ACCOUNT _; do
+      # It is expected valid lines have the format local-part@domain-part:
+      DOMAIN=$(cut -d '@' -f 2 <<< "${MAIL_ACCOUNT}")
+
       echo "${DOMAIN}" >>"${TMP_VHOST}"
     done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
   fi
 
-  # getting domains FROM mail aliases
+  # TODO: Consider if virtual aliases should be configured to the same vhost file:
+  # https://github.com/docker-mailserver/docker-mailserver/issues/2813#issuecomment-1272394563
+  # Extract domains from virtual alias config:
+  # Aliases may have the forms: 'local-part@domain-part', only 'local-part', or '@domain-part' (wildcard catch-all)
   if [[ -f ${DATABASE_VIRTUAL} ]]; then
-    while read -r FROM _; do
-      UNAME=$(echo "${FROM}" | cut -d @ -f1)
-      DOMAIN=$(echo "${FROM}" | cut -d @ -f2)
+    while read -r ALIAS_FIELD _; do
+      UNAME=$(cut -d '@' -f 1 <<< "${ALIAS_FIELD}")
+      DOMAIN=$(cut -d '@' -f 2 <<< "${ALIAS_FIELD}")
 
-      # if they are equal it means the line looks like: "user1     other@domain.tld"
+      # Only add valid domain-parts found:
+      # The '@' is optional for an alias key (eg: "user1     other@domain.tld"),
+      # but cut with -f2 would output the same value as it would -f1 when '@' is missing.
       [[ ${UNAME} != "${DOMAIN}" ]] && echo "${DOMAIN}" >>"${TMP_VHOST}"
     done < <(_get_valid_lines_from_file "${DATABASE_VIRTUAL}")
   fi

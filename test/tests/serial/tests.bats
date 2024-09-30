@@ -17,7 +17,6 @@ function setup_file() {
   local CONTAINER_ARGS_ENV_CUSTOM=(
     --env ENABLE_AMAVIS=1
     --env AMAVIS_LOGLEVEL=2
-    --env ENABLE_QUOTAS=1
     --env ENABLE_SRS=1
     --env PERMIT_DOCKER=host
     --env PFLOGSUMM_TRIGGER=logrotate
@@ -81,11 +80,13 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "imap: authentication works" {
-  _send_email 'auth/imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/imap-auth.txt' '-w 1 0.0.0.0 143'
+  assert_success
 }
 
 @test "imap: added user authentication works" {
-  _send_email 'auth/added-imap-auth' '-w 1 0.0.0.0 143'
+  _nc_wrapper 'auth/added-imap-auth.txt' '-w 1 0.0.0.0 143'
+  assert_success
 }
 
 #
@@ -181,23 +182,16 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-@test "system: /var/log/mail/mail.log is error free" {
-  _run_in_container grep 'non-null host address bits in' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep 'mail system configuration error' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep ': error:' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i 'is not writable' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i 'permission denied' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i '(!)connect' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i 'using backwards-compatible default setting' /var/log/mail/mail.log
-  assert_failure
-  _run_in_container grep -i 'connect to 127.0.0.1:10023: Connection refused' /var/log/mail/mail.log
-  assert_failure
+# TODO: Remove in favor of a common helper method, as described in vmail-id.bats equivalent test-case
+@test "system: Mail log is error free" {
+  _service_log_should_not_contain_string 'mail' 'non-null host address bits in'
+  _service_log_should_not_contain_string 'mail' 'mail system configuration error'
+  _service_log_should_not_contain_string 'mail' ': Error:'
+  _service_log_should_not_contain_string 'mail' 'is not writable'
+  _service_log_should_not_contain_string 'mail' 'Permission denied'
+  _service_log_should_not_contain_string 'mail' '(!)connect'
+  _service_log_should_not_contain_string 'mail' 'using backwards-compatible default setting'
+  _service_log_should_not_contain_string 'mail' 'connect to 127.0.0.1:10023: Connection refused'
 }
 
 @test "system: /var/log/auth.log is error free" {
@@ -211,7 +205,8 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "system: amavis decoders installed and available" {
-  _run_in_container_bash "grep -E '.*(Internal decoder|Found decoder) for\s+\..*' /var/log/mail/mail.log*|grep -Eo '(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe)' | sort | uniq"
+  _service_log_should_contain_string_regexp 'mail' '.*(Internal decoder|Found decoder) for\s+\..*'
+  run bash -c "grep -Eo '(mail|Z|gz|bz2|xz|lzma|lrz|lzo|lz4|rpm|cpio|tar|deb|rar|arj|arc|zoo|doc|cab|tnef|zip|kmz|7z|jar|swf|lha|iso|exe)' <<< '${output}' | sort | uniq"
   assert_success
   # Support for doc and zoo removed in buster
   cat <<'EOF' | assert_output
@@ -244,198 +239,6 @@ zip
 EOF
 }
 
-@test "quota: setquota user must be existing" {
-  _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
-
-  _run_in_container_bash "setquota quota_user 50M"
-  assert_failure
-  _run_in_container_bash "setquota quota_user@domain.tld 50M"
-  assert_success
-
-  _run_in_container_bash "setquota username@fulldomain 50M"
-  assert_failure
-
-  _run_in_container_bash "delmailuser -y quota_user@domain.tld"
-  assert_success
-}
-
-@test "quota: setquota <quota> must be well formatted" {
-  _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
-
-  _run_in_container_bash "setquota quota_user@domain.tld 26GIGOTS"
-  assert_failure
-  _run_in_container_bash "setquota quota_user@domain.tld 123"
-  assert_failure
-  _run_in_container_bash "setquota quota_user@domain.tld M"
-  assert_failure
-  _run_in_container_bash "setquota quota_user@domain.tld -60M"
-  assert_failure
-
-
-  _run_in_container_bash "setquota quota_user@domain.tld 10B"
-  assert_success
-  _run_in_container_bash "setquota quota_user@domain.tld 10k"
-  assert_success
-  _run_in_container_bash "setquota quota_user@domain.tld 10M"
-  assert_success
-  _run_in_container_bash "setquota quota_user@domain.tld 10G"
-  assert_success
-  _run_in_container_bash "setquota quota_user@domain.tld 10T"
-  assert_success
-
-
-  _run_in_container_bash "delmailuser -y quota_user@domain.tld"
-  assert_success
-}
-
-@test "quota: delquota user must be existing" {
-  _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
-
-  _run_in_container_bash "delquota uota_user@domain.tld"
-  assert_failure
-  _run_in_container_bash "delquota quota_user"
-  assert_failure
-  _run_in_container_bash "delquota dontknowyou@domain.tld"
-  assert_failure
-
-  _run_in_container_bash "setquota quota_user@domain.tld 10T"
-  assert_success
-  _run_in_container_bash "delquota quota_user@domain.tld"
-  assert_success
-  _run_in_container_bash "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
-  assert_failure
-
-  _run_in_container_bash "delmailuser -y quota_user@domain.tld"
-  assert_success
-}
-
-@test "quota: delquota allow when no quota for existing user" {
-  _add_mail_account_then_wait_until_ready 'quota_user@domain.tld'
-
-  _run_in_container_bash "grep -i 'quota_user@domain.tld' /tmp/docker-mailserver/dovecot-quotas.cf"
-  assert_failure
-
-  _run_in_container_bash "delquota quota_user@domain.tld"
-  assert_success
-  _run_in_container_bash "delquota quota_user@domain.tld"
-  assert_success
-
-  _run_in_container_bash "delmailuser -y quota_user@domain.tld"
-  assert_success
-}
-
-@test "quota: dovecot quota present in postconf" {
-  _run_in_container_bash "postconf | grep 'check_policy_service inet:localhost:65265'"
-  assert_success
-}
-
-
-@test "quota: dovecot mailbox max size must be equal to postfix mailbox max size" {
-  postfix_mailbox_size=$(_exec_in_container_bash "postconf | grep -Po '(?<=mailbox_size_limit = )[0-9]+'")
-  run echo "${postfix_mailbox_size}"
-  refute_output ""
-
-  # dovecot relies on virtual_mailbox_size by default
-  postfix_virtual_mailbox_size=$(_exec_in_container_bash "postconf | grep -Po '(?<=virtual_mailbox_limit = )[0-9]+'")
-  assert_equal "${postfix_virtual_mailbox_size}" "${postfix_mailbox_size}"
-
-  postfix_mailbox_size_mb=$(( postfix_mailbox_size / 1000000))
-
-  dovecot_mailbox_size_mb=$(_exec_in_container_bash "doveconf | grep  -oP '(?<=quota_rule \= \*\:storage=)[0-9]+'")
-  run echo "${dovecot_mailbox_size_mb}"
-  refute_output ""
-
-  assert_equal "${postfix_mailbox_size_mb}" "${dovecot_mailbox_size_mb}"
-}
-
-
-@test "quota: dovecot message max size must be equal to postfix messsage max size" {
-  postfix_message_size=$(_exec_in_container_bash "postconf | grep -Po '(?<=message_size_limit = )[0-9]+'")
-  run echo "${postfix_message_size}"
-  refute_output ""
-
-  postfix_message_size_mb=$(( postfix_message_size / 1000000))
-
-  dovecot_message_size_mb=$(_exec_in_container_bash "doveconf | grep  -oP '(?<=quota_max_mail_size = )[0-9]+'")
-  run echo "${dovecot_message_size_mb}"
-  refute_output ""
-
-  assert_equal "${postfix_message_size_mb}" "${dovecot_message_size_mb}"
-}
-
-@test "quota: quota directive is removed when mailbox is removed" {
-  _add_mail_account_then_wait_until_ready 'quserremoved@domain.tld'
-
-  _run_in_container_bash "setquota quserremoved@domain.tld 12M"
-  assert_success
-
-  _run_in_container_bash 'cat /tmp/docker-mailserver/dovecot-quotas.cf | grep -E "^quserremoved@domain.tld\:12M\$" | wc -l | grep 1'
-  assert_success
-
-  _run_in_container_bash "delmailuser -y quserremoved@domain.tld"
-  assert_success
-
-  _run_in_container_bash 'cat /tmp/docker-mailserver/dovecot-quotas.cf | grep -E "^quserremoved@domain.tld\:12M\$"'
-  assert_failure
-}
-
-@test "quota: dovecot applies user quota" {
-  _run_in_container_bash "doveadm quota get -u 'user1@localhost.localdomain' | grep 'User quota STORAGE'"
-  assert_output --partial "-                         0"
-
-  _run_in_container_bash "setquota user1@localhost.localdomain 50M"
-  assert_success
-
-  # wait until quota has been updated
-  run _repeat_until_success_or_timeout 20 _exec_in_container_bash 'doveadm quota get -u user1@localhost.localdomain | grep -oP "(User quota STORAGE\s+[0-9]+\s+)51200(.*)"'
-  assert_success
-
-  _run_in_container_bash "delquota user1@localhost.localdomain"
-  assert_success
-
-  # wait until quota has been updated
-  run _repeat_until_success_or_timeout 20 _exec_in_container_bash 'doveadm quota get -u user1@localhost.localdomain | grep -oP "(User quota STORAGE\s+[0-9]+\s+)-(.*)"'
-  assert_success
-}
-
-@test "quota: warn message received when quota exceeded" {
-  skip 'disabled as it fails randomly: https://github.com/docker-mailserver/docker-mailserver/pull/2511'
-
-  # create user
-  _add_mail_account_then_wait_until_ready 'quotauser@otherdomain.tld'
-  _run_in_container_bash 'setquota quotauser@otherdomain.tld 10k'
-  assert_success
-
-  # wait until quota has been updated
-  run _repeat_until_success_or_timeout 20 _exec_in_container_bash 'doveadm quota get -u quotauser@otherdomain.tld | grep -oP \"(User quota STORAGE\s+[0-9]+\s+)10(.*)\"'
-  assert_success
-
-  # dovecot and postfix has been restarted
-  _wait_for_service postfix
-  _wait_for_service dovecot
-  sleep 10
-
-  # send some big emails
-  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
-  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
-  _send_email 'email-templates/quota-exceeded' '0.0.0.0 25'
-
-  # check for quota warn message existence
-  run _repeat_until_success_or_timeout 20 _exec_in_container_bash 'grep \"Subject: quota warning\" /var/mail/otherdomain.tld/quotauser/new/ -R'
-  assert_success
-
-  run _repeat_until_success_or_timeout 20 sh -c "docker logs mail | grep 'Quota exceeded (mailbox for user is full)'"
-  assert_success
-
-  # ensure only the first big message and the warn message are present (other messages are rejected: mailbox is full)
-  _run_in_container sh -c 'ls /var/mail/otherdomain.tld/quotauser/new/ | wc -l'
-  assert_success
-  assert_output "2"
-
-  _run_in_container_bash "delmailuser -y quotauser@otherdomain.tld"
-  assert_success
-}
-
 #
 # PERMIT_DOCKER mynetworks
 #
@@ -455,7 +258,7 @@ EOF
 #
 
 @test "amavis: config overrides" {
-  _run_in_container_bash "grep 'Test Verification' /etc/amavis/conf.d/50-user | wc -l"
+  _run_in_container_bash "grep -c 'Test Verification' /etc/amavis/conf.d/50-user"
   assert_success
   assert_output 1
 }
@@ -481,13 +284,34 @@ EOF
 @test "spoofing: rejects sender forging" {
   # rejection of spoofed sender
   _wait_for_smtp_port_in_container_to_respond
-  _run_in_container_bash "openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed.txt"
+
+  # An authenticated user cannot use an envelope sender (MAIL FROM)
+  # address they do not own according to `main.cf:smtpd_sender_login_maps` lookup
+  _send_email --expect-rejection \
+    --port 465 -tlsc --auth PLAIN \
+    --auth-user added@localhost.localdomain \
+    --auth-password mypassword \
+    --ehlo mail \
+    --from user2@localhost.localdomain \
+    --data 'auth/added-smtp-auth-spoofed.txt'
   assert_output --partial 'Sender address rejected: not owned by user'
 }
 
 @test "spoofing: accepts sending as alias" {
-  _run_in_container_bash "openssl s_client -quiet -connect 0.0.0.0:465 < /tmp/docker-mailserver-test/auth/added-smtp-auth-spoofed-alias.txt | grep 'End data with'"
+  # An authenticated account should be able to send mail from an alias,
+  # Verifies `main.cf:smtpd_sender_login_maps` includes /etc/postfix/virtual
+  # The envelope sender address (MAIL FROM) is the lookup key
+  # to each table. Address is authorized when a result that maps to
+  # the DMS account is returned.
+  _send_email \
+    --port 465 -tlsc --auth PLAIN \
+    --auth-user user1@localhost.localdomain \
+    --auth-password mypassword \
+    --ehlo mail \
+    --from alias1@localhost.localdomain \
+    --data 'auth/added-smtp-auth-spoofed-alias.txt'
   assert_success
+  assert_output --partial 'End data with'
 }
 
 #

@@ -13,7 +13,7 @@ setup_file() {
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail_smtponly_second_network)
   docker create --name mail_smtponly_second_network \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
     -e PERMIT_DOCKER=connected-networks \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
@@ -26,7 +26,7 @@ setup_file() {
   PRIVATE_CONFIG=$(duplicate_config_for_container . mail_smtponly_second_network_sender)
   docker run -d --name mail_smtponly_second_network_sender \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
     -e PERMIT_DOCKER=connected-networks \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
@@ -39,7 +39,7 @@ setup_file() {
   # create another container that enforces authentication even on local connections
   docker run -d --name mail_smtponly_force_authentication \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/test-files":/tmp/docker-mailserver-test:ro \
+    -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
     -e PERMIT_DOCKER=none \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
@@ -68,7 +68,7 @@ teardown_file() {
   _reload_postfix mail_smtponly_second_network
 
   # we should be able to send from the other container on the second network!
-  run docker exec mail_smtponly_second_network_sender /bin/sh -c "nc mail_smtponly_second_network 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
+  run docker exec mail_smtponly_second_network_sender /bin/sh -c "nc mail_smtponly_second_network 25 < /tmp/docker-mailserver-test/emails/nc_raw/smtp-only.txt"
   assert_output --partial "250 2.0.0 Ok: queued as "
   repeat_in_container_until_success_or_timeout 60 mail_smtponly_second_network /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
 }
@@ -80,7 +80,7 @@ teardown_file() {
   _reload_postfix mail_smtponly_force_authentication
 
   # the mailserver should require authentication and a protocol error should occur when using TLS
-  run docker exec mail_smtponly_force_authentication /bin/sh -c "nc localhost 25 < /tmp/docker-mailserver-test/email-templates/smtp-only.txt"
+  run docker exec mail_smtponly_force_authentication /bin/sh -c "nc localhost 25 < /tmp/docker-mailserver-test/emails/nc_raw/smtp-only.txt"
   assert_output --partial "550 5.5.1 Protocol error"
   [[ ${status} -ge 0 ]]
 }

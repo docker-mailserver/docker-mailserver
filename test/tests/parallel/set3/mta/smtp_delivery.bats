@@ -63,34 +63,51 @@ function setup_file() {
 
   # TODO: Move to clamav tests (For use when ClamAV is enabled):
   # _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
-  # _send_email 'email-templates/amavis-virus'
+  # _send_email --from 'virus@external.tld' --data 'amavis/virus.txt'
 
   # Required for 'delivers mail to existing alias':
-  _send_email 'email-templates/existing-alias-external'
+  _send_email --to alias1@localhost.localdomain --header "Subject: Test Message existing-alias-external"
   # Required for 'delivers mail to existing alias with recipient delimiter':
-  _send_email 'email-templates/existing-alias-recipient-delimiter'
+  _send_email --to alias1~test@localhost.localdomain --header 'Subject: Test Message existing-alias-recipient-delimiter'
   # Required for 'delivers mail to existing catchall':
-  _send_email 'email-templates/existing-catchall-local'
+  _send_email --to wildcard@localdomain2.com --header 'Subject: Test Message existing-catchall-local'
   # Required for 'delivers mail to regexp alias':
-  _send_email 'email-templates/existing-regexp-alias-local'
+  _send_email --to test123@localhost.localdomain --header 'Subject: Test Message existing-regexp-alias-local'
 
   # Required for 'rejects mail to unknown user':
-  _send_email 'email-templates/non-existing-user'
+  _send_email --expect-rejection --to nouser@localhost.localdomain
+  assert_failure
   # Required for 'redirects mail to external aliases':
-  _send_email 'email-templates/existing-regexp-alias-external'
-  _send_email 'email-templates/existing-alias-local'
+  _send_email --to bounce-always@localhost.localdomain
+  _send_email --to alias2@localhost.localdomain
   # Required for 'rejects spam':
-  _send_email 'email-templates/amavis-spam'
+  _send_spam
 
   # Required for 'delivers mail to existing account':
-  _send_email 'email-templates/existing-user1'
-  _send_email 'email-templates/existing-user2'
-  _send_email 'email-templates/existing-user3'
-  _send_email 'email-templates/existing-added'
-  _send_email 'email-templates/existing-user-and-cc-local-alias'
-  _send_email 'email-templates/sieve-spam-folder'
-  _send_email 'email-templates/sieve-pipe'
-  _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/email-templates/root-email.txt'
+  _send_email --header 'Subject: Test Message existing-user1'
+  _send_email --to user2@otherdomain.tld
+  _send_email --to user3@localhost.localdomain
+  _send_email --to added@localhost.localdomain --header 'Subject: Test Message existing-added'
+  _send_email \
+    --to user1@localhost.localdomain \
+    --header 'Subject: Test Message existing-user-and-cc-local-alias' \
+    --cc 'alias2@localhost.localdomain'
+  _send_email --data 'sieve/spam-folder.txt'
+  _send_email --to user2@otherdomain.tld --data 'sieve/pipe.txt'
+  _run_in_container_bash 'sendmail root < /tmp/docker-mailserver-test/emails/sendmail/root-email.txt'
+  assert_success
+}
+
+function _unsuccessful() {
+  _send_email --expect-rejection --port 465 --auth "${1}" --auth-user "${2}" --auth-password wrongpassword --quit-after AUTH
+  assert_failure
+  assert_output --partial 'authentication failed'
+  assert_output --partial 'No authentication type succeeded'
+}
+
+function _successful() {
+  _send_email --port 465 --auth "${1}" --auth-user "${2}" --auth-password mypassword --quit-after AUTH
+  assert_output --partial 'Authentication successful'
 }
 
 @test "should succeed at emptying mail queue" {
@@ -103,44 +120,35 @@ function setup_file() {
 }
 
 @test "should successfully authenticate with good password (plain)" {
-  _send_email 'auth/smtp-auth-plain' '-w 5 0.0.0.0 465'
-  assert_output --partial 'Authentication successful'
+  _successful PLAIN user1@localhost.localdomain
 }
 
 @test "should fail to authenticate with wrong password (plain)" {
-  _send_email 'auth/smtp-auth-plain-wrong' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful PLAIN user1@localhost.localdomain
 }
 
 @test "should successfully authenticate with good password (login)" {
-  _send_email 'auth/smtp-auth-login' '-w 5 0.0.0.0 465'
-  assert_output --partial 'Authentication successful'
+  _successful LOGIN user1@localhost.localdomain
 }
 
 @test "should fail to authenticate with wrong password (login)" {
-  _send_email 'auth/smtp-auth-login-wrong' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful LOGIN user1@localhost.localdomain
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (plain)" {
-  _send_email 'auth/added-smtp-auth-plain' '-w 5 0.0.0.0 465'
-  assert_output --partial 'Authentication successful'
+  _successful PLAIN added@localhost.localdomain
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (plain)" {
-  _send_email 'auth/added-smtp-auth-plain-wrong' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful PLAIN added@localhost.localdomain
 }
 
 @test "[user: 'added'] should successfully authenticate with good password (login)" {
-  _send_email 'auth/added-smtp-auth-login' '-w 5 0.0.0.0 465'
-  assert_success
-  assert_output --partial 'Authentication successful'
+  _successful LOGIN added@localhost.localdomain
 }
 
 @test "[user: 'added'] should fail to authenticate with wrong password (login)" {
-  _send_email 'auth/added-smtp-auth-login-wrong' '-w 20 0.0.0.0 465'
-  assert_output --partial 'authentication failed'
+  _unsuccessful LOGIN added@localhost.localdomain
 }
 
 # TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
@@ -166,33 +174,28 @@ function setup_file() {
 }
 
 @test "delivers mail to existing alias" {
-  _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1@localhost.localdomain>, orig_to=<alias1@localhost.localdomain>'
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 }
 
 @test "delivers mail to existing alias with recipient delimiter" {
-  _run_in_container grep 'to=<user1~test@localhost.localdomain>, orig_to=<alias1~test@localhost.localdomain>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1~test@localhost.localdomain>, orig_to=<alias1~test@localhost.localdomain>'
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 
-  _run_in_container grep 'to=<user1~test@localhost.localdomain>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1~test@localhost.localdomain>'
   refute_output --partial 'status=bounced'
 }
 
 @test "delivers mail to existing catchall" {
-  _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1@localhost.localdomain>, orig_to=<wildcard@localdomain2.com>'
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 }
 
 @test "delivers mail to regexp alias" {
-  _run_in_container grep 'to=<user1@localhost.localdomain>, orig_to=<test123@localhost.localdomain>' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'to=<user1@localhost.localdomain>, orig_to=<test123@localhost.localdomain>'
   assert_output --partial 'status=sent'
   _should_output_number_of_lines 1
 }
@@ -219,23 +222,20 @@ function setup_file() {
 }
 
 @test "rejects mail to unknown user" {
-  _run_in_container grep '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' '<nouser@localhost.localdomain>: Recipient address rejected: User unknown in virtual mailbox table'
   _should_output_number_of_lines 1
 }
 
 @test "redirects mail to external aliases" {
-  _run_in_container_bash "grep 'Passed CLEAN {RelayedInbound}' /var/log/mail/mail.log | grep -- '-> <external1@otherdomain.tld>'"
-  assert_success
-  assert_output --partial '<user@external.tld> -> <external1@otherdomain.tld>'
+  _service_log_should_contain_string 'mail' 'Passed CLEAN {RelayedInbound}'
+  run bash -c "grep '<user@external.tld> -> <external1@otherdomain.tld>' <<< '${output}'"
   _should_output_number_of_lines 2
   # assert_output --partial 'external.tld=user@example.test> -> <external1@otherdomain.tld>'
 }
 
 # TODO: Add a test covering case SPAMASSASSIN_SPAM_TO_INBOX=1 (default)
 @test "rejects spam" {
-  _run_in_container grep 'Blocked SPAM {NoBounceInbound,Quarantined}' /var/log/mail/mail.log
-  assert_success
+  _service_log_should_contain_string 'mail' 'Blocked SPAM {NoBounceInbound,Quarantined}'
   assert_output --partial '<spam@external.tld> -> <user1@localhost.localdomain>'
   _should_output_number_of_lines 1
 
@@ -258,7 +258,17 @@ function setup_file() {
 # Dovecot does not support SMTPUTF8, so while we can send we cannot receive
 # Better disable SMTPUTF8 support entirely if we can't handle it correctly
 @test "not advertising smtputf8" {
-  _send_email 'email-templates/smtp-ehlo'
+  # Query supported extensions; SMTPUTF8 should not be available.
+  # - This query requires a EHLO greeting to the destination server.
+  _send_email \
+    --ehlo mail.external.tld \
+    --protocol ESMTP \
+    --server mail.example.test \
+    --quit-after FIRST-EHLO
+
+  # Ensure the output is actually related to what we want to refute against:
+  assert_output --partial 'EHLO mail.external.tld'
+  assert_output --partial '221 2.0.0 Bye'
   refute_output --partial 'SMTPUTF8'
 }
 

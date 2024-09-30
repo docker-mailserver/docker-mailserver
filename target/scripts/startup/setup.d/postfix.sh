@@ -19,9 +19,6 @@ function _setup_postfix_early() {
     postconf "inet_protocols = ${POSTFIX_INET_PROTOCOLS}"
   fi
 
-  __postfix__log 'trace' "Disabling SMTPUTF8 support"
-  postconf 'smtputf8_enable = no'
-
   __postfix__log 'trace' "Configuring SASLauthd"
   if [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && [[ ! -f /etc/postfix/sasl/smtpd.conf ]]; then
     cat >/etc/postfix/sasl/smtpd.conf << EOF
@@ -30,18 +27,25 @@ mech_list: plain login
 EOF
   fi
 
+  # User has explicitly requested to disable SASL auth:
+  # TODO: Additive config by feature would be better. Should only enable SASL auth
+  # on submission(s) services in master.cf when SASLAuthd or Dovecot is enabled.
   if [[ ${ENABLE_SASLAUTHD} -eq 0 ]] && [[ ${SMTP_ONLY} -eq 1 ]]; then
+    # Default for services (eg: Port 25); NOTE: This has since become the default:
     sed -i -E \
       's|^smtpd_sasl_auth_enable =.*|smtpd_sasl_auth_enable = no|g' \
       /etc/postfix/main.cf
+    # Submission services that are explicitly enabled by default:
     sed -i -E \
       's|^  -o smtpd_sasl_auth_enable=.*|  -o smtpd_sasl_auth_enable=no|g' \
       /etc/postfix/master.cf
   fi
 
+  # scripts/helpers/aliases.sh:_create_aliases()
   __postfix__log 'trace' 'Setting up aliases'
   _create_aliases
 
+  # scripts/helpers/postfix.sh:_create_postfix_vhost()
   __postfix__log 'trace' 'Setting up Postfix vhost'
   _create_postfix_vhost
 
@@ -63,6 +67,27 @@ EOF
       's|^(dms_smtpd_sender_restrictions = .*)|\1, reject_unknown_client_hostname|' \
       /etc/postfix/main.cf
   fi
+
+  # Dovecot feature integration
+  # TODO: Alias SMTP_ONLY=0 to DOVECOT_ENABLED=1?
+  if [[ ${SMTP_ONLY} -ne 1 ]]; then
+    __postfix__log 'trace' 'Configuring Postfix with Dovecot integration'
+
+    # /etc/postfix/vmailbox is created by: scripts/helpers/accounts.sh:_create_accounts()
+    # This file config is for Postfix to verify a mail account exists before accepting
+    # mail arriving and delivering it to Dovecot over LMTP.
+    if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]]; then
+      postconf 'virtual_mailbox_maps = texthash:/etc/postfix/vmailbox'
+    fi
+    # Historical context regarding decision to use LMTP instead of LDA (do not change this):
+    # https://github.com/docker-mailserver/docker-mailserver/issues/4178#issuecomment-2375489302
+    postconf 'virtual_transport = lmtp:unix:/var/run/dovecot/lmtp'
+  fi
+
+  if [[ -n ${POSTFIX_DAGENT} ]]; then
+    __postfix__log 'trace' "Changing virtual transport to '${POSTFIX_DAGENT}'"
+    postconf "virtual_transport = ${POSTFIX_DAGENT}"
+  fi
 }
 
 function _setup_postfix_late() {
@@ -80,41 +105,39 @@ function _setup_postfix_late() {
   __postfix__log 'trace' 'Configuring relay host'
   _setup_relayhost
 
-  if [[ -n ${POSTFIX_DAGENT} ]]; then
-    __postfix__log 'trace' "Changing virtual transport to '${POSTFIX_DAGENT}'"
-    # Default value in main.cf should be 'lmtp:unix:/var/run/dovecot/lmtp'
-    postconf "virtual_transport = ${POSTFIX_DAGENT}"
-  fi
-
   __postfix__setup_override_configuration
 }
 
 function __postfix__setup_override_configuration() {
   __postfix__log 'debug' 'Overriding / adjusting configuration with user-supplied values'
 
-  if [[ -f /tmp/docker-mailserver/postfix-main.cf ]]; then
-    cat /tmp/docker-mailserver/postfix-main.cf >>/etc/postfix/main.cf
+  local OVERRIDE_CONFIG_POSTFIX_MASTER='/tmp/docker-mailserver/postfix-master.cf'
+  if [[ -f ${OVERRIDE_CONFIG_POSTFIX_MASTER} ]]; then
+    while read -r LINE; do
+      [[ ${LINE} =~ ^[0-9a-z] ]] && postconf -P "${LINE}"
+    done < <(_get_valid_lines_from_file "${OVERRIDE_CONFIG_POSTFIX_MASTER}")
+    __postfix__log 'trace' "Adjusted '/etc/postfix/master.cf' according to '${OVERRIDE_CONFIG_POSTFIX_MASTER}'"
+  else
+    __postfix__log 'trace' "No extra Postfix master settings loaded because optional '${OVERRIDE_CONFIG_POSTFIX_MASTER}' was not provided"
+  fi
+
+  # NOTE: `postfix-main.cf` should be handled after `postfix-master.cf` as custom parameters require an existing reference
+  # in either `main.cf` or `master.cf` prior to `postconf` reading `main.cf`, otherwise it is discarded from output.
+  local OVERRIDE_CONFIG_POSTFIX_MAIN='/tmp/docker-mailserver/postfix-main.cf'
+  if [[ -f ${OVERRIDE_CONFIG_POSTFIX_MAIN} ]]; then
+    cat "${OVERRIDE_CONFIG_POSTFIX_MAIN}" >>/etc/postfix/main.cf
     _adjust_mtime_for_postfix_maincf
 
-    # do not directly output to 'main.cf' as this causes a read-write-conflict
-    postconf -n >/tmp/postfix-main-new.cf 2>/dev/null
+    # Do not directly output to 'main.cf' as this causes a read-write-conflict.
+    # `postconf` output is filtered to skip expected warnings regarding overrides:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/3880#discussion_r1510414576
+    postconf -n >/tmp/postfix-main-new.cf 2> >(grep -v 'overriding earlier entry' >&2)
 
     mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
     _adjust_mtime_for_postfix_maincf
-    __postfix__log 'trace' "Adjusted '/etc/postfix/main.cf' according to '/tmp/docker-mailserver/postfix-main.cf'"
+    __postfix__log 'trace' "Adjusted '/etc/postfix/main.cf' according to '${OVERRIDE_CONFIG_POSTFIX_MAIN}'"
   else
-    __postfix__log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-main.cf' was not provided"
-  fi
-
-  if [[ -f /tmp/docker-mailserver/postfix-master.cf ]]; then
-    while read -r LINE; do
-      if [[ ${LINE} =~ ^[0-9a-z] ]]; then
-        postconf -P "${LINE}"
-      fi
-    done < /tmp/docker-mailserver/postfix-master.cf
-    __postfix__log 'trace' "Adjusted '/etc/postfix/master.cf' according to '/tmp/docker-mailserver/postfix-master.cf'"
-  else
-    __postfix__log 'trace' "No extra Postfix settings loaded because optional '/tmp/docker-mailserver/postfix-master.cf' was not provided"
+    __postfix__log 'trace' "No extra Postfix main settings loaded because optional '${OVERRIDE_CONFIG_POSTFIX_MAIN}' was not provided"
   fi
 }
 

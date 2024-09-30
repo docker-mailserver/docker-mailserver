@@ -14,7 +14,7 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test 'normal delivery works' {
-  _send_email 'email-templates/existing-user1'
+  _send_email
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new 1
 }
 
@@ -26,7 +26,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "(IMAP) special-use folders should be created when necessary" {
-  _send_email 'nc_templates/imap_special_use_folders' '-w 8 0.0.0.0 143'
+  _nc_wrapper 'nc/imap_special_use_folders.txt' '-w 8 0.0.0.0 143'
   assert_output --partial 'Drafts'
   assert_output --partial 'Junk'
   assert_output --partial 'Trash'

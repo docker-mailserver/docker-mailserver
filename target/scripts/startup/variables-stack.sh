@@ -25,6 +25,12 @@ function __environment_variables_backwards_compatibility() {
     _log 'error' "The ENV for which LDAP host to connect to must include the URI scheme ('ldap://', 'ldaps://', 'ldapi://')"
   fi
 
+  if [[ -n ${SA_SPAM_SUBJECT:-} ]]; then
+    _log 'warn' "'SA_SPAM_SUBJECT' has been renamed to 'SPAM_SUBJECT' - this warning will block startup on v15.0.0"
+    _log 'info' "Copying value of 'SA_SPAM_SUBJECT' into 'SPAM_SUBJECT' if 'SPAM_SUBJECT' has not been set explicitly"
+    SPAM_SUBJECT=${SPAM_SUBJECT:-${SA_SPAM_SUBJECT}}
+  fi
+
   # TODO this can be uncommented in a PR handling the HOSTNAME/DOMAINNAME issue
   # TODO see check_for_changes.sh and dns.sh
   # if [[ -n ${OVERRIDE_HOSTNAME:-} ]]
@@ -65,9 +71,10 @@ function __environment_variables_general_setup() {
   VARS[RSPAMD_GREYLISTING]="${RSPAMD_GREYLISTING:=0}"
   VARS[RSPAMD_HFILTER]="${RSPAMD_HFILTER:=1}"
   VARS[RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE]="${RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE:=6}"
+  VARS[RSPAMD_NEURAL]="${RSPAMD_NEURAL:=0}"
   VARS[RSPAMD_LEARN]="${RSPAMD_LEARN:=0}"
   VARS[SA_KILL]=${SA_KILL:="10.0"}
-  VARS[SA_SPAM_SUBJECT]=${SA_SPAM_SUBJECT:="***SPAM*** "}
+  VARS[SPAM_SUBJECT]=${SPAM_SUBJECT:=}
   VARS[SA_TAG]=${SA_TAG:="2.0"}
   VARS[SA_TAG2]=${SA_TAG2:="6.31"}
   VARS[SPAMASSASSIN_SPAM_TO_INBOX]="${SPAMASSASSIN_SPAM_TO_INBOX:=1}"
@@ -83,10 +90,12 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_FETCHMAIL]="${ENABLE_FETCHMAIL:=0}"
   VARS[ENABLE_GETMAIL]="${ENABLE_GETMAIL:=0}"
   VARS[ENABLE_MANAGESIEVE]="${ENABLE_MANAGESIEVE:=0}"
+  VARS[ENABLE_OAUTH2]="${ENABLE_OAUTH2:=0}"
   VARS[ENABLE_OPENDKIM]="${ENABLE_OPENDKIM:=1}"
   VARS[ENABLE_OPENDMARC]="${ENABLE_OPENDMARC:=1}"
   VARS[ENABLE_POLICYD_SPF]="${ENABLE_POLICYD_SPF:=1}"
   VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
+  VARS[ENABLE_IMAP]="${ENABLE_IMAP:=1}"
   VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
   VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
   VARS[ENABLE_RSPAMD]="${ENABLE_RSPAMD:=0}"
@@ -136,10 +145,10 @@ function __environment_variables_general_setup() {
   VARS[GETMAIL_POLL]="${GETMAIL_POLL:=5}"
   VARS[LOG_LEVEL]="${LOG_LEVEL:=info}"
   VARS[LOGROTATE_INTERVAL]="${LOGROTATE_INTERVAL:=weekly}"
+  VARS[LOGROTATE_COUNT]="${LOGROTATE_COUNT:=4}"
   VARS[LOGWATCH_INTERVAL]="${LOGWATCH_INTERVAL:=none}"
   VARS[LOGWATCH_RECIPIENT]="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
   VARS[LOGWATCH_SENDER]="${LOGWATCH_SENDER:=${REPORT_SENDER}}"
-  VARS[ONE_DIR]="${ONE_DIR:=1}"
   VARS[PERMIT_DOCKER]="${PERMIT_DOCKER:=none}"
   VARS[PFLOGSUMM_RECIPIENT]="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
   VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
@@ -148,6 +157,12 @@ function __environment_variables_general_setup() {
   VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
   VARS[TZ]="${TZ:=}"
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
+}
+
+function _environment_variables_oauth2() {
+  _log 'debug' 'Setting OAUTH2-related environment variables now'
+
+  VARS[OAUTH2_INTROSPECTION_URL]="${OAUTH2_INTROSPECTION_URL:=}"
 }
 
 # This function handles environment variables related to LDAP.

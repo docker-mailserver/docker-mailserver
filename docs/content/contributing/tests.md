@@ -51,7 +51,7 @@ Parallel tests are further partitioned into smaller sets. If your system has the
 To run the test suite, you will need to:
 
 1. [Install Docker][get-docker]
-2. Install `jq` and (GNU) `parallel` (under Ubuntu, use `sudo apt-get -y install jq parallel`)
+2. Install `jq` , (GNU) `parallel` and `file` (under Ubuntu, use `sudo apt-get -y install jq parallel file`)
 3. Execute `git submodule update --init --recursive` if you haven't already initialized the git submodules
 
 ### Executing Test(s)
@@ -77,6 +77,10 @@ We use `make` to run commands.
     This likewise delays the reporting of test-case failures. When troubleshooting parallel set tests, you may prefer to run specific tests you're working on serially (_as demonstrated in the example below_).
 
     When writing tests, ensure that parallel set tests still pass when run in parallel. You need to account for other tests running in parallel that may interfere with your own tests logic.
+
+!!! tip
+
+    You may use `make run-local-instance` to run a version of the image built locally to test and edit your changes in a running DMS instance.
 
 ### An Example
 
