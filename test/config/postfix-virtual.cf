@@ -3,3 +3,7 @@ alias1@localhost.localdomain user1@localhost.localdomain
     # this is also a test comment, :O
 alias2@localhost.localdomain external1@otherdomain.tld
 @localdomain2.com user1@localhost.localdomain
+
+# overlapping names
+prefixtest@otherdomain.tld user2@otherdomain.tld
+test@otherdomain.tld user2@otherdomain.tld
