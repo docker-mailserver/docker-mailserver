@@ -7,3 +7,5 @@ alias2@localhost.localdomain external1@otherdomain.tld
 # overlapping names
 prefixtest@otherdomain.tld user2@otherdomain.tld
 test@otherdomain.tld user2@otherdomain.tld
+first-name@otherdomain.tld user2@otherdomain.tld
+first.name@otherdomain.tld user2@otherdomain.tld

@@ -32,7 +32,9 @@ function teardown_file() { _default_teardown ; }
   # overlapping names
   assert_line --index 7 'prefixtest@otherdomain.tld'
   assert_line --index 8 'test@otherdomain.tld'
-  _should_output_number_of_lines 9
+  assert_line --index 9 'first-name@otherdomain.tld'
+  assert_line --index 10 'first.name@otherdomain.tld'
+  _should_output_number_of_lines 11
 
   # Relevant log output from scripts/helpers/accounts.sh:_create_dovecot_alias_dummy_accounts():
   # [  DEBUG  ]  Adding alias 'alias1@localhost.localdomain' for user 'user1@localhost.localdomain' to Dovecot's userdb
@@ -46,6 +48,10 @@ function teardown_file() { _default_teardown ; }
   assert_line --partial "Adding alias 'prefixtest@otherdomain.tld' for user 'user2@otherdomain.tld' to Dovecot's userdb"
   assert_line --partial "Adding alias 'test@otherdomain.tld' for user 'user2@otherdomain.tld' to Dovecot's userdb"
   refute_line --partial "Alias 'test@otherdomain.tld' will not be added to '/etc/dovecot/userdb' twice"
+
+  assert_line --partial "Adding alias 'first-name@otherdomain.tld' for user 'user2@otherdomain.tld' to Dovecot's userdb"
+  assert_line --partial "Adding alias 'first.name@otherdomain.tld' for user 'user2@otherdomain.tld' to Dovecot's userdb"
+  refute_line --partial "Alias 'first.name@otherdomain.tld' will not be added to '/etc/dovecot/userdb' twice"
 }
 
 @test "should have created maildir for 'user1@localhost.localdomain'" {
