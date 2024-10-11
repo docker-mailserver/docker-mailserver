@@ -135,7 +135,8 @@ function _create_dovecot_alias_dummy_accounts() {
       fi
 
       DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:${DMS_VMAIL_UID}:${DMS_VMAIL_GID}::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}/home::${REAL_ACC[2]:-}"
-      if grep -qi "^${ALIAS}:" "${DOVECOT_USERDB_FILE}"; then
+      # Match a full line with `-xF` to avoid regex patterns introducing false positives matching `ALIAS`:
+      if grep -qixF "${DOVECOT_USERDB_LINE}" "${DOVECOT_USERDB_FILE}"; then
         _log 'warn' "Alias '${ALIAS}' will not be added to '${DOVECOT_USERDB_FILE}' twice"
       else
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
