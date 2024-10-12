@@ -276,6 +276,11 @@ COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
 COPY target/logwatch/ignore.conf /etc/logwatch/conf/ignore.conf
 
 # -----------------------------------------------
+# --- Prometheus Postfix-Exporter ---------------
+# -----------------------------------------------
+
+COPY --from=stage-compile /root/go/bin/postfix_exporter /usr/local/bin/prometheus_postfix_exporter
+# -----------------------------------------------
 # --- Supervisord & Start -----------------------
 # -----------------------------------------------
 
@@ -313,7 +318,7 @@ ARG DMS_RELEASE=edge
 ARG VCS_REVISION=unknown
 
 WORKDIR /
-EXPOSE 25 587 143 465 993 110 995 4190
+EXPOSE 25 587 143 465 993 110 995 4190 9154
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
