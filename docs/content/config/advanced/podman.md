@@ -154,6 +154,7 @@ After=network-online.target
 
 [Container]
 ContainerName=dms
+HostName=example.com
 Image=docker.io/mailserver/docker-mailserver:latest 
 # DMS uses uid 5000 for mailstate, but creates other folders for different users, which will be mapped to different sub-uids
 UIDMap=5000:0:1
