@@ -166,12 +166,13 @@ PublishPort=143:143
 PublishPort=587:587
 PublishPort=993:993
 
-# Volumes
-Volume=/tank/dms/certs:/tmp/ssl
-Volume=/tank/dms/maildata:/var/mail
-Volume=/tank/dms/mailstate:/var/mail-state
-Volume=/tank/dms/maillogs:/var/log/mail
-Volume=/tank/dms/config:/tmp/docker-mailserver/
+# Volumes (Add `:Z` to avoid permission errors if your host has SELinux present)
+Volume=%h/containers/dms/mail-data:/var/mail
+Volume=%h/containers/dms/mail-state:/var/mail-state
+Volume=%h/containers/dms/mail-logs:/var/log/mail
+Volume=%h/containers/dms/config:/tmp/docker-mailserver
+Volume=%h/containers/certbot/certs:/etc/letsencrypt
+Volume=/etc/localtime:/etc/localtime:ro
 
 # If you want to use podmans auto-update service:
 AutoUpdate=registry 
