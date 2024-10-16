@@ -177,11 +177,7 @@ Volume=/tank/dms/config:/tmp/docker-mailserver/
 AutoUpdate=registry 
 
 # Environment variables
-# General Settings
-
-Environment=HOSTNAME=example
-Environment=DOMAINNAME=example.com
-Environment=CONTAINER_NAME=dockermailserver
+Environment=SSL_TYPE=letsencrypt
 ...
 ```
 Stopping the service with systemd will result in the container being removed. Restarting will use the existing container, which is however not recommended. You do not need to enable services with Quadlet.
