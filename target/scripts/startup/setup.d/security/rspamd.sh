@@ -76,8 +76,9 @@ function __rspamd__run_early_setup_and_checks() {
   mkdir -p /var/lib/rspamd/
   : >/var/lib/rspamd/stats.ucl
 
-  if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]]; then
-    cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
+  # Copy if directory exists and is not empty
+  if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]] && [[ -z $(find "${RSPAMD_DMS_OVERRIDE_D}" -maxdepth 0 -empty) ]]; then
+    cp "${RSPAMD_DMS_OVERRIDE_D}/"* "${RSPAMD_OVERRIDE_D}"
   fi
 
   if [[ ${ENABLE_AMAVIS} -eq 1 ]] || [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]]; then
@@ -319,8 +320,7 @@ function __rspamd__setup_check_authenticated() {
   local MODULE_FILE="${RSPAMD_LOCAL_D}/settings.conf"
   readonly MODULE_FILE
   if _env_var_expect_zero_or_one 'RSPAMD_CHECK_AUTHENTICATED' \
-  && [[ ${RSPAMD_CHECK_AUTHENTICATED} -eq 0 ]]
-  then
+  && [[ ${RSPAMD_CHECK_AUTHENTICATED} -eq 0 ]]; then
     __rspamd__log 'debug' 'Content checks for authenticated users are disabled'
   else
     __rspamd__log 'debug' 'Enabling content checks for authenticated users'
@@ -332,32 +332,22 @@ function __rspamd__setup_check_authenticated() {
 
 # This function performs a simple check: go through DKIM configuration files, acquire
 # all private key file locations and check whether they exist and whether they can be
-# accessed by Rspamd.
+# accessed by Rspamd. We are not checking paths that conatain the '$' symbol.
 function __rspamd__check_dkim_permissions() {
-  local DKIM_CONF_FILES DKIM_KEY_FILES
-  [[ -f ${RSPAMD_LOCAL_D}/dkim_signing.conf ]] && DKIM_CONF_FILES+=("${RSPAMD_LOCAL_D}/dkim_signing.conf")
-  [[ -f ${RSPAMD_OVERRIDE_D}/dkim_signing.conf ]] && DKIM_CONF_FILES+=("${RSPAMD_OVERRIDE_D}/dkim_signing.conf")
-
-  # Here, we populate DKIM_KEY_FILES which we later iterate over. DKIM_KEY_FILES
-  # contains all keys files configured by the user.
-  local FILE
-  for FILE in "${DKIM_CONF_FILES[@]}"; do
-    readarray -t DKIM_KEY_FILES_TMP < <(grep -o -E 'path = .*' "${FILE}" | cut -d '=' -f 2 | tr -d ' ";')
-    DKIM_KEY_FILES+=("${DKIM_KEY_FILES_TMP[@]}")
-  done
-
-  for FILE in "${DKIM_KEY_FILES[@]}"; do
-    if [[ -f ${FILE} ]]; then
-      __rspamd__log 'trace' "Checking DKIM file '${FILE}'"
+  local KEY_FILE
+  while read -r KEY_FILE; do
+    if [[ -f ${KEY_FILE} ]]; then
+      __rspamd__log 'trace' "Checking DKIM file '${KEY_FILE}'"
       # See https://serverfault.com/a/829314 for an explanation on `-exec false {} +`
       # We additionally resolve symbolic links to check the permissions of the actual files
-      if find "$(realpath -eL "${FILE}")" \( -user _rspamd -or -group _rspamd -or -perm -o=r \) -exec false {} +; then
-        __rspamd__log 'warn' "Rspamd DKIM private key file '${FILE}' does not appear to have correct permissions/ownership for Rspamd to use it"
+      if find "$(realpath -L "${KEY_FILE}")" \( -user _rspamd -or -group _rspamd -or -perm -o=r \) \
+        -exec false {} +; then
+        __rspamd__log 'warn' "Rspamd DKIM private key file '${KEY_FILE}' does not appear to have correct permissions/ownership for Rspamd to use it"
       else
-        __rspamd__log 'trace' "DKIM file '${FILE}' permissions and ownership appear correct"
+        __rspamd__log 'trace' "DKIM file '${KEY_FILE}' permissions and ownership appear correct"
       fi
     else
-      __rspamd__log 'warn' "Rspamd DKIM private key file '${FILE}' is configured for usage, but does not appear to exist"
+      __rspamd__log 'warn' "Rspamd DKIM private key file '${KEY_FILE}' is configured for usage, but does not appear to exist"
     fi
-  done
+  done < <(rspamadm configdump dkim_signing | grep 'path =' | grep -v -F '$' | awk '{print $3}' | tr -d ';"')
 }

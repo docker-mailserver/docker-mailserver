@@ -42,18 +42,23 @@ All notable changes to this project will be documented in this file. The format 
   - Add caveat for `DMS_VMAIL_UID` not being compatible with `0` / root ([#4143](https://github.com/docker-mailserver/docker-mailserver/pull/4143))
 - **Postfix:**
   - Disable Microsoft reactions to outgoing mail ([#4120](https://github.com/docker-mailserver/docker-mailserver/pull/4120))
+- bumped `jaq` version from 1.3.0 to 1.6.0 ([#4190](https://github.com/docker-mailserver/docker-mailserver/pull/4190))
+- updated Rspamd GTube settings and tests ([#4191](https://github.com/docker-mailserver/docker-mailserver/pull/4191))
 
 ### Fixes
 
 - **Dovecot:**
   - Update logwatch `ignore.conf` to exclude Xapian messages about pending documents ([#4060](https://github.com/docker-mailserver/docker-mailserver/pull/4060))
   - `dovecot-fts-xapian` plugin was updated to `1.7.13`, fixing a regression with indexing ([#4095](https://github.com/docker-mailserver/docker-mailserver/pull/4095))
+  - The Dovecot Quota support "dummy account" workaround no longer treats the alias as a regex when checking the Dovecot UserDB ([#4222](https://github.com/docker-mailserver/docker-mailserver/pull/4222))
 - **LDAP:**
   - A previous compatibility fix for OAuth2 in v13.3.1 had not applied the actual LDAP config changes. This has been corrected ([#4175](https://github.com/docker-mailserver/docker-mailserver/pull/4175))
 - **Internal:**
   - The main `mail.log` which is piped to stdout via `tail` now correctly begins from the first log line of the active container run. Previously some daemon logs and potential warnings/errors were omitted. ([#4146](https://github.com/docker-mailserver/docker-mailserver/pull/4146))
   - Fixed a regression introduced in v14 where `postfix-main.cf` appended `stderr` output into `/etc/postfix/main.cf`, causing Postfix startup to fail ([#4147](https://github.com/docker-mailserver/docker-mailserver/pull/4147))
   - Unused `shopt -s inherit_errexit` removed from `start-mailserver.sh` ([#4161](https://github.com/docker-mailserver/docker-mailserver/pull/4161))
+- **Rspamd:**
+  - DKIM private key path checking is now performed only on paths that do not contain "$" ([#4201](https://github.com/docker-mailserver/docker-mailserver/pull/4201))
 
 ### CI
 

@@ -45,8 +45,10 @@ function setup_file() {
   _wait_for_smtp_port_in_container
 
   # We will send 5 emails:
-  #   1. The first one should pass just fine
+  #   1. The first ones should pass just fine
   _send_email_with_msgid 'rspamd-test-email-pass'
+  _send_email_with_msgid 'rspamd-test-email-pass-gtube' \
+    --body 'AJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
   #   2. The second one should be rejected (Rspamd-specific GTUBE pattern for rejection)
   _send_spam --expect-rejection
   #   3. The third one should be rejected due to a virus (ClamAV EICAR pattern)
@@ -54,7 +56,7 @@ function setup_file() {
   _send_email_with_msgid 'rspamd-test-email-virus' --expect-rejection \
     --body 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
   #   4. The fourth one will receive an added header (Rspamd-specific GTUBE pattern for adding a spam header)
-  #      ref: https://rspamd.com/doc/gtube_patterns.html
+  #      ref: https://rspamd.com/doc/other/gtube_patterns.html
   _send_email_with_msgid 'rspamd-test-email-header' \
     --body "YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
   #   5. The fifth one will have its subject rewritten, but now spam header is applied.
@@ -134,11 +136,12 @@ function teardown_file() { _default_teardown ; }
 
 @test 'normal mail passes fine' {
   _service_log_should_contain_string 'rspamd' 'F (no action)'
+  _service_log_should_contain_string 'rspamd' 'S (no action)'
 
   _print_mail_log_for_msgid 'rspamd-test-email-pass'
   assert_output --partial "stored mail into mailbox 'INBOX'"
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
 }
 
 @test 'detects and rejects spam' {
@@ -153,7 +156,7 @@ function teardown_file() { _default_teardown ; }
   refute_output --partial "stored mail into mailbox 'INBOX'"
   assert_failure
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
 }
 
 @test 'detects and rejects virus' {
@@ -168,7 +171,7 @@ function teardown_file() { _default_teardown ; }
   refute_output --partial "stored mail into mailbox 'INBOX'"
   assert_failure
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
 }
 
 @test 'custom commands work correctly' {
@@ -246,7 +249,7 @@ function teardown_file() { _default_teardown ; }
   _print_mail_log_for_msgid 'rspamd-test-email-header'
   assert_output --partial "fileinto action: stored mail into mailbox [SPECIAL-USE \\Junk]"
 
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 2
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.Junk/new/ 1
 }
 

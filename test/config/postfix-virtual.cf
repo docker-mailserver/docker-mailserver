@@ -3,3 +3,13 @@ alias1@localhost.localdomain user1@localhost.localdomain
     # this is also a test comment, :O
 alias2@localhost.localdomain external1@otherdomain.tld
 @localdomain2.com user1@localhost.localdomain
+
+## Dovecot "dummy accounts" for quota support (handled in `helpers/accounts.sh`)
+# Do not filter alias by substring condition (longer prefix must be before substring alias):
+# https://github.com/docker-mailserver/docker-mailserver/issues/2639
+prefixtest@localhost.localdomain user2@otherdomain.tld
+test@localhost.localdomain user2@otherdomain.tld
+# Do not filter alias when input be treated as regex tokens (eg `.`):
+# https://github.com/docker-mailserver/docker-mailserver/issues/4170
+first-name@localhost.localdomain user2@otherdomain.tld
+first.name@localhost.localdomain user2@otherdomain.tld
