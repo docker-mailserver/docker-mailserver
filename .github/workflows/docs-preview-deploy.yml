@@ -16,14 +16,20 @@ jobs:
   preview:
     name: 'Deploy Preview'
     runs-on: ubuntu-22.04
-    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+    # Requires a PR event triggered `docs-preview-prepare.yml` workflow run that was successful + ensure the head SHA belongs to an associated PR:
+    if: |
+      ${{
+        github.event.workflow_run.conclusion == 'success'
+        && github.event.workflow_run.event == 'pull_request'
+        && contains(github.event.workflow_run.pull_requests.*.head.sha, github.event.workflow_run.head_sha)
+      }}
     steps:
 
       # ======================== #
       # Restore workflow context #
       # ======================== #
 
-      # Retrieve the artifact uploaded from `docs-preview-prepare.yml` workflow run that triggered this deployment
+      # Retrieve the build artifact uploaded from the `docs-preview-prepare.yml` workflow run (that triggered this deployment workflow):
       - name: 'Download build artifact'
         uses: actions/download-artifact@v4
         with:
@@ -34,8 +40,18 @@ jobs:
       - name: 'Extract build artifact'
         run: tar -xf artifact.tar.zst
 
-      - name: 'Restore preserved ENV'
-        run: cat pr.env >> "${GITHUB_ENV}"
+      # The `workflow_run` metadata contains an array of `pull_requests`, get the `workflow_run` equivalent of `github.event.pull_request.number`.
+      # There should only be one PR item in the array, verify that it shares the same `head_sha` (latest commit of PR).
+      - name: 'Get PR number'
+        env:
+          head_sha: ${{ github.event.workflow_run.head_sha }}
+          pull_requests: ${{ tojson(github.event.workflow_run.pull_requests) }}
+        run: |
+          PR_NUMBER=$(jq -r '[.[] | select(.head.sha == "${{ env.head_sha }}")][0].number' <<< '${{ env.pull_requests }}')
+          {
+            echo "PR_NUMBER=${PR_NUMBER}"
+            echo 'PR_HEADSHA=${{ env.head_sha }}'
+          } >> "${GITHUB_ENV}"
 
       # ==================== #
       # Deploy preview build #
@@ -61,6 +77,9 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          # Keep these two ENV in sync with the `docs-preview-prepare.yml` workflow:
+          BUILD_DIR: docs/site
+          NETLIFY_SITE_PREFIX: pullrequest-${{ env.PR_NUMBER }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # Fail the job early if credentials are missing / invalid:
@@ -71,7 +90,7 @@ jobs:
           # Only publish the contents of the build output:
           publish-dir: ${{ env.BUILD_DIR }}
           # Custom message for the deploy log on Netlify:
-          deploy-message: '${{ env.PR_TITLE }} (PR #${{ env.PR_NUMBER }} @ commit: ${{ env.PR_HEADSHA }})'
+          deploy-message: 'Preview Build (PR #${{ env.PR_NUMBER }} @ commit: ${{ env.PR_HEADSHA }})'
 
           # Note: Split workflow incorrectly references latest primary branch commit for deployment.
           # Assign to non-default Deployment Environment for better management:
