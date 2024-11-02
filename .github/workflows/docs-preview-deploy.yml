@@ -17,9 +17,10 @@ jobs:
     name: 'Deploy Preview'
     runs-on: ubuntu-22.04
     # Requires a PR event triggered `docs-preview-prepare.yml` workflow run that was successful + ensure the head SHA belongs to an associated PR:
-    if: github.event.workflow_run.conclusion == 'success'
-        && github.event.workflow_run.event == 'pull_request'
-        && contains(github.event.workflow_run.pull_requests.*.head.sha, github.event.workflow_run.head_sha)
+    if: >-
+      github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.event == 'pull_request'
+      && contains(github.event.workflow_run.pull_requests.*.head.sha, github.event.workflow_run.head_sha)
     steps:
 
       # ======================== #
