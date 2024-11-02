@@ -17,7 +17,7 @@ jobs:
     name: 'Deploy Preview'
     runs-on: ubuntu-22.04
     # Requires a PR event triggered `docs-preview-prepare.yml` workflow run that was successful + ensure the head SHA belongs to an associated PR:
-    if: |
+    if: >
       ${{
         github.event.workflow_run.conclusion == 'success'
         && github.event.workflow_run.event == 'pull_request'
@@ -47,10 +47,10 @@ jobs:
           head_sha: ${{ github.event.workflow_run.head_sha }}
           pull_requests: ${{ tojson(github.event.workflow_run.pull_requests) }}
         run: |
-          PR_NUMBER=$(jq -r '[.[] | select(.head.sha == "${{ env.head_sha }}")][0].number' <<< '${{ env.pull_requests }}')
+          PR_NUMBER=$(jq -r '[.[] | select(.head.sha == "${head_sha}")][0].number' <<< '${pull_requests}')
           {
             echo "PR_NUMBER=${PR_NUMBER}"
-            echo 'PR_HEADSHA=${{ env.head_sha }}'
+            echo 'PR_HEADSHA=${head_sha}'
           } >> "${GITHUB_ENV}"
 
       # ==================== #
