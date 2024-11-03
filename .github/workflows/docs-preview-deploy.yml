@@ -45,10 +45,10 @@ jobs:
           head_sha: ${{ github.event.workflow_run.head_sha }}
           pull_requests: ${{ tojson(github.event.workflow_run.pull_requests) }}
         run: |
-          PR_NUMBER=$(jq -r '[.[] | select(.head.sha == "${head_sha}")][0].number' <<< '${pull_requests}')
+          PR_NUMBER=$(jq -r '[.[] | select(.head.sha == "${head_sha}")][0].number' <<< "${pull_requests}")
           {
             echo "PR_NUMBER=${PR_NUMBER}"
-            echo 'PR_HEADSHA=${head_sha}'
+            echo "PR_HEADSHA=${head_sha}"
           } >> "${GITHUB_ENV}"
 
       # ==================== #
