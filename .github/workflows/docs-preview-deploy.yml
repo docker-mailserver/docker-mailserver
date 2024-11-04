@@ -17,12 +17,12 @@ jobs:
     name: 'Deploy Preview'
     runs-on: ubuntu-22.04
     # Requires a PR event triggered `docs-preview-prepare.yml` workflow run that was successful + ensure the head SHA belongs to an associated PR:
+    # NOTE: A multi-line `if` GHA expression must avoid wrapping with `${{ }}`, otherwise it is unintentionally parsed as a string:
+    # https://github.com/nikitastupin/pwnhub/blob/main/writings/if-condition.md
     if: |
-      ${{
-        github.event.workflow_run.conclusion == 'success'
-        && github.event.workflow_run.event == 'pull_request'
-        && contains(github.event.workflow_run.pull_requests.*.head.sha, github.event.workflow_run.head_sha)
-      }}
+      github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.event == 'pull_request'
+      && contains(github.event.workflow_run.pull_requests.*.head.sha, github.event.workflow_run.head_sha)
     steps:
 
       # ======================== #
@@ -42,12 +42,14 @@ jobs:
 
       # The `workflow_run` metadata contains an array of `pull_requests`, get the `workflow_run` equivalent of `github.event.pull_request.number`.
       # There should only be one PR item in the array, verify that it shares the same `head_sha` (latest commit of PR).
+      # NOTE: Careful when using GHA context expressions that may have untrusted input here. The expressions are evaluated before the script content itself is run:
+      # https://github.com/docker-mailserver/docker-mailserver/pull/4247#discussion_r1827067475
       - name: 'Get PR number'
         env:
           head_sha: ${{ github.event.workflow_run.head_sha }}
           pull_requests: ${{ tojson(github.event.workflow_run.pull_requests) }}
         run: |
-          PR_NUMBER=$(jq -r '[.[] | select(.head.sha == "${{ env.head_sha }}")][0].number' <<< '${{ env.pull_requests }}')
+          PR_NUMBER=$(jq -r '[.[] | select(.head.sha == "${{ env.head_sha }}")][0].number' <<< "${pull_requests}")
           {
             echo "PR_NUMBER=${PR_NUMBER}"
             echo 'PR_HEADSHA=${{ env.head_sha }}'
