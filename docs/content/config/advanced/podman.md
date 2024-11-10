@@ -19,7 +19,7 @@ Podman is a daemonless container engine for developing, managing, and running OC
     Running podman in rootless mode requires additional modifications in order to keep your mailserver secure.
     Make sure to read the related documentation.
 
-## Installation in Rootfull Mode
+## Installation in Rootful Mode
 
 While using Podman, you can just manage docker-mailserver as what you did with Docker. Your best friend `setup.sh` includes the minimum code in order to support Podman since it's 100% compatible with the Docker CLI.
 
@@ -45,7 +45,7 @@ docker compose ps
 
 You should see that docker-mailserver is running now.
 
-### Self-start in Rootfull Mode
+### Self-start in Rootful Mode
 
 Podman is daemonless, that means if you want docker-mailserver self-start while boot up the system, you have to generate a systemd file with Podman CLI.
 
@@ -57,7 +57,7 @@ systemctl enable --now mailserver.service
 
 ## Installation in Rootless Mode
 
-Running rootless containers is one of Podman's major features. But due to some restrictions, deploying docker-mailserver in rootless mode is not as easy compared to rootfull mode.
+Running [rootless containers][podman-docs::rootless-mode] is one of Podman's major features. But due to some restrictions, deploying docker-mailserver in rootless mode is not as easy compared to rootful mode.
 
 - a rootless container is running in a user namespace so you cannot bind ports lower than 1024
 - a rootless container's systemd file can only be placed in folder under `~/.config`
@@ -67,7 +67,7 @@ Also notice that Podman's rootless mode is not about running as a non-root user 
 
 !!! warning
 
-    In order to make rootless DMS work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootfull mode and Docker are still good and security enough for normal daily usage.
+    In order to make rootless DMS work we must modify some settings in the Linux system, it requires some basic linux server knowledge so don't follow this guide if you not sure what this guide is talking about. Podman rootful mode and Docker are still good and security enough for normal daily usage.
 
 First, enable `podman.socket` in systemd's userspace with a non-root user.
 
@@ -100,37 +100,25 @@ docker compose ps
 
 !!! warning "`podman generate systemd` is deprecated"
 
-    [`podman generate systemd`][podman-docs::cli::generate-systemd] has been deprecated in favor of Quadlets (_since Podman v4.4_).
+    The [`podman generate systemd`][podman-docs::cli::generate-systemd] command has been deprecated [since Podman v4.7][gh::podman::release-4.7] (Sep 2023) in favor of Quadlets (_available [since Podman v4.4][gh::podman::release-4.4]_).
 
 !!! info "What is a Quadlet?"
 
-    A [Quadlet][podman::quadlet::introduction] file uses the [systemd config format](https://www.freedesktop.org/software/systemd/man/latest/systemd.syntax.html) which is similar to the INI format.
+    A [Quadlet][podman::quadlet::introduction] file uses the [systemd config format][systemd-docs::config-syntax] which is similar to the INI format.
 
     [Quadlets define your podman configuration][podman-docs::quadlet::example-configs] (_pods, volumes, networks, images, etc_) which are [adapted into the equivalent systemd service config files][podman::quadlet::generated-output-example] at [boot or when reloading the systemd daemon][podman-docs::config::quadlet-generation] (`systemctl daemon-reload` / `systemctl --user daemon-reload`).
-
-[podman-docs::cli::generate-systemd]: https://docs.podman.io/en/latest/markdown/podman-generate-systemd.1.html
-[podman-docs::quadlet::example-configs]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#examples
-[podman-docs::config::quadlet-generation]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#description
-[podman::quadlet::introduction]: https://mo8it.com/blog/quadlet/
-[podman::quadlet::generated-output-example]: https://blog.while-true-do.io/podman-quadlets/#writing-quadlets
 
 !!! tip "Rootless compatibility"
 
     Quadlets can [support rootless with a few differences][podman::rootless-differences]:
 
     - `Network=pasta` configures [`pasta`][network-driver::pasta] as a rootless compatible network driver (_a popular alternative to `slirp4netns`. `pasta` is the default for rootless since Podman v5_).
-    - `Restart=always` will auto-start your Quadlet at login, rootless support requires to enable [lingering][systemd-docs::loginctl::linger] for your user:
+    - `Restart=always` will auto-start your Quadlet at login. Rootless support requires to enable [lingering][systemd-docs::loginctl::linger] for your user:
 
         ```bash
         loginctl enable-linger user
         ```
     - [Config locations between rootful vs rootless][podman-docs::quadlet::config-search-path].
-
-[podman::rootless-differences]: https://matduggan.com/replace-compose-with-quadlet/#rootless
-[network-driver::pasta]: https://passt.top/passt/about/#pasta
-[systemd-docs::loginctl::linger]: https://www.freedesktop.org/software/systemd/man/latest/loginctl.html#enable-linger%20USER%E2%80%A6
-[podman-docs::quadlet::config-search-path]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podman-rootful-unit-search-path
-
 
 #### Example Quadlet file
 
@@ -203,10 +191,11 @@ In rootless mode, podman resolves all incoming IPs as localhost, which results i
 
 The `PERMIT_DOCKER` variable in the `mailserver.env` file allows to specify trusted networks that do not need to authenticate. If the variable is left empty, only requests from localhost and the container IP are allowed, but in the case of rootless podman any IP will be resolved as localhost. Setting `PERMIT_DOCKER=none` enforces authentication also from localhost, which prevents sending unauthenticated emails.
 
-#### Use the pasta network driver
+#### Use the `pasta` network driver
+
 As of podman 5.0 pasta is the default network driver of rootless containers. This will have the same functionality and caveats as the `slirp4netns` driver. You do not need to set an interface name.
 
-#### Use the slip4netns network driver
+#### Use the `slip4netns` network driver
 
 The second workaround is slightly more complicated because the `compose.yaml` has to be modified.
 As shown in the [fail2ban section][docs::fail2ban::rootless] the `slirp4netns` network driver has to be enabled.
@@ -274,6 +263,23 @@ firewall-cmd --reload
 Just map all the privilege port with non-privilege port you set in compose.yaml before as root user.
 
 [docs::fail2ban::rootless]: ../security/fail2ban.md#rootless-container
+
 [rootless::podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
 [rootless::podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264
+[network-driver::pasta]: https://passt.top/passt/about/#pasta
+[gh::podman::release-4.4]: https://github.com/containers/podman/releases/tag/v4.4.0
+[gh::podman::release-4.7]: https://github.com/containers/podman/releases/tag/v4.7.0
 [firewalld-port-forwarding]: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/securing_networks/using-and-configuring-firewalld_securing-networks#port-forwarding_using-and-configuring-firewalld
+
+[podman::quadlet::introduction]: https://mo8it.com/blog/quadlet/
+[podman::quadlet::generated-output-example]: https://blog.while-true-do.io/podman-quadlets/#writing-quadlets
+[podman::rootless-differences]: https://matduggan.com/replace-compose-with-quadlet/#rootless
+
+[podman-docs::rootless-mode]: https://docs.podman.io/en/stable/markdown/podman.1.html#rootless-mode
+[podman-docs::cli::generate-systemd]: https://docs.podman.io/en/latest/markdown/podman-generate-systemd.1.html
+[podman-docs::quadlet::example-configs]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#examples
+[podman-docs::config::quadlet-generation]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#description
+[podman-docs::quadlet::config-search-path]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podman-rootful-unit-search-path
+
+[systemd-docs::config-syntax]: https://www.freedesktop.org/software/systemd/man/latest/systemd.syntax.html
+[systemd-docs::loginctl::linger]: https://www.freedesktop.org/software/systemd/man/latest/loginctl.html#enable-linger%20USER%E2%80%A6
