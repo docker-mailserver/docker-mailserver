@@ -149,15 +149,14 @@ ContainerName=%N
 HostName=mail.example.com
 Image=docker.io/mailserver/docker-mailserver:latest
 
-# DMS uses uid 5000 for mailstate, but creates other folders for different users, which will be mapped to different sub-uids
-UIDMap=5000:0:1
-UIDMap=0:1:5000
-UIDMap=5001:5001:60536
-
 PublishPort=25:25
 PublishPort=143:143
 PublishPort=587:587
 PublishPort=993:993
+
+# The container UID for root will be mapped to the host UID running this Quadlet service.
+# All other UIDs in the container are mapped via the sub-id range for that user from host configs `/etc/subuid` + `/etc/subgid`.
+UIDMap=+0:@%U
 
 # Volumes (Base location example: `%h/volumes/%N` => `~/volumes/dms`)
 # NOTE: If your host has SELinux enabled, avoid permission errors by appending the mount option `:Z`.
@@ -188,6 +187,20 @@ Environment=SSL_TYPE=letsencrypt
 #Environment=NETWORK_INTERFACE=tap0
 ```
 
+!!! info "Systemd specifiers"
+
+    Systemd has a [variety of specifiers][systemd-docs::config-specifiers] (_prefixed with `%`_) that help manage configs.
+    
+    Here are the ones used from the above example:
+
+    - ***`%h`:** Location of the users home directory. Use this instead of `~` (_which would only work in a shell, not this config_).
+    - **`%N`:** Represents the unit service name, which is taken from the filename excluding the extension (_thus `dms.container` => `dms`_).
+    - **`%U`:** The UID of the user running this service. The next section details the relevance with `UIDMap`.
+
+    ---
+
+    If you prefer the conventional XDG locations, you may prefer `%D` + `%E` + `%S` as part of your `Volume` host paths.
+
 Stopping the service with systemd will result in the container being removed. Restarting will use the existing container, which is however not recommended. You do not need to enable services with Quadlet.
 
 Start container:
@@ -201,6 +214,62 @@ Stop container:
 Using root with machinectl (used for some Ansible versions):
 
 `machinectl -q shell yourrootlessuser@ /bin/systemctl --user start dockermailserver`
+
+#### Mapping ownership between container and host users
+
+Podman supports a few different approaches for this functionality. For rootless Quadlets you will likely want to use `UIDMap` (_`GIDMap` will use this same mapping by default_).
+
+- `UIDMap` + `GIDMap` works by mapping user and group IDs from a container, to IDs associated for a user on the host [configured in `/etc/subuid` + `/etc/subgid`][podman-docs::rootless-mode] (_this isn't necessary for rootful Podman_).
+- Each mapping must be unique, thus only a single container UID can map to your rootless UID on the host. Every other container UID mapped must be within the configured range from `/etc/subuid`.
+- Rootless containers have one additional level of mapping involved. This is an offset from their `/etc/subuid` entry starting from `0`, but can be inferred when the intended UID on the host is prefixed with `@`
+
+!!! example 
+
+    The most common case is to map the containers root user (UID `0`) to your host user ID.
+
+    For a rootless user with the UID `1000` on the host, any of the following `UIDMap` values are equivalent:
+
+    - **`UIDMap=+0:0`:** The 1st `0` is the container root ID and the 2nd `0` refers to host mapping ID. For rootless the mapping ID is an indirect offset to their user entry in `/etc/subuid` where `0` maps to their host user ID.
+    - **`UIDMap=+0:@1000`:** A rootless Quadlet can also use `@` as a prefix which tells Podman to infer the mapping ID from `/etc/subuid`.
+    - **`UIDMap=+0:@%U`:** Instead of providing the explicit rootless UID, a better approach is to leverage `%U` (_a [systemd specifier][systemd-docs::config-specifiers]_) which will resolve to the UID of your rootless user that starts the Quadlet service.
+
+??? tip "What is the `+` syntax?"
+
+    Prefixing the container ID with `+` is a a podman feature similar to `@`, which ensures `/etc/subuid` is mapped fully.
+
+    For example `UIDMap=+5000:@%U` is the short-hand equivalent to:
+
+    ```ini
+    UIDMap=5000:0:1
+    UIDMap=0:1:5000
+    UIDMap=5001:5001:60536
+    ```
+
+    The third value is the amount of IDs to map from the `container:host` pair as an offset/range. It defaults to `1`.
+
+    In addition to our explicit `5000:0` mapping, the `+` ensures:
+
+    - That we have a mapping of all container ID prior to `5000` to IDs from our rootless user entry in `/etc/subuid` on the host.
+    - It also adds a mapping after this value for the remainder of the range configured in `/etc/subuid` which covers the `nobody` user in the container.
+
+    Within the container you can view these mappings via `cat /proc/self/uid_map`.
+
+??? warning "Rootless image disk usage"
+
+    **NOTE:** This should not usually be a concern. It has been documented to explain the impact of creating new user namespaces (_such as by tweaking settings like `UIDMap` multiple times_).
+
+    ---
+
+    Rootless containers [perform a copy of the image with `chown`][caveat::podman::rootless::image-chown] during the first pull/run of the image.
+
+    - The larger the image to copy, the longer the initial delay on first use.
+    - This process will be repeated if the `UIDMap` / `GIDMap` settings are changed to a value that has not been used previously (_accumulating more disk usage with additional image copies_).
+    - Only when the original image is removed will any of these associated `chown` image copies be purged from storage.
+
+    When you specify a `UIDMap` like shown in the prior tip for the `+` syntax with `UIDMap=+0:5000`, if the `/proc/self/uid_map` shows a row with the first two columns as equivalent then no excess `chown` should be applied.
+
+    - `UIDMap=+0:@%U` is equivalent from ID 2 onwards.
+    - `UIDMap=+5000:@%U` is equivalent from ID 5001 onwards. This is relevant with DMS as the container UID 200 is assigned to ClamAV, the offset introduced will now incur a `chown` copy of 230MB.
 
 ### Security in Rootless Mode
 
@@ -311,5 +380,8 @@ Just map all the privilege port with non-privilege port you set in compose.yaml 
 [podman-docs::quadlet::config-search-path]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html#podman-rootful-unit-search-path
 
 [systemd-docs::config-syntax]: https://www.freedesktop.org/software/systemd/man/latest/systemd.syntax.html
+[systemd-docs::config-specifiers]: https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html#Specifiers
 [systemd-docs::loginctl::linger]: https://www.freedesktop.org/software/systemd/man/latest/loginctl.html#enable-linger%20USER%E2%80%A6
 [systemd-docs::systemctl::daemon-reload]: https://www.freedesktop.org/software/systemd/man/latest/systemctl.html#daemon-reload
+
+[caveat::podman::rootless::image-chown]: https://github.com/containers/podman/issues/16541#issuecomment-1352790422
