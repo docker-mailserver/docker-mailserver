@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Breaking
 
+- **saslauthd** mechanism support via ENV `SASLAUTHD_MECHANISMS` with `pam`, `shadow`, `mysql` values has been removed. Only `ldap` and `rimap` remain supported.
 - **getmail6** has been refactored: ([#4156](https://github.com/docker-mailserver/docker-mailserver/pull/4156))
   - The [DMS config volume](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/optional-config/#volumes) now has support for `getmailrc_general.cf` for overriding [common default settings](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-getmail/#common-options). If you previously mounted this config file directly to `/etc/getmailrc_general` you should switch to our config volume support.
   - IMAP/POP3 example configs added to our [`config-examples`](https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/config-examples/getmail).
