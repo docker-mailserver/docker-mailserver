@@ -29,7 +29,7 @@ to the respective IP-address on the server you want to use.
 
     === "Contributed solution"
 
-        ```title="postfix-main.cf"
+        ``` title="postfix-main.cf"
         smtp_bind_address = 198.51.100.42
         smtp_bind_address6 = 2001:DB8::42
         ```
@@ -40,7 +40,7 @@ to the respective IP-address on the server you want to use.
 
             A `postfix-master.cf` override can workaround that issue by ensuring `smtp-amavis` binds to the expected internal IP:
 
-            ```title="postfix-master.cf"
+            ``` title="postfix-master.cf"
             smtp-amavis/unix/smtp_bind_address=127.0.0.1
             smtp-amavis/unix/smtp_bind_address6=::1
             ```
@@ -49,7 +49,7 @@ to the respective IP-address on the server you want to use.
 
         A potentially better solution might be to instead [explicitly set the `smtp_bind_address` override on the `smtp` transport service][gh-pr::3465::alternative-solution]:
 
-        ```title="postfix-master.cf"
+        ``` title="postfix-master.cf"
         smtp/inet/smtp_bind_address = 198.51.100.42
         smtp/inet/smtp_bind_address6 = 2001:DB8::42
         ```
