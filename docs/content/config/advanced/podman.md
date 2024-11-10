@@ -133,12 +133,19 @@ Documentation=https://docker-mailserver.github.io/docker-mailserver/latest
 
 [Service]
 Restart=always
+# Optional - This will run before the container starts:
+# - It ensures all the DMS volumes have the host directories created for you.
+# - For `mkdir` command to leverage the shell brace expansion syntax, you need to run it via bash.
+ExecStartPre=/usr/bin/bash -c 'mkdir -p %h/volumes/%N/{mail-data,mail-state,mail-logs,config}'
 
+# This section enables the service at generation, avoids requiring `systemctl --user enable dms`:
+# - `multi-user.target` => root
+# - `default.target` => rootless
 [Install]
 WantedBy=default.target
 
 [Container]
-ContainerName=dms
+ContainerName=%N
 HostName=mail.example.com
 Image=docker.io/mailserver/docker-mailserver:latest
 
@@ -152,19 +159,33 @@ PublishPort=143:143
 PublishPort=587:587
 PublishPort=993:993
 
-# Volumes (Add `:Z` to avoid permission errors if your host has SELinux present)
-Volume=%h/containers/dms/mail-data:/var/mail
-Volume=%h/containers/dms/mail-state:/var/mail-state
-Volume=%h/containers/dms/mail-logs:/var/log/mail
-Volume=%h/containers/dms/config:/tmp/docker-mailserver
-Volume=%h/containers/certbot/certs:/etc/letsencrypt
-Volume=/etc/localtime:/etc/localtime:ro
+# Volumes (Base location example: `%h/volumes/%N` => `~/volumes/dms`)
+# NOTE: If your host has SELinux enabled, avoid permission errors by appending the mount option `:Z`.
+Volume=%h/volumes/%N/mail-data:/var/mail
+Volume=%h/volumes/%N/mail-state:/var/mail-state
+Volume=%h/volumes/%N/mail-logs:/var/log/mail
+Volume=%h/volumes/%N/config:/tmp/docker-mailserver
+# Optional - Additional mounts:
+# NOTE: For SELinux, when using the `z` or `Z` mount options:
+#   Take caution if choosing a host location not belonging to your user. Consider using `SecurityLabelDisable=true` instead.
+#   https://docs.podman.io/en/latest/markdown/podman-run.1.html#volume-v-source-volume-host-dir-container-dir-options
+Volume=%h/volumes/certbot/certs:/etc/letsencrypt:ro
 
-# If you want to use podmans auto-update service:
-AutoUpdate=registry 
+# Podman can create a timer (defaults to daily at midnight) to check the `registry` or `local` storage for detecting if the
+# image tag points to a new digest, if so it updates the image and restarts the service (similar to `containrrr/watchtower`):
+# https://docs.podman.io/en/latest/markdown/podman-auto-update.1.html
+AutoUpdate=registry
 
-# Environment variables
+# Podman Quadlet has a better alternative instead of a volume directly bind mounting `/etc/localtime` to match the host TZ:
+# https://docs.podman.io/en/latest/markdown/podman-run.1.html#tz-timezone
+# NOTE: Should the host modify the system TZ, neither approach will sync the change to the `/etc/localtime` inside the running container.
+Timezone=local
+
 Environment=SSL_TYPE=letsencrypt
+# NOTE: You may need to adjust the default `NETWORK_INTERFACE`:
+# https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#network_interface
+#Environment=NETWORK_INTERFACE=enp1s0
+#Environment=NETWORK_INTERFACE=tap0
 ```
 
 Stopping the service with systemd will result in the container being removed. Restarting will use the existing container, which is however not recommended. You do not need to enable services with Quadlet.
