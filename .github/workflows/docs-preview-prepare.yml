@@ -54,23 +54,8 @@ jobs:
       # ============================== #
 
       # Minimize risk of upload failure by bundling files to a single compressed archive (tar + zstd).
-      # Bundles build dir and env file into a compressed archive, nested file paths will be preserved.
       - name: 'Prepare artifact for transfer'
-        env:
-          # As a precaution, reference this value by an interpolated ENV var;
-          # instead of interpolating user controllable input directly in the shell script..
-          # https://github.com/docker-mailserver/docker-mailserver/issues/2332#issuecomment-998326798
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          # Save ENV for transfer
-          {
-            echo "PR_HEADSHA=${{ github.event.pull_request.head.sha }}"
-            echo "PR_NUMBER=${{ github.event.pull_request.number }}"
-            echo "PR_TITLE=${PR_TITLE}"
-            echo "NETLIFY_SITE_PREFIX=${{ env.NETLIFY_SITE_PREFIX }}"
-            echo "BUILD_DIR=${{ env.BUILD_DIR }}"
-          } >> pr.env
-          tar --zstd -cf artifact.tar.zst pr.env ${{ env.BUILD_DIR }}
+        run: tar --zstd -cf artifact.tar.zst ${{ env.BUILD_DIR }}
 
       - name: 'Upload artifact for workflow transfer'
         uses: actions/upload-artifact@v4
