@@ -122,33 +122,31 @@ docker compose ps
 
 #### Example Quadlet file
 
-We have to use the .container extension for the quadlet generator to pick up the service.
-Because docker-mailserver uses multiple users inside the container, we will either have to use our own user as root, resulting in our e-mails being owned by a subuid. Alternatively, using UIDMap we can map our rootless user to UID 5000 in the container who owns our e-mails. Using UIDMap also maps root user 0 inside the container to an available sub-uid of our rootless user. Otherwise the container will not have permission to configure itself.
+1. Create your DMS Quadlet at `~/.config/containers/systemd/dms.container` with the example content shown below.
+2. Run [`systemctl --user daemon-reload`][systemd-docs::systemctl::daemon-reload], which will trigger the Quadlet service generator (_required whenever you adjust config in `dms.container`_).
+3. You should now be able to start the service with `systemctl --user start dms`.
 
-The example uses `Network=pasta` to use the pasta network driver, which will replace `slirp4netns`.
+```ini title="dms.container"
+[Unit]
+Description="Docker Mail Server"
+Documentation=https://docker-mailserver.github.io/docker-mailserver/latest
 
-`dockermailservice.container`
-
-```
 [Service]
 Restart=always
 
 [Install]
 WantedBy=default.target
 
-[Unit]
-Wants=network-online.target 
-After=network-online.target
-
 [Container]
 ContainerName=dms
-HostName=example.com
-Image=docker.io/mailserver/docker-mailserver:latest 
+HostName=mail.example.com
+Image=docker.io/mailserver/docker-mailserver:latest
+
 # DMS uses uid 5000 for mailstate, but creates other folders for different users, which will be mapped to different sub-uids
 UIDMap=5000:0:1
 UIDMap=0:1:5000
 UIDMap=5001:5001:60536
-Network=pasta
+
 PublishPort=25:25
 PublishPort=143:143
 PublishPort=587:587
@@ -167,8 +165,8 @@ AutoUpdate=registry
 
 # Environment variables
 Environment=SSL_TYPE=letsencrypt
-...
 ```
+
 Stopping the service with systemd will result in the container being removed. Restarting will use the existing container, which is however not recommended. You do not need to enable services with Quadlet.
 
 Start container:
@@ -193,7 +191,15 @@ The `PERMIT_DOCKER` variable in the `mailserver.env` file allows to specify trus
 
 #### Use the `pasta` network driver
 
-As of podman 5.0 pasta is the default network driver of rootless containers. This will have the same functionality and caveats as the `slirp4netns` driver. You do not need to set an interface name.
+Since [Podman 5.0][gh::podman::release-5.0] the default rootless network driver is now `pasta` instead of `slirp4netns`. These two drivers [have some differences][rhel-docs::podman::slirp4netns-vs-pasta]:
+
+> Notable differences of `pasta` network mode compared to `slirp4netns` include:
+> 
+> - `pasta` supports IPv6 port forwarding.
+> - `pasta` is more efficient than `slirp4netns`.
+> - `pasta` copies IP addresses from the host, while `slirp4netns` uses a predefined IPv4 address.
+> - `pasta` uses an interface name from the host, while `slirp4netns` uses `tap0` as an interface name.
+> - `pasta` uses the gateway address from the host, while `slirp4netns` defines its own gateway address and uses NAT.
 
 #### Use the `slip4netns` network driver
 
@@ -269,6 +275,8 @@ Just map all the privilege port with non-privilege port you set in compose.yaml 
 [network-driver::pasta]: https://passt.top/passt/about/#pasta
 [gh::podman::release-4.4]: https://github.com/containers/podman/releases/tag/v4.4.0
 [gh::podman::release-4.7]: https://github.com/containers/podman/releases/tag/v4.7.0
+[gh::podman::release-5.0]: https://github.com/containers/podman/releases/tag/v5.0.0
+[rhel-docs::podman::slirp4netns-vs-pasta]: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/building_running_and_managing_containers/assembly_communicating-among-containers_building-running-and-managing-containers#differences-between-slirp4netns-and-pasta_assembly_communicating-among-containers
 [firewalld-port-forwarding]: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/securing_networks/using-and-configuring-firewalld_securing-networks#port-forwarding_using-and-configuring-firewalld
 
 [podman::quadlet::introduction]: https://mo8it.com/blog/quadlet/
@@ -283,3 +291,4 @@ Just map all the privilege port with non-privilege port you set in compose.yaml 
 
 [systemd-docs::config-syntax]: https://www.freedesktop.org/software/systemd/man/latest/systemd.syntax.html
 [systemd-docs::loginctl::linger]: https://www.freedesktop.org/software/systemd/man/latest/loginctl.html#enable-linger%20USER%E2%80%A6
+[systemd-docs::systemctl::daemon-reload]: https://www.freedesktop.org/software/systemd/man/latest/systemctl.html#daemon-reload
