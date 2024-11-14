@@ -82,7 +82,7 @@ jobs:
       # ==================== #
 
       # Manage workflow deployment status (Part 1/2):
-      # NOTE: 
+      # NOTE:
       # - `workflow_run` trigger does not appear on the PR/commit checks status, only the initial prepare workflow triggered.
       #   This adds our own status check for this 2nd half of the workflow starting as `pending`, followed by `success` / `failure` at the end.
       # - `enable-commit-status` from `nwtgck/actions-netlify` would have handled this,
