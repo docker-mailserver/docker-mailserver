@@ -11,6 +11,9 @@ on:
 env:
   # Build output directory (created by the mkdocs-material container, keep this in sync with `build-docs.sh`):
   BUILD_DIR: ${{ fromJSON( inputs.preview-context ).build_dir }}
+  # These two ensure git checkout of PR branch:
+  PR_REF:  ${{ fromJSON( inputs.preview-context ).pull_request.head_sha  }}
+  PR_REPO: ${{ fromJSON( inputs.preview-context ).pull_request.head_repo }}
   # These two are only needed to construct `PREVIEW_URL`:
   PREVIEW_SITE_NAME:   ${{ fromJSON( inputs.preview-context ).netlify.site_name     }}
   PREVIEW_SITE_PREFIX: ${{ fromJSON( inputs.preview-context ).netlify.deploy_prefix }}
@@ -25,6 +28,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          # As `on: pull_request_target` runs this workflow from the default branch of our repo,
+          # Adjust to checkout the correct PR branch (including repo to support PRs from forks):
+          ref: ${{ env.PR_REF }}
+          repository: ${{ env.PR_REPO }}
+          # Prevent `secrets.GITHUB_TOKEN` from being stored in a `.git/config` file, which could otherwise
+          # be compromised when executing untrusted code from a PR (as is done in the build step below).
+          persist-credentials: false
 
       # ================== #
       # Build docs preview #
