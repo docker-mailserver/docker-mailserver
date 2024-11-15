@@ -1,99 +1,44 @@
-name: 'Documentation (run)'
+name: 'Docs Preview (Deploy)'
 
 on:
-  # This workflow runs off the primary branch which provides access to the `secrets` context:
-  workflow_run:
-    workflows: ['Documentation (PR)']
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      preview-context:
+        description: 'Preview Metadata (JSON)'
+        required: true
+        type: string
+    secrets:
+      NETLIFY_AUTH_TOKEN:
+        required: true
+      NETLIFY_SITE_ID:
+        required: true
+
+env:
+  BUILD_DIR:  ${{ fromJSON( inputs.preview-context ).build_dir }}
+  # PR head SHA (latest commit):
+  PR_HEADSHA: ${{ fromJSON( inputs.preview-context ).pull_request.head_sha }}
+  PR_NUMBER:  ${{ fromJSON( inputs.preview-context ).pull_request.number }}
+  # Deploy URL preview prefix (the site name for the prefix is managed at Netlify):
+  PREVIEW_SITE_PREFIX: ${{ fromJSON( inputs.preview-context ).netlify.deploy_prefix }}
 
 permissions:
-  # Required by `actions/download-artifact`:
-  actions: read
   # Required by `marocchino/sticky-pull-request-comment`:
   pull-requests: write
-  # Required by `myrotvorets/set-commit-status-action`:
-  statuses: write
 
 jobs:
-  # This could have been another step in the `deploy-preview` job and used `GITHUB_ENV` instead of `GITHUB_OUTPUT`.
-  # It was split out into a separate job for a cleaner overview of `deploy-preview` ENV inputs and to minimize noise
-  # from that job related to this workaround (_that is incompatible with PRs from forks_).
-  pr-context:
-    name: 'Restore PR Context'
-    runs-on: ubuntu-24.04
-    outputs:
-      PR_HEADSHA: ${{ steps.set-pr-context.outputs.PR_HEADSHA }}
-      PR_NUMBER:  ${{ steps.set-pr-context.outputs.PR_NUMBER  }}
-    # Requires a PR event triggered `docs-preview-prepare.yml` workflow run that was successful + ensure the head SHA belongs to an associated PR:
-    # NOTE:
-    # - The `contains` condition checks for event context that is not available when the PR is from a fork. An alternative method would be needed:
-    #   https://stackoverflow.com/questions/59077079/how-to-get-pull-request-number-within-github-actions-workflow/79017997#79017997
-    # - A multi-line `if` GHA expression must avoid wrapping with `${{ }}`, otherwise it is unintentionally parsed as a string:
-    #   https://github.com/nikitastupin/pwnhub/blob/main/writings/if-condition.md
-    if: |
-      github.event.workflow_run.conclusion == 'success'
-      && github.event.workflow_run.event == 'pull_request'
-      && contains(github.event.workflow_run.pull_requests.*.head.sha, github.event.workflow_run.head_sha)
-    steps:
-      # NOTE:
-      # - The `workflow_run` metadata contains an array of `pull_requests`:
-      #   1. Take the `workflow_run` equivalent of `github.event.pull_request.number`.
-      #   2. There should only be one PR item in the array, verify that it shares the same `head_sha` (latest commit of PR).
-      # - Careful when using GHA context expressions that may have untrusted input here. The expressions are evaluated before the script content itself is run:
-      #   https://github.com/docker-mailserver/docker-mailserver/pull/4247#discussion_r1827067475
-      - name: 'Get PR number'
-        id: set-pr-context
-        env:
-          head_sha: ${{ github.event.workflow_run.head_sha }}
-          pull_requests: ${{ tojson(github.event.workflow_run.pull_requests) }}
-        run: |
-          PR_NUMBER=$(jq -r '[.[] | select(.head.sha == "${{ env.head_sha }}")][0].number' <<< "${pull_requests}")
-          {
-            echo 'PR_HEADSHA=${{ env.head_sha }}'
-            echo "PR_NUMBER=${PR_NUMBER}"
-          } >> "${GITHUB_OUTPUT}"
-
   deploy-preview:
     name: 'Deploy Preview'
     runs-on: ubuntu-24.04
-    needs: [pr-context]
-    env:
-      # NOTE: Keep this in sync with the equivalent ENV in `docs-preview-prepare.yml`:
-      BUILD_DIR: docs/site/
-      # PR head SHA (latest commit):
-      PR_HEADSHA: ${{ needs.pr-context.outputs.PR_HEADSHA }}
-      PR_NUMBER:  ${{ needs.pr-context.outputs.PR_NUMBER  }}
-      # Deploy URL preview prefix (the site name for this prefix is managed at Netlify):
-      PREVIEW_SITE_PREFIX: pullrequest-${{ needs.pr-context.outputs.PR_NUMBER }}
     steps:
       - name: 'Retrieve and extract the built docs preview'
         uses: actions/download-artifact@v4
         with:
           name: preview-build
           path: ${{ env.BUILD_DIR }}
-          # These are needed due this approach relying on `workflow_run`, so that it can access the build artifact:
-          # (uploaded from the associated `docs-preview-prepare.yml` workflow run)
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
 
       # ==================== #
       # Deploy preview build #
       # ==================== #
-
-      # Manage workflow deployment status (Part 1/2):
-      # NOTE:
-      # - `workflow_run` trigger does not appear on the PR/commit checks status, only the initial prepare workflow triggered.
-      #   This adds our own status check for this 2nd half of the workflow starting as `pending`, followed by `success` / `failure` at the end.
-      # - `enable-commit-status` from `nwtgck/actions-netlify` would have handled this,
-      #   but the context `github.sha` that action tries to use references the primary branch commit that this workflow runs from, not the relevant PR commit.
-      - name: 'Commit Status (1/2) - Set Workflow Status as Pending'
-        uses: myrotvorets/set-commit-status-action@v2.0.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: pending
-          sha: ${{ env.PR_HEADSHA }}
-          context: 'Deploy Preview (pull_request => workflow_run)'
 
       - name: 'Send preview build to Netlify'
         uses: nwtgck/actions-netlify@v3.0
@@ -152,19 +97,3 @@ jobs:
             [Documentation preview for this PR](${{ steps.preview-netlify.outputs.deploy-url }}) is ready! :tada:
 
             Built with commit: ${{ env.PR_HEADSHA }}
-
-      # Manage workflow deployment status (Part 2/2):
-      - name: 'Commit Status (2/2) - Update deployment status'
-        uses: myrotvorets/set-commit-status-action@v2.0.1
-        # Always run this step regardless of the job failing early:
-        if: ${{ always() }}
-        # Custom status descriptions:
-        env:
-          DEPLOY_SUCCESS: Successfully deployed preview.
-          DEPLOY_FAILURE: Failed to deploy preview.
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status == 'success' && 'success' || 'failure' }}
-          sha: ${{ github.event.workflow_run.head_sha }}
-          context: 'Deploy Preview (pull_request => workflow_run)'
-          description: ${{ job.status == 'success' && env.DEPLOY_SUCCESS || env.DEPLOY_FAILURE }}

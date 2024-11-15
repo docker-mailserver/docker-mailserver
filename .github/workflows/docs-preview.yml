@@ -1,0 +1,89 @@
+name: 'Documentation (Preview)'
+
+# INFO:
+# This workflow automates generating previews of our docs for PRs.
+# For security reasons, it is necessary to split the workflow into two separate jobs to manage trust safely.
+
+# MAINTAINERS:
+# - This set of `pull_request_target` + `workflow_call` workflows replaces the prior `pull_request` (untrusted) + `workflow_run` (trusted) workflows approach
+#   due to the need for acquiring PR metadata (Head SHA + PR number), which the `workflow_run` event context cannot provide when PRs are from forks.
+# - Please be mindful of the risks when maintaining this workflow:
+#   https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+
+on:
+  pull_request_target:
+    paths:
+      - 'docs/**'
+      - '.github/workflows/scripts/docs/build-docs.sh'
+
+# If this workflow is triggered while an earlier instance is already running for the PR,
+# cancel that instance in favor of this newly triggered run:
+concurrency:
+  group: deploypreview-pullrequest-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+# Common inputs shared between the two workflow jobs (`preview` + `deploy`).
+# Composed as JSON to pass as a single input which each called job will map into separate ENV for use.
+env:
+  PREVIEW_CONTEXT: |
+    {
+      "build_dir": "docs/site/",
+      "netlify": {
+        "site_name":     "dms-doc-previews",
+        "deploy_prefix": "pullrequest-${{ github.event.pull_request.number }}"
+      },
+      "pull_request": {
+        "head_repo": "${{ github.event.pull_request.head.repo.full_name }}",
+        "head_sha":  "${{ github.event.pull_request.head.sha }}",
+        "number":    "${{ github.event.pull_request.number }}"
+      }
+    }
+
+# Grant `secrets.GITHUB_TOKEN` only the minimum permissions needed by actions to function:
+# https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token
+# NOTE: See the associated `preview` and `deploy` workflows called for when these permissions are needed.
+permissions:
+  contents: read
+  pull-requests: write
+
+# NOTE: Reusable workflows (`workflow_call`) default to empty secrets.
+#       Avoid using `secrets: inherit` in favor of passing only the required secrets to the job.
+jobs:
+  # WORKAROUND:
+  # The alternative is to copy/paste the JSON value to the `preview-context` input of each job.
+  #
+  # PROBLEM:
+  # - `<job-id>.with` restricts available contexts to only `github` and `needs`, it's not possible to use `env` context:
+  #   https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idwithinput_id
+  # - Likewise, workflows presently lack support for YAML anchors:
+  #   https://github.com/actions/runner/issues/1182
+  create-context:
+    name: 'Create Context'
+    runs-on: ubuntu-24.04
+    outputs:
+      preview-context: ${{ steps.set-preview-context.outputs.preview-context }}
+    steps:
+      - id: set-preview-context
+        # The output value must be a single-line; use `jq` to convert the JSON to minified:
+        # NOTE: YAML `>-` does not help fold this multi-line content due to use of indentation:
+        # https://github.com/orgs/community/discussions/26105#discussioncomment-3250413
+        run: echo "preview-context=$(jq --compact-output <<< "${PREVIEW_CONTEXT}")" >> "${GITHUB_OUTPUT}"
+
+  # The `prepare` job is for running steps in an untrusted context (necessary to build the docs):
+  # CAUTION: This runs a build script which the PR could modify for malicious purposes.
+  prepare:
+    needs: [create-context]
+    uses: docker-mailserver/docker-mailserver/.github/workflows/docs-preview-prepare.yml@main
+    with:
+      preview-context: ${{ needs.create-context.outputs.preview-context }}
+
+  # The `deploy` job is for running the remaining steps in a trusted context after building the PR branch:
+  # CAUTION: Do not execute any content from untrusted sources (the PR branch or the retrieved artifact from the `prepare` job)
+  deploy:
+    needs: [create-context, prepare]
+    uses: docker-mailserver/docker-mailserver/.github/workflows/docs-preview-deploy.yml@main
+    secrets:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID:    ${{ secrets.NETLIFY_SITE_ID    }}
+    with:
+      preview-context: ${{ needs.create-context.outputs.preview-context }}

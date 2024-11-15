@@ -1,28 +1,20 @@
-name: 'Documentation (PR)'
+name: 'Docs Preview (Build)'
 
 on:
-  pull_request:
-    paths:
-      - 'docs/**'
-      - '.github/workflows/scripts/docs/build-docs.sh'
-      - '.github/workflows/docs-preview-prepare.yml'
-
-# If this workflow is triggered while already running for the PR, cancel any earlier running instances:
-# Instances of the 2nd phase of this workflow (via `workflow_run`) lack any concurrency limits due to added complexity.
-concurrency:
-  group: deploypreview-pullrequest-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  workflow_call:
+    inputs:
+      preview-context:
+        description: 'Preview Metadata (JSON)'
+        required: true
+        type: string
 
 env:
   # Build output directory (created by the mkdocs-material container, keep this in sync with `build-docs.sh`):
-  BUILD_DIR: docs/site/
+  BUILD_DIR: ${{ fromJSON( inputs.preview-context ).build_dir }}
   # These two are only needed to construct `PREVIEW_URL`:
-  PREVIEW_SITE_NAME: dms-doc-previews
-  PREVIEW_SITE_PREFIX: pullrequest-${{ github.event.pull_request.number }}
+  PREVIEW_SITE_NAME:   ${{ fromJSON( inputs.preview-context ).netlify.site_name     }}
+  PREVIEW_SITE_PREFIX: ${{ fromJSON( inputs.preview-context ).netlify.deploy_prefix }}
 
-# `pull_request` workflow is unreliable alone: Non-collaborator contributions lack access to secrets for security reasons.
-# A separate workflow (docs-preview-deploy.yml) handles the deploy after the potentially untrusted code is first run in this workflow.
-# See: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
 permissions:
   # Required by `actions/checkout` for git checkout:
   contents: read
@@ -38,6 +30,8 @@ jobs:
       # Build docs preview #
       # ================== #
 
+      # CAUTION: Security risk due to executing `build-docs.sh` (which a PR could modify to be malicious):
+      # Care must be taken to run this workflow as if it were in an untrusted context (like the `on: pull_request` event trigger would).
       - name: 'Build with mkdocs-material via Docker'
         working-directory: docs/
         env:
