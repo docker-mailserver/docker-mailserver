@@ -73,7 +73,7 @@ jobs:
   # CAUTION: This runs a build script which the PR could modify for malicious purposes.
   prepare:
     needs: [create-context]
-    uses: docker-mailserver/docker-mailserver/.github/workflows/docs-preview-prepare.yml@main
+    uses: docker-mailserver/docker-mailserver/.github/workflows/docs-preview-prepare.yml@master
     with:
       preview-context: ${{ needs.create-context.outputs.preview-context }}
 
@@ -81,7 +81,7 @@ jobs:
   # CAUTION: Do not execute any content from untrusted sources (the PR branch or the retrieved artifact from the `prepare` job)
   deploy:
     needs: [create-context, prepare]
-    uses: docker-mailserver/docker-mailserver/.github/workflows/docs-preview-deploy.yml@main
+    uses: docker-mailserver/docker-mailserver/.github/workflows/docs-preview-deploy.yml@master
     secrets:
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       NETLIFY_SITE_ID:    ${{ secrets.NETLIFY_SITE_ID    }}
