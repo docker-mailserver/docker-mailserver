@@ -16,43 +16,37 @@ permissions:
   statuses: write
 
 jobs:
-  # This could have been another step in the `deploy-preview` job and used `GITHUB_ENV` instead of `GITHUB_OUTPUT`.
-  # It was split out into a separate job for a cleaner overview of `deploy-preview` ENV inputs and to minimize noise
-  # from that job related to this workaround (_that is incompatible with PRs from forks_).
+  # NOTE: This is handled as pre-requisite job to minimize the noise from acquiring these two outputs needed for `deploy-preview` ENV:
   pr-context:
-    name: 'Restore PR Context'
+    name: 'Acquire PR Context'
     runs-on: ubuntu-24.04
     outputs:
-      PR_HEADSHA: ${{ steps.set-pr-context.outputs.PR_HEADSHA }}
-      PR_NUMBER:  ${{ steps.set-pr-context.outputs.PR_NUMBER  }}
-    # Requires a PR event triggered `docs-preview-prepare.yml` workflow run that was successful + ensure the head SHA belongs to an associated PR:
-    # NOTE:
-    # - The `contains` condition checks for event context that is not available when the PR is from a fork. An alternative method would be needed:
-    #   https://stackoverflow.com/questions/59077079/how-to-get-pull-request-number-within-github-actions-workflow/79017997#79017997
-    # - A multi-line `if` GHA expression must avoid wrapping with `${{ }}`, otherwise it is unintentionally parsed as a string:
-    #   https://github.com/nikitastupin/pwnhub/blob/main/writings/if-condition.md
-    if: |
-      github.event.workflow_run.conclusion == 'success'
-      && github.event.workflow_run.event == 'pull_request'
-      && contains(github.event.workflow_run.pull_requests.*.head.sha, github.event.workflow_run.head_sha)
+      PR_HEADSHA: ${{ steps.set-pr-context.outputs.head-sha }}
+      PR_NUMBER:  ${{ steps.set-pr-context.outputs.number   }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' }}
     steps:
-      # NOTE:
-      # - The `workflow_run` metadata contains an array of `pull_requests`:
-      #   1. Take the `workflow_run` equivalent of `github.event.pull_request.number`.
-      #   2. There should only be one PR item in the array, verify that it shares the same `head_sha` (latest commit of PR).
-      # - Careful when using GHA context expressions that may have untrusted input here. The expressions are evaluated before the script content itself is run:
-      #   https://github.com/docker-mailserver/docker-mailserver/pull/4247#discussion_r1827067475
-      - name: 'Get PR number'
+      - name: 'Get PR context'
         id: set-pr-context
         env:
-          head_sha: ${{ github.event.workflow_run.head_sha }}
-          pull_requests: ${{ tojson(github.event.workflow_run.pull_requests) }}
+          # Token is required for the GH CLI:
+          GH_TOKEN: ${{ github.token }}
+          # Best practice for scripts is to reference via ENV at runtime. Avoid using GHA context expressions in the script content directly:
+          # https://github.com/docker-mailserver/docker-mailserver/pull/4247#discussion_r1827067475
+          PR_TARGET_REPO: ${{ github.repository }}
+          # If the PR is from a fork, prefix it with `<owner-login>:`, otherwise only the PR branch name is relevant:
+          PR_BRANCH: |-
+            ${{
+              (github.event.workflow_run.head_repository.owner.login != github.event.workflow_run.repository.owner.login)
+                && format('{0}:{1}', github.event.workflow_run.head_repository.owner.login, github.event.workflow_run.head_branch)
+                || github.event.workflow_run.head_branch
+            }}
+        # Use the GH CLI to query the PR branch, which provides the PR number and head SHA to assign as outputs:
+        # (`--jq` formats JSON to `key=value` pairs and renames `headRefOid` to `head-sha`)
         run: |
-          PR_NUMBER=$(jq -r '[.[] | select(.head.sha == "${{ env.head_sha }}")][0].number' <<< "${pull_requests}")
-          {
-            echo 'PR_HEADSHA=${{ env.head_sha }}'
-            echo "PR_NUMBER=${PR_NUMBER}"
-          } >> "${GITHUB_OUTPUT}"
+          gh pr view --repo "${PR_TARGET_REPO}" "${PR_BRANCH}" \
+            --json 'number,headRefOid' \
+            --jq '"number=\(.number)\nhead-sha=\(.headRefOid)"' \
+            >> $GITHUB_OUTPUT
 
   deploy-preview:
     name: 'Deploy Preview'
