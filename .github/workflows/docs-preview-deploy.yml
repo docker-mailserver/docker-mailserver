@@ -1,4 +1,4 @@
-name: 'Documentation (run)'
+name: 'Documentation (Deploy)'
 
 on:
   # This workflow runs off the primary branch which provides access to the `secrets` context:
@@ -10,7 +10,9 @@ on:
 permissions:
   # Required by `actions/download-artifact`:
   actions: read
-  # Required by `marocchino/sticky-pull-request-comment`:
+  # Required by `set-pr-context`:
+  contents: read
+  # Required by `marocchino/sticky-pull-request-comment` (write) + `set-pr-context` (read):
   pull-requests: write
   # Required by `myrotvorets/set-commit-status-action`:
   statuses: write
@@ -46,7 +48,7 @@ jobs:
           gh pr view --repo "${PR_TARGET_REPO}" "${PR_BRANCH}" \
             --json 'number,headRefOid' \
             --jq '"number=\(.number)\nhead-sha=\(.headRefOid)"' \
-            >> $GITHUB_OUTPUT
+            >> "${GITHUB_OUTPUT}"
 
   deploy-preview:
     name: 'Deploy Preview'
@@ -159,6 +161,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status == 'success' && 'success' || 'failure' }}
-          sha: ${{ github.event.workflow_run.head_sha }}
+          sha: ${{ env.PR_HEADSHA }}
           context: 'Deploy Preview (pull_request => workflow_run)'
           description: ${{ job.status == 'success' && env.DEPLOY_SUCCESS || env.DEPLOY_FAILURE }}
