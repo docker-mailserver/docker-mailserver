@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -2286,23 +2286,23 @@ to the respective IP-address on the server you want to use.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="contributed-solution" name="__tabbed_1" type="radio" /><input id="alternative-unverified" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="contributed-solution">Contributed solution</label><label for="alternative-unverified">Alternative (unverified)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p><code>title="postfix-main.cf"
-smtp_bind_address = 198.51.100.42
-smtp_bind_address6 = 2001:DB8::42</code></p>
+<div class="highlight"><span class="filename">postfix-main.cf</span><pre><span></span><code>smtp_bind_address = 198.51.100.42
+smtp_bind_address6 = 2001:DB8::42
+</code></pre></div>
 <div class="admonition bug">
 <p class="admonition-title">Inheriting the bind from <code>main.cf</code> can misconfigure services</p>
 <p>One problem when setting <code>smtp_bind_address</code> in <code>main.cf</code> is that it will be inherited by any services in <code>master.cf</code> that extend the <code>smtp</code> transport. One of these is <code>smtp-amavis</code>, which is explicitly configured to listen / connect via loopback (localhost / <code>127.0.0.1</code>).</p>
 <p>A <code>postfix-master.cf</code> override can workaround that issue by ensuring <code>smtp-amavis</code> binds to the expected internal IP:</p>
-<p><code>title="postfix-master.cf"
-smtp-amavis/unix/smtp_bind_address=127.0.0.1
-smtp-amavis/unix/smtp_bind_address6=::1</code></p>
+<div class="highlight"><span class="filename">postfix-master.cf</span><pre><span></span><code>smtp-amavis/unix/smtp_bind_address=127.0.0.1
+smtp-amavis/unix/smtp_bind_address6=::1
+</code></pre></div>
 </div>
 </div>
 <div class="tabbed-block">
 <p>A potentially better solution might be to instead <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3465#issuecomment-1678107233">explicitly set the <code>smtp_bind_address</code> override on the <code>smtp</code> transport service</a>:</p>
-<p><code>title="postfix-master.cf"
-smtp/inet/smtp_bind_address = 198.51.100.42
-smtp/inet/smtp_bind_address6 = 2001:DB8::42</code></p>
+<div class="highlight"><span class="filename">postfix-master.cf</span><pre><span></span><code>smtp/inet/smtp_bind_address = 198.51.100.42
+smtp/inet/smtp_bind_address6 = 2001:DB8::42
+</code></pre></div>
 <p>If that avoids the concern with <code>smtp-amavis</code>, you may still need to additionally override for the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65"><code>relay</code> transport</a> as well if you have configured DMS to relay mail.</p>
 </div>
 </div>
@@ -2376,7 +2376,7 @@ smtp/inet/smtp_bind_address6 = 2001:DB8::42</code></p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>

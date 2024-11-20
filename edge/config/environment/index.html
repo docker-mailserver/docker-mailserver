@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -5815,24 +5815,27 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <li>1 =&gt; <code>saslauthd</code> is enabled</li>
 </ul>
 <h5 id="saslauthd_mechanisms"><a class="toclink" href="#saslauthd_mechanisms">SASLAUTHD_MECHANISMS</a></h5>
+<p>DMS only implements support for these mechanisms:</p>
 <ul>
-<li><strong>empty</strong> =&gt; pam</li>
-<li><code>ldap</code> =&gt; authenticate against ldap server</li>
-<li><code>shadow</code> =&gt; authenticate against local user db</li>
-<li><code>mysql</code> =&gt; authenticate against mysql db</li>
-<li><code>rimap</code> =&gt; authenticate against imap server</li>
-<li>NOTE: can be a list of mechanisms like pam ldap shadow</li>
+<li><strong><code>ldap</code></strong> =&gt; Authenticate against an LDAP server</li>
+<li><code>rimap</code> =&gt; Authenticate against an IMAP server</li>
 </ul>
 <h5 id="saslauthd_mech_options"><a class="toclink" href="#saslauthd_mech_options">SASLAUTHD_MECH_OPTIONS</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; None</li>
-<li>e.g. with SASLAUTHD_MECHANISMS rimap you need to specify the ip-address/servername of the imap server  ==&gt; xxx.xxx.xxx.xxx</li>
 </ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>With <code>SASLAUTHD_MECHANISMS=rimap</code> you need to specify the ip-address / servername of the IMAP server, such as <code>SASLAUTHD_MECH_OPTIONS=127.0.0.1</code>.</p>
+</div>
 <h5 id="saslauthd_ldap_server"><a class="toclink" href="#saslauthd_ldap_server">SASLAUTHD_LDAP_SERVER</a></h5>
 <ul>
-<li><strong>empty</strong> =&gt; same as <code>LDAP_SERVER_HOST</code></li>
-<li>Note: You must include the desired URI scheme (<code>ldap://</code>, <code>ldaps://</code>, <code>ldapi://</code>).</li>
+<li><strong>empty</strong> =&gt; Use the same value as <code>LDAP_SERVER_HOST</code></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You must include the desired URI scheme (<code>ldap://</code>, <code>ldaps://</code>, <code>ldapi://</code>).</p>
+</div>
 <h5 id="saslauthd_ldap_start_tls"><a class="toclink" href="#saslauthd_ldap_start_tls">SASLAUTHD_LDAP_START_TLS</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; <code>no</code></li>
@@ -6083,7 +6086,7 @@ you to replace both instead of just the envelope sender.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>
