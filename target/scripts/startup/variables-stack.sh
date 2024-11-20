@@ -182,8 +182,9 @@ function _environment_variables_ldap() {
 function _environment_variables_saslauthd() {
   _log 'debug' 'Setting SASLAUTHD-related environment variables now'
 
-  # Only used by the supervisor service command (upstream default: `/etc/default/saslauthd`)
-  VARS[SASLAUTHD_MECHANISMS]="${SASLAUTHD_MECHANISMS:=pam}"
+  # This ENV is only used by the supervisor service config `saslauth.conf`:
+  # NOTE: `pam` is set as the upstream default in `/etc/default/saslauthd`
+  VARS[SASLAUTHD_MECHANISMS]="${SASLAUTHD_MECHANISMS:=ldap}"
 }
 
 # This function Writes the contents of the `VARS` map (associative array)
