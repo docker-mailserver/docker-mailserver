@@ -910,22 +910,26 @@ Note: This postgrey setting needs `ENABLE_POSTGREY=1`
 
 ##### SASLAUTHD_MECHANISMS
 
-- **empty** => pam
-- `ldap` => authenticate against ldap server
-- `shadow` => authenticate against local user db
-- `mysql` => authenticate against mysql db
-- `rimap` => authenticate against imap server
-- NOTE: can be a list of mechanisms like pam ldap shadow
+DMS only implements support for these mechanisms:
+
+- **`ldap`** => Authenticate against an LDAP server
+- `rimap` => Authenticate against an IMAP server
 
 ##### SASLAUTHD_MECH_OPTIONS
 
 - **empty** => None
-- e.g. with SASLAUTHD_MECHANISMS rimap you need to specify the ip-address/servername of the imap server  ==> xxx.xxx.xxx.xxx
+
+!!! info
+
+    With `SASLAUTHD_MECHANISMS=rimap` you need to specify the ip-address / servername of the IMAP server, such as `SASLAUTHD_MECH_OPTIONS=127.0.0.1`.
 
 ##### SASLAUTHD_LDAP_SERVER
 
-- **empty** => same as `LDAP_SERVER_HOST`
-- Note: You must include the desired URI scheme (`ldap://`, `ldaps://`, `ldapi://`).
+- **empty** => Use the same value as `LDAP_SERVER_HOST`
+
+!!! note
+
+    You must include the desired URI scheme (`ldap://`, `ldaps://`, `ldapi://`).
 
 ##### SASLAUTHD_LDAP_START_TLS
 

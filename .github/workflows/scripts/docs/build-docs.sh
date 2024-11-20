@@ -7,8 +7,9 @@ set -ex
 # `build --strict` ensures the build fails when any warnings are omitted.
 docker run \
   --rm \
+  --quiet \
   --user "$(id -u):$(id -g)" \
-  --volume "${PWD}:/docs" \
+  --volume "./:/docs" \
   --name "build-docs" \
   squidfunk/mkdocs-material:9.5 build --strict
 
