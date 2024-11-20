@@ -60,6 +60,7 @@ All notable changes to this project will be documented in this file. The format 
 ### CI
 
 - Workflow for `CONTRIBUTORS.md` updates removed. `CONTRIBUTORS.md` file and dependencies removed. ([#4141](https://github.com/docker-mailserver/docker-mailserver/pull/4141))
+- Refactored the workflows for generating documentation previews on PRs to be more secure ([#4267](https://github.com/docker-mailserver/docker-mailserver/pull/4267), [#4264](https://github.com/docker-mailserver/docker-mailserver/pull/4264), [#4262](https://github.com/docker-mailserver/docker-mailserver/pull/4262), [#4247](https://github.com/docker-mailserver/docker-mailserver/pull/4247), [#4244](https://github.com/docker-mailserver/docker-mailserver/pull/4244))
 
 ## [v14.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v14.0.0)
 
