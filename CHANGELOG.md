@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file. The format 
   - Added `getmail` as a new service for `supervisor` to manage, replacing cron for periodic polling.
   - Generated getmail configuration files no longer set the `message_log` option. Instead of individual log files per config, the [default base settings DMS configures](https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/getmail/getmailrc_general) now enables `message_log_syslog`. This aligns with how other services in DMS log to syslog where it is captured in `mail.log`.
   - Getmail configurations have changed location from the base of the DMS Config Volume, to the `getmail/` subdirectory. Any existing configurations **must be migrated manually.**
-  - DMS v14 mistakenly relocated the getmail state directory to the DMS Config Volume as a `getmail/` subdirectory.
+  - DMS v14 mistakenly relocated the _getmail state directory_ to the _DMS Config Volume_ as a `getmail/` subdirectory.
     - This has been corrected to `/var/lib/getmail` (_if you have mounted a DMS State Volume to `/var/mail-state`, `/var/lib/getmail` will be symlinked to `/var/mail-state/lib-getmail`_).
     - To preserve this state when upgrading to DMS v15, **you must manually migrate `getmail/` from the _DMS Config Volume_ to `lib-getmail/` in the _DMS State Volume_.**
 
@@ -33,34 +33,34 @@ All notable changes to this project will be documented in this file. The format 
 ### Updates
 
 - **Fail2ban:**
-  - Bump version to [1.1.0](https://github.com/fail2ban/fail2ban/releases/tag/1.1.0). For more information, check the [changelog](https://github.com/fail2ban/fail2ban/blob/1.1.0/ChangeLog).
+  - Updated to version [`1.1.0`](https://github.com/fail2ban/fail2ban/releases/tag/1.1.0) ([#4045](https://github.com/docker-mailserver/docker-mailserver/pull/4045))
 - **Documentation:**
-  - Rewritten and organized the pages for Account Management and Authentication ([#4122](https://github.com/docker-mailserver/docker-mailserver/pull/4122))
-  - Add caveat for `DMS_VMAIL_UID` not being compatible with `0` / root ([#4143](https://github.com/docker-mailserver/docker-mailserver/pull/4143))
+  - Account Management and Authentication pages have been rewritten and better organized ([#4122](https://github.com/docker-mailserver/docker-mailserver/pull/4122))
+  - Add a caveat for `DMS_VMAIL_UID` not being compatible with `0` / root ([#4143](https://github.com/docker-mailserver/docker-mailserver/pull/4143))
 - **Postfix:**
-  - Disable Microsoft reactions to outgoing mail ([#4120](https://github.com/docker-mailserver/docker-mailserver/pull/4120))
+  - By default opt-out from _Microsoft reactions_ for outbound mail ([#4120](https://github.com/docker-mailserver/docker-mailserver/pull/4120))
 - Updated `jaq` version from `1.3.0` to `2.0.0` ([#4190](https://github.com/docker-mailserver/docker-mailserver/pull/4190))
-- updated Rspamd GTube settings and tests ([#4191](https://github.com/docker-mailserver/docker-mailserver/pull/4191))
+- Updated Rspamd GTube settings and tests ([#4191](https://github.com/docker-mailserver/docker-mailserver/pull/4191))
 
 ### Fixes
 
 - **Dovecot:**
-  - Update logwatch `ignore.conf` to exclude Xapian messages about pending documents ([#4060](https://github.com/docker-mailserver/docker-mailserver/pull/4060))
+  - The logwatch `ignore.conf` now also excludes Xapian messages about pending documents ([#4060](https://github.com/docker-mailserver/docker-mailserver/pull/4060))
   - `dovecot-fts-xapian` plugin was updated to `1.7.13`, fixing a regression with indexing ([#4095](https://github.com/docker-mailserver/docker-mailserver/pull/4095))
-  - The Dovecot Quota support "dummy account" workaround no longer treats the alias as a regex when checking the Dovecot UserDB ([#4222](https://github.com/docker-mailserver/docker-mailserver/pull/4222))
+  - The "dummy account" workaround for _Dovecot Quota_ feature support no longer treats the alias as a regex when checking the Dovecot UserDB ([#4222](https://github.com/docker-mailserver/docker-mailserver/pull/4222))
 - **LDAP:**
-  - A previous compatibility fix for OAuth2 in v13.3.1 had not applied the actual LDAP config changes. This has been corrected ([#4175](https://github.com/docker-mailserver/docker-mailserver/pull/4175))
+  - Correctly apply a compatibility fix for OAuth2 introduced in DMS v13.3.1 which had not been applied to the actual LDAP config changes ([#4175](https://github.com/docker-mailserver/docker-mailserver/pull/4175))
 - **Internal:**
-  - The main `mail.log` which is piped to stdout via `tail` now correctly begins from the first log line of the active container run. Previously some daemon logs and potential warnings/errors were omitted. ([#4146](https://github.com/docker-mailserver/docker-mailserver/pull/4146))
+  - The main `mail.log` (_which is piped to stdout via `tail`_) now correctly begins from the first log line of the active container run. Previously some daemon logs and potential warnings/errors were omitted ([#4146](https://github.com/docker-mailserver/docker-mailserver/pull/4146))
   - Fixed a regression introduced in v14 where `postfix-main.cf` appended `stderr` output into `/etc/postfix/main.cf`, causing Postfix startup to fail ([#4147](https://github.com/docker-mailserver/docker-mailserver/pull/4147))
-  - Unused `shopt -s inherit_errexit` removed from `start-mailserver.sh` ([#4161](https://github.com/docker-mailserver/docker-mailserver/pull/4161))
+  - `start-mailserver.sh` removed unused `shopt -s inherit_errexit` ([#4161](https://github.com/docker-mailserver/docker-mailserver/pull/4161))
 - **Rspamd:**
-  - DKIM private key path checking is now performed only on paths that do not contain "$" ([#4201](https://github.com/docker-mailserver/docker-mailserver/pull/4201))
+  - DKIM private key path checking is now performed only on paths that do not contain `$` ([#4201](https://github.com/docker-mailserver/docker-mailserver/pull/4201))
 
 ### CI
 
-- Workflow for `CONTRIBUTORS.md` updates removed. `CONTRIBUTORS.md` file and dependencies removed. ([#4141](https://github.com/docker-mailserver/docker-mailserver/pull/4141))
-- Refactored the workflows for generating documentation previews on PRs to be more secure ([#4267](https://github.com/docker-mailserver/docker-mailserver/pull/4267), [#4264](https://github.com/docker-mailserver/docker-mailserver/pull/4264), [#4262](https://github.com/docker-mailserver/docker-mailserver/pull/4262), [#4247](https://github.com/docker-mailserver/docker-mailserver/pull/4247), [#4244](https://github.com/docker-mailserver/docker-mailserver/pull/4244))
+- Removed `CONTRIBUTORS.md`, `.all-contributorsrc`, and workflow ([#4141](https://github.com/docker-mailserver/docker-mailserver/pull/4141))
+- Refactored the workflows to be more secure for generating documentation previews on PRs ([#4267](https://github.com/docker-mailserver/docker-mailserver/pull/4267), [#4264](https://github.com/docker-mailserver/docker-mailserver/pull/4264), [#4262](https://github.com/docker-mailserver/docker-mailserver/pull/4262), [#4247](https://github.com/docker-mailserver/docker-mailserver/pull/4247), [#4244](https://github.com/docker-mailserver/docker-mailserver/pull/4244))
 
 ## [v14.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v14.0.0)
 
