@@ -39,7 +39,7 @@ All notable changes to this project will be documented in this file. The format 
   - Add caveat for `DMS_VMAIL_UID` not being compatible with `0` / root ([#4143](https://github.com/docker-mailserver/docker-mailserver/pull/4143))
 - **Postfix:**
   - Disable Microsoft reactions to outgoing mail ([#4120](https://github.com/docker-mailserver/docker-mailserver/pull/4120))
-- bumped `jaq` version from 1.3.0 to 1.6.0 ([#4190](https://github.com/docker-mailserver/docker-mailserver/pull/4190))
+- Updated `jaq` version from `1.3.0` to `2.0.0` ([#4190](https://github.com/docker-mailserver/docker-mailserver/pull/4190))
 - updated Rspamd GTube settings and tests ([#4191](https://github.com/docker-mailserver/docker-mailserver/pull/4191))
 
 ### Fixes
