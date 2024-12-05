@@ -43,6 +43,7 @@ function _install_utils() {
   chmod +x /usr/bin/jaq
 
   _log 'trace' 'Installing swaks'
+  apt-get "${QUIET}" --no-install-recommends perl-doc
   local SWAKS_VERSION='20240103.0'
   local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
   curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" | tar -xz
