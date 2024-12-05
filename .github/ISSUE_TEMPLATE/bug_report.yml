@@ -67,10 +67,3 @@ body:
         - This field expects only plain text (_rendered as a fenced code block_).
         - You can enable debug output by setting the environment variable `LOG_LEVEL` to `debug` or `trace`.
       render: Text
-  - type: input
-    id: form-improvements
-    attributes:
-      label: Improvements to this form?
-      description: If you have criticism or general feedback about this issue form, feel free to tell us so we can enhance the experience for everyone.
-    validations:
-      required: false
