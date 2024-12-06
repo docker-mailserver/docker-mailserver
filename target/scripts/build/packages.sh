@@ -43,6 +43,7 @@ function _install_utils() {
   chmod +x /usr/bin/jaq
 
   _log 'trace' 'Installing swaks'
+  apt-get "${QUIET}" install --no-install-recommends perl-doc
   local SWAKS_VERSION='20240103.0'
   local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
   curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" | tar -xz
@@ -118,7 +119,7 @@ function _install_packages() {
     bind9-dnsutils iputils-ping less nano
   )
 
-  apt-get "${QUIET}" --no-install-recommends install \
+  apt-get "${QUIET}" install --no-install-recommends \
     "${ANTI_VIRUS_SPAM_PACKAGES[@]}" \
     "${CODECS_PACKAGES[@]}" \
     "${MISCELLANEOUS_PACKAGES[@]}" \
@@ -154,10 +155,10 @@ function _install_dovecot() {
   fi
 
   _log 'debug' 'Installing Dovecot'
-  apt-get "${QUIET}" --no-install-recommends install "${DOVECOT_PACKAGES[@]}"
+  apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
 
   # dependency for fts_xapian
-  apt-get "${QUIET}" --no-install-recommends install libxapian30
+  apt-get "${QUIET}" install --no-install-recommends libxapian30
 }
 
 function _install_rspamd() {
@@ -185,7 +186,7 @@ function _install_fail2ban() {
 
   _log 'debug' 'Installing Fail2ban'
   # Dependencies (https://github.com/docker-mailserver/docker-mailserver/pull/3403#discussion_r1306581431)
-  apt-get "${QUIET}" --no-install-recommends install python3-pyinotify python3-dnspython python3-systemd
+  apt-get "${QUIET}" install --no-install-recommends python3-pyinotify python3-dnspython python3-systemd
 
   gpg --keyserver "${FAIL2BAN_GPG_PUBLIC_KEY_SERVER}" --recv-keys "${FAIL2BAN_GPG_PUBLIC_KEY_ID}" 2>&1
 
