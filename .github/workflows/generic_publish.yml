@@ -23,7 +23,7 @@ jobs:
 
       - name: 'Prepare tags'
         id: prep
-        uses: docker/metadata-action@v5.5.1
+        uses: docker/metadata-action@v5.6.1
         with:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
@@ -67,7 +67,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 'Build and publish images'
-        uses: docker/build-push-action@v6.9.0
+        uses: docker/build-push-action@v6.10.0
         with:
           context: .
           build-args: |

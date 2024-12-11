@@ -13,7 +13,7 @@ _log_level_is 'trace' && QUIET='-y' || QUIET='-qq'
 
 function _compile_dovecot_fts_xapian() {
   apt-get "${QUIET}" update
-  apt-get "${QUIET}" --no-install-recommends install \
+  apt-get "${QUIET}" install --no-install-recommends \
     automake libtool pkg-config libicu-dev libsqlite3-dev libxapian-dev make build-essential dh-make devscripts dovecot-dev
 
   local XAPIAN_VERSION='1.7.13'

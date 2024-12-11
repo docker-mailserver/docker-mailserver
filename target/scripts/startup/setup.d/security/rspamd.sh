@@ -330,9 +330,9 @@ function __rspamd__setup_check_authenticated() {
   fi
 }
 
-# This function performs a simple check: go through DKIM configuration files, acquire
-# all private key file locations and check whether they exist and whether they can be
-# accessed by Rspamd. We are not checking paths that conatain the '$' symbol.
+# This function performs a simple check on the queried rspamd DKIM configuration:
+# - Acquire all private key file locations and check whether they exist and can be accessed by Rspamd.
+# - We are not checking paths that contain the '$' symbol.
 function __rspamd__check_dkim_permissions() {
   local KEY_FILE
   while read -r KEY_FILE; do
