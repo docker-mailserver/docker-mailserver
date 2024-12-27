@@ -295,7 +295,7 @@ Customize the update check interval. Number + Suffix. Suffix must be 's' for sec
 - sdbox => (experimental) uses Dovecot high-performance mailbox format, one file contains one message
 - mdbox ==> (experimental) uses Dovecot high-performance mailbox format, multiple messages per file and multiple files per box
 
-This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to [Dovecot Documentation](https://doc.dovecot.org/2.3/admin_manual/mailbox_formats/#mailbox-formats).
+This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to [Dovecot Documentation](https://doc.dovecot.org/admin_manual/mailbox_formats/#mailbox-formats).
 
 ##### POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME
 
