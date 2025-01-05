@@ -512,7 +512,7 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 
     ```caddyfile title="Caddyfile"
     mail.example.com {
-      tls internal {
+      tls {
         key_type rsa2048
       }
 
@@ -524,8 +524,10 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 
     While DMS does not need a webserver to work, this workaround will provision a TLS certificate for DMS to use.
 
-    - [`tls internal`][caddy-docs::tls-internal] will create a local self-signed cert for testing. This targets only the site-address, unlike the global `local_certs` option.
-    - [`key_type`][caddy-docs::key-type] can be used in the `tls` block if you need to enforce RSA as the key type for certificates provisioned. The default is currently ECDSA (P-256).
+    An explicit `tls` directive affects only the site-address block it's used in:
+
+    - Use [`tls internal { ... }`][caddy-docs::tls-internal] if wanting to create a local self-signed cert, which may be useful for testing. This allows opt-in to use self-signed certs unlike the global `local_certs` option.
+    - [`key_type`][caddy-docs::key-type] can be used in the `tls` block if you need to enforce RSA as the key type for certificates provisioned. The default is currently ECDSA (P-256). This may improve compatibility with legacy clients.
 
 ??? example "With `caddy-docker-proxy`"
 
