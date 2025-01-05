@@ -3067,6 +3067,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <p><a href="https://caddyserver.com">Caddy</a> is an open-source web server with built-in TLS certificate generation. You can use the <a href="https://hub.docker.com/_/caddy">official Docker image</a> and write your own <code>Caddyfile</code>.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
+<p>While DMS does not need a webserver to work, this workaround will provision a TLS certificate for DMS to use by adding a dummy site block to trigger cert provisioning.</p>
 <div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># Basic Caddy service to provision certs:</span>
 <span class="w">  </span><span class="nt">reverse-proxy</span><span class="p">:</span>
@@ -3090,8 +3091,10 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.crt:/etc/letsencrypt/live/mail.example.com/fullchain.pem</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem</span>
 </code></pre></div>
+<p>An explicit entry in your <code>Caddyfile</code> config will have Caddy provision and renew a certificate for your DMS FQDN:</p>
 <div class="highlight"><span class="filename">Caddyfile</span><pre><span></span><code>mail.example.com {
-  tls internal {
+  # Optionally provision RSA 2048-bit certificate instead of ECDSA P-256:
+  tls {
     key_type rsa2048
   }
 
@@ -3100,11 +3103,14 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
   respond &quot;Hello DMS&quot;
 }
 </code></pre></div>
-<p>While DMS does not need a webserver to work, this workaround will provision a TLS certificate for DMS to use.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>An explicit <code>tls</code> directive affects only the site-address block it's used in:</p>
 <ul>
-<li><a href="https://caddyserver.com/docs/caddyfile/directives/tls#syntax"><code>tls internal</code></a> will create a local self-signed cert for testing. This targets only the site-address, unlike the global <code>local_certs</code> option.</li>
-<li><a href="https://caddyserver.com/docs/caddyfile/options#key-type"><code>key_type</code></a> can be used in the <code>tls</code> block if you need to enforce RSA as the key type for certificates provisioned. The default is currently ECDSA (P-256).</li>
+<li>Use <a href="https://caddyserver.com/docs/caddyfile/directives/tls#syntax"><code>tls internal { ... }</code></a> if wanting to create a local self-signed cert, which may be useful for testing. This allows opt-in to use self-signed certs unlike the global <code>local_certs</code> option.</li>
+<li><a href="https://caddyserver.com/docs/caddyfile/options#key-type"><code>key_type</code></a> can be used in the <code>tls</code> block if you need to enforce RSA as the key type for certificates provisioned. The default is currently ECDSA (P-256). This may improve compatibility with legacy clients.</li>
 </ul>
+</div>
 </div>
 <details class="example">
 <summary>With <code>caddy-docker-proxy</code></summary>
@@ -3135,9 +3141,9 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">      </span><span class="c1"># Set your DMS FQDN here to add the site-address into the generated Caddyfile:</span>
 <span class="w">      </span><span class="nt">caddy_0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
-<span class="w">      </span><span class="c1"># Add a dummy directive is required:</span>
+<span class="w">      </span><span class="c1"># Adding a dummy directive is required:</span>
 <span class="w">      </span><span class="nt">caddy_0.respond</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Hello</span><span class="nv"> </span><span class="s">DMS&quot;</span>
-<span class="w">      </span><span class="c1"># Uncomment to make a proxy for Rspamd</span>
+<span class="w">      </span><span class="c1"># Uncomment to make a proxy for Rspamd:</span>
 <span class="w">      </span><span class="c1"># caddy_1: rspamd.example.com</span>
 <span class="w">      </span><span class="c1"># caddy_1.reverse_proxy: &quot;{{upstreams 11334}}&quot;</span>
 </code></pre></div>
@@ -3146,6 +3152,18 @@ docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"
 <p class="admonition-title">Caddy certificate location varies</p>
 <p>The path contains the certificate provisioner used. This path may be different from the example above for you and may change over time when <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3485/files#r1297512818">multiple ACME provisioner services are used</a>.</p>
 <p>This can make the volume mounting for DMS to find the certificates non-deterministic, but you can <a href="https://caddy.community/t/is-there-a-way-on-a-caddyfile-to-force-a-specific-acme-ca/14506">restrict provisioning to single service via the <code>acme_ca</code> setting</a>.</p>
+<hr />
+<p><strong>NOTE:</strong> Bind mounting a file directly instead of a directory will mount by inode. If the file is updated at renewal and this modifies the inode on the host system, then the container will still point to the old certificate.</p>
+<p>If this happens, consider using our manual TLS type instead:</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">SSL_TYPE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manual</span>
+<span class="w">      </span><span class="nt">SSL_CERT_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/srv/tls/mail.example.com/mail.example.com.crt</span>
+<span class="w">      </span><span class="nt">SSL_KEY_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/srv/tls/mail.example.com/mail.example.com.key</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/:/srv/tls/mail.example.com/:ro</span>
+</code></pre></div>
 </div>
 <h3 id="traefik"><a class="toclink" href="#traefik">Traefik</a></h3>
 <p><a href="https://github.com/containous/traefik">Traefik</a> is an open-source application proxy using the <a href="https://datatracker.ietf.org/doc/html/rfc8555">ACME protocol</a>. Traefik can request certificates for domains and subdomains, and it will take care of renewals, challenge negotiations, etc.</p>
