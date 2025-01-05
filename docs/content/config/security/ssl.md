@@ -485,6 +485,8 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
 
 !!! example
 
+    While DMS does not need a webserver to work, this workaround will provision a TLS certificate for DMS to use by adding a dummy site block to trigger cert provisioning.
+
     ```yaml title="compose.yaml"
     services:
       # Basic Caddy service to provision certs:
@@ -525,12 +527,12 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
     }
     ```
 
-    While DMS does not need a webserver to work, this workaround will provision a TLS certificate for DMS to use.
+    !!! info
 
-    An explicit `tls` directive affects only the site-address block it's used in:
+        An explicit `tls` directive affects only the site-address block it's used in:
 
-    - Use [`tls internal { ... }`][caddy-docs::tls-internal] if wanting to create a local self-signed cert, which may be useful for testing. This allows opt-in to use self-signed certs unlike the global `local_certs` option.
-    - [`key_type`][caddy-docs::key-type] can be used in the `tls` block if you need to enforce RSA as the key type for certificates provisioned. The default is currently ECDSA (P-256). This may improve compatibility with legacy clients.
+        - Use [`tls internal { ... }`][caddy-docs::tls-internal] if wanting to create a local self-signed cert, which may be useful for testing. This allows opt-in to use self-signed certs unlike the global `local_certs` option.
+        - [`key_type`][caddy-docs::key-type] can be used in the `tls` block if you need to enforce RSA as the key type for certificates provisioned. The default is currently ECDSA (P-256). This may improve compatibility with legacy clients.
 
 ??? example "With `caddy-docker-proxy`"
 
