@@ -510,8 +510,11 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
           - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/mail.example.com.key:/etc/letsencrypt/live/mail.example.com/privkey.pem
     ```
 
+    An explicit entry in your `Caddyfile` config will have Caddy provision and renew a certificate for your DMS FQDN:
+
     ```caddyfile title="Caddyfile"
     mail.example.com {
+      # Optionally provision RSA 2048-bit certificate instead of ECDSA P-256:
       tls {
         key_type rsa2048
       }
@@ -560,9 +563,9 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
         labels:
           # Set your DMS FQDN here to add the site-address into the generated Caddyfile:
           caddy_0: mail.example.com
-          # Add a dummy directive is required:
+          # Adding a dummy directive is required:
           caddy_0.respond: "Hello DMS"
-          # Uncomment to make a proxy for Rspamd
+          # Uncomment to make a proxy for Rspamd:
           # caddy_1: rspamd.example.com
           # caddy_1.reverse_proxy: "{{upstreams 11334}}"
     ```
@@ -572,6 +575,23 @@ DSM-generated letsencrypt certificates get auto-renewed every three months.
     The path contains the certificate provisioner used. This path may be different from the example above for you and may change over time when [multiple ACME provisioner services are used][dms-pr-feedback::caddy-provisioning-gotcha].
 
     This can make the volume mounting for DMS to find the certificates non-deterministic, but you can [restrict provisioning to single service via the `acme_ca` setting][caddy::restrict-acme-provisioner].
+
+    ---
+
+    **NOTE:** Bind mounting a file directly instead of a directory will mount by inode. If the file is updated at renewal and this modifies the inode on the host system, then the container will still point to the old certificate.
+
+    If this happens, consider using our manual TLS type instead:
+
+    ```yaml title="compose.yaml"
+    services:
+      mailserver:
+        environment:
+          SSL_TYPE: manual
+          SSL_CERT_PATH: /srv/tls/mail.example.com/mail.example.com.crt
+          SSL_KEY_PATH: /srv/tls/mail.example.com/mail.example.com.key
+        volumes:
+          - ${CADDY_DATA_DIR}/certificates/acme-v02.api.letsencrypt.org-directory/mail.example.com/:/srv/tls/mail.example.com/:ro
+    ```
 
 ### Traefik
 
