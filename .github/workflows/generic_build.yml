@@ -32,7 +32,7 @@ jobs:
         with:
           submodules: recursive
 
-      # Can potentially be replaced by: `${{ hashFiles('target/**', 'Dockerfile', 'VERSION') }}`
+      # Can potentially be replaced by: `${{ hashFiles('target/**', 'Dockerfile' }}`
       # Must not be affected by file metadata changes and have a consistent sort order:
       # https://docs.github.com/en/actions/learn-github-actions/expressions#hashfiles
       # Keying by the relevant build context is more re-usable than a commit SHA.
@@ -40,10 +40,7 @@ jobs:
         id: derive-image-cache-key
         shell: bash
         run: |
-          ADDITIONAL_FILES=(
-            'Dockerfile'
-            'VERSION'
-          )
+          ADDITIONAL_FILES=( 'Dockerfile' )
 
           # Recursively collect file paths from `target/` and pipe a list of
           # checksums to be sorted (by hash value) and finally generate a checksum
