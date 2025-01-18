@@ -39,7 +39,7 @@ A production-ready fullstack but simple containerized mail server (SMTP, IMAP, L
 ## :package: Included Services
 
 - [Postfix](http://www.postfix.org) with SMTP or LDAP authentication and support for [extension delimiters](https://docker-mailserver.github.io/docker-mailserver/latest/config/account-management/overview/#aliases)
-- [Dovecot](https://www.dovecot.org) with SASL, IMAP, POP3, LDAP, [basic Sieve support](https://docker-mailserver.github.io/docker-mailserver/latest/config/advanced/mail-sieve) and [quotas](https://docker-mailserver.github.io/docker-mailserver/latest/config/user-management/#quotas)
+- [Dovecot](https://www.dovecot.org) with SASL, IMAP, POP3, LDAP, [basic Sieve support](https://docker-mailserver.github.io/docker-mailserver/latest/config/advanced/mail-sieve) and [quotas](https://docker-mailserver.github.io/docker-mailserver/latest/config/account-management/overview/#quotas)
 - [Rspamd](https://rspamd.com/)
 - [Amavis](https://www.amavis.org/)
 - [SpamAssassin](http://spamassassin.apache.org/) supporting custom rules
