@@ -103,7 +103,7 @@ function _setup_apply_fixes_after_configuration() {
   fi
 }
 
-function _run_user_patches() {
+function _setup_run_user_patches() {
   local USER_PATCHES='/tmp/docker-mailserver/user-patches.sh'
 
   if [[ -f ${USER_PATCHES} ]]; then
