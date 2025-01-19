@@ -130,6 +130,8 @@ function _register_functions() {
     _register_start_daemon '_start_daemon_mta_sts_daemon'
   fi
 
+  _register_setup_function '_setup_run_user_patches'
+
   # ? >> Daemons
 
   _register_start_daemon '_start_daemon_cron'
@@ -185,7 +187,6 @@ if [[ ! -f /CONTAINER_START ]]; then
   _register_functions
   _check
   _setup
-  _run_user_patches
 else
   # container was restarted
   _early_variables_setup
