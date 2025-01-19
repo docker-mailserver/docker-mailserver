@@ -83,7 +83,13 @@ function _setup_save_states() {
       # sourced from assocaiated path in /var/mail-state/ ($DEST):
       ln -s "${DEST}" "${SERVICEDIR}"
     done
+  else
+    _log 'debug' "'${STATEDIR}' is not present; Not consolidating state"
+  fi
+}
 
+function _setup_adjust_state_permissions() {
+  if [[ -d ${STATEDIR} ]]; then
     # This ensures the user and group of the files from the external mount have their
     # numeric ID values in sync. New releases where the installed packages order changes
     # can change the values in the Docker image, causing an ownership mismatch.
@@ -119,7 +125,5 @@ function _setup_save_states() {
     # Ref: https://github.com/docker-mailserver/docker-mailserver/pull/3625
     chmod 730 "${STATEDIR}/spool-postfix/maildrop"
     chmod 710 "${STATEDIR}/spool-postfix/public"
-  else
-    _log 'debug' "'${STATEDIR}' is not present; Not consolidating state"
   fi
 }

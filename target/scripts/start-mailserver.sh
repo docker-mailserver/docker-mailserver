@@ -122,7 +122,9 @@ function _register_functions() {
   _register_setup_function '_setup_logwatch'
 
   _register_setup_function '_setup_save_states'
+  # TODO
   _register_setup_function '_setup_apply_fixes_after_configuration'
+  _register_setup_function '_setup_adjust_state_permissions'
 
   if [[ ${ENABLE_MTA_STS} -eq 1 ]]; then
     _register_setup_function '_setup_mta_sts'
@@ -186,7 +188,10 @@ _check
 # Ensure DMS only adjusts config files for a new container.
 # Container restarts should skip as they retain the modified config.
 if [[ -f /CONTAINER_START ]]; then
-  _log 'info' 'Container was restarted. Skipping setup routines.'
+  _log 'info' 'Container was restarted. Skipping most setup routines.'
+  # We cannot skip all setup routines because some need to run _after_
+  # the initial setup (and hence, they cannot be moved to the check stack).
+  _setup_adjust_state_permissions
 else
   _setup
 fi
