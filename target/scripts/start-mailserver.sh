@@ -176,25 +176,20 @@ function _register_functions() {
 # ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
+_early_supervisor_setup
+_early_variables_setup
+
+_log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
+
+_register_functions
+_check
+
 # Ensure DMS only adjusts config files for a new container.
 # Container restarts should skip as they retain the modified config.
-if [[ ! -f /CONTAINER_START ]]; then
-  _early_supervisor_setup
-  _early_variables_setup
-
-  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
-
-  _register_functions
-  _check
-  _setup
-else
-  # container was restarted
-  _early_variables_setup
-
+if [[ -f /CONTAINER_START ]]; then
   _log 'info' 'Container was restarted. Skipping setup routines.'
-  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
-
-  _register_functions
+else
+  _setup
 fi
 
 # marker to check if container was restarted
