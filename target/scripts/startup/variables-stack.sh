@@ -7,6 +7,7 @@ function _early_variables_setup() {
   _obtain_hostname_and_domainname
   __environment_variables_backwards_compatibility
   __environment_variables_general_setup
+  __environment_variables_export
 }
 
 # This function handles variables that are deprecated. This allows a
@@ -190,7 +191,7 @@ function _environment_variables_saslauthd() {
 # This function Writes the contents of the `VARS` map (associative array)
 # to locations where they can be sourced from (e.g. `/etc/dms-settings`)
 # or where they can be used by Bash directly (e.g. `/root/.bashrc`).
-function _environment_variables_export() {
+function __environment_variables_export() {
   _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
 
   : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses

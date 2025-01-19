@@ -123,7 +123,6 @@ function _register_functions() {
 
   _register_setup_function '_setup_save_states'
   _register_setup_function '_setup_apply_fixes_after_configuration'
-  _register_setup_function '_environment_variables_export'
 
   if [[ ${ENABLE_MTA_STS} -eq 1 ]]; then
     _register_setup_function '_setup_mta_sts'
