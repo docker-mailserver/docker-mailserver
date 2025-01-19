@@ -129,9 +129,8 @@ function _register_functions() {
     _register_start_daemon '_start_daemon_mta_sts_daemon'
   fi
 
-  # ! Must be the last setup function
+  # ! The following functions have the be executed after all other setup functions
   _register_setup_function '_setup_directory_and_file_permissions'
-
   _register_setup_function '_setup_run_user_patches'
 
   # ? >> Daemons
