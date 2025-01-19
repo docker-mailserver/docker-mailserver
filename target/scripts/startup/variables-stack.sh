@@ -7,6 +7,18 @@ function _early_variables_setup() {
   _obtain_hostname_and_domainname
   __environment_variables_backwards_compatibility
   __environment_variables_general_setup
+  __environment_variables_export
+}
+
+# Declare a variable as readonly if it is not already set.
+function __declare_readonly() {
+  local VARIABLE_NAME=${1:?Variable name required when declaring a variable as readonly}
+  local VARIABLE_VALUE=${2:?Variable value required when declaring a variable as readonly}
+
+  if [[ ! -v ${VARIABLE_NAME} ]]; then
+    readonly "${VARIABLE_NAME}=${VARIABLE_VALUE}"
+    VARS[${VARIABLE_NAME}]="${VARIABLE_VALUE}"
+  fi
 }
 
 # This function handles variables that are deprecated. This allows a
@@ -54,6 +66,12 @@ function __environment_variables_general_setup() {
   VARS[REPORT_SENDER]="${REPORT_SENDER:=mailserver-report@${HOSTNAME}}"
   VARS[DMS_VMAIL_UID]="${DMS_VMAIL_UID:=5000}"
   VARS[DMS_VMAIL_GID]="${DMS_VMAIL_GID:=5000}"
+
+  # internal variables are next
+
+  __declare_readonly 'DMS_STATE_DIR' '/var/mail-state'
+
+  # user-customizable are last
 
   _log 'trace' 'Setting anti-spam & anti-virus environment variables'
 
@@ -190,7 +208,7 @@ function _environment_variables_saslauthd() {
 # This function Writes the contents of the `VARS` map (associative array)
 # to locations where they can be sourced from (e.g. `/etc/dms-settings`)
 # or where they can be used by Bash directly (e.g. `/root/.bashrc`).
-function _environment_variables_export() {
+function __environment_variables_export() {
   _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
 
   : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses

@@ -122,13 +122,16 @@ function _register_functions() {
   _register_setup_function '_setup_logwatch'
 
   _register_setup_function '_setup_save_states'
-  _register_setup_function '_setup_apply_fixes_after_configuration'
-  _register_setup_function '_environment_variables_export'
+  _register_setup_function '_setup_adjust_state_permissions'
 
   if [[ ${ENABLE_MTA_STS} -eq 1 ]]; then
     _register_setup_function '_setup_mta_sts'
     _register_start_daemon '_start_daemon_mta_sts_daemon'
   fi
+
+  # ! The following functions have the be executed after all other setup functions
+  _register_setup_function '_setup_directory_and_file_permissions'
+  _register_setup_function '_setup_run_user_patches'
 
   # ? >> Daemons
 
@@ -174,26 +177,24 @@ function _register_functions() {
 # ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
+_early_supervisor_setup
+_early_variables_setup
+
+_log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
+
+_register_functions
+_check
+
 # Ensure DMS only adjusts config files for a new container.
 # Container restarts should skip as they retain the modified config.
-if [[ ! -f /CONTAINER_START ]]; then
-  _early_supervisor_setup
-  _early_variables_setup
-
-  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
-
-  _register_functions
-  _check
-  _setup
-  _run_user_patches
+if [[ -f /CONTAINER_START ]]; then
+  _log 'info' 'Container was restarted. Skipping most setup routines.'
+  # We cannot skip all setup routines because some need to run _after_
+  # the initial setup (and hence, they cannot be moved to the check stack).
+  _setup_directory_and_file_permissions
+  _setup_adjust_state_permissions
 else
-  # container was restarted
-  _early_variables_setup
-
-  _log 'info' 'Container was restarted. Skipping setup routines.'
-  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
-
-  _register_functions
+  _setup
 fi
 
 # marker to check if container was restarted
