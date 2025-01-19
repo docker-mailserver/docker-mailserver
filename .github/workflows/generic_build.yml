@@ -32,7 +32,7 @@ jobs:
         with:
           submodules: recursive
 
-      # Can potentially be replaced by: `${{ hashFiles('target/**', 'Dockerfile' }}`
+      # Can potentially be replaced by: `${{ hashFiles('target/**', 'Dockerfile') }}`
       # Must not be affected by file metadata changes and have a consistent sort order:
       # https://docs.github.com/en/actions/learn-github-actions/expressions#hashfiles
       # Keying by the relevant build context is more re-usable than a commit SHA.
