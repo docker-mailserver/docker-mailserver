@@ -122,14 +122,15 @@ function _register_functions() {
   _register_setup_function '_setup_logwatch'
 
   _register_setup_function '_setup_save_states'
-  # TODO
-  _register_setup_function '_setup_apply_fixes_after_configuration'
   _register_setup_function '_setup_adjust_state_permissions'
 
   if [[ ${ENABLE_MTA_STS} -eq 1 ]]; then
     _register_setup_function '_setup_mta_sts'
     _register_start_daemon '_start_daemon_mta_sts_daemon'
   fi
+
+  # ! Must be the last setup function
+  _register_setup_function '_setup_directory_and_file_permissions'
 
   _register_setup_function '_setup_run_user_patches'
 
@@ -191,6 +192,7 @@ if [[ -f /CONTAINER_START ]]; then
   _log 'info' 'Container was restarted. Skipping most setup routines.'
   # We cannot skip all setup routines because some need to run _after_
   # the initial setup (and hence, they cannot be moved to the check stack).
+  _setup_directory_and_file_permissions
   _setup_adjust_state_permissions
 else
   _setup
