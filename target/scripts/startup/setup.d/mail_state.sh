@@ -88,10 +88,7 @@ function _setup_save_states() {
 }
 
 function _setup_adjust_state_permissions() {
-  if [[ ! -d ${DMS_STATE_DIR:?DMS_STATE_DIR is not set} ]]; then
-    _log 'debug' "'${DMS_STATE_DIR}' is not present - not adjusting state permissions"
-    return 0
-  fi
+  [[ -d ${DMS_STATE_DIR:?DMS_STATE_DIR is not set} ]] || return 0
 
   # This ensures the user and group of the files from the external mount have their
   # numeric ID values in sync. New releases where the installed packages order changes
