@@ -4,9 +4,15 @@
 declare -A VARS
 
 function _early_variables_setup() {
+  __environment_variables_log_level
   _obtain_hostname_and_domainname
   __environment_variables_backwards_compatibility
   __environment_variables_general_setup
+
+  [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]] && __environment_variables_ldap
+  [[ ${ENABLE_OAUTH2} -eq 1 ]]           && __environment_variables_oauth2
+  [[ ${ENABLE_SASLAUTHD} -eq 1 ]]        && __environment_variables_saslauthd
+
   __environment_variables_export
 }
 
@@ -177,15 +183,27 @@ function __environment_variables_general_setup() {
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
 }
 
-function _environment_variables_oauth2() {
-  _log 'debug' 'Setting OAUTH2-related environment variables now'
+function __environment_variables_log_level() {
+  if [[ ${LOG_LEVEL} == 'trace' ]] \
+  || [[ ${LOG_LEVEL} == 'debug' ]] \
+  || [[ ${LOG_LEVEL} == 'info' ]]  \
+  || [[ ${LOG_LEVEL} == 'warn' ]]  \
+  || [[ ${LOG_LEVEL} == 'error' ]]
+  then
+    return 0
+  else
+    local DEFAULT_LOG_LEVEL='info'
+    _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default '${DEFAULT_LOG_LEVEL}')"
 
-  VARS[OAUTH2_INTROSPECTION_URL]="${OAUTH2_INTROSPECTION_URL:=}"
+    # shellcheck disable=SC2034
+    VARS[LOG_LEVEL]="${DEFAULT_LOG_LEVEL}"
+    LOG_LEVEL="${DEFAULT_LOG_LEVEL}"
+  fi
 }
 
 # This function handles environment variables related to LDAP.
 # NOTE: SASLAuthd and Dovecot LDAP support inherit these common ENV.
-function _environment_variables_ldap() {
+function __environment_variables_ldap() {
   _log 'debug' 'Setting LDAP-related environment variables now'
 
   VARS[LDAP_BIND_DN]="${LDAP_BIND_DN:=}"
@@ -195,9 +213,15 @@ function _environment_variables_ldap() {
   VARS[LDAP_START_TLS]="${LDAP_START_TLS:=no}"
 }
 
+function __environment_variables_oauth2() {
+  _log 'debug' 'Setting OAUTH2-related environment variables now'
+
+  VARS[OAUTH2_INTROSPECTION_URL]="${OAUTH2_INTROSPECTION_URL:=}"
+}
+
 # This function handles environment variables related to SASLAUTHD
 # LDAP specific ENV handled in: `startup/setup.d/saslauthd.sh:_setup_saslauthd()`
-function _environment_variables_saslauthd() {
+function __environment_variables_saslauthd() {
   _log 'debug' 'Setting SASLAUTHD-related environment variables now'
 
   # This ENV is only used by the supervisor service config `saslauth.conf`:
