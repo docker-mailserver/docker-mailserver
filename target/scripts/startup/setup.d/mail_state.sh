@@ -13,7 +13,11 @@ function _setup_save_states() {
   local DEST DESTDIR SERVICEDIR SERVICEDIRS SERVICEFILE SERVICEFILES
 
   # Always enabled features:
-  SERVICEDIRS=( 'lib/logrotate' 'lib/postfix' 'spool/postfix' )
+  SERVICEDIRS=(
+    'lib/logrotate'
+    'lib/postfix'
+    'spool/postfix'
+  )
 
   # Only consolidate state for services that are enabled
   # Notably avoids copying over 200MB for the ClamAV database
