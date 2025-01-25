@@ -256,12 +256,12 @@ sign_local = true;
 sign_authenticated = true;
 
 domain {
-   <DOMAIN NAME> {
-       # Change the path here to your actual private key
-       path = "/tmp/docker-mailserver/rspamd/dkim/rsa-2048-mail-<DOMAIN NAME>.private.txt";
-       # Changhe the selected if you chose a non-default one
-       selector = "mail";
-   }
+    <DOMAIN NAME> {
+        # Change the path here to your actual private key
+        path = "/tmp/docker-mailserver/rspamd/dkim/rsa-2048-mail-<DOMAIN NAME>.private.txt";
+        # Changhe the selected if you chose a non-default one
+        selector = "mail";
+    }
 }
 ```
 
