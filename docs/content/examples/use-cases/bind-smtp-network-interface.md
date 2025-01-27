@@ -66,3 +66,26 @@ to the respective IP-address on the server you want to use.
 [gh-pr::3465::comment-restrictions]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#discussion_r1458114528
 [gh-pr::3465::alternative-solution]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#issuecomment-1678107233
 [gh-src::postfix-master-cf::relay-transport]: https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65
+
+!!! note "Docker compose config for making docker-mailserver use specific outbound IP"
+```
+services:
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
+    hostname: REDACTED
+    env_file: mailserver.env
+    networks:
+      - mailnet
+...SNIP unrelated
+
+networks:
+  mailnet:
+    name: mailnet
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: 203.RED.ACT.ED
+      com.docker.network.host_ipv4: 203.RED.ACT.ED
+```
+
