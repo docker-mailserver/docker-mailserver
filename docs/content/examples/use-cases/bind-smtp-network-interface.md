@@ -55,6 +55,27 @@ to the respective IP-address on the server you want to use.
         ```
 
         If that avoids the concern with `smtp-amavis`, you may still need to additionally override for the [`relay` transport][gh-src::postfix-master-cf::relay-transport] as well if you have configured DMS to relay mail.
+        
+    === "Multiple IP hosts"
+    
+        Sometimes containers use the first IP address from Docker host for outgoing traffic and verifications of rDNS (PTR) can occur for that IP address. 
+        To force container to use specific IP address from host you can use following configuration in compose.yml
+        
+        ```title="compose.yml"
+        services:
+          mailserver:
+            ...
+            networks:
+              - mailnet
+            ...
+        networks:
+          mailnet:
+            name: mailnet
+            driver: bridge
+            driver_opts:
+              com.docker.network.bridge.host_binding_ipv4: 198.51.100.42
+              com.docker.network.host_ipv4: 198.51.100.42
+        ```
 
 !!! note "IP addresses for documentation"
 
@@ -67,25 +88,4 @@ to the respective IP-address on the server you want to use.
 [gh-pr::3465::alternative-solution]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#issuecomment-1678107233
 [gh-src::postfix-master-cf::relay-transport]: https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65
 
-!!! note "Docker compose config for making docker-mailserver use specific outbound IP"
-```
-services:
-  mailserver:
-    image: ghcr.io/docker-mailserver/docker-mailserver:latest
-    container_name: mailserver
-    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
-    hostname: REDACTED
-    env_file: mailserver.env
-    networks:
-      - mailnet
-...SNIP unrelated
-
-networks:
-  mailnet:
-    name: mailnet
-    driver: bridge
-    driver_opts:
-      com.docker.network.bridge.host_binding_ipv4: 203.RED.ACT.ED
-      com.docker.network.host_ipv4: 203.RED.ACT.ED
-```
 
