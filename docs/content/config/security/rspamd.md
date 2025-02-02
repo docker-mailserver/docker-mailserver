@@ -247,6 +247,24 @@ Rspamd is running, but you want or need to adjust it? First, create a file named
 
 There is a dedicated [section for setting up DKIM with Rspamd in our documentation][docs::dkim-with-rspamd].
 
+### ARC (Authenticated Received Chain)
+
+ARC is not set up by default, but you can easily enable it by adding a file called `arc.conf` to `docker-data/dms/config/rspamd/override.d/`. ARC can use DKIM keys that you should have already created. The configuration file could then contain the following:
+
+```conf
+sign_local = true;
+sign_authenticated = true;
+
+domain {
+    <DOMAIN NAME> {
+        # Change the path here to your actual private key
+        path = "/tmp/docker-mailserver/rspamd/dkim/rsa-2048-mail-<DOMAIN NAME>.private.txt";
+        # Changhe the selected if you chose a non-default one
+        selector = "mail";
+    }
+}
+```
+
 ### _Abusix_ Integration
 
 This subsection provides information about the integration of [Abusix][abusix-web], "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:
