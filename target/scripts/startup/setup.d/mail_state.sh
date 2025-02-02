@@ -39,9 +39,9 @@ function _setup_save_states() {
 
   for SERVICEFILE in "${SERVICEFILES[@]}"; do
     DEST="${DMS_STATE_DIR}/${SERVICEFILE}"
-    DESTDIR="${DEST%/*}"
 
-    mkdir -p "${DESTDIR}"
+    # Append service parent dir(s) path to the state dir and ensure it exists:
+    mkdir -p "${DEST%/*}"
     if [[ -f ${DEST} ]]; then
       _log 'trace' "Destination ${DEST} exists, linking ${SERVICEFILE} to it"
       # Original content from image no longer relevant, remove it:
@@ -76,6 +76,7 @@ function _setup_save_states() {
       mv "${SERVICEDIR}" "${DEST}"
       # Apply SELinux security context to match the state directory, so access
       # is not restricted to the current running container:
+      # https://github.com/docker-mailserver/docker-mailserver/pull/3890
       chcon -R --reference="${DMS_STATE_DIR}" "${DEST}" 2>/dev/null || true
     else
       _log 'error' "${SERVICEDIR} should exist but is missing"
@@ -87,15 +88,17 @@ function _setup_save_states() {
   done
 }
 
+# These corrections are to fix changes to UID/GID values between upgrades,
+# or when ownership/permissions were altered externally on the host (eg: migration or system scripts)
 function _setup_adjust_state_permissions() {
-  [[ -d ${DMS_STATE_DIR:?DMS_STATE_DIR is not set} ]] || return 0
+  [[ ! -d ${DMS_STATE_DIR:?DMS_STATE_DIR is not set} ]] && return 0
 
   # This ensures the user and group of the files from the external mount have their
   # numeric ID values in sync. New releases where the installed packages order changes
   # can change the values in the Docker image, causing an ownership mismatch.
   # NOTE: More details about users and groups added during image builds are documented here:
   # https://github.com/docker-mailserver/docker-mailserver/pull/3011#issuecomment-1399120252
-  _log 'trace' "Fixing ${DMS_STATE_DIR}/* permissions"
+  _log 'trace' "Ensuring correct ownership + permissions for DMS state dir: '${DMS_STATE_DIR}'"
   [[ ${ENABLE_AMAVIS}       -eq 1 ]] && chown -R amavis:amavis             "${DMS_STATE_DIR}/lib-amavis"
   [[ ${ENABLE_CLAMAV}       -eq 1 ]] && chown -R clamav:clamav             "${DMS_STATE_DIR}/lib-clamav"
   [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && chown -R fetchmail:nogroup         "${DMS_STATE_DIR}/lib-fetchmail"
