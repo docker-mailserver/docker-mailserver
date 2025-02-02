@@ -10,7 +10,7 @@ function _setup_save_states() {
 
   _log 'debug' "Consolidating all state onto ${DMS_STATE_DIR}"
 
-  local DEST DESTDIR SERVICEDIR SERVICEDIRS SERVICEFILE SERVICEFILES
+  local DEST SERVICEDIR SERVICEDIRS SERVICEFILE SERVICEFILES
 
   # Always enabled features:
   SERVICEDIRS=(
@@ -83,7 +83,7 @@ function _setup_save_states() {
     fi
 
     # Symlink the original path in the container ($SERVICEDIR) to be
-    # sourced from assocaiated path in /var/mail-state/ ($DEST):
+    # sourced from associated path in /var/mail-state/ ($DEST):
     ln -s "${DEST}" "${SERVICEDIR}"
   done
 }
