@@ -58,9 +58,9 @@ to the respective IP-address on the server you want to use.
         
         For **inbound** traffic, you may configure this at whatever scope is most appropriate for you:
 
-        - **Daemon:** Change the default bind address configured in `/etc/docker/daemon.json` (default `0.0.0.0`)
-        - **Network:** Assign the [`host_binding_ipv4` bridge driver option][inbound-ip::docker-docs] as shown in the below `compose.yaml` snippet.
-        - **Container:** Provide an explicit IP address when publishing a port.
+        - **Daemon:** Change the [default bind address][inbound-ip::docker-docs::daemon] configured in `/etc/docker/daemon.json` (default `0.0.0.0`)
+        - **Network:** Assign the [`host_binding_ipv4` bridge driver option][inbound-ip::docker-docs::network] as shown in the below `compose.yaml` snippet.
+        - **Container:** Provide an explicit host IP address when [publishing a port][inbound-ip::docker-docs::container].
         
         For **outbound** traffic, the bridge network will use the default route. You can change this by either:
 
@@ -98,7 +98,9 @@ to the respective IP-address on the server you want to use.
 [gh-pr::3465::alternative-solution]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#issuecomment-1678107233
 [gh-src::postfix-master-cf::relay-transport]: https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65
 
-[inbound-ip::docker-docs]: https://docs.docker.com/engine/network/drivers/bridge/#default-host-binding-address
+[inbound-ip::docker-docs::daemon]: https://docs.docker.com/reference/cli/dockerd/#default-network-options
+[inbound-ip::docker-docs::network]: https://docs.docker.com/engine/network/drivers/bridge/#default-host-binding-address
+[inbound-ip::docker-docs::container]: https://docs.docker.com/reference/compose-file/services/#ports
 [outbound-ip::route-manually]: https://github.com/moby/moby/issues/30053#issuecomment-1077041045
 [outbind-ip::host-ipv4]: https://github.com/moby/libnetwork/pull/2454
 [outbind-ip::host-ipv6]: https://github.com/moby/moby/issues/46469
