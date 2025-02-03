@@ -59,7 +59,7 @@ to the respective IP-address on the server you want to use.
     === "Multiple IP hosts"
     
         Sometimes containers use the first IP address from Docker host for outgoing traffic and verifications of rDNS (PTR) can occur for that IP address. 
-        To force container to use specific IP address from host you can use following configuration in compose.yml
+        To force container to use specific IP address from host you can use following configuration in compose.yaml
         
         ```title="compose.yaml"
         networks:
