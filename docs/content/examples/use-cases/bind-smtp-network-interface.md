@@ -62,12 +62,6 @@ to the respective IP-address on the server you want to use.
         To force container to use specific IP address from host you can use following configuration in compose.yml
         
         ```title="compose.yml"
-        services:
-          mailserver:
-            ...
-            networks:
-              - mailnet
-            ...
         networks:
           default:
             driver_opts:
