@@ -2283,7 +2283,7 @@
 to the respective IP-address on the server you want to use.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="contributed-solution" name="__tabbed_1" type="radio" /><input id="alternative-unverified" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="contributed-solution">Contributed solution</label><label for="alternative-unverified">Alternative (unverified)</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="contributed-solution" name="__tabbed_1" type="radio" /><input id="alternative-unverified" name="__tabbed_1" type="radio" /><input id="bridged-networks" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="contributed-solution">Contributed solution</label><label for="alternative-unverified">Alternative (unverified)</label><label for="bridged-networks">Bridged Networks</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><span class="filename">postfix-main.cf</span><pre><span></span><code>smtp_bind_address = 198.51.100.42
@@ -2305,12 +2305,40 @@ smtp/inet/smtp_bind_address6 = 2001:DB8::42
 </code></pre></div>
 <p>If that avoids the concern with <code>smtp-amavis</code>, you may still need to additionally override for the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65"><code>relay</code> transport</a> as well if you have configured DMS to relay mail.</p>
 </div>
+<div class="tabbed-block">
+<p>When your DMS container is using a bridge network, you'll instead need to restrict which IP address inbound and outbound traffic is routed through via the bridged interface.</p>
+<p>For <strong>inbound</strong> traffic, you may configure this at whatever scope is most appropriate for you:</p>
+<ul>
+<li><strong>Daemon:</strong> Change the <a href="https://docs.docker.com/reference/cli/dockerd/#default-network-options">default bind address</a> configured in <code>/etc/docker/daemon.json</code> (default <code>0.0.0.0</code>)</li>
+<li><strong>Network:</strong> Assign the <a href="https://docs.docker.com/engine/network/drivers/bridge/#default-host-binding-address"><code>host_binding_ipv4</code> bridge driver option</a> as shown in the below <code>compose.yaml</code> snippet.</li>
+<li><strong>Container:</strong> Provide an explicit host IP address when <a href="https://docs.docker.com/reference/compose-file/services/#ports">publishing a port</a>.</li>
+</ul>
+<p>For <strong>outbound</strong> traffic, the bridge network will use the default route. You can change this by either:</p>
+<ul>
+<li><a href="https://github.com/moby/moby/issues/30053#issuecomment-1077041045">Manually routing networks</a> on the host.</li>
+<li>Use the <a href="https://github.com/moby/libnetwork/pull/2454"><code>host_ipv4</code> driver option</a> for Docker networks to force the SNAT (source IP) that the bridged network will route outbound traffic through.<ul>
+<li>This IP address must belong to a network interface to be routed through it.</li>
+<li>IPv6 support via <code>host_ipv6</code> <a href="https://github.com/moby/moby/issues/46469">requires at least Docker v25</a>.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<p>Here is a <code>compose.yaml</code> snippet that applies the inbound + outbound settings to the default bridge network Docker Compose creates (<em>if it already exists, you will need to ensure it's re-created to apply the updated settings</em>):</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">networks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">driver_opts</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># Inbound IP (sets the host IP that published ports receive traffic from):</span>
+<span class="w">      </span><span class="nt">com.docker.network.bridge.host_binding_ipv4</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">198.51.100.42</span>
+<span class="w">      </span><span class="c1"># Outbound IP (sets the host IP that external hosts will receive connections from):</span>
+<span class="w">      </span><span class="nt">com.docker.network.host_ipv4</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">198.51.100.42</span>
+</code></pre></div>
+</div>
 </div>
 </div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">IP addresses for documentation</p>
-<p>IP addresses shown in above examples are placeholders, they are IP addresses reserved for documentation by IANA (<em><a href="https://datatracker.ietf.org/doc/html/rfc5737">RFC-5737 (IPv4)</a> and <a href="https://datatracker.ietf.org/doc/html/rfc3849">RFC-3849 (IPv6)</a></em>). Replace them with the IP addresses you want DMS to send mail through.</p>
+<p>IP addresses shown in above examples (<code>198.51.100.42</code> + <code>2001:DB8::42</code>) are placeholders, they are IP addresses reserved for documentation by IANA (<em><a href="https://datatracker.ietf.org/doc/html/rfc5737">RFC-5737 (IPv4)</a> and <a href="https://datatracker.ietf.org/doc/html/rfc3849">RFC-3849 (IPv6)</a></em>). Replace them with the IP addresses you want DMS to send mail through.</p>
 </div>
 
 
