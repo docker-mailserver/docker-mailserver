@@ -56,12 +56,25 @@ to the respective IP-address on the server you want to use.
 
         If that avoids the concern with `smtp-amavis`, you may still need to additionally override for the [`relay` transport][gh-src::postfix-master-cf::relay-transport] as well if you have configured DMS to relay mail.
         
-    === "Multiple IP hosts"
+    === "Bridged Networks"
     
-        Sometimes containers use the first IP address from Docker host for outgoing traffic and verifications of rDNS (PTR) can occur for that IP address. 
-        To force container to use specific IP address from host you can use following configuration in compose.yaml
+        When your DMS container is using a bridge network, you'll instead need to restrict which IP address inbound and outbound traffic is routed through via the bridged interface.
         
-        ```title="compose.yaml"
+        For inbound traffic, you may configure this at whatever scope is most appropriate for you:
+        - **Daemon:** Change the default bind address configured in `/etc/docker/daemon.json` (default `0.0.0.0`)
+        - **Network:** Assign the [`host_binding_ipv4` bridge driver option](https://docs.docker.com/engine/network/drivers/bridge/#default-host-binding-address) as shown in the below `compose.yaml` snippet.
+        - **Container:** Provide an explicit IP address when publishing a port.
+        
+        For outbound traffic, the bridge network will use the default route.
+
+        - [Manually route](https://github.com/moby/moby/issues/30053#issuecomment-1077041045) (Agnostic)
+        - Docker networking supports a driver option `host_ipv4` to force the SNAT (source IP) that the container will route through.
+            - This must belong to a valid network interface to be routed through it.
+            - IPv6 support via `host_ipv6` [requires at least Docker v25](https://github.com/moby/moby/issues/46469).
+            
+        Here is a `compose.yaml` snippet that applies the inbound + outbound settings to the default bridge network Docker Compose creates (_if it already exists, you will need to ensure it's re-created to apply the updated settings_):
+        
+        ```yaml title="compose.yaml"
         networks:
           default:
             driver_opts:
@@ -70,7 +83,6 @@ to the respective IP-address on the server you want to use.
               com.docker.network.bridge.host_binding_ipv4: 198.51.100.42
               # Force a specific source IP (SNAT):
               # https://github.com/moby/libnetwork/pull/2454
-              # https://github.com/moby/moby/issues/30053#issuecomment-1077041045
               com.docker.network.host_ipv4: 198.51.100.42
         ```
 
@@ -84,5 +96,4 @@ to the respective IP-address on the server you want to use.
 [gh-pr::3465::comment-restrictions]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#discussion_r1458114528
 [gh-pr::3465::alternative-solution]: https://github.com/docker-mailserver/docker-mailserver/pull/3465#issuecomment-1678107233
 [gh-src::postfix-master-cf::relay-transport]: https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65
-
 
