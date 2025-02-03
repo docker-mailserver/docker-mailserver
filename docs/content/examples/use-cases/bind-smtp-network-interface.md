@@ -69,11 +69,14 @@ to the respective IP-address on the server you want to use.
               - mailnet
             ...
         networks:
-          mailnet:
-            name: mailnet
-            driver: bridge
+          default:
             driver_opts:
+              # Set a specific IP to default bind container ports to instead of `0.0.0.0`:
+              # https://docs.docker.com/engine/network/drivers/bridge/#default-host-binding-address
               com.docker.network.bridge.host_binding_ipv4: 198.51.100.42
+              # Force a specific source IP (SNAT):
+              # https://github.com/moby/libnetwork/pull/2454
+              # https://github.com/moby/moby/issues/30053#issuecomment-1077041045
               com.docker.network.host_ipv4: 198.51.100.42
         ```
 
