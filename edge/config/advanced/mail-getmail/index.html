@@ -1503,6 +1503,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2353,6 +2362,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Debugging
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2464,6 +2482,10 @@ arguments =(&quot;-d&quot;,&quot;user1@example.com&quot;)
 </code></pre></div>
 <h3 id="xoauth2-authentication"><a class="toclink" href="#xoauth2-authentication">XOAUTH2 Authentication</a></h3>
 <p>It is possible to utilize the <code>getmail-gmail-xoauth-tokens</code> helper to provide authentication using <code>xoauth2</code> for <a href="https://github.com/getmail6/getmail6/blob/1f95606156231f1e074ba62a9baa64f892a92ef8/docs/getmailrc-examples#L286">gmail (example 12)</a> or <a href="https://github.com/getmail6/getmail6/blob/1f95606156231f1e074ba62a9baa64f892a92ef8/docs/getmailrc-examples#L351">Microsoft Office 365 (example 13)</a></p>
+<h2 id="debugging"><a class="toclink" href="#debugging">Debugging</a></h2>
+<p>To debug your <code>getmail</code> configurations, run this <code>setup debug</code> command:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>dms-container-name<span class="w"> </span>setup<span class="w"> </span>debug<span class="w"> </span>getmail
+</code></pre></div>
 
 
 
