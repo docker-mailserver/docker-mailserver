@@ -64,6 +64,7 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
 
     ${LBLUE}COMMAND${RESET} debug ${RED}:=${RESET}
         setup debug ${CYAN}fetchmail${RESET}
+        setup debug ${CYAN}getmail${RESET}
         setup debug ${CYAN}login${RESET} <COMMANDS>
         setup debug ${CYAN}show-mail-logs${RESET}
 
@@ -150,6 +151,7 @@ function _main() {
     ( debug )
       case ${2:-} in
         ( fetchmail      ) debug-fetchmail ;;
+        ( getmail        ) debug-getmail ;;
         ( show-mail-logs ) cat /var/log/mail/mail.log ;;
         ( login          )
           shift 2
