@@ -19,8 +19,6 @@ All notable changes to this project will be documented in this file. The format 
   - DMS v14 mistakenly relocated the _getmail state directory_ to the _DMS Config Volume_ as a `getmail/` subdirectory.
     - This has been corrected to `/var/lib/getmail` (_if you have mounted a DMS State Volume to `/var/mail-state`, `/var/lib/getmail` will be symlinked to `/var/mail-state/lib-getmail`_).
     - To preserve this state when upgrading to DMS v15, **you must manually migrate `getmail/` from the _DMS Config Volume_ to `lib-getmail/` in the _DMS State Volume_.**
-  - Added missing `debug getmail` subcommand to `setup` ([#4346](https://github.com/docker-mailserver/docker-mailserver/pull/4346))
-- **removed `VERSION`** file that was used for checking version updates ([#3677](https://github.com/docker-mailserver/docker-mailserver/issues/3677),[#4321](https://github.com/docker-mailserver/docker-mailserver/pull/4321))
 
 ### Security
 
@@ -31,9 +29,11 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Internal:**
   - Add password confirmation to several `setup` CLI subcommands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
+  - Added a `debug getmail` subcommand to `setup` ([#4346](https://github.com/docker-mailserver/docker-mailserver/pull/4346))
 
 ### Updates
 
+- **Removed `VERSION` file** from the repo that releases of DMS prior to v13 (Nov 2023) would check to detect new releases ([#3677](https://github.com/docker-mailserver/docker-mailserver/issues/3677), [#4321](https://github.com/docker-mailserver/docker-mailserver/pull/4321))
 - **Fail2ban:**
   - Updated to version [`1.1.0`](https://github.com/fail2ban/fail2ban/releases/tag/1.1.0) ([#4045](https://github.com/docker-mailserver/docker-mailserver/pull/4045))
 - **Documentation:**
@@ -54,11 +54,12 @@ All notable changes to this project will be documented in this file. The format 
   - Correctly apply a compatibility fix for OAuth2 introduced in DMS v13.3.1 which had not been applied to the actual LDAP config changes ([#4175](https://github.com/docker-mailserver/docker-mailserver/pull/4175))
 - **Internal:**
   - The main `mail.log` (_which is piped to stdout via `tail`_) now correctly begins from the first log line of the active container run. Previously some daemon logs and potential warnings/errors were omitted ([#4146](https://github.com/docker-mailserver/docker-mailserver/pull/4146))
-  - Fixed a regression introduced in v14 where `postfix-main.cf` appended `stderr` output into `/etc/postfix/main.cf`, causing Postfix startup to fail ([#4147](https://github.com/docker-mailserver/docker-mailserver/pull/4147))
   - `start-mailserver.sh` removed unused `shopt -s inherit_errexit` ([#4161](https://github.com/docker-mailserver/docker-mailserver/pull/4161))
+  - Fixed a regression introduced in v14 where `postfix-main.cf` appended `stderr` output into `/etc/postfix/main.cf`, causing Postfix startup to fail ([#4147](https://github.com/docker-mailserver/docker-mailserver/pull/4147))
+  - Fixed a regression introduced in v14 to better support running `start-mailserver.sh` with container restarts, which now only skip calling `_setup()` ([#4323](https://github.com/docker-mailserver/docker-mailserver/pull/4323#issuecomment-2629559254))
+  - The command `swaks --help` is now functional ([#4282](https://github.com/docker-mailserver/docker-mailserver/pull/4282))
 - **Rspamd:**
   - DKIM private key path checking is now performed only on paths that do not contain `$` ([#4201](https://github.com/docker-mailserver/docker-mailserver/pull/4201))
-- The command `swaks --help` is now functional ([#4282](https://github.com/docker-mailserver/docker-mailserver/pull/4282))
 
 ### CI
 

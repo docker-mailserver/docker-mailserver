@@ -82,7 +82,7 @@ function _setup_timezone() {
   fi
 }
 
-function _setup_apply_fixes_after_configuration() {
+function _setup_directory_and_file_permissions() {
   _log 'trace' 'Removing leftover PID files from a stop/start'
   find /var/run/ -not -name 'supervisord.pid' -name '*.pid' -delete
   touch /dev/shm/supervisor.sock
@@ -103,7 +103,7 @@ function _setup_apply_fixes_after_configuration() {
   fi
 }
 
-function _run_user_patches() {
+function _setup_run_user_patches() {
   local USER_PATCHES='/tmp/docker-mailserver/user-patches.sh'
 
   if [[ -f ${USER_PATCHES} ]]; then

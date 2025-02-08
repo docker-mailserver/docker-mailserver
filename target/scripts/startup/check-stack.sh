@@ -26,24 +26,6 @@ function _check_hostname() {
   fi
 }
 
-function _check_log_level() {
-  if [[ ${LOG_LEVEL} == 'trace' ]] \
-  || [[ ${LOG_LEVEL} == 'debug' ]] \
-  || [[ ${LOG_LEVEL} == 'info' ]]  \
-  || [[ ${LOG_LEVEL} == 'warn' ]]  \
-  || [[ ${LOG_LEVEL} == 'error' ]]
-  then
-    return 0
-  else
-    local DEFAULT_LOG_LEVEL='info'
-    _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default '${DEFAULT_LOG_LEVEL}')"
-
-    # shellcheck disable=SC2034
-    VARS[LOG_LEVEL]="${DEFAULT_LOG_LEVEL}"
-    LOG_LEVEL="${DEFAULT_LOG_LEVEL}"
-  fi
-}
-
 function _check_spam_prefix() {
   # This check should be independent of ENABLE_POP3 and ENABLE_IMAP
   if [[ ${MOVE_SPAM_TO_JUNK} -eq 0 ]] \
