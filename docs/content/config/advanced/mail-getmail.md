@@ -108,3 +108,11 @@ It is possible to utilize the `getmail-gmail-xoauth-tokens` helper to provide au
 [getmail-docs]: https://getmail6.org/configuration.html
 [getmail-docs-xoauth-12]: https://github.com/getmail6/getmail6/blob/1f95606156231f1e074ba62a9baa64f892a92ef8/docs/getmailrc-examples#L286
 [getmail-docs-xoauth-13]: https://github.com/getmail6/getmail6/blob/1f95606156231f1e074ba62a9baa64f892a92ef8/docs/getmailrc-examples#L351
+
+## Debugging
+
+To debug your `getmail` configurations, run this `setup debug` command:
+
+```sh
+docker exec -it dms-container-name setup debug getmail
+```
