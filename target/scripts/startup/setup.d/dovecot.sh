@@ -49,7 +49,7 @@ function _setup_dovecot() {
     -e 's|^#?(lda_mailbox_autocreate =).*|\1 yes|' \
     -e 's|^#?(lda_mailbox_autosubscribe =).*|\1 yes|' \
     -e "s|^#?(postmaster_address =).*|\1 ${POSTMASTER_ADDRESS}|" \
-    -e "s|^#?(hostname =).*|\1 ${HOSTNAME}|"
+    -e "s|^#?(hostname =).*|\1 ${HOSTNAME}|" \
     /etc/dovecot/conf.d/15-lda.conf
 
   if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf; then
