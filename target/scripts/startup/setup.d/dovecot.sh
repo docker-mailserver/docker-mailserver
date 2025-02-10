@@ -3,13 +3,47 @@
 function _setup_dovecot() {
   _log 'debug' 'Setting up Dovecot'
 
+  # Protocol support
+  sedfile -i -e 's|include_try /usr/share/dovecot/protocols.d|include_try /etc/dovecot/protocols.d|g' /etc/dovecot/dovecot.conf
   cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
-  # disable pop3 (it will be eventually enabled later in the script, if requested)
+  # Disable these protocols by default, they can be enabled later via ENV (ENABLE_POP3, ENABLE_IMAP, ENABLE_MANAGESIEVE)
   mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
-  # disable imap (it will be eventually enabled later in the script, if requested)
   mv /etc/dovecot/protocols.d/imapd.protocol /etc/dovecot/protocols.d/imapd.protocol.disab
   mv /etc/dovecot/protocols.d/managesieved.protocol /etc/dovecot/protocols.d/managesieved.protocol.disab
-    sedfile -i 's|^postmaster_address = .*$|postmaster_address = '"${POSTMASTER_ADDRESS}"'|g' /etc/dovecot/conf.d/15-lda.conf
+
+  # NOTE: While Postfix will deliver to Dovecot via LMTP (Previously LDA until DMS v2),
+  # LDA may be used via other services like Getmail being configured to use /usr/lib/dovecot/deliver
+  # when mail does not need to go through Postfix.
+  # `mail_plugins` is scoped to the `protocol lda` config block of this file.
+  #
+  # TODO: `postmaster_address` + `hostname` appear to be for the general Dovecot config rather than LDA specific?
+  # https://doc.dovecot.org/2.3/settings/core/#core_setting-postmaster_address
+  # https://doc.dovecot.org/2.3/settings/core/#core_setting-hostname
+  # Dovecot 3.0 docs:
+  # https://doc.dovecot.org/main/core/summaries/settings.html#postmaster_address
+  # https://doc.dovecot.org/main/core/summaries/settings.html#postmaster_address
+  # https://doc.dovecot.org/main/core/config/delivery/lmtp.html#common-delivery-settings
+  # https://doc.dovecot.org/main/core/config/delivery/lda.html#common-delivery-settings
+  # https://doc.dovecot.org/main/core/config/sieve/submission.html#postmaster-address
+  # Shows config example with postmaster_address scoped in a `protocol lda { }` block:
+  # https://doc.dovecot.org/main/howto/virtual/simple_install.html#delivering-mails
+  #
+  # DMS initially copied Dovecot example configs, these were removed from Dovecot 2.4 onwards:
+  # https://github.com/dovecot/core/commit/5941699b277d762d98c202928cf5b5c8c70bc359
+  # In favor of a minimal config example:
+  # https://github.com/dovecot/core/commit/9a6a6aef35bb403fa96f0b5efdb0faff85b1471d
+  # 2.3 series example config:
+  # https://github.com/dovecot/core/blob/2.3.21.1/doc/example-config/conf.d/15-lda.conf
+  # Initial config files committed to DMS in April 2016:
+  # TODO: Consider housekeeping on config to only represent relevant changes/support by scripts
+  # https://github.com/docker-mailserver/docker-mailserver/commit/ee0d0853dd672488238eecb0ec2d26719ff45d7d
+  sedfile -i -r \
+    -e 's|^(\s*)#?(mail_plugins =).*|\1\2 $mail_plugins sieve|' \
+    -e 's|^#?(lda_mailbox_autocreate =).*|\1 yes|' \
+    -e 's|^#?(lda_mailbox_autosubscribe =).*|\1 yes|' \
+    -e "s|^#?(postmaster_address =).*|\1 ${POSTMASTER_ADDRESS}|" \
+    -e "s|^#?(hostname =).*|\1 '${HOSTNAME}'|"
+    /etc/dovecot/conf.d/15-lda.conf
 
   if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf; then
     printf '\n%s\n' 'stats_writer_socket_path=' >>/etc/dovecot/dovecot.conf
@@ -191,9 +225,4 @@ function _setup_dovecot_inet_protocols() {
 
 function _setup_dovecot_dhparam() {
   _setup_dhparam 'Dovecot' '/etc/dovecot/dh.pem'
-}
-
-function _setup_dovecot_hostname() {
-  _log 'debug' 'Applying hostname to Dovecot'
-  sedfile -i "s|^#hostname =.*$|hostname = '${HOSTNAME}'|g" /etc/dovecot/conf.d/15-lda.conf
 }
