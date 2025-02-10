@@ -37,12 +37,19 @@ function _setup_dovecot() {
   # Initial config files committed to DMS in April 2016:
   # TODO: Consider housekeeping on config to only represent relevant changes/support by scripts
   # https://github.com/docker-mailserver/docker-mailserver/commit/ee0d0853dd672488238eecb0ec2d26719ff45d7d
+  #
+  # TODO: `mail_plugins` appending `sieve` should probably be done for both `15-lda.conf` and `20-lmtp.conf`
+  # Presently DMS replaces the `20-lmtp.conf` from `dovecot-lmtpd` package with our own modified copy from 2016.
+  # The DMS variant only makes this one change to that file, thus we could adjust it as we do below for `15-lda.conf`
+  # Reference: https://github.com/docker-mailserver/docker-mailserver/pull/4350#issuecomment-2646736328
+
+  # shellcheck disable=SC2016
   sedfile -i -r \
     -e 's|^(\s*)#?(mail_plugins =).*|\1\2 $mail_plugins sieve|' \
     -e 's|^#?(lda_mailbox_autocreate =).*|\1 yes|' \
     -e 's|^#?(lda_mailbox_autosubscribe =).*|\1 yes|' \
     -e "s|^#?(postmaster_address =).*|\1 ${POSTMASTER_ADDRESS}|" \
-    -e "s|^#?(hostname =).*|\1 '${HOSTNAME}'|"
+    -e "s|^#?(hostname =).*|\1 ${HOSTNAME}|"
     /etc/dovecot/conf.d/15-lda.conf
 
   if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf; then
@@ -58,6 +65,7 @@ function _setup_dovecot() {
       sedfile -i -E \
         "s|^(mail_location =).*|\1 ${DOVECOT_MAILBOX_FORMAT}:/var/mail/%d/%n|" \
         /etc/dovecot/conf.d/10-mail.conf
+
       _log 'trace' 'Enabling cron job for dbox purge'
       mv /etc/cron.d/dovecot-purge.disabled /etc/cron.d/dovecot-purge
       chmod 644 /etc/cron.d/dovecot-purge
@@ -89,6 +97,12 @@ function _setup_dovecot() {
   [[ -f /tmp/docker-mailserver/dovecot.cf ]] && cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
 }
 
+# The `sieve` plugin is always enabled in DMS, this method handles user supplied sieve scripts + ManageSieve protocol
+# NOTE: There is a related post-setup step for this sieve support handled at `_setup_post()` (setup-stack.sh)
+# TODO: Improved sieve support may be needed in DMS to support this use-case:
+# https://github.com/docker-mailserver/docker-mailserver/issues/3904
+# TODO: Change detection support + refactor/DRY this sieve logic:
+# https://github.com/orgs/docker-mailserver/discussions/2633#discussioncomment-11622955
 function _setup_dovecot_sieve() {
   mkdir -p /usr/lib/dovecot/sieve-{filter,global,pipe}
   mkdir -p /usr/lib/dovecot/sieve-global/{before,after}
