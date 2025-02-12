@@ -122,7 +122,7 @@ function _reload_postfix() {
 # you can set the environment variable `POSTFIX_README_DIRECTORY='/new/dir/'`
 # (`POSTFIX_` is an arbitrary prefix, you can choose the one you like),
 # and then call this function:
-# `_replace_by_env_in_file 'POSTFIX_' 'PATH TO POSTFIX's main.cf>`
+# `_replace_by_env_in_file 'POSTFIX_' '<PATH TO POSTFIX's main.cf>`
 #
 # ## Panics
 #
