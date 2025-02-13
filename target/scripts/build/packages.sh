@@ -24,13 +24,14 @@ function _pre_installation_steps() {
   apt-get "${QUIET}" upgrade
 
   _log 'trace' 'Installing packages that are needed early'
-  # add packages usually required by apt to
-  # - not log unnecessary warnings
-  # - be able to add PPAs early (e.g., Rspamd)
+  # Add packages usually required by apt to:
   local EARLY_PACKAGES=(
-    apt-utils # avoid useless warnings
-    apt-transport-https ca-certificates curl gnupg # required for adding PPAs
-    systemd-standalone-sysusers # avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953)
+    # Avoid logging unnecessary warnings:
+    apt-utils
+    # Required for adding third-party repos (/etc/apt/sources.list.d) as alternative package sources (eg: Dovecot CE and Rspamd):
+    apt-transport-https ca-certificates curl gnupg
+    # Avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953):
+    systemd-standalone-sysusers
   )
   apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
 }
@@ -38,7 +39,7 @@ function _pre_installation_steps() {
 function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
   _log 'trace' 'Installing jaq'
-  local JAQ_TAG='v2.0.0'
+  local JAQ_TAG='v2.1.0'
   curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq
   chmod +x /usr/bin/jaq
 
@@ -136,43 +137,56 @@ function _install_dovecot() {
     dovecot-pop3d dovecot-sieve
   )
 
-  # Dovecot packages for community supported features.
+  # Additional Dovecot packages for supporting the DMS community (docs-only guide contributions).
   DOVECOT_PACKAGES+=(dovecot-auth-lua)
 
-  # Dovecot's deb community repository only provides x86_64 packages, so do not include it
-  # when building for another architecture.
+  # (Opt-in via ENV) Change repo source for dovecot packages to a third-party repo maintained by Dovecot.
+  # NOTE: AMD64 / x86_64 is the only supported arch from the Dovecot CE repo (thus noDMS built for ARM64 / aarch64)
+  # Repo: https://repo.dovecot.org/ce-2.4-latest/debian/bookworm/dists/bookworm/main/
+  # Docs: https://repo.dovecot.org/#debian
   if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]] && [[ "$(uname --machine)" == "x86_64" ]]; then
-    _log 'trace' 'Using Dovecot community repository'
-    curl -sSfL https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
-    gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
-    echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/${VERSION_CODENAME} ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/dovecot.list
+    # WARNING: Repo only provides Debian Bookworm package support for Dovecot CE 2.4+.
+    # As Debian Bookworm only packages Dovecot 2.3.x, building DMS with this alternative package repo may not yet be compatible with DMS:
+    # - 2.3.19: https://salsa.debian.org/debian/dovecot/-/tree/stable/bookworm
+    # - 2.3.21: https://salsa.debian.org/debian/dovecot/-/tree/stable/bookworm-backports
 
-    _log 'trace' 'Updating Dovecot package signatures'
+    _log 'trace' 'Adding third-party package repository (Dovecot)'
+    curl -fsSL https://repo.dovecot.org/DOVECOT-REPO-GPG-2.4 | gpg --dearmor > /usr/share/keyrings/upstream-dovecot.gpg
+    echo \
+      "deb [signed-by=/usr/share/keyrings/upstream-dovecot.gpg] https://repo.dovecot.org/ce-2.4-latest/debian/${VERSION_CODENAME} ${VERSION_CODENAME} main" \
+      > /etc/apt/sources.list.d/upstream-dovecot.list
+
+    # Refresh package index:
     apt-get "${QUIET}" update
 
-    # Additional community package needed for Lua support if the Dovecot community repository is used.
+    # This repo instead provides `dovecot-auth-lua` as a transitional package to `dovecot-lua`,
+    # thus this extra package is required to retain lua support:
     DOVECOT_PACKAGES+=(dovecot-lua)
   fi
 
   _log 'debug' 'Installing Dovecot'
   apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
 
-  # dependency for fts_xapian
+  # Runtime dependency for fts_xapian (built via `compile.sh`):
   apt-get "${QUIET}" install --no-install-recommends libxapian30
 }
 
 function _install_rspamd() {
-  _log 'debug' 'Installing Rspamd'
-  _log 'trace' 'Adding Rspamd PPA'
-  curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
-  echo \
-    "deb [signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" \
-    >/etc/apt/sources.list.d/rspamd.list
+  # NOTE: DMS only supports the rspamd package via using the third-party repo maintained by Rspamd (AMD64 + ARM64):
+  # Repo: https://rspamd.com/apt-stable/dists/bookworm/main/
+  # Docs: https://rspamd.com/downloads.html#debian-and-ubuntu-linux
+  # NOTE: Debian 12 provides Rspamd 3.4 (too old) and Rspamd discourages it's use
 
-  _log 'trace' 'Updating package index after adding PPAs'
+  _log 'trace' 'Adding third-party package repository (Rspamd)'
+  curl -fsSL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
+  echo \
+    "deb [signed-by=/usr/share/keyrings/upstream-rspamd.gpg] https://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" \
+    > /etc/apt/sources.list.d/upstream-rspamd.list
+
+  # Refresh package index:
   apt-get "${QUIET}" update
 
-  _log 'trace' 'Installing actual package'
+  _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" install rspamd redis-server
 }
 
