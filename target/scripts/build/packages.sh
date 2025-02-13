@@ -25,12 +25,10 @@ function _pre_installation_steps() {
 
   _log 'trace' 'Installing packages that are needed early'
   # Add packages usually required by apt to:
-  # - not log unnecessary warnings
-  # - Support adding PPAs early (e.g., Rspamd)
   local EARLY_PACKAGES=(
-    # Avoid useless warnings:
+    # Avoid logging unnecessary warnings:
     apt-utils
-    # Required for adding PPAs (/etc/apt/sources.list.d) such as Dovecot CE and Rspamd:
+    # Required for adding third-party repos (/etc/apt/sources.list.d) as alternative package sources (eg: Dovecot CE and Rspamd):
     apt-transport-https ca-certificates curl gnupg
     # Avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953):
     systemd-standalone-sysusers
@@ -169,7 +167,7 @@ function _install_dovecot() {
   _log 'debug' 'Installing Dovecot'
   apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
 
-  # Dependency for fts_xapian (built via `compile.sh`):
+  # Runtime dependency for fts_xapian (built via `compile.sh`):
   apt-get "${QUIET}" install --no-install-recommends libxapian30
 }
 
@@ -177,6 +175,7 @@ function _install_rspamd() {
   # NOTE: DMS only supports the rspamd package via using the third-party repo maintained by Rspamd (AMD64 + ARM64):
   # Repo: https://rspamd.com/apt-stable/dists/bookworm/main/
   # Docs: https://rspamd.com/downloads.html#debian-and-ubuntu-linux
+  # NOTE: Debian 12 provides Rspamd 3.4 (too old) and Rspamd discourages it's use
 
   _log 'trace' 'Adding third-party package repository (Rspamd)'
   curl -fsSL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
