@@ -29,7 +29,7 @@ Cloudflare has written an [article about DKIM, DMARC and SPF][cloudflare-dkim-dm
 When DKIM is enabled:
 
 1. Inbound mail will verify any included DKIM signatures
-2. Outbound mail is signed (_when you're sending domain has a configured DKIM key_)
+2. Outbound mail is signed (_when your sending domain has a configured DKIM key_)
 
 DKIM requires a public/private key pair to enable **signing (_via private key_)** your outgoing mail, while the receiving end must query DNS to **verify (_via public key_)** that the signature is trustworthy.
 
@@ -76,7 +76,7 @@ You should have:
 ??? info "Changing the key size"
 
     The keypair generated for using with DKIM presently defaults to RSA-2048. This is a good size but you can lower the security to `1024-bit`, or increase it to `4096-bit` (_discouraged as that is excessive_).
-    
+
     To generate a key with different size (_for RSA 1024-bit_) run:
 
     ```sh
