@@ -5,6 +5,7 @@ declare -A VARS
 
 function _early_variables_setup() {
   __environment_variables_log_level
+  __environment_variables_from_files
   _obtain_hostname_and_domainname
   __environment_variables_backwards_compatibility
   __environment_variables_general_setup
@@ -246,4 +247,25 @@ function __environment_variables_export() {
 
   sort -o /root/.bashrc     /root/.bashrc
   sort -o /etc/dms-settings /etc/dms-settings
+}
+
+# This function reads any environment variable ending with `__FILE` from its
+# referenced file, then makes it available under the same name without `__FILE`.
+function __environment_variables_from_files() {
+  for file_env_var in $(env | grep -Po '^.+?__FILE'); do
+    local env_var="${file_env_var/__FILE/}"
+    local file_path="${!file_env_var}"
+
+    if [[ -n "${!env_var}" ]]; then
+      _log 'warn' "Ignoring ${env_var} since ${file_env_var} is also set"
+      continue
+    fi
+
+    if [[ -f "${file_path}" ]]; then
+      _log 'info' "Getting secret ${env_var} from ${file_path}"
+      export "${env_var}"="$(< "${file_path}")"
+    else
+      _log 'error' "File ${file_path} does not exist, defined in ${file_env_var}"
+    fi
+  done
 }
