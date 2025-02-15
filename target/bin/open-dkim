@@ -57,20 +57,21 @@ ${ORANGE}EXAMPLES${RESET}
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain
-    errors, the script will exit early with exit status 2.
+    errors, the script will exit early with a non-zero exit status.
 
 "
 }
 
 _require_n_parameters_or_print_usage 0 "${@}"
 
+# Parse the command args through iteration:
 while [[ ${#} -gt 0 ]]; do
   case "${1}" in
+
     ( 'keysize' )
       if [[ -n ${2+set} ]]; then
         KEYSIZE="${2}"
-        shift
-        shift
+        _log 'debug' "Keysize set to '${KEYSIZE}'"
       else
         _exit_with_error "No keysize provided after 'keysize' argument"
       fi
@@ -78,10 +79,8 @@ while [[ ${#} -gt 0 ]]; do
 
     ( 'selector' )
       if [[ -n ${2+set} ]]; then
-        # shellcheck disable=SC2034
         SELECTOR="${2}"
-        shift
-        shift
+        _log 'debug' "Selector set to '${SELECTOR}'"
       else
         _exit_with_error "No selector provided after 'selector' argument"
       fi
@@ -90,23 +89,31 @@ while [[ ${#} -gt 0 ]]; do
     ( 'domain' )
       if [[ -n ${2+set} ]]; then
         DOMAINS="${2}"
-        shift
-        shift
+        _log 'debug' "Domain(s) set to '${DOMAIN}'"
       else
         _exit_with_error "No domain(s) provided after 'domain' argument"
       fi
       ;;
 
+    ( 'help' )
+        __usage
+        exit 0
+        ;;
+
     ( * )
       __usage
-      _exit_with_error "Unknown options '${1}' ${2:+and \'${2}\'}"
+      _exit_with_error "Unknown option(s) '${1}' ${2:+"and '${2}'"}"
       ;;
-
   esac
+
+  # Discard these two args (option + value) now that they've been processed:
+  shift 2
 done
 
-DATABASE_VHOST='/tmp/vhost.dkim'
+
 # Prepare a file with one domain per line:
+# Depends on methods from `scripts/helpers/postfix.sh`:
+DATABASE_VHOST='/tmp/vhost.dkim'
 function _generate_domains_config() {
   local TMP_VHOST='/tmp/vhost.dkim.tmp'
 
@@ -130,49 +137,58 @@ if [[ ! -s ${DATABASE_VHOST} ]]; then
   exit 0
 fi
 
+# Generate the keypairs and associated OpenDKIM config files:
+OPENDKIM_BASE_DIR='/tmp/docker-mailserver/opendkim'
 while read -r DKIM_DOMAIN; do
-  mkdir -p "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
+  OPENDKIM_DOMAINKEY_DIR="${OPENDKIM_BASE_DIR}/keys/${DKIM_DOMAIN}"
+  mkdir -p "${OPENDKIM_DOMAINKEY_DIR}"
 
-  if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private" ]]; then
-    _log 'info' "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private'"
+  DKIM_KEY_FILE="${OPENDKIM_DOMAINKEY_DIR}/${SELECTOR}.private"
+  if [[ ! -f "${DKIM_KEY}" ]]; then
+    _log 'info' "Creating DKIM private key '${DKIM_KEY_FILE}'"
 
     opendkim-genkey \
       --bits="${KEYSIZE}" \
       --subdomains \
       --domain="${DKIM_DOMAIN}" \
       --selector="${SELECTOR}" \
-      --directory="/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
+      --directory="${OPENDKIM_DOMAINKEY_DIR}"
   fi
 
-  # fix permissions to use the same user:group as /tmp/docker-mailserver/opendkim/keys
-  chown -R "$(stat -c '%U:%G' /tmp/docker-mailserver/opendkim/keys)" "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
+  # Ensure permissions match the user:group of the base directory:
+  chown -R "$(stat -c '%U:%G' "${OPENDKIM_BASE_DIR}")" "${OPENDKIM_DOMAINKEY_DIR}"
 
   # write to KeyTable if necessary
-  KEYTABLEENTRY="${SELECTOR}._domainkey.${DKIM_DOMAIN} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
-  if [[ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]]; then
+  KEY_TABLE_FILE="${OPENDKIM_BASE_DIR}/KeyTable"
+  KEY_TABLE_ENTRY="${SELECTOR}._domainkey.${DKIM_DOMAIN} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
+  if [[ ! -f "${KEY_TABLE_FILE}" ]]; then
     _log 'debug' 'Creating DKIM KeyTable'
-    echo "${KEYTABLEENTRY}" >/tmp/docker-mailserver/opendkim/KeyTable
+    echo "${KEY_TABLE_ENTRY}" > "${KEY_TABLE_FILE}"
   else
-    if ! grep -q "${KEYTABLEENTRY}" "/tmp/docker-mailserver/opendkim/KeyTable"; then
-      echo "${KEYTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/KeyTable
+    # If no existing entry, add one:
+    if ! grep -q "${KEY_TABLE_ENTRY}" "${KEY_TABLE_FILE}"; then
+      echo "${KEY_TABLE_ENTRY}" >> "${KEY_TABLE_FILE}"
     fi
   fi
 
   # write to SigningTable if necessary
-  SIGNINGTABLEENTRY="*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}"
-  if [[ ! -f /tmp/docker-mailserver/opendkim/SigningTable ]]; then
+  SIGNING_TABLE_FILE="${OPENDKIM_BASE_DIR}/SigningTable"
+  SIGNING_TABLE_ENTRY="*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}"
+  if [[ ! -f "${SIGNING_TABLE_FILE}" ]]; then
     _log 'debug' 'Creating DKIM SigningTable'
-    echo "*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}" >/tmp/docker-mailserver/opendkim/SigningTable
+    echo "*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}" > "${SIGNING_TABLE_FILE}"
   else
-    if ! grep -q "${SIGNINGTABLEENTRY}" /tmp/docker-mailserver/opendkim/SigningTable; then
-      echo "${SIGNINGTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/SigningTable
+    # If no existing entry, add one:
+    if ! grep -q "${SIGNING_TABLE_ENTRY}" "${SIGNING_TABLE_FILE}"; then
+      echo "${SIGNING_TABLE_ENTRY}" >> "${SIGNING_TABLE_FILE}"
     fi
   fi
 done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
 
 # create TrustedHosts if missing
-if [[ -d /tmp/docker-mailserver/opendkim ]] && [[ ! -f /tmp/docker-mailserver/opendkim/TrustedHosts ]]; then
+TRUSTED_HOSTS_FILE="${OPENDKIM_BASE_DIR}/TrustedHosts"
+if [[ -d "${OPENDKIM_BASE_DIR}" ]] && [[ ! -f "${TRUSTED_HOSTS_FILE}" ]]; then
   _log 'debug' 'Creating DKIM TrustedHosts'
-  echo "127.0.0.1" >/tmp/docker-mailserver/opendkim/TrustedHosts
-  echo "localhost" >>/tmp/docker-mailserver/opendkim/TrustedHosts
+  echo "127.0.0.1" >  "${TRUSTED_HOSTS_FILE}"
+  echo "localhost" >> "${TRUSTED_HOSTS_FILE}"
 fi
