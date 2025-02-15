@@ -19,7 +19,11 @@ function _main() {
   for MAIL_ACCOUNT in "${@}"; do
     _account_should_already_exist
 
-    [[ ${MAILDEL} -eq 1 ]] && _remove_maildir "${MAIL_ACCOUNT}"
+    if [[ ${MAILDEL} -eq 1 ]]; then
+      _remove_maildir "${MAIL_ACCOUNT}"
+    else
+      _log 'info' "The mailbox data will not be deleted."
+    fi
 
     _manage_virtual_aliases_delete '_' "${MAIL_ACCOUNT}" \
       || _exit_with_error "Aliases for '${MAIL_ACCOUNT}' could not be deleted"
@@ -89,10 +93,8 @@ function _maildel_request_if_missing() {
     local MAILDEL_CHOSEN
     read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
 
-    # TODO: Why would MAILDEL be set to true if MAILDEL_CHOSEN is empty?
-    if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]; then
-      MAILDEL=1
-    fi
+    # Delete mailbox data only if the user provides explicit confirmation.
+    [[ ${MAILDEL_CHOSEN,,} == "y" ]] && MAILDEL=1
   fi
 }
 
