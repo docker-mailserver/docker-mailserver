@@ -1,5 +1,41 @@
 #!/bin/bash
 
+# Legacy service support with Postgrey, SpamAssassin, Amavis
+# TODO: Migrate these services into a common legacy feature dir
+
+# Debian 12 package: postgrey 1.37
+# https://salsa.debian.org/debian/postgrey
+# Official project page:
+# https://postgrey.schweikert.ch/
+# Last commit Feb 2024 (mostly whitelist updates since 2016):
+# https://github.com/schweikert/postgrey
+# Last release 1.37 (Sep 2016):
+# https://github.com/schweikert/postgrey/tags
+
+# Debian 12 package: spamassassin 4.0.0 (Dec 2022)
+# Lack of 4.0.1 potentially causing regression/bugs in DMS v14+
+# https://salsa.debian.org/debian/spamassassin
+# Official project page:
+# https://spamassassin.apache.org/
+# NOTE: Github repo is a mirror (antiquated process for contributions/reports)
+# Last commit Feb 2025:
+# https://github.com/apache/spamassassin
+# Last release 4.0.1 (March 2024):
+# https://github.com/apache/spamassassin/tags
+
+# Debian 12 package: amavisd-new 2.13.0 (Jan 2023)
+# https://salsa.debian.org/debian/amavisd-new
+# Official project page:
+# https://www.ijs.si/software/amavisd/
+# https://www.amavis.org/
+# Last announced release 2.11.0 (2016) + 2.11.1 (Oct 2018):
+# https://www.ijs.si/software/amavisd/release-notes.txt
+# Development migrated to Gitlab with release 2.12.0 (July 2019)
+# Last commit Feb 2025:
+# https://gitlab.com/amavis/amavis
+# Last release 2.13.1 (March 2024):
+# https://gitlab.com/amavis/amavis/-/tags
+
 function _setup_security_stack() {
   _log 'debug' 'Setting up Security Stack'
 

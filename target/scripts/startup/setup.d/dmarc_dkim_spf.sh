@@ -1,5 +1,39 @@
 #!/bin/bash
 
+# Legacy service support for DKIM, DMARC, SPF
+# TODO: Migrate this file into a common legacy feature dir
+
+# Debian 12 package: opendkim 2.11.0
+# https://salsa.debian.org/debian/opendkim
+# Official project page (no HTTPS available):
+# http://www.opendkim.org/
+# Links to SourceForge for project source which directs users to Github:
+# Last commit Dec 2022:
+# https://github.com/trusteddomainproject/OpenDKIM/tree/develop
+# Last release 2.11.0 (Nov 2018):
+# https://github.com/trusteddomainproject/OpenDKIM/releases
+
+# Debian 12 package: opendmarc 1.4.2
+# https://salsa.debian.org/kitterman/opendmarc
+# Official project page (no HTTPS available):
+# http://www.trusteddomain.org/opendmarc/
+# Links to SourceForge for project source which directs users to Github (since April 2021):
+# Last commit Dec 2021:
+# https://github.com/trusteddomainproject/OpenDMARC/branches/all
+# Last release 1.4.2 (Dec 2021):
+# https://github.com/trusteddomainproject/OpenDMARC/blob/master/RELEASE_NOTES
+
+# Debian 12 package: postfix-policyd-spf-python 3.0.4 (April 2023)
+# https://salsa.debian.org/python-team/packages/spf-engine
+# Previously `policyd-spf` until Dec 2016, then renamed to `spf-engine`:
+# https://launchpad.net/pypolicyd-spf
+# https://salsa.debian.org/kitterman/postfix-policyd-spf-perl
+# Official project page + repo:
+# https://code.launchpad.net/spf-engine
+# Last commit and release 3.1.0 (Aug 2024):
+# https://git.launchpad.net/spf-engine/
+
+
 # Set up OpenDKIM
 #
 # ## Attention
@@ -23,7 +57,11 @@ function _setup_opendkim() {
     # check if any keys are available
     if [[ -e /tmp/docker-mailserver/opendkim/KeyTable ]]; then
       cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
-      _log 'trace' "DKIM keys added for: $(find /etc/opendkim/keys/ -maxdepth 1 -type f -printf '%f ')"
+
+      local DKIM_DOMAINS
+      DKIM_DOMAINS=$(find /etc/opendkim/keys/ -maxdepth 1 -type f -printf '%f ')
+      _log 'trace' "DKIM keys added for: ${DKIM_DOMAINS}"
+
       chown -R opendkim:opendkim /etc/opendkim/
       chmod -R 0700 /etc/opendkim/keys/
     else
