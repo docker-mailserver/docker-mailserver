@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
@@ -16,7 +16,7 @@ function _main() {
   # Default parameters (updated by `_parse_arguments()`):
   local KEYSIZE=2048
   local SELECTOR=mail
-  local DOMAINS=
+  local DMS_DOMAINS=
 
   _require_n_parameters_or_print_usage 0 "${@}"
   _parse_arguments "${@}"
@@ -95,8 +95,8 @@ function _parse_arguments() {
 
       ( 'domain' )
         if [[ -n ${2+set} ]]; then
-          DOMAINS="${2}"
-          _log 'debug' "Domain(s) set to '${DOMAIN}'"
+          DMS_DOMAINS="${2}"
+          _log 'debug' "Domain(s) set to '${DMS_DOMAINS}'"
         else
           _exit_with_error "No domain(s) provided after 'domain' argument"
         fi
@@ -125,43 +125,60 @@ function _generate_dkim_keys() {
     exit 0
   fi
 
-  # Generate the keypairs and associated OpenDKIM config files:
-  OPENDKIM_BASE_DIR='/tmp/docker-mailserver/opendkim'
+  # Initialize OpenDKIM configs if necessary:
+  _create_opendkim_configs
+
+  # Generate a keypair per domain and add reference to OpenDKIM configs:
+  local ENTRY_KEY KEY_TABLE_ENTRY SIGNING_TABLE_ENTRY
   while read -r DKIM_DOMAIN; do
     _create_dkim_key "${DKIM_DOMAIN}"
 
     # Create / Update OpenDKIM configs with new DKIM key:
-    KEY_TABLE_ENTRY="${SELECTOR}._domainkey.${DKIM_DOMAIN} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
-    _update_keytable "${KEY_TABLE_ENTRY}"
+    ENTRY_KEY="${SELECTOR}._domainkey.${DKIM_DOMAIN}"
+    KEY_TABLE_ENTRY="${ENTRY_KEY} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
+    SIGNING_TABLE_ENTRY="*@${DKIM_DOMAIN} ${ENTRY_KEY}"
 
-    SIGNING_TABLE_ENTRY="*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}"
-    _update_signingtable "${SIGNING_TABLE_ENTRY}"
+    # If no existing entry, add one:
+    if ! grep -q "${KEY_TABLE_ENTRY}" "${KEY_TABLE_FILE}"; then
+      echo "${KEY_TABLE_ENTRY}" >> "${KEY_TABLE_FILE}"
+    fi
+    if ! grep -q "${SIGNING_TABLE_ENTRY}" "${SIGNING_TABLE_FILE}"; then
+      echo "${SIGNING_TABLE_ENTRY}" >> "${SIGNING_TABLE_FILE}"
+    fi
   done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
 
-  # Create TrustedHosts if missing:
-  _create_trustedhosts
+  # No longer needed, remove:
+  rm "${DATABASE_VHOST}"
+
+  # Ensure ownership is consistent for all content belonging to the base directory,
+  # During container startup, an internal copy will be made via `_setup_opendkim()`
+  # with ownership we expect, while this chown is for the benefit of the users ownership.
+  chown -R "$(stat -c '%U:%G' "${OPENDKIM_BASE_DIR}")" "${OPENDKIM_BASE_DIR}"
 }
 
-# Prepare a file with one domain per line:
+# Prepare a file with one domain per line (iterated via while loop as DKIM_DOMAIN):
 # Depends on methods from `scripts/helpers/postfix.sh`:
 DATABASE_VHOST='/tmp/vhost.dkim'
 function _generate_domains_config() {
   local TMP_VHOST='/tmp/vhost.dkim.tmp'
 
   # Generate the default vhost (equivalent to /etc/postfix/vhost),
-  # unless CLI arg DOMAINS provided an alternative list to use instead:
-  if [[ -z ${DOMAINS} ]]; then
+  # unless CLI arg DMS_DOMAINS provided an alternative list to use instead:
+  if [[ -z ${DMS_DOMAINS} ]]; then
     _obtain_hostname_and_domainname
     # uses TMP_VHOST:
     _vhost_collect_postfix_domains
   else
-    tr ',' '\n' <<< "${DOMAINS}" >"${TMP_VHOST}"
+    tr ',' '\n' <<< "${DMS_DOMAINS}" >"${TMP_VHOST}"
   fi
 
   # Uses DATABASE_VHOST + TMP_VHOST:
   _create_vhost
 }
 
+# `opendkim-genkey` generates two files at the configured `--directory`:
+# - <selector>.private (Private key, PEM encoded)
+# - <selector>.txt (Public key, formatted as a TXT record for a RFC 1035 DNS Zone file)
 function _create_dkim_key() {
   DKIM_DOMAIN=${1?Expected to be provided a domain}
 
@@ -172,6 +189,11 @@ function _create_dkim_key() {
   if [[ ! -f "${DKIM_KEY_FILE}" ]]; then
     _log 'info' "Creating DKIM private key '${DKIM_KEY_FILE}'"
 
+    # NOTE:
+    # --domain only affects a comment in the generated DNS Zone file
+    # --subdomains is the default,
+    # --nosubdomains would add `t=s` to the DNS TXT record generated
+    # http://www.opendkim.org/opendkim-genkey.8.html
     opendkim-genkey \
       --bits="${KEYSIZE}" \
       --subdomains \
@@ -179,45 +201,31 @@ function _create_dkim_key() {
       --selector="${SELECTOR}" \
       --directory="${OPENDKIM_DOMAINKEY_DIR}"
   fi
-
-  # Ensure permissions match the user:group of the base directory:
-  chown -R "$(stat -c '%U:%G' "${OPENDKIM_BASE_DIR}")" "${OPENDKIM_DOMAINKEY_DIR}"
 }
 
-function _update_keytable() {
-  KEY_TABLE_ENTRY=${1?Expected to be provided an entry}
+OPENDKIM_BASE_DIR='/tmp/docker-mailserver/opendkim'
+KEY_TABLE_FILE="${OPENDKIM_BASE_DIR}/KeyTable"
+SIGNING_TABLE_FILE="${OPENDKIM_BASE_DIR}/SigningTable"
+TRUSTED_HOSTS_FILE="${OPENDKIM_BASE_DIR}/TrustedHosts"
+# Create configs if missing:
+function _create_opendkim_configs() {
+  _log 'debug' 'Creating any missing OpenDKIM configs'
 
-  KEY_TABLE_FILE="${OPENDKIM_BASE_DIR}/KeyTable"
-  if [[ ! -f "${KEY_TABLE_FILE}" ]]; then
-    _log 'debug' 'Creating DKIM KeyTable'
-    echo "${KEY_TABLE_ENTRY}" > "${KEY_TABLE_FILE}"
-  else
-    # If no existing entry, add one:
-    if ! grep -q "${KEY_TABLE_ENTRY}" "${KEY_TABLE_FILE}"; then
-      echo "${KEY_TABLE_ENTRY}" >> "${KEY_TABLE_FILE}"
-    fi
-  fi
-}
+  mkdir -p "${OPENDKIM_BASE_DIR}"
+  local OPENDKIM_CONFIGS=(
+    "${KEY_TABLE_FILE}"
+    "${SIGNING_TABLE_FILE}"
+    "${TRUSTED_HOSTS_FILE}"
+  )
 
-function _update_signingtable() {
-  SIGNING_TABLE_ENTRY=${1?Expected to be provided an entry}
+  # Only create if the file doesn't exist (avoids modifying mtime):
+  for FILE in ${OPENDKIM_CONFIGS[@]}; do
+    [[ ! -f "${FILE}" ]] && touch "${FILE}"
+  done
 
-  SIGNING_TABLE_FILE="${OPENDKIM_BASE_DIR}/SigningTable"
-  if [[ ! -f "${SIGNING_TABLE_FILE}" ]]; then
-    _log 'debug' 'Creating DKIM SigningTable'
-    echo "*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}" > "${SIGNING_TABLE_FILE}"
-  else
-    # If no existing entry, add one:
-    if ! grep -q "${SIGNING_TABLE_ENTRY}" "${SIGNING_TABLE_FILE}"; then
-      echo "${SIGNING_TABLE_ENTRY}" >> "${SIGNING_TABLE_FILE}"
-    fi
-  fi
-}
-
-function _create_trustedhosts() {
-  TRUSTED_HOSTS_FILE="${OPENDKIM_BASE_DIR}/TrustedHosts"
-  if [[ -d "${OPENDKIM_BASE_DIR}" ]] && [[ ! -f "${TRUSTED_HOSTS_FILE}" ]]; then
-    _log 'debug' 'Creating DKIM TrustedHosts'
+  # If file exists but is empty, add default hosts to trust:
+  if [[ ! -s "${TRUSTED_HOSTS_FILE}" ]]; then
+    _log 'debug' 'Adding default trust to OpenDKIM TrustedHosts config'
     echo "127.0.0.1" >  "${TRUSTED_HOSTS_FILE}"
     echo "localhost" >> "${TRUSTED_HOSTS_FILE}"
   fi
