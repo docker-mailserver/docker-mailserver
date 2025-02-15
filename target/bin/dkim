@@ -1,0 +1,255 @@
+#!/bin/bash
+
+# shellcheck source=../scripts/helpers/index.sh
+source /usr/local/bin/helpers/index.sh
+
+function _main() {
+  # Default parameters (updated by `_parse_arguments()`):
+  local KEYSIZE=2048
+  local SELECTOR=mail
+  local DMS_DOMAINS=
+
+  _require_n_parameters_or_print_usage 0 "${@}"
+  _parse_arguments "${@}"
+
+  _generate_dkim_keys
+}
+
+function __usage() {
+  printf '%s' "${PURPLE}OPEN-DKIM${RED}(${YELLOW}8${RED})
+
+${ORANGE}NAME${RESET}
+    open-dkim - Configure DKIM (DomainKeys Identified Mail)
+
+${ORANGE}SYNOPSIS${RESET}
+    setup config dkim [ OPTIONS${RED}...${RESET} ]
+
+${ORANGE}DESCRIPTION${RESET}
+    Creates DKIM keys and configures them within DMS for OpenDKIM.
+    OPTIONS can be used when your requirements are not met by the defaults.
+    When not using 'ACCOUNT_PROVISIONER=FILE' (default), you may need to explicitly
+    use the 'domain' option to generate DKIM keys for your mail account domains.
+
+${ORANGE}OPTIONS${RESET}
+    ${BLUE}Generic Program Information${RESET}
+        help      Print the usage information.
+
+    ${BLUE}Configuration adjustments${RESET}
+        keysize   Set the size of the keys to be generated.
+                  Possible values: 1024, 2048 and 4096
+                  Default: 2048
+        selector  Set a manual selector for the key.
+                  Default: mail
+        domain    Provide the domain(s) for which to generate keys for.
+                  Default:  The FQDN assigned to DMS, excluding any subdomain.
+                            'ACCOUNT_PROVISIONER=FILE' also sources domains from mail accounts.
+
+${ORANGE}EXAMPLES${RESET}
+    ${LWHITE}setup config dkim keysize 4096${RESET}
+        Creates keys with their length increased to a size of 4096-bit.
+
+    ${LWHITE}setup config dkim keysize 1024 selector 2023-dkim${RESET}
+        Creates 1024-bit sized keys, and changes the DKIM selector to '2023-dkim'.
+
+    ${LWHITE}setup config dkim domain 'example.com,another-example.com'${RESET}
+        Only generates DKIM keys for the specified domains: 'example.com' and 'another-example.com'.
+
+${ORANGE}EXIT STATUS${RESET}
+    Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain
+    errors, the script will exit early with a non-zero exit status.
+
+"
+}
+
+function _parse_arguments() {
+  # Parse the command args through iteration:
+  while [[ ${#} -gt 0 ]]; do
+    case "${1}" in
+
+      ( 'keysize' )
+        if [[ -n ${2+set} ]]; then
+          KEYSIZE="${2}"
+          _log 'debug' "Keysize set to '${KEYSIZE}'"
+        else
+          _exit_with_error "No keysize provided after 'keysize' argument"
+        fi
+        ;;
+
+      ( 'selector' )
+        if [[ -n ${2+set} ]]; then
+          SELECTOR="${2}"
+          _log 'debug' "Selector set to '${SELECTOR}'"
+        else
+          _exit_with_error "No selector provided after 'selector' argument"
+        fi
+        ;;
+
+      ( 'domain' )
+        if [[ -n ${2+set} ]]; then
+          DMS_DOMAINS="${2}"
+          _log 'debug' "Domain(s) set to '${DMS_DOMAINS}'"
+        else
+          _exit_with_error "No domain(s) provided after 'domain' argument"
+        fi
+        ;;
+
+      ( 'help' )
+          __usage
+          exit 0
+          ;;
+
+      ( * )
+        __usage
+        _exit_with_error "Unknown option(s) '${1}' ${2:+"and '${2}'"}"
+        ;;
+    esac
+
+    # Discard these two args (option + value) now that they've been processed:
+    shift 2
+  done
+}
+
+# Create your own keypair instead of via `opendkim-genkey` or `rspamadm dkim_keygen`:
+step crypto keypair "${SELECTOR}.public" "${SELECTOR}.private" --kty RSA --size "${KEYSIZE}" --no-password --insecure
+
+# Extract public key contents into single line prepended with `p=`
+PUBLIC_KEY=$(cat "${SELECTOR}.public" | awk 'NR>2 { sub(/\r/, ""); printf "%s", last} { last=$0 }' | awk '{print "p="$1}')
+
+# Split into quote wrapped lines 255 chars wide, then indent (8 spaces)
+PUBLIC_KEY_MULTILINE=$(fold -w 255 <<< "${PUBLIC_KEY}" | sed -E 's#(.*)#        "\1"#')
+
+# Create a complimentary TXT record formatted as an RFC 1035 DNS zone file:
+cat << EOF > "${SELECTOR}.zone"
+${SELECTOR}._domainkey IN TXT ( "v=DKIM1; k=rsa; "
+${PUBLIC_KEY_MULTILINE}
+) ;
+EOF
+
+function _generate_dkim_keys() {
+  _generate_domains_config
+  if [[ ! -s ${DATABASE_VHOST} ]]; then
+    _log 'warn' 'No entries found, no keys to make'
+    exit 0
+  fi
+
+  # Initialize OpenDKIM configs if necessary:
+  _create_opendkim_configs
+
+  # Generate a keypair per domain and add reference to OpenDKIM configs:
+  local ENTRY_KEY KEY_TABLE_ENTRY SIGNING_TABLE_ENTRY
+  while read -r DKIM_DOMAIN; do
+    _create_dkim_key "${DKIM_DOMAIN}"
+
+    # Create / Update OpenDKIM configs with new DKIM key:
+    ENTRY_KEY="${SELECTOR}._domainkey.${DKIM_DOMAIN}"
+    KEY_TABLE_ENTRY="${ENTRY_KEY} ${DKIM_DOMAIN}:${SELECTOR}:/etc/dms/keys/${SELECTOR}.private"
+    SIGNING_TABLE_ENTRY="*@${DKIM_DOMAIN} ${ENTRY_KEY}"
+
+    # If no existing entry, add one:
+    if ! grep -q "${KEY_TABLE_ENTRY}" "${KEY_TABLE_FILE}"; then
+      echo "${KEY_TABLE_ENTRY}" >> "${KEY_TABLE_FILE}"
+    fi
+    if ! grep -q "${SIGNING_TABLE_ENTRY}" "${SIGNING_TABLE_FILE}"; then
+      echo "${SIGNING_TABLE_ENTRY}" >> "${SIGNING_TABLE_FILE}"
+    fi
+  done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
+
+  # No longer needed, remove:
+  rm "${DATABASE_VHOST}"
+
+  # Ensure ownership is consistent for all content belonging to the base directory,
+  # During container startup, an internal copy will be made via `_setup_opendkim()`
+  # with ownership we expect, while this chown is for the benefit of the users ownership.
+  chown -R "$(stat -c '%U:%G' "${OPENDKIM_BASE_DIR}")" "${OPENDKIM_BASE_DIR}"
+}
+
+# Prepare a file with one domain per line (iterated via while loop as DKIM_DOMAIN):
+# Depends on methods from `scripts/helpers/postfix.sh`:
+DATABASE_VHOST='/tmp/vhost.dkim'
+function _generate_domains_config() {
+  local TMP_VHOST='/tmp/vhost.dkim.tmp'
+
+  # Generate the default vhost (equivalent to /etc/postfix/vhost),
+  # unless CLI arg DMS_DOMAINS provided an alternative list to use instead:
+  if [[ -z ${DMS_DOMAINS} ]]; then
+    _obtain_hostname_and_domainname
+    # uses TMP_VHOST:
+    _vhost_collect_postfix_domains
+  else
+    tr ',' '\n' <<< "${DMS_DOMAINS}" >"${TMP_VHOST}"
+  fi
+
+  # Uses DATABASE_VHOST + TMP_VHOST:
+  _create_vhost
+}
+
+# `opendkim-genkey` generates two files at the configured `--directory`:
+# - <selector>.private (Private key, PEM encoded)
+# - <selector>.txt (Public key, formatted as a TXT record for a RFC 1035 DNS Zone file)
+function _create_dkim_key() {
+  DKIM_DOMAIN=${1?Expected to be provided a domain}
+
+  OPENDKIM_DOMAINKEY_DIR="${OPENDKIM_BASE_DIR}/keys/${DKIM_DOMAIN}"
+  mkdir -p "${OPENDKIM_DOMAINKEY_DIR}"
+
+  DKIM_KEY_FILE="${OPENDKIM_DOMAINKEY_DIR}/${SELECTOR}.private"
+  if [[ ! -f "${DKIM_KEY_FILE}" ]]; then
+    _log 'info' "Creating DKIM private key '${DKIM_KEY_FILE}'"
+
+    # NOTE:
+    # --domain only affects a comment in the generated DNS Zone file
+    # --subdomains is the default,
+    # --nosubdomains would add `t=s` to the DNS TXT record generated
+    # http://www.opendkim.org/opendkim-genkey.8.html
+    opendkim-genkey \
+      --bits="${KEYSIZE}" \
+      --subdomains \
+      --domain="${DKIM_DOMAIN}" \
+      --selector="${SELECTOR}" \
+      --directory="${OPENDKIM_DOMAINKEY_DIR}"
+  fi
+}
+
+OPENDKIM_BASE_DIR='/tmp/docker-mailserver/opendkim'
+KEY_TABLE_FILE="${OPENDKIM_BASE_DIR}/KeyTable"
+SIGNING_TABLE_FILE="${OPENDKIM_BASE_DIR}/SigningTable"
+TRUSTED_HOSTS_FILE="${OPENDKIM_BASE_DIR}/TrustedHosts"
+# Create configs if missing:
+function _create_opendkim_configs() {
+  _log 'debug' 'Creating any missing OpenDKIM configs'
+
+  mkdir -p "${OPENDKIM_BASE_DIR}"
+  local OPENDKIM_CONFIGS=(
+    "${KEY_TABLE_FILE}"
+    "${SIGNING_TABLE_FILE}"
+    "${TRUSTED_HOSTS_FILE}"
+  )
+
+  # Only create if the file doesn't exist (avoids modifying mtime):
+  for FILE in ${OPENDKIM_CONFIGS[@]}; do
+    [[ ! -f "${FILE}" ]] && touch "${FILE}"
+  done
+
+  # If file exists but is empty, add default hosts to trust:
+  if [[ ! -s "${TRUSTED_HOSTS_FILE}" ]]; then
+    _log 'debug' 'Adding default trust to OpenDKIM TrustedHosts config'
+    echo "127.0.0.1" >  "${TRUSTED_HOSTS_FILE}"
+    echo "localhost" >> "${TRUSTED_HOSTS_FILE}"
+  fi
+}
+
+_main "${@}"
+
+
+function _transform_public_key_file_to_dns_record_contents() {
+  _log 'trace' 'Transforming DNS zone format to DNS record content now'
+  : >"${PUBLIC_KEY_DNS_FILE}"
+  grep -o '".*"' "${PUBLIC_KEY_FILE}" | tr -d '"\n' >>"${PUBLIC_KEY_DNS_FILE}"
+  echo '' >>"${PUBLIC_KEY_DNS_FILE}"
+
+  if ! _log_level_is '(warn|error)'; then
+    _log 'info' "Here is the content of the TXT DNS record ${SELECTOR}._domainkey.${DOMAIN} that you need to create:\n"
+    cat "${PUBLIC_KEY_DNS_FILE}"
+    printf '\n'
+  fi
+}

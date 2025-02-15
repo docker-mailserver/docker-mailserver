@@ -36,20 +36,41 @@ function _pre_installation_steps() {
   apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
 }
 
+# Install third-party commands to /usr/local/bin
 function _install_utils() {
+  local ARCH_A=$(uname -m)
+  # Alternate naming convention support: x86_64 (amd64) / aarch64 (arm64)
+  # https://en.wikipedia.org/wiki/X86-64#Industry_naming_conventions
+  local ARCH_B
+  case "${ARCH_A}" in
+    ( 'x86_64' )  ARCH_B='amd64' ;;
+    ( 'aarch64' ) ARCH_B='arm64' ;;
+  esac
+
+  # TIP: `*.tar.gz` releases tend to forget to reset UID/GID ownership when archiving.
+  # When extracting with `tar` as `root` the archived UID/GID is kept, unless using `--no-same-owner`.
+  # Likewise when the binary is in a nested location the full archived path
+  # must be provided + `--strip-components` to extract the file to the target directory.
+  # Doing this avoids the need for (`mv` + `rm`) or (`--to-stdout` + `chmod +x`)
   _log 'debug' 'Installing utils sourced from Github'
+
   _log 'trace' 'Installing jaq'
   local JAQ_TAG='v2.1.0'
-  curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq
-  chmod +x /usr/bin/jaq
+  curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-${ARCH_A}-unknown-linux-gnu" -o /usr/local/bin/jaq
+  chmod +x /usr/local/bin/jaq
+
+  _log 'trace' 'Installing step'
+  local STEP_RELEASE='0.28.2'
+  curl -sSfL "https://github.com/smallstep/cli/releases/download/v${STEP_RELEASE}/step_linux_${STEP_RELEASE}_${ARCH_B}.tar.gz" \
+    | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=2 "step_${STEP_RELEASE}/bin/step"
 
   _log 'trace' 'Installing swaks'
+  # `perl-doc` is required for `swaks --help` to work:
   apt-get "${QUIET}" install --no-install-recommends perl-doc
   local SWAKS_VERSION='20240103.0'
   local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
-  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" | tar -xz
-  mv "${SWAKS_RELEASE}/swaks" /usr/local/bin
-  rm -r "${SWAKS_RELEASE}"
+  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" \
+    | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=1 "${SWAKS_RELEASE}/swaks"
 }
 
 function _install_postfix() {
