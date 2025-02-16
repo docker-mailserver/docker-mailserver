@@ -15,13 +15,20 @@ When refactoring, writing or altering scripts or other files, adhere to these ru
 
 Make sure to select `edge` in the dropdown menu at the top. Navigate to the page you would like to edit and click the edit button in the top right. This allows you to make changes and create a pull-request.
 
-Alternatively you can make the changes locally. For that you'll need to have Docker installed. Navigate into the `docs/` directory. Then run:
+Alternatively you can make the changes locally. For that you'll need to have Docker installed and run:
 
 ```sh
-docker run --rm -it -p 8000:8000 -v "${PWD}:/docs" squidfunk/mkdocs-material
+# From the root directory of the git clone:
+docker run --rm -it -p 8000:8000 -v "./docs:/docs" squidfunk/mkdocs-material
 ```
 
 This serves the documentation on your local machine on port `8000`. Each change will be hot-reloaded onto the page you view, just edit, save and look at the result.
 
+!!! note
+
+    The container logs will inform you of invalid links detected, but a [few are false-positives][gh-dms::mkdocs-link-error-false-positives] due to our usage of linking to specific [content tabs][mkdocs::content-tabs].
+
 [get-docker]: https://docs.docker.com/get-docker/
 [docs-bats-parallel]: https://bats-core.readthedocs.io/en/v1.8.2/usage.html#parallel-execution
+[gh-dms::mkdocs-link-error-false-positives]: https://github.com/docker-mailserver/docker-mailserver/pull/4366
+[mkdocs::content-tabs]: https://squidfunk.github.io/mkdocs-material/reference/content-tabs/#anchor-links
