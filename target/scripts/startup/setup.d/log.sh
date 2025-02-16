@@ -33,6 +33,7 @@ function _setup_logrotate() {
   delaycompress
   rotate ${LOGROTATE_COUNT}
   ${LOGROTATE_INTERVAL}
+  su syslog root
 }
 EOF
 }
