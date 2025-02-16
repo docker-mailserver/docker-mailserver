@@ -105,12 +105,15 @@ DMS does not set a default password for the controller worker. You may want to d
 When Rspamd is enabled, we implicitly also start an instance of Redis in the container:
 
 - Redis is configured to persist its data via RDB snapshots to disk in the directory `/var/lib/redis` (_or the [`/var/mail-state/`][docs::dms-volumes-state] volume when present_).
-- With the volume mount, the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.
+- With the volume mount, the snapshot will restore the Redis data across container updates, and provide a way to keep a backup.
+- Without a volume mount a containers internal state will persist across restarts until the container is recreated due to changes like ENV or upgrading the image for the container.
 
 Redis uses `/etc/redis/redis.conf` for configuration:
 
 - We adjust this file when enabling the internal Redis service.
 - If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV [`ENABLE_RSPAMD_REDIS=0`][docs::env::enable-redis] (_link also details required changes to the DMS Rspamd config_).
+
+If you are interested in using Valkey instead of Redis, please refer to [this guidance][gh-dms::guide::valkey].
 
 ### Web Interface
 
@@ -122,7 +125,7 @@ To use the web interface you will need to configure a password, [otherwise you w
 
 ??? example "Set a custom password"
 
-    Add this line to [your rspamd `custom-commands.conf` config](#with-the-help-of-a-custom-file) which sets the `password` option of the _controller worker_:
+    Add this line to [your Rspamd `custom-commands.conf` config](#with-the-help-of-a-custom-file) which sets the `password` option of the _controller worker_:
 
     ```
     set-option-for-controller password "your hashed password here"
@@ -133,6 +136,10 @@ To use the web interface you will need to configure a password, [otherwise you w
     ```bash
     docker exec -it <CONTAINER_NAME> rspamadm pw
     ```
+
+    ---
+
+    **Related:** A minimal Rspamd `compose.yaml` [example with a reverse-proxy for web access][gh-dms:guide::rspamd-web].
 
 ### DNS
 
@@ -340,7 +347,7 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [wikipedia::arc]: https://en.wikipedia.org/wiki/Authenticated_Received_Chain
 [rspamd-docs::arc]: https://rspamd.com/doc/modules/arc.html
 
-[www::rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&comment=119818
+[www::rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/#comment-119818
 [abusix-web]: https://abusix.com/
 [abusix-web::register]: https://app.abusix.com/
 [abusix-docs::rspamd-integration]: https://abusix.com/docs/rspamd/
@@ -348,6 +355,8 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 
 [dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd/local.d/actions.conf
 [dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd
+[gh-dms::guide::valkey]: https://github.com/docker-mailserver/docker-mailserver/issues/4001#issuecomment-2652596692
+[gh-dms::guide::rspamd-web]: https://github.com/orgs/docker-mailserver/discussions/4269#discussioncomment-11329588
 
 [docs::env::enable-redis]: ../environment.md#enable_rspamd_redis
 [docs::spam-to-junk]: ../environment.md#move_spam_to_junk
