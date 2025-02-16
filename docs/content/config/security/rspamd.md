@@ -217,12 +217,12 @@ DMS will apply this config when you provide `rspamd/custom-commands.conf` in you
 
 !!! note "Only use this feature for `option = value` changes"
 
-  `custom-commands.conf` is only suitable for adding or replacing simple `option = value` settings for configs at `/etc/rspamd/override.d/`.
-
-  - New settings are appended to the associated config file.
-  - When replacing an existing setting in an override config, that setting may be any matching line (_allowing for nested scopes, instead of only top-level keys_).
-
-  Any changes involving more advanced [UCL config syntax][rspamd-docs::config::ucl-syntax] should instead add UCL config files directly to `rspamd/override.d/` (_in the DMS Config volume_).
+    `custom-commands.conf` is only suitable for adding or replacing simple `option = value` settings for configs at `/etc/rspamd/override.d/`.
+  
+    - New settings are appended to the associated config file.
+    - When replacing an existing setting in an override config, that setting may be any matching line (_allowing for nested scopes, instead of only top-level keys_).
+  
+    Any changes involving more advanced [UCL config syntax][rspamd-docs::config::ucl-syntax] should instead add UCL config files directly to `rspamd/override.d/` (_in the DMS Config volume_).
 
 !!! info "`custom-commands.conf` syntax"
 
