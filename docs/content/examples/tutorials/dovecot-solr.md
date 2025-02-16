@@ -24,36 +24,36 @@ As the official DMS image does not provide `dovecot-solr`, you'll need to includ
 !!! quote ""
 
     === "`user-patches.sh`"
-    
+
         If you'd prefer to avoid a custom image build. This approach is simpler but with the caveat that any time the container is restarted, you'll have a delay as the package is installed each time.
-    
+
         ```bash
         #!/bin/bash
-    
+
         apt-get update && apt-get install dovecot-solr
         ```
-    
+
     === "`compose.yaml`"
-    
+
         A custom DMS image does not add much friction. You do not need a separate `Dockerfile` as Docker Compose supports building from an inline `Dockerfile` in your `compose.yaml`.
-    
+
         The `image` key of the service is swapped for the `build` key instead, as shown below:
-    
+
         ```yaml
         services:
           mailserver:
             hostname: mail.example.com
             # The `image` setting now represents the tag for the local build configured below:
-            image: local/dms:14.0
+            image: local/dms:latest
             # Local build (no need to try pull `image` remotely):
             pull_policy: build
             # Add this `build` section to your real `compose.yaml` for your DMS service:
             build:
               dockerfile_inline: |
-                FROM docker.io/mailserver/docker-mailserver:14.0
+                FROM docker.io/mailserver/docker-mailserver:latest
                 RUN apt-get update && apt-get install dovecot-solr
         ```
-    
+
         - Just run `docker compose up` and it will pull DMS and build your custom image to run a container.
         - Updating to a new DMS release is straight-forward, just adjust the version tag as you normally would. If you make future changes that don't apply, you may need to force a rebuild.
         - This approach only needs to install the package once with the image build itself. This minimizes delay of container startup.
