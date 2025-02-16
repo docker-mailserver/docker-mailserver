@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. The format 
     - This has been corrected to `/var/lib/getmail` (_if you have mounted a DMS State Volume to `/var/mail-state`, `/var/lib/getmail` will be symlinked to `/var/mail-state/lib-getmail`_).
     - To preserve this state when upgrading to DMS v15, **you must manually migrate `getmail/` from the _DMS Config Volume_ to `lib-getmail/` in the _DMS State Volume_.**
   - `setup email delete <EMAIL ADDRESS>` now requires explicit confirmation if the mailbox data should be deleted ([#4365](https://github.com/docker-mailserver/docker-mailserver/pull/4365)).
+- old **Rspamd** configuration file location (`/tmp/docker-mailserver/rspamd-modules.conf`) check was removed, use `/tmp/docker-mailserver/rspamd/custom-commands.conf` now
 
 ### Added
 
