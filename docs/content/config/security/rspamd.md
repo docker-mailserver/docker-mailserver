@@ -175,7 +175,7 @@ You can choose to enable ClamAV, and Rspamd will then use it to check for viruse
 
 #### RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)
 
-The [RBL module][rspamd-docs::modules::rbl] is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body \[[source][www::rbl-vs-dnsbl]\].
+The [RBL module][rspamd-docs::modules::rbl] is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body ([source][www::rbl-vs-dnsbl]).
 
 !!! danger "Rspamd and DNS Block Lists"
 
