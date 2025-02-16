@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DMS_STATE_DIR='/var/mail-state'
+
 # Consolidate all states into a single directory
 # (/var/mail-state) to allow persistence using docker volumes
 function _setup_save_states() {
