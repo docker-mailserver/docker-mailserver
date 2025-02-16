@@ -61,6 +61,7 @@ All notable changes to this project will be documented in this file. The format 
   - Fixed a regression introduced in DMS v14 where `postfix-main.cf` appended `stderr` output into `/etc/postfix/main.cf`, causing Postfix startup to fail ([#4147](https://github.com/docker-mailserver/docker-mailserver/pull/4147))
   - Fixed a regression introduced in DMS v14 to better support running `start-mailserver.sh` with container restarts, which now only skip calling `_setup()` ([#4323](https://github.com/docker-mailserver/docker-mailserver/pull/4323#issuecomment-2629559254))
   - The command `swaks --help` is now functional ([#4282](https://github.com/docker-mailserver/docker-mailserver/pull/4282))
+  - fix(log): su syslog root ([#4370](https://github.com/docker-mailserver/docker-mailserver/pull/4370))
 - **Rspamd:**
   - DKIM private key path checking is now performed only on paths that do not contain `$` ([#4201](https://github.com/docker-mailserver/docker-mailserver/pull/4201))
 
