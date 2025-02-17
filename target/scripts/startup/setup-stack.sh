@@ -125,19 +125,22 @@ function __log_fixes() {
   # when file system folders are mounted into the container.
   # Set the expected values and create missing folders/files just in case.
   mkdir -p /var/log/{mail,supervisor}
-  
+
   # TODO: Remove these lines in a future release once concerns are resolved:
   # https://github.com/docker-mailserver/docker-mailserver/pull/4370#issuecomment-2661762043
   chown syslog:root /var/log/mail
-  # TODO: Consider assigning /var/log/mail a writable non-root group for other processes like ClamAV?
-  # - Check if ClamAV is capable of creating files itself when they're missing?
-  # - Alternatively a symlink to /var/log/mail from the original intended location would allow write access
-  #   as a user to the symlink location, while keeping ownership as root at /var/log/mail
-  # - `LogSyslog false` for clamd.conf + freshclam.conf could possibly be enabled instead of log files?
-  #   However without better filtering in place (once Vector is adopted), this should be avoided.
-  touch /var/log/mail/{clamav,freshclam}.log
-  chown clamav:adm /var/log/mail/{clamav,freshclam}.log
-  
+
+  if [[ ${ENABLE_CLAMAV} -eq 1 ]]; then
+    # TODO: Consider assigning /var/log/mail a writable non-root group for other processes like ClamAV?
+    # - Check if ClamAV is capable of creating files itself when they're missing?
+    # - Alternatively a symlink to /var/log/mail from the original intended location would allow write access
+    #   as a user to the symlink location, while keeping ownership as root at /var/log/mail
+    # - `LogSyslog false` for clamd.conf + freshclam.conf could possibly be enabled instead of log files?
+    #   However without better filtering in place (once Vector is adopted), this should be avoided.
+    touch /var/log/mail/{clamav,freshclam}.log
+    chown clamav:adm /var/log/mail/{clamav,freshclam}.log
+  fi
+
   # Volume permissions should be corrected:
   # https://github.com/docker-mailserver/docker-mailserver-helm/issues/137
   chmod 755 /var/log/mail/

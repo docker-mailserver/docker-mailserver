@@ -43,7 +43,6 @@ function _register_functions() {
   # ? >> Setup
 
   _register_setup_function '_setup_vmail_id'
-  _register_setup_function '_setup_logs_general'
   _register_setup_function '_setup_timezone'
 
   if [[ ${SMTP_ONLY} -ne 1 ]]; then
