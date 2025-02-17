@@ -23,7 +23,11 @@ function _setup_opendkim() {
     # check if any keys are available
     if [[ -e /tmp/docker-mailserver/opendkim/KeyTable ]]; then
       cp -a /tmp/docker-mailserver/opendkim/* /etc/opendkim/
-      _log 'trace' "DKIM keys added for: $(find /etc/opendkim/keys/ -maxdepth 1 -type f -printf '%f ')"
+
+      local DKIM_DOMAINS
+      DKIM_DOMAINS=$(find /etc/opendkim/keys/ -maxdepth 1 -type f -printf '%f ')
+      _log 'trace' "DKIM keys added for: ${DKIM_DOMAINS}"
+
       chown -R opendkim:opendkim /etc/opendkim/
       chmod -R 0700 /etc/opendkim/keys/
     else
