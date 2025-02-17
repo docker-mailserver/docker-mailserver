@@ -78,7 +78,7 @@ function _parse_arguments() {
       ( 'keysize' )
         if [[ -n ${2+set} ]]; then
           KEYSIZE="${2}"
-          _log 'debug' "Keysize set to '${KEYSIZE}'"
+          _log 'trace' "Keysize set to '${KEYSIZE}'"
         else
           _exit_with_error "No keysize provided after 'keysize' argument"
         fi
@@ -87,7 +87,7 @@ function _parse_arguments() {
       ( 'selector' )
         if [[ -n ${2+set} ]]; then
           SELECTOR="${2}"
-          _log 'debug' "Selector set to '${SELECTOR}'"
+          _log 'trace' "Selector set to '${SELECTOR}'"
         else
           _exit_with_error "No selector provided after 'selector' argument"
         fi
@@ -96,7 +96,7 @@ function _parse_arguments() {
       ( 'domain' )
         if [[ -n ${2+set} ]]; then
           DMS_DOMAINS="${2}"
-          _log 'debug' "Domain(s) set to '${DMS_DOMAINS}'"
+          _log 'trace' "Domain(s) set to '${DMS_DOMAINS}'"
         else
           _exit_with_error "No domain(s) provided after 'domain' argument"
         fi
@@ -209,8 +209,6 @@ SIGNING_TABLE_FILE="${OPENDKIM_BASE_DIR}/SigningTable"
 TRUSTED_HOSTS_FILE="${OPENDKIM_BASE_DIR}/TrustedHosts"
 # Create configs if missing:
 function _create_opendkim_configs() {
-  _log 'debug' 'Creating any missing OpenDKIM configs'
-
   mkdir -p "${OPENDKIM_BASE_DIR}"
   local OPENDKIM_CONFIGS=(
     "${KEY_TABLE_FILE}"
@@ -219,8 +217,11 @@ function _create_opendkim_configs() {
   )
 
   # Only create if the file doesn't exist (avoids modifying mtime):
-  for FILE in ${OPENDKIM_CONFIGS[@]}; do
-    [[ ! -f "${FILE}" ]] && touch "${FILE}"
+  for FILE in "${OPENDKIM_CONFIGS[@]}"; do
+    if [[ ! -f "${FILE}" ]]; then
+      _log 'debug' "Creating OpenDKIM config '${FILE}'"
+      touch "${FILE}"
+    fi
   done
 
   # If file exists but is empty, add default hosts to trust:
