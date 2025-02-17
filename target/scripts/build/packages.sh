@@ -37,7 +37,13 @@ function _pre_installation_steps() {
 }
 
 function _install_utils() {
+  # TIP: `*.tar.gz` releases tend to forget to reset UID/GID ownership when archiving.
+  # When extracting with `tar` as `root` the archived UID/GID is kept, unless using `--no-same-owner`.
+  # Likewise when the binary is in a nested location the full archived path
+  # must be provided + `--strip-components` to extract the file to the target directory.
+  # Doing this avoids the need for (`mv` + `rm`) or (`--to-stdout` + `chmod +x`)
   _log 'debug' 'Installing utils sourced from Github'
+
   _log 'trace' 'Installing jaq'
   local JAQ_TAG='v2.1.0'
   curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-$(uname -m)-unknown-linux-gnu" -o /usr/local/bin/jaq
