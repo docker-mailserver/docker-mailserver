@@ -155,13 +155,6 @@ function __setup__security__clamav() {
   if [[ ${ENABLE_CLAMAV} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring ClamAV'
 
-    local FILE
-    for FILE in /var/log/mail/{clamav,freshclam}.log; do
-      touch "${FILE}"
-      chown clamav:adm "${FILE}"
-      chmod 640 "${FILE}"
-    done
-
     if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]; then
       _log 'trace' "Setting ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
 
