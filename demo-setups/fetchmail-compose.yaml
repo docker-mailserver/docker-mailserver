@@ -1,10 +1,10 @@
-# Docs: https://docker-mailserver.github.io/docker-mailserver/v14.0/config/advanced/mail-fetchmail
+# Docs: https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-fetchmail
 # Additional context, with CLI commands for verification:
 # https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570
 
 services:
   dms-fetch:
-    image: ghcr.io/docker-mailserver/docker-mailserver:latest # :14.0
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest # :15.0
     hostname: mail.example.test
     environment:
       ENABLE_FETCHMAIL: 1
@@ -26,7 +26,7 @@ services:
         target: /tmp/docker-mailserver/fetchmail.cf
 
   dms-remote:
-    image: ghcr.io/docker-mailserver/docker-mailserver:latest # :14.0
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest # :15.0
     hostname: mail.remote.test
     environment:
       # Allows for us send a test mail easily by trusting any mail client run within this container (`swaks`):
