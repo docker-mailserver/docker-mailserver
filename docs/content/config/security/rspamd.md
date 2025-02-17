@@ -294,8 +294,8 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [abusix-docs::rspamd-integration]: https://abusix.com/docs/rspamd/
 [spamhaus::faq::dnsbl-usage]: https://www.spamhaus.org/faq/section/DNSBL%20Usage#365
 
-[dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/rspamd/local.d/actions.conf
-[dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/master/target/rspamd
+[dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/rspamd/local.d/actions.conf
+[dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd
 
 [docs::env::enable-redis]: ../environment.md#enable_rspamd_redis
 [docs::spam-to-junk]: ../environment.md#move_spam_to_junk

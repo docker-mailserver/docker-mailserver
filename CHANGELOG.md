@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file. The format 
     - This has been corrected to `/var/lib/getmail` (_if you have mounted a DMS State Volume to `/var/mail-state`, `/var/lib/getmail` will be symlinked to `/var/mail-state/lib-getmail`_).
     - To preserve this state when upgrading to DMS v15, **you must manually migrate `getmail/` from the _DMS Config Volume_ to `lib-getmail/` in the _DMS State Volume_.**
   - `setup email delete <EMAIL ADDRESS>` now requires explicit confirmation if the mailbox data should be deleted ([#4365](https://github.com/docker-mailserver/docker-mailserver/pull/4365)).
-- old **Rspamd** configuration file location (`/tmp/docker-mailserver/rspamd-modules.conf`) check was removed, use `/tmp/docker-mailserver/rspamd/custom-commands.conf` now
+- **Rspamd:** Removed deprecated file path check (_DMS config volume: `./rspamd-modules.conf` => `./rspamd/custom-commands.conf`_) ([#4373](https://github.com/docker-mailserver/docker-mailserver/pull/4373))
 
 ### Added
 
@@ -29,7 +29,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Updates
 
-**Internal:**
+- **Internal:**
   - **Removed `VERSION` file** from the repo. Releases of DMS prior to v13 (Nov 2023) would check this to detect new releases ([#3677](https://github.com/docker-mailserver/docker-mailserver/issues/3677), [#4321](https://github.com/docker-mailserver/docker-mailserver/pull/4321))
   - During image build, ensure a secure connection when downloading the `fail2ban` package ([#4080](https://github.com/docker-mailserver/docker-mailserver/pull/4080))
 - **Documentation:**
