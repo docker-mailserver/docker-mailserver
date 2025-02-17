@@ -38,13 +38,18 @@ function _pre_installation_steps() {
 
 # Install third-party commands to /usr/local/bin
 function _install_utils() {
-  local ARCH_A=$(uname -m)
+  local ARCH_A
+  ARCH_A=$(uname --machine)
   # Alternate naming convention support: x86_64 (amd64) / aarch64 (arm64)
   # https://en.wikipedia.org/wiki/X86-64#Industry_naming_conventions
   local ARCH_B
   case "${ARCH_A}" in
-    ( 'x86_64' )  ARCH_B='amd64' ;;
+    ( 'x86_64'  ) ARCH_B='amd64' ;;
     ( 'aarch64' ) ARCH_B='arm64' ;;
+    ( * )
+      _log 'error' "Unsupported arch: '${ARCH_A}'"
+      return 1
+      ;;
   esac
 
   # TIP: `*.tar.gz` releases tend to forget to reset UID/GID ownership when archiving.

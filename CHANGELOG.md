@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file. The format 
 - **Internal:**
   - Add password confirmation to several `setup` CLI subcommands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
   - Added a `debug getmail` subcommand to `setup` ([#4346](https://github.com/docker-mailserver/docker-mailserver/pull/4346))
+  - Added Smallstep `step` CLI command ([#4376](https://github.com/docker-mailserver/docker-mailserver/pull/4376))
 
 ### Updates
 
