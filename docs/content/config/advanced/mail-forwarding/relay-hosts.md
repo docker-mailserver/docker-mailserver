@@ -151,6 +151,6 @@ We provide this support via two config files:
 [wikipedia::smarthost]: https://en.wikipedia.org/wiki/Smart_host
 
 [docs::env-relay]: ../../environment.md#relay-host
-[dms-repo::helpers-relay]: https://github.com/docker-mailserver/docker-mailserver/blob/v14.0.0/target/scripts/helpers/relay.sh
+[dms-repo::helpers-relay]: https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/scripts/helpers/relay.sh
 [dms-gh::pr-3607]: https://github.com/docker-mailserver/docker-mailserver/issues/3607
 [dms-gh::relay-example]: https://github.com/docker-mailserver/docker-mailserver/issues/3842#issuecomment-1913380639
