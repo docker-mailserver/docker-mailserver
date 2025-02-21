@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
     
     
       
@@ -2875,7 +2875,7 @@
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>&lt;CONTAINER_NAME&gt;<span class="w"> </span>rspamadm<span class="w"> </span>pw
 </code></pre></div>
 <hr />
-<p><strong>Related:</strong> A minimal Rspamd <code>compose.yaml</code> [example with a reverse-proxy for web access][gh-dms:guide::rspamd-web].</p>
+<p><strong>Related:</strong> A minimal Rspamd <code>compose.yaml</code> <a href="https://github.com/orgs/docker-mailserver/discussions/4269#discussioncomment-11329588">example with a reverse-proxy for web access</a>.</p>
 </details>
 <h3 id="dns"><a class="toclink" href="#dns">DNS</a></h3>
 <p>DMS does not supply custom values for DNS servers (to Rspamd). If you need to use custom DNS servers, which could be required when using <a href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists">DNS-based deny/allowlists</a>, you need to adjust <a href="https://rspamd.com/doc/configuration/options.html"><code>options.inc</code></a> yourself. Make sure to also read our <a href="../../../faq/#what-about-dns-servers">FAQ page on DNS servers</a>.</p>
