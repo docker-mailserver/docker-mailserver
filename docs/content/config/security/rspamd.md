@@ -139,7 +139,7 @@ To use the web interface you will need to configure a password, [otherwise you w
 
     ---
 
-    **Related:** A minimal Rspamd `compose.yaml` [example with a reverse-proxy for web access][gh-dms:guide::rspamd-web].
+    **Related:** A minimal Rspamd `compose.yaml` [example with a reverse-proxy for web access][gh-dms::guide::rspamd-web].
 
 ### DNS
 
