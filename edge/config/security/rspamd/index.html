@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.6">
     
     
       
@@ -2775,7 +2775,7 @@
 
 <h2 id="about"><a class="toclink" href="#about">About</a></h2>
 <p>Rspamd is a <a href="https://rspamd.com/">"fast, free and open-source spam filtering system"</a>. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd.</p>
-<p>If you want to take a look at the default configuration files for Rspamd that DMS adds, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd"><code>target/rspamd/</code> inside the repository</a>. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
+<p>If you want to take a look at the default configuration files for Rspamd that DMS adds, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd"><code>target/rspamd/</code> inside the repository</a>. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
 <h3 id="enable-rspamd"><a class="toclink" href="#enable-rspamd">Enable Rspamd</a></h3>
 <p>Rspamd is presently opt-in for DMS, but intended to become the default anti-spam service in a future release.</p>
 <p>DMS offers two anti-spam solutions:</p>
@@ -2837,7 +2837,7 @@
 <p>And then there is a corresponding <code>X-Rspamd-Action</code> header, which shows the overall result and the action that is taken. In our example, it would be:</p>
 <div class="highlight"><pre><span></span><code>X-Rspamd-Action    no action
 </code></pre></div>
-<p>Since the score is <code>-2.80</code>, nothing will happen and the e-mail is not classified as spam. Our custom <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd/local.d/actions.conf"><code>actions.conf</code></a> defines what to do at certain scores:</p>
+<p>Since the score is <code>-2.80</code>, nothing will happen and the e-mail is not classified as spam. Our custom <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd/local.d/actions.conf"><code>actions.conf</code></a> defines what to do at certain scores:</p>
 <ol>
 <li>At a score of 4, the e-mail is to be <em>greylisted</em>;</li>
 <li>At a score of 6, the e-mail is <em>marked with a header</em> (<code>X-Spam: Yes</code>);</li>
@@ -2909,7 +2909,7 @@
 <p class="admonition-title">Rspamd config overriding precedence</p>
 <p>Rspamd has a layered approach for configuration with <a href="https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories"><code>local.d</code> and <code>override.d</code> config directories</a>.</p>
 <ul>
-<li>DMS <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd">extends the Rspamd default configs via <code>/etc/rspamd/local.d/</code></a>.</li>
+<li>DMS <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd">extends the Rspamd default configs via <code>/etc/rspamd/local.d/</code></a>.</li>
 <li>User config changes should be handled separately as overrides via the <a href="../../advanced/optional-config/#volumes-config">DMS Config Volume</a> (<code>docker-data/dms/config/</code>) with either:<ul>
 <li><code>./rspamd/override.d/</code> - Config files placed here are copied to <code>/etc/rspamd/override.d/</code> during container startup.</li>
 <li><a href="#with-the-help-of-a-custom-file"><code>./rspamd/custom-commands.conf</code></a> - Applied after copying any provided configs from <code>rspamd/override.d/</code> (DMS Config volume) to <code>/etc/rspamd/override.d/</code>.</li>
@@ -3097,7 +3097,7 @@ add-line &lt;FILENAME&gt; &lt;CONTENT&gt;
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c8b220af.min.js"></script>
       
     
   </body>

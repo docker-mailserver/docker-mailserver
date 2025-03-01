@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.6">
     
     
       
@@ -2513,19 +2513,20 @@ apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&am
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
 <span class="w">    </span><span class="c1"># The `image` setting now represents the tag for the local build configured below:</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local/dms:14.0</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local/dms:${DMS_TAG?Must set DMS image tag}</span>
 <span class="w">    </span><span class="c1"># Local build (no need to try pull `image` remotely):</span>
 <span class="w">    </span><span class="nt">pull_policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build</span>
 <span class="w">    </span><span class="c1"># Add this `build` section to your real `compose.yaml` for your DMS service:</span>
 <span class="w">    </span><span class="nt">build</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">dockerfile_inline</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">FROM docker.io/mailserver/docker-mailserver:14.0</span>
+<span class="w">        </span><span class="no">FROM docker.io/mailserver/docker-mailserver:${DMS_TAG?Must set DMS image tag}</span>
 <span class="w">        </span><span class="no">RUN apt-get update &amp;&amp; apt-get install dovecot-solr</span>
 </code></pre></div>
+<p>This approach only needs to install the package once with the image build itself which minimizes the delay of container startup.</p>
 <ul>
-<li>Just run <code>docker compose up</code> and it will pull DMS and build your custom image to run a container.</li>
-<li>Updating to a new DMS release is straight-forward, just adjust the version tag as you normally would. If you make future changes that don't apply, you may need to force a rebuild.</li>
-<li>This approach only needs to install the package once with the image build itself. This minimizes delay of container startup.</li>
+<li>Just run <code>DMS_TAG='14.0' docker compose up</code> and it will pull the DMS image, then build your custom DMS image to run a new container instance.</li>
+<li>Updating to a new DMS release is straight-forward, just adjust the <code>DMS_TAG</code> ENV value or change the image tag directly in <code>compose.yaml</code> as you normally would to upgrade an image.</li>
+<li>If you make future changes to the <code>dockerfile_inline</code> that don't seem to be applied, you may need to force a rebuild with <code>DMS_TAG='14.0' docker compose up --build</code>.</li>
 </ul>
 </div>
 </div>
@@ -2658,7 +2659,7 @@ plugin {
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c8b220af.min.js"></script>
       
     
   </body>
