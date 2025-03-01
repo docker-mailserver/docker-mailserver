@@ -139,7 +139,7 @@ To use the web interface you will need to configure a password, [otherwise you w
 
     ---
 
-    **Related:** A minimal Rspamd `compose.yaml` [example with a reverse-proxy for web access][gh-dms:guide::rspamd-web].
+    **Related:** A minimal Rspamd `compose.yaml` [example with a reverse-proxy for web access][gh-dms::guide::rspamd-web].
 
 ### DNS
 
@@ -353,8 +353,8 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [abusix-docs::rspamd-integration]: https://abusix.com/docs/rspamd/
 [spamhaus::faq::dnsbl-usage]: https://www.spamhaus.org/faq/section/DNSBL%20Usage#365
 
-[dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd/local.d/actions.conf
-[dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd
+[dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd/local.d/actions.conf
+[dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd
 [gh-dms::guide::valkey]: https://github.com/docker-mailserver/docker-mailserver/issues/4001#issuecomment-2652596692
 [gh-dms::guide::rspamd-web]: https://github.com/orgs/docker-mailserver/discussions/4269#discussioncomment-11329588
 
