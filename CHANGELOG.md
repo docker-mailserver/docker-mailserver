@@ -62,7 +62,7 @@ All notable changes to this project will be documented in this file. The format 
   - The main `mail.log` (_which is piped to stdout via `tail`_) now correctly begins from the first log line of the active container run. Previously some daemon logs and potential warnings/errors were omitted ([#4146](https://github.com/docker-mailserver/docker-mailserver/pull/4146))
   - `start-mailserver.sh` removed unused `shopt -s inherit_errexit` ([#4161](https://github.com/docker-mailserver/docker-mailserver/pull/4161))
   - Fixed a regression introduced in DMS v14 where `postfix-main.cf` appended `stderr` output into `/etc/postfix/main.cf`, causing Postfix startup to fail ([#4147](https://github.com/docker-mailserver/docker-mailserver/pull/4147))
-  - Fixed a regression introduced in DMS v14 to better support running `start-mailserver.sh` with container restarts, which now only skip calling `_setup()` ([#4323](https://github.com/docker-mailserver/docker-mailserver/pull/4323#issuecomment-2629559254))
+  - Fixed a regression introduced in DMS v14 to better support running `start-mailserver.sh` with container restarts, which now only skip calling `_setup()` ([#4323](https://github.com/docker-mailserver/docker-mailserver/pull/4323#issuecomment-2629559254), [#4374](https://github.com/docker-mailserver/docker-mailserver/pull/4374))
   - The command `swaks --help` is now functional ([#4282](https://github.com/docker-mailserver/docker-mailserver/pull/4282))
 - **Rspamd:**
   - DKIM private key path checking is now performed only on paths that do not contain `$` ([#4201](https://github.com/docker-mailserver/docker-mailserver/pull/4201))

@@ -1,15 +1,5 @@
 #!/bin/bash
 
-function _setup_logs_general() {
-  _log 'debug' 'Setting up general log files'
-
-  # File/folder permissions are fine when using docker volumes, but may be wrong
-  # when file system folders are mounted into the container.
-  # Set the expected values and create missing folders/files just in case.
-  mkdir -p /var/log/{mail,supervisor}
-  chown syslog:root /var/log/mail
-}
-
 function _setup_logrotate() {
   _log 'debug' 'Setting up logrotate'
 
