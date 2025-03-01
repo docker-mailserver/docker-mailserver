@@ -1,0 +1,6162 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.) using Docker.">
+      
+      
+        <meta name="author" content="docker-mailserver (Github Organization)">
+      
+      
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/">
+      
+      
+        <link rel="prev" href="../../usage/">
+      
+      
+        <link rel="next" href="../account-management/overview/">
+      
+      
+      <link rel="icon" href="../../assets/logo/favicon-32x32.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.6">
+    
+    
+      
+        <title>Environment Variables - Docker Mailserver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.8608ea7d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/css/customizations.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#general" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+      
+  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Mailserver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Environment Variables
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/docker-mailserver/docker-mailserver" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    docker-mailserver
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../introduction/" class="md-tabs__link">
+        
+  
+    
+  
+  Introduction
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../usage/" class="md-tabs__link">
+        
+  
+    
+  
+  Usage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  Configuration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/tutorials/basic-installation/" class="md-tabs__link">
+          
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../faq/" class="md-tabs__link">
+        
+  
+    
+  
+  FAQ
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/general/" class="md-tabs__link">
+          
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://hub.docker.com/r/mailserver/docker-mailserver/" class="md-tabs__link">
+        
+  
+    
+  
+  <span class="icon-external-link"></span>DockerHub
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver" class="md-tabs__link">
+        
+  
+    
+  
+  <span class="icon-external-link"></span>GHCR
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+      
+  <img src="../../assets/logo/dmo-logo-white.min.svg" alt="logo">
+
+    </a>
+    Docker Mailserver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/docker-mailserver/docker-mailserver" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    docker-mailserver
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Configuration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Environment Variables
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Environment Variables
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    <span class="md-ellipsis">
+      General
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#override_hostname" class="md-nav__link">
+    <span class="md-ellipsis">
+      OVERRIDE_HOSTNAME
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOG_LEVEL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supervisor_loglevel" class="md-nav__link">
+    <span class="md-ellipsis">
+      SUPERVISOR_LOGLEVEL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dms_vmail_uid" class="md-nav__link">
+    <span class="md-ellipsis">
+      DMS_VMAIL_UID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dms_vmail_gid" class="md-nav__link">
+    <span class="md-ellipsis">
+      DMS_VMAIL_GID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#account_provisioner" class="md-nav__link">
+    <span class="md-ellipsis">
+      ACCOUNT_PROVISIONER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permit_docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      PERMIT_DOCKER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tz" class="md-nav__link">
+    <span class="md-ellipsis">
+      TZ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_amavis" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_AMAVIS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amavis_loglevel" class="md-nav__link">
+    <span class="md-ellipsis">
+      AMAVIS_LOGLEVEL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_dnsbl" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_DNSBL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_mta_sts" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_MTA_STS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_opendkim" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_OPENDKIM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_opendmarc" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_OPENDMARC
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_policyd_spf" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_POLICYD_SPF
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_pop3" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_POP3
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_imap" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_IMAP
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_clamav" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_CLAMAV
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_fail2ban" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_FAIL2BAN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fail2ban_blocktype" class="md-nav__link">
+    <span class="md-ellipsis">
+      FAIL2BAN_BLOCKTYPE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smtp_only" class="md-nav__link">
+    <span class="md-ellipsis">
+      SMTP_ONLY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssl_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      SSL_TYPE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tls_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      TLS_LEVEL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spoof_protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      SPOOF_PROTECTION
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_srs" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_SRS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network_interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      NETWORK_INTERFACE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virusmails_delete_delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      VIRUSMAILS_DELETE_DELAY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_dagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_DAGENT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_mailbox_size_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_MAILBOX_SIZE_LIMIT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_quotas" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_QUOTAS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_message_size_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_MESSAGE_SIZE_LIMIT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clamav_message_size_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      CLAMAV_MESSAGE_SIZE_LIMIT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_managesieve" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_MANAGESIEVE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postmaster_address" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTMASTER_ADDRESS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_update_check" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_UPDATE_CHECK
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_check_interval" class="md-nav__link">
+    <span class="md-ellipsis">
+      UPDATE_CHECK_INTERVAL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postscreen_action" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTSCREEN_ACTION
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_mailbox_format" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_MAILBOX_FORMAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_reject_unknown_client_hostname" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_inet_protocols" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_INET_PROTOCOLS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_inet_protocols" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_INET_PROTOCOLS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#move_spam_to_junk" class="md-nav__link">
+    <span class="md-ellipsis">
+      MOVE_SPAM_TO_JUNK
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mark_spam_as_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      MARK_SPAM_AS_READ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spam_subject" class="md-nav__link">
+    <span class="md-ellipsis">
+      SPAM_SUBJECT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rspamd" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rspamd
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Rspamd">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_rspamd" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_RSPAMD
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_rspamd_redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_RSPAMD_REDIS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_check_authenticated" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_CHECK_AUTHENTICATED
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_greylisting" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_GREYLISTING
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_learn" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_LEARN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_hfilter" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_HFILTER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_hfilter_hostname_unknown_score" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_neural" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_NEURAL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reports
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pflogsumm_trigger" class="md-nav__link">
+    <span class="md-ellipsis">
+      PFLOGSUMM_TRIGGER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pflogsumm_recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      PFLOGSUMM_RECIPIENT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pflogsumm_sender" class="md-nav__link">
+    <span class="md-ellipsis">
+      PFLOGSUMM_SENDER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logwatch_interval" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGWATCH_INTERVAL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logwatch_recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGWATCH_RECIPIENT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logwatch_sender" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGWATCH_SENDER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report_recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      REPORT_RECIPIENT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report_sender" class="md-nav__link">
+    <span class="md-ellipsis">
+      REPORT_SENDER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logrotate_interval" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGROTATE_INTERVAL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logrotate_count" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGROTATE_COUNT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spamassassin" class="md-nav__link">
+    <span class="md-ellipsis">
+      SpamAssassin
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SpamAssassin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_spamassassin" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_SPAMASSASSIN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_spamassassin_kam" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_SPAMASSASSIN_KAM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spamassassin_spam_to_inbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      SPAMASSASSIN_SPAM_TO_INBOX
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_TAG
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_tag2" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_TAG2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_kill" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_KILL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_shortcircuit_bayes_spam" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_SHORTCIRCUIT_BAYES_SPAM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_shortcircuit_bayes_ham" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_SHORTCIRCUIT_BAYES_HAM
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fetchmail" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetchmail
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fetchmail">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_fetchmail" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_FETCHMAIL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchmail_poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      FETCHMAIL_POLL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchmail_parallel" class="md-nav__link">
+    <span class="md-ellipsis">
+      FETCHMAIL_PARALLEL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getmail" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getmail
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getmail">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_getmail" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_GETMAIL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getmail_poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      GETMAIL_POLL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oauth2" class="md-nav__link">
+    <span class="md-ellipsis">
+      OAUTH2
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OAUTH2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_oauth2" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_OAUTH2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oauth2_introspection_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      OAUTH2_INTROSPECTION_URL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ldap" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LDAP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ldap_start_tls" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_START_TLS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_server_host" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_SERVER_HOST
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_search_base" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_SEARCH_BASE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_bind_dn" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_BIND_DN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_bind_pw" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_BIND_PW
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_user" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_USER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_group" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_GROUP
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_alias" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_ALIAS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_DOMAIN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_senders" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_SENDERS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_tls" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_TLS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dovecot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dovecot
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dovecot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_base" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_BASE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_default_pass_scheme" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_DEFAULT_PASS_SCHEME
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_dn" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_DN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_dnpass" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_DNPASS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_uris" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_URIS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_ldap_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_LDAP_VERSION
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_auth_bind" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_AUTH_BIND
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_user_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_USER_FILTER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_user_attrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_USER_ATTRS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_pass_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_PASS_FILTER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_pass_attrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_PASS_ATTRS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#postgrey" class="md-nav__link">
+    <span class="md-ellipsis">
+      Postgrey
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Postgrey">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_postgrey" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_POSTGREY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgrey_delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTGREY_DELAY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgrey_max_age" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTGREY_MAX_AGE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgrey_auto_whitelist_clients" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTGREY_AUTO_WHITELIST_CLIENTS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgrey_text" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTGREY_TEXT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sasl-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASL Auth
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SASL Auth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_saslauthd" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_SASLAUTHD
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_mechanisms" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_MECHANISMS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_mech_options" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_MECH_OPTIONS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_server" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_SERVER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_start_tls" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_START_TLS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_tls_check_peer" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_TLS_CHECK_PEER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_tls_cacert_dir" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_TLS_CACERT_DIR
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_tls_cacert_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_TLS_CACERT_FILE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_bind_dn" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_BIND_DN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_password" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_PASSWORD
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_search_base" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_SEARCH_BASE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_FILTER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_password_attr" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_PASSWORD_ATTR
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_auth_method" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_AUTH_METHOD
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_mech" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_MECH
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#srs-sender-rewriting-scheme" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS (Sender Rewriting Scheme)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SRS (Sender Rewriting Scheme)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#srs_sender_classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS_SENDER_CLASSES
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#srs_exclude_domains" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS_EXCLUDE_DOMAINS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#srs_secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS_SECRET
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#srs_domainname" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS_DOMAINNAME
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relay-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relay Host
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relay Host">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default_relay_host" class="md-nav__link">
+    <span class="md-ellipsis">
+      DEFAULT_RELAY_HOST
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relay_host" class="md-nav__link">
+    <span class="md-ellipsis">
+      RELAY_HOST
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relay_port" class="md-nav__link">
+    <span class="md-ellipsis">
+      RELAY_PORT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relay-host-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relay Host Credentials
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relay Host Credentials">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#relay_user" class="md-nav__link">
+    <span class="md-ellipsis">
+      RELAY_USER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relay_password" class="md-nav__link">
+    <span class="md-ellipsis">
+      RELAY_PASSWORD
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Account Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Account Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../account-management/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Provisioner
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Provisioner
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../account-management/provisioner/file/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File Based
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../account-management/provisioner/ldap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LDAP Service
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Supplementary
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Supplementary
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../account-management/supplementary/master-accounts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Master Accounts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../account-management/supplementary/oauth2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OAuth2 Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Best Practices
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            Best Practices
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../best-practices/autodiscover/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Auto-discovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../best-practices/dkim_dmarc_spf/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DKIM, DMARC & SPF
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../best-practices/mta-sts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MTA-STS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Security
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/understanding-the-ports/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Understanding the Ports
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/ssl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SSL/TLS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/fail2ban/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Fail2Ban
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/mail_crypt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mail Encryption
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/rspamd/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rspamd
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debugging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Debugging
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pop3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mail Delivery with POP3
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup.sh/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About setup.sh
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Advanced Configuration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            Advanced Configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/optional-config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Optional Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8_2" id="__nav_4_8_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Maintenance
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            Maintenance
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Update and Cleanup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8_3" id="__nav_4_8_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Override the Default Configs
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            Override the Default Configs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/override-defaults/dovecot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dovecot
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/override-defaults/postfix/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Postfix
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/override-defaults/user-patches/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modifications via Script
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/mail-sieve/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Email Filtering with Sieve
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/mail-fetchmail/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Email Gathering with Fetchmail
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/mail-getmail/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Email Gathering with Getmail
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_8_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8_7" id="__nav_4_8_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Email Forwarding
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_8_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8_7">
+            <span class="md-nav__icon md-icon"></span>
+            Email Forwarding
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Relay Hosts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/mail-forwarding/aws-ses/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AWS SES
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/mail-forwarding/gmail-smtp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configure Gmail as a relay host
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/full-text-search/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Full-Text Search
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/kubernetes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Kubernetes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/ipv6/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IPv6
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/podman/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Podman
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/tutorials/basic-installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basic Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mailserver behind Proxy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/tutorials/crowdsec/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Crowdsec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/tutorials/docker-build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Building your own Docker image
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/tutorials/blog-posts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Blog Posts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/tutorials/dovecot-solr/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dovecot FTS with Apache Solr
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Use Cases
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Use Cases
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Forward-Only Mail-Server with LDAP
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/use-cases/imap-folders/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Customize IMAP Folders
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/use-cases/ios-mail-push-support/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    iOS Mail Push Support
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/use-cases/auth-lua/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Lua Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/use-cases/bind-smtp-network-interface/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bind outbound SMTP to a specific network
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/use-cases/external-relay-only-mailserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Relay inbound and outbound mail for an internal DMS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Contributing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/general/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    General Information
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/tests/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/issues-and-pull-requests/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Issues and Pull Requests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://hub.docker.com/r/mailserver/docker-mailserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    <span class="icon-external-link"></span>DockerHub
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    <span class="icon-external-link"></span>GHCR
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    <span class="md-ellipsis">
+      General
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#override_hostname" class="md-nav__link">
+    <span class="md-ellipsis">
+      OVERRIDE_HOSTNAME
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOG_LEVEL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supervisor_loglevel" class="md-nav__link">
+    <span class="md-ellipsis">
+      SUPERVISOR_LOGLEVEL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dms_vmail_uid" class="md-nav__link">
+    <span class="md-ellipsis">
+      DMS_VMAIL_UID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dms_vmail_gid" class="md-nav__link">
+    <span class="md-ellipsis">
+      DMS_VMAIL_GID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#account_provisioner" class="md-nav__link">
+    <span class="md-ellipsis">
+      ACCOUNT_PROVISIONER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permit_docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      PERMIT_DOCKER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tz" class="md-nav__link">
+    <span class="md-ellipsis">
+      TZ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_amavis" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_AMAVIS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amavis_loglevel" class="md-nav__link">
+    <span class="md-ellipsis">
+      AMAVIS_LOGLEVEL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_dnsbl" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_DNSBL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_mta_sts" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_MTA_STS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_opendkim" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_OPENDKIM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_opendmarc" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_OPENDMARC
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_policyd_spf" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_POLICYD_SPF
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_pop3" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_POP3
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_imap" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_IMAP
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_clamav" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_CLAMAV
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_fail2ban" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_FAIL2BAN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fail2ban_blocktype" class="md-nav__link">
+    <span class="md-ellipsis">
+      FAIL2BAN_BLOCKTYPE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smtp_only" class="md-nav__link">
+    <span class="md-ellipsis">
+      SMTP_ONLY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssl_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      SSL_TYPE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tls_level" class="md-nav__link">
+    <span class="md-ellipsis">
+      TLS_LEVEL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spoof_protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      SPOOF_PROTECTION
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_srs" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_SRS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network_interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      NETWORK_INTERFACE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virusmails_delete_delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      VIRUSMAILS_DELETE_DELAY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_dagent" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_DAGENT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_mailbox_size_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_MAILBOX_SIZE_LIMIT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_quotas" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_QUOTAS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_message_size_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_MESSAGE_SIZE_LIMIT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clamav_message_size_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      CLAMAV_MESSAGE_SIZE_LIMIT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_managesieve" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_MANAGESIEVE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postmaster_address" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTMASTER_ADDRESS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_update_check" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_UPDATE_CHECK
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_check_interval" class="md-nav__link">
+    <span class="md-ellipsis">
+      UPDATE_CHECK_INTERVAL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postscreen_action" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTSCREEN_ACTION
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_mailbox_format" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_MAILBOX_FORMAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_reject_unknown_client_hostname" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postfix_inet_protocols" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTFIX_INET_PROTOCOLS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_inet_protocols" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_INET_PROTOCOLS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#move_spam_to_junk" class="md-nav__link">
+    <span class="md-ellipsis">
+      MOVE_SPAM_TO_JUNK
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mark_spam_as_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      MARK_SPAM_AS_READ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spam_subject" class="md-nav__link">
+    <span class="md-ellipsis">
+      SPAM_SUBJECT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rspamd" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rspamd
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Rspamd">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_rspamd" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_RSPAMD
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_rspamd_redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_RSPAMD_REDIS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_check_authenticated" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_CHECK_AUTHENTICATED
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_greylisting" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_GREYLISTING
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_learn" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_LEARN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_hfilter" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_HFILTER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_hfilter_hostname_unknown_score" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rspamd_neural" class="md-nav__link">
+    <span class="md-ellipsis">
+      RSPAMD_NEURAL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reports
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pflogsumm_trigger" class="md-nav__link">
+    <span class="md-ellipsis">
+      PFLOGSUMM_TRIGGER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pflogsumm_recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      PFLOGSUMM_RECIPIENT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pflogsumm_sender" class="md-nav__link">
+    <span class="md-ellipsis">
+      PFLOGSUMM_SENDER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logwatch_interval" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGWATCH_INTERVAL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logwatch_recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGWATCH_RECIPIENT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logwatch_sender" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGWATCH_SENDER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report_recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      REPORT_RECIPIENT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report_sender" class="md-nav__link">
+    <span class="md-ellipsis">
+      REPORT_SENDER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logrotate_interval" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGROTATE_INTERVAL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logrotate_count" class="md-nav__link">
+    <span class="md-ellipsis">
+      LOGROTATE_COUNT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spamassassin" class="md-nav__link">
+    <span class="md-ellipsis">
+      SpamAssassin
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SpamAssassin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_spamassassin" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_SPAMASSASSIN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable_spamassassin_kam" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_SPAMASSASSIN_KAM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spamassassin_spam_to_inbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      SPAMASSASSIN_SPAM_TO_INBOX
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_TAG
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_tag2" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_TAG2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_kill" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_KILL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_shortcircuit_bayes_spam" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_SHORTCIRCUIT_BAYES_SPAM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sa_shortcircuit_bayes_ham" class="md-nav__link">
+    <span class="md-ellipsis">
+      SA_SHORTCIRCUIT_BAYES_HAM
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fetchmail" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fetchmail
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fetchmail">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_fetchmail" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_FETCHMAIL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchmail_poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      FETCHMAIL_POLL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetchmail_parallel" class="md-nav__link">
+    <span class="md-ellipsis">
+      FETCHMAIL_PARALLEL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getmail" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getmail
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getmail">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_getmail" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_GETMAIL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getmail_poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      GETMAIL_POLL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oauth2" class="md-nav__link">
+    <span class="md-ellipsis">
+      OAUTH2
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OAUTH2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_oauth2" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_OAUTH2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oauth2_introspection_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      OAUTH2_INTROSPECTION_URL
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ldap" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LDAP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ldap_start_tls" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_START_TLS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_server_host" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_SERVER_HOST
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_search_base" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_SEARCH_BASE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_bind_dn" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_BIND_DN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_bind_pw" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_BIND_PW
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_user" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_USER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_group" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_GROUP
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_alias" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_ALIAS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_DOMAIN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ldap_query_filter_senders" class="md-nav__link">
+    <span class="md-ellipsis">
+      LDAP_QUERY_FILTER_SENDERS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_tls" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_TLS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dovecot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dovecot
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dovecot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_base" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_BASE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_default_pass_scheme" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_DEFAULT_PASS_SCHEME
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_dn" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_DN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_dnpass" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_DNPASS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_uris" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_URIS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_ldap_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_LDAP_VERSION
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_auth_bind" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_AUTH_BIND
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_user_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_USER_FILTER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_user_attrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_USER_ATTRS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_pass_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_PASS_FILTER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dovecot_pass_attrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      DOVECOT_PASS_ATTRS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#postgrey" class="md-nav__link">
+    <span class="md-ellipsis">
+      Postgrey
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Postgrey">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_postgrey" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_POSTGREY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgrey_delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTGREY_DELAY
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgrey_max_age" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTGREY_MAX_AGE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgrey_auto_whitelist_clients" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTGREY_AUTO_WHITELIST_CLIENTS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgrey_text" class="md-nav__link">
+    <span class="md-ellipsis">
+      POSTGREY_TEXT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sasl-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASL Auth
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SASL Auth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable_saslauthd" class="md-nav__link">
+    <span class="md-ellipsis">
+      ENABLE_SASLAUTHD
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_mechanisms" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_MECHANISMS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_mech_options" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_MECH_OPTIONS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_server" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_SERVER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_start_tls" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_START_TLS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_tls_check_peer" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_TLS_CHECK_PEER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_tls_cacert_dir" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_TLS_CACERT_DIR
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_tls_cacert_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_TLS_CACERT_FILE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_bind_dn" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_BIND_DN
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_password" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_PASSWORD
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_search_base" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_SEARCH_BASE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_FILTER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_password_attr" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_PASSWORD_ATTR
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_auth_method" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_AUTH_METHOD
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saslauthd_ldap_mech" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASLAUTHD_LDAP_MECH
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#srs-sender-rewriting-scheme" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS (Sender Rewriting Scheme)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SRS (Sender Rewriting Scheme)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#srs_sender_classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS_SENDER_CLASSES
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#srs_exclude_domains" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS_EXCLUDE_DOMAINS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#srs_secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS_SECRET
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#srs_domainname" class="md-nav__link">
+    <span class="md-ellipsis">
+      SRS_DOMAINNAME
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relay-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relay Host
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relay Host">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default_relay_host" class="md-nav__link">
+    <span class="md-ellipsis">
+      DEFAULT_RELAY_HOST
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relay_host" class="md-nav__link">
+    <span class="md-ellipsis">
+      RELAY_HOST
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relay_port" class="md-nav__link">
+    <span class="md-ellipsis">
+      RELAY_PORT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relay-host-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relay Host Credentials
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relay Host Credentials">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#relay_user" class="md-nav__link">
+    <span class="md-ellipsis">
+      RELAY_USER
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relay_password" class="md-nav__link">
+    <span class="md-ellipsis">
+      RELAY_PASSWORD
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/config/environment.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/docker-mailserver/docker-mailserver/raw/master/docs/content/config/environment.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+  <h1>Environment Variables</h1>
+
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Values in <strong>bold</strong> are the default values. If an option doesn't work as documented here, check if you are running the latest image. The current <code>master</code> branch corresponds to the image <code>ghcr.io/docker-mailserver/docker-mailserver:edge</code>.</p>
+</div>
+<h4 id="general"><a class="toclink" href="#general">General</a></h4>
+<h5 id="override_hostname"><a class="toclink" href="#override_hostname">OVERRIDE_HOSTNAME</a></h5>
+<p>If you can't set your hostname (<em>eg: you're in a container platform that doesn't let you</em>) specify it via this environment variable. It will have priority over <code>docker run --hostname</code>, or the equivalent <code>hostname:</code> field in <code>compose.yaml</code>.</p>
+<ul>
+<li><strong>empty</strong> =&gt; Uses the <code>hostname -f</code> command to get canonical hostname for DMS to use.</li>
+<li>=&gt; Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.</li>
+</ul>
+<h5 id="log_level"><a class="toclink" href="#log_level">LOG_LEVEL</a></h5>
+<p>Set the log level for DMS. This is mostly relevant for container startup scripts and change detection event feedback.</p>
+<p>Valid values (in order of increasing verbosity) are: <code>error</code>, <code>warn</code>, <code>info</code>, <code>debug</code> and <code>trace</code>. The default log level is <code>info</code>.</p>
+<h5 id="supervisor_loglevel"><a class="toclink" href="#supervisor_loglevel">SUPERVISOR_LOGLEVEL</a></h5>
+<p>Here you can adjust the <a href="http://supervisord.org/logging.html#activity-log-levels">log-level for Supervisor</a>. Possible values are</p>
+<ul>
+<li>critical =&gt; Only show critical messages</li>
+<li>error    =&gt; Only show erroneous output</li>
+<li><strong>warn</strong> =&gt; Show warnings</li>
+<li>info     =&gt; Normal informational output</li>
+<li>debug    =&gt; Also show debug messages</li>
+</ul>
+<p>The log-level will show everything in its class and above.</p>
+<h5 id="dms_vmail_uid"><a class="toclink" href="#dms_vmail_uid">DMS_VMAIL_UID</a></h5>
+<p>Default: 5000</p>
+<p>The User ID assigned to the static vmail user for <code>/var/mail</code> (<em>Mail storage managed by Dovecot</em>).</p>
+<div class="admonition warning">
+<p class="admonition-title">Incompatible UID values</p>
+<ul>
+<li>A value of <a href="https://github.com/docker-mailserver/docker-mailserver/issues/4098#issuecomment-2257201025"><code>0</code> (root) is not compatible</a>.</li>
+<li>This feature will attempt to adjust the <code>uid</code> for the <code>docker</code> user (<code>/etc/passwd</code>), hence the error emitted to logs if the UID is already assigned to another user.</li>
+<li>The feature appears to work with other UID values that are already assigned in <code>/etc/passwd</code>, even though Dovecot by default has a setting for the minimum UID as <code>500</code>.</li>
+</ul>
+</div>
+<h5 id="dms_vmail_gid"><a class="toclink" href="#dms_vmail_gid">DMS_VMAIL_GID</a></h5>
+<p>Default: 5000</p>
+<p>The Group ID assigned to the static vmail group for <code>/var/mail</code> (<em>Mail storage managed by Dovecot</em>).</p>
+<h5 id="account_provisioner"><a class="toclink" href="#account_provisioner">ACCOUNT_PROVISIONER</a></h5>
+<p>Configures the <a href="../account-management/overview/">provisioning source of user accounts</a> (including aliases) for user queries and authentication by services managed by DMS (<em>Postfix and Dovecot</em>).</p>
+<ul>
+<li><strong>FILE</strong> =&gt; use local files</li>
+<li>LDAP =&gt; use LDAP authentication</li>
+</ul>
+<p>LDAP requires an external service (e.g. <a href="https://hub.docker.com/r/bitnami/openldap/"><code>bitnami/openldap</code></a>).</p>
+<h5 id="permit_docker"><a class="toclink" href="#permit_docker">PERMIT_DOCKER</a></h5>
+<p>Set different options for mynetworks option (can be overwrite in postfix-main.cf) <strong>WARNING</strong>: Adding the docker network's gateway to the list of trusted hosts, e.g. using the <code>network</code> or <code>connected-networks</code> option, can create an <a href="https://en.wikipedia.org/wiki/Open_mail_relay"><strong>open relay</strong></a>, for instance if IPv6 is enabled on the host machine but not in Docker.</p>
+<ul>
+<li><strong>none</strong> =&gt; Explicitly force authentication</li>
+<li>container =&gt; Container IP address only.</li>
+<li>host =&gt; Add docker host (ipv4 only).</li>
+<li>network =&gt; Add the docker default bridge network (172.16.0.0/12); <strong>WARNING</strong>: <code>docker-compose</code> might use others (e.g. 192.168.0.0/16) use <code>PERMIT_DOCKER=connected-networks</code> in this case.</li>
+<li>connected-networks =&gt; Add all connected docker networks (ipv4 only).</li>
+</ul>
+<p>Note: you probably want to <a href="#postfix_inet_protocols">set <code>POSTFIX_INET_PROTOCOLS=ipv4</code></a> to make it work fine with Docker.</p>
+<h5 id="tz"><a class="toclink" href="#tz">TZ</a></h5>
+<p>Set the timezone. If this variable is unset, the container runtime will try to detect the time using <code>/etc/localtime</code>, which you can alternatively mount into the container. The value of this variable must follow the pattern <code>AREA/ZONE</code>, i.e. of you want to use Germany's time zone, use <code>Europe/Berlin</code>. You can lookup all available timezones <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List">here</a>.</p>
+<h5 id="enable_amavis"><a class="toclink" href="#enable_amavis">ENABLE_AMAVIS</a></h5>
+<p>Amavis content filter (used for ClamAV &amp; SpamAssassin)</p>
+<ul>
+<li>0     =&gt; Amavis is disabled</li>
+<li><strong>1</strong> =&gt; Amavis is enabled</li>
+</ul>
+<h5 id="amavis_loglevel"><a class="toclink" href="#amavis_loglevel">AMAVIS_LOGLEVEL</a></h5>
+<p><a href="https://lists.amavis.org/pipermail/amavis-users/2011-March/000158.html">This page</a> provides information on Amavis' logging statistics.</p>
+<ul>
+<li>-1/-2/-3 =&gt; Only show errors</li>
+<li><strong>0</strong>    =&gt; Show warnings</li>
+<li>1/2      =&gt; Show default informational output</li>
+<li>3/4/5    =&gt; log debug information (very verbose)</li>
+</ul>
+<h5 id="enable_dnsbl"><a class="toclink" href="#enable_dnsbl">ENABLE_DNSBL</a></h5>
+<p>This enables DNS block lists in <em>Postscreen</em>. If you want to know which lists we are using, have a look at <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/postfix/main.cf">the default <code>main.cf</code> for Postfix we provide</a> and search for <code>postscreen_dnsbl_sites</code>.</p>
+<div class="admonition danger">
+<p class="admonition-title">A Warning On DNS Block Lists</p>
+<p>Make sure your DNS queries are properly resolved, i.e. you will most likely not want to use a public DNS resolver as these queries do not return meaningful results. We try our best to only evaluate proper return codes - this is not a guarantee that all codes are handled fine though.</p>
+<p><strong>Note that emails will be rejected if they don't pass the block list checks!</strong></p>
+</div>
+<ul>
+<li><strong>0</strong> =&gt; DNS block lists are disabled</li>
+<li>1     =&gt; DNS block lists are enabled</li>
+</ul>
+<h5 id="enable_mta_sts"><a class="toclink" href="#enable_mta_sts">ENABLE_MTA_STS</a></h5>
+<p>Enables MTA-STS support for outbound mail.</p>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<p>See <a href="../best-practices/mta-sts/">MTA-STS</a> for further explanation.</p>
+<h5 id="enable_opendkim"><a class="toclink" href="#enable_opendkim">ENABLE_OPENDKIM</a></h5>
+<p>Enables the OpenDKIM service.</p>
+<ul>
+<li><strong>1</strong> =&gt; Enabled</li>
+<li>0 =&gt; Disabled</li>
+</ul>
+<h5 id="enable_opendmarc"><a class="toclink" href="#enable_opendmarc">ENABLE_OPENDMARC</a></h5>
+<p>Enables the OpenDMARC service.</p>
+<ul>
+<li><strong>1</strong> =&gt; Enabled</li>
+<li>0 =&gt; Disabled</li>
+</ul>
+<h5 id="enable_policyd_spf"><a class="toclink" href="#enable_policyd_spf">ENABLE_POLICYD_SPF</a></h5>
+<p>Enabled <code>policyd-spf</code> in Postfix's configuration. You will likely want to set this to <code>0</code> in case you're using Rspamd (<a href="#enable_rspamd"><code>ENABLE_RSPAMD=1</code></a>).</p>
+<ul>
+<li>0 =&gt; Disabled</li>
+<li><strong>1</strong> =&gt; Enabled</li>
+</ul>
+<h5 id="enable_pop3"><a class="toclink" href="#enable_pop3">ENABLE_POP3</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; POP3 service disabled</li>
+<li>1 =&gt; Enables POP3 service</li>
+</ul>
+<h5 id="enable_imap"><a class="toclink" href="#enable_imap">ENABLE_IMAP</a></h5>
+<ul>
+<li>0 =&gt; Disabled</li>
+<li><strong>1</strong> =&gt; Enabled</li>
+</ul>
+<h5 id="enable_clamav"><a class="toclink" href="#enable_clamav">ENABLE_CLAMAV</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; ClamAV is disabled</li>
+<li>1 =&gt; ClamAV is enabled</li>
+</ul>
+<h5 id="enable_fail2ban"><a class="toclink" href="#enable_fail2ban">ENABLE_FAIL2BAN</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; fail2ban service disabled</li>
+<li>1 =&gt; Enables fail2ban service</li>
+</ul>
+<p>If you enable Fail2Ban, don't forget to add the following lines to your <code>compose.yaml</code>:</p>
+<div class="highlight"><pre><span></span><code>cap_add:
+<span class="w">  </span>-<span class="w"> </span>NET_ADMIN
+</code></pre></div>
+<p>Otherwise, <code>nftables</code> won't be able to ban IPs.</p>
+<h5 id="fail2ban_blocktype"><a class="toclink" href="#fail2ban_blocktype">FAIL2BAN_BLOCKTYPE</a></h5>
+<ul>
+<li><strong>drop</strong>   =&gt; drop packet (send NO reply)</li>
+<li>reject =&gt; reject packet (send ICMP unreachable)
+FAIL2BAN_BLOCKTYPE=drop</li>
+</ul>
+<h5 id="smtp_only"><a class="toclink" href="#smtp_only">SMTP_ONLY</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; all daemons start</li>
+<li>1 =&gt; only launch postfix smtp</li>
+</ul>
+<h5 id="ssl_type"><a class="toclink" href="#ssl_type">SSL_TYPE</a></h5>
+<p>In the majority of cases, you want <code>letsencrypt</code> or <code>manual</code>.</p>
+<p><code>self-signed</code> can be used for testing SSL until you provide a valid certificate, note that third-parties cannot trust <code>self-signed</code> certificates, do not use this type in production. <code>custom</code> is a temporary workaround that is not officially supported.</p>
+<ul>
+<li><strong>empty</strong> =&gt; SSL disabled.</li>
+<li>letsencrypt =&gt; Support for using certificates with <em>Let's Encrypt</em> provisioners. (Docs: <a href="../security/ssl/#lets-encrypt-recommended"><em>Let's Encrypt</em> Setup</a>)</li>
+<li>manual =&gt; Provide your own certificate via separate key and cert files. (Docs: <a href="../security/ssl/#bring-your-own-certificates">Bring Your Own Certificates</a>)<ul>
+<li>Requires: <code>SSL_CERT_PATH</code> and <code>SSL_KEY_PATH</code> ENV vars to be set to the location of the files within the container.</li>
+<li>Optional: <code>SSL_ALT_CERT_PATH</code> and <code>SSL_ALT_KEY_PATH</code> allow providing a 2nd certificate as a fallback for dual (aka hybrid) certificate support. Useful for ECDSA with an RSA fallback. <em>Presently only <code>manual</code> mode supports this feature</em>.</li>
+</ul>
+</li>
+<li>custom =&gt; Provide your own certificate as a single file containing both the private key and full certificate chain. (Docs: <code>None</code>)</li>
+<li>self-signed =&gt; Provide your own self-signed certificate files. Expects a self-signed CA cert for verification. <strong>Use only for local testing of your setup</strong>. (Docs: <a href="../security/ssl/#self-signed-certificates">Self-Signed Certificates</a>)</li>
+</ul>
+<p>Please read <a href="../security/ssl/">the SSL page in the documentation</a> for more information.</p>
+<h5 id="tls_level"><a class="toclink" href="#tls_level">TLS_LEVEL</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; modern</li>
+<li>modern =&gt; Enables TLSv1.2 and modern ciphers only. (default)</li>
+<li>intermediate =&gt; Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.</li>
+</ul>
+<h5 id="spoof_protection"><a class="toclink" href="#spoof_protection">SPOOF_PROTECTION</a></h5>
+<p>Configures the handling of creating mails with forged sender addresses.</p>
+<ul>
+<li><strong>0</strong> =&gt; (not recommended) Mail address spoofing allowed. Any logged in user may create email messages with a <a href="https://en.wikipedia.org/wiki/Email_spoofing">forged sender address</a>.</li>
+<li>1 =&gt; Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with <a href="http://www.postfix.org/postconf.5.html#recipient_delimiter">extension delimiters</a> are not able to send messages.</li>
+</ul>
+<h5 id="enable_srs"><a class="toclink" href="#enable_srs">ENABLE_SRS</a></h5>
+<p>Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See <a href="https://github.com/roehling/postsrsd/blob/main/README.rst">postsrsd</a> for further explanation.</p>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<h5 id="network_interface"><a class="toclink" href="#network_interface">NETWORK_INTERFACE</a></h5>
+<p>In case your network interface differs from <code>eth0</code>, e.g. when you are using HostNetworking in Kubernetes, you can set this to whatever interface you want. This interface will then be used.</p>
+<ul>
+<li><strong>empty</strong> =&gt; <code>eth0</code></li>
+</ul>
+<h5 id="virusmails_delete_delay"><a class="toclink" href="#virusmails_delete_delay">VIRUSMAILS_DELETE_DELAY</a></h5>
+<p>Set how many days a virusmail will stay on the server before being deleted</p>
+<ul>
+<li><strong>empty</strong> =&gt; 7 days</li>
+</ul>
+<h5 id="postfix_dagent"><a class="toclink" href="#postfix_dagent">POSTFIX_DAGENT</a></h5>
+<p>Configure Postfix <code>virtual_transport</code> to deliver mail to a different LMTP client (<em>default is a unix socket to dovecot</em>).</p>
+<p>Provide any valid URI. Examples:</p>
+<ul>
+<li><strong>empty</strong> =&gt; <code>lmtp:unix:/var/run/dovecot/lmtp</code> (default, configured in Postfix <code>main.cf</code>)</li>
+<li><code>lmtp:unix:private/dovecot-lmtp</code> (use socket)</li>
+<li><code>lmtps:inet:&lt;host&gt;:&lt;port&gt;</code> (secure lmtp with starttls)</li>
+<li><code>lmtp:&lt;kopano-host&gt;:2003</code> (use kopano as mailstore)</li>
+</ul>
+<h5 id="postfix_mailbox_size_limit"><a class="toclink" href="#postfix_mailbox_size_limit">POSTFIX_MAILBOX_SIZE_LIMIT</a></h5>
+<p>Set the mailbox size limit for all users. If set to zero, the size will be unlimited (default). Size is in bytes.</p>
+<ul>
+<li><strong>empty</strong> =&gt; 0 (no limit)</li>
+</ul>
+<h5 id="enable_quotas"><a class="toclink" href="#enable_quotas">ENABLE_QUOTAS</a></h5>
+<ul>
+<li><strong>1</strong> =&gt; Dovecot quota is enabled</li>
+<li>0 =&gt; Dovecot quota is disabled</li>
+</ul>
+<p>See <a href="../account-management/overview/#quotas">mailbox quota</a>.</p>
+<h5 id="postfix_message_size_limit"><a class="toclink" href="#postfix_message_size_limit">POSTFIX_MESSAGE_SIZE_LIMIT</a></h5>
+<p>Set the message size limit for all users. If set to zero, the size will be unlimited (not recommended!). Size is in bytes.</p>
+<ul>
+<li><strong>empty</strong> =&gt; 10240000 (~10 MB)</li>
+</ul>
+<h5 id="clamav_message_size_limit"><a class="toclink" href="#clamav_message_size_limit">CLAMAV_MESSAGE_SIZE_LIMIT</a></h5>
+<p>Mails larger than this limit won't be scanned.
+ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
+<ul>
+<li><strong>empty</strong> =&gt; 25M (25 MB)</li>
+</ul>
+<h5 id="enable_managesieve"><a class="toclink" href="#enable_managesieve">ENABLE_MANAGESIEVE</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; Managesieve service disabled</li>
+<li>1 =&gt; Enables Managesieve on port 4190</li>
+</ul>
+<h5 id="postmaster_address"><a class="toclink" href="#postmaster_address">POSTMASTER_ADDRESS</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;">&#112;&#111;&#115;&#116;&#109;&#97;&#115;&#116;&#101;&#114;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;</a></li>
+<li>=&gt; Specify the postmaster address</li>
+</ul>
+<h5 id="enable_update_check"><a class="toclink" href="#enable_update_check">ENABLE_UPDATE_CHECK</a></h5>
+<p>Check for updates on container start and then once a day. If an update is available, a mail is send to POSTMASTER_ADDRESS.</p>
+<ul>
+<li>0 =&gt; Update check disabled</li>
+<li><strong>1</strong> =&gt; Update check enabled</li>
+</ul>
+<h5 id="update_check_interval"><a class="toclink" href="#update_check_interval">UPDATE_CHECK_INTERVAL</a></h5>
+<p>Customize the update check interval. Number + Suffix. Suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.</p>
+<ul>
+<li><strong>1d</strong> =&gt; Check for updates once a day</li>
+</ul>
+<h5 id="postscreen_action"><a class="toclink" href="#postscreen_action">POSTSCREEN_ACTION</a></h5>
+<ul>
+<li><strong>enforce</strong> =&gt; Allow other tests to complete. Reject attempts to deliver mail with a 550 SMTP reply, and log the helo/sender/recipient information. Repeat this test the next time the client connects.</li>
+<li>drop =&gt; Drop the connection immediately with a 521 SMTP reply. Repeat this test the next time the client connects.</li>
+<li>ignore =&gt; Ignore the failure of this test. Allow other tests to complete. Repeat this test the next time the client connects. This option is useful for testing and collecting statistics without blocking mail.</li>
+</ul>
+<h5 id="dovecot_mailbox_format"><a class="toclink" href="#dovecot_mailbox_format">DOVECOT_MAILBOX_FORMAT</a></h5>
+<ul>
+<li><strong>maildir</strong> =&gt; uses very common Maildir format, one file contains one message</li>
+<li>sdbox =&gt; (experimental) uses Dovecot high-performance mailbox format, one file contains one message</li>
+<li>mdbox ==&gt; (experimental) uses Dovecot high-performance mailbox format, multiple messages per file and multiple files per box</li>
+</ul>
+<p>This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to <a href="https://doc.dovecot.org/admin_manual/mailbox_formats/#mailbox-formats">Dovecot Documentation</a>.</p>
+<h5 id="postfix_reject_unknown_client_hostname"><a class="toclink" href="#postfix_reject_unknown_client_hostname">POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME</a></h5>
+<p>If enabled, employs <code>reject_unknown_client_hostname</code> to sender restrictions in Postfix's configuration.</p>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<h5 id="postfix_inet_protocols"><a class="toclink" href="#postfix_inet_protocols">POSTFIX_INET_PROTOCOLS</a></h5>
+<ul>
+<li><strong>all</strong> =&gt; Listen on all interfaces.</li>
+<li>ipv4 =&gt; Listen only on IPv4 interfaces. Most likely you want this behind Docker.</li>
+<li>ipv6 =&gt; Listen only on IPv6 interfaces.</li>
+</ul>
+<p>Note: More details at <a href="http://www.postfix.org/postconf.5.html#inet_protocols">http://www.postfix.org/postconf.5.html#inet_protocols</a></p>
+<h5 id="dovecot_inet_protocols"><a class="toclink" href="#dovecot_inet_protocols">DOVECOT_INET_PROTOCOLS</a></h5>
+<ul>
+<li><strong>all</strong> =&gt; Listen on all interfaces</li>
+<li>ipv4 =&gt; Listen only on IPv4 interfaces. Most likely you want this behind Docker.</li>
+<li>ipv6 =&gt; Listen only on IPv6 interfaces.</li>
+</ul>
+<p>Note: More information at <a href="https://dovecot.org/doc/dovecot-example.conf">https://dovecot.org/doc/dovecot-example.conf</a></p>
+<h5 id="move_spam_to_junk"><a class="toclink" href="#move_spam_to_junk">MOVE_SPAM_TO_JUNK</a></h5>
+<ul>
+<li>0 =&gt; Spam messages will be delivered to the inbox.</li>
+<li><strong>1</strong> =&gt; Spam messages will be delivered to the Junk mailbox.</li>
+</ul>
+<p>Routes mail identified as spam into the recipient(s) Junk mailbox (<em>a specialized folder for junk associated to the <a href="../../examples/use-cases/imap-folders/">special-use flag <code>\Junk</code></a>, handled via a Dovecot sieve script internally</em>).</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Mail is received as spam when it has been marked with either header:</p>
+<ul>
+<li><code>X-Spam: Yes</code> (<em>added by Rspamd</em>)</li>
+<li><code>X-Spam-Flag: YES</code> (<em>added by SpamAssassin - requires <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></a></em>)</li>
+</ul>
+</div>
+<h5 id="mark_spam_as_read"><a class="toclink" href="#mark_spam_as_read">MARK_SPAM_AS_READ</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; disabled</li>
+<li>1 =&gt; Spam messages will be marked as read</li>
+</ul>
+<p>Enable to treat received spam as "read" (<em>avoids notification to MUA client of new mail</em>).</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Mail is received as spam when it has been marked with either header:</p>
+<ul>
+<li><code>X-Spam: Yes</code> (<em>added by Rspamd</em>)</li>
+<li><code>X-Spam-Flag: YES</code> (<em>added by SpamAssassin - requires <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX=1</code></a></em>)</li>
+</ul>
+</div>
+<h5 id="spam_subject"><a class="toclink" href="#spam_subject">SPAM_SUBJECT</a></h5>
+<p>This variable defines a prefix for e-mails tagged with the <code>X-Spam: Yes</code> (Rspamd) or <code>X-Spam-Flag: YES</code> (SpamAssassin/Amavis) header.</p>
+<p>Default: empty (no prefix will be added to e-mails)</p>
+<details class="example">
+<summary>Including trailing white-space</summary>
+<p>Add trailing white-space by quote wrapping the value: <code>SPAM_SUBJECT='[SPAM] '</code></p>
+</details>
+<h4 id="rspamd"><a class="toclink" href="#rspamd">Rspamd</a></h4>
+<h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
+<p>Enable or disable <a href="../security/rspamd/">Rspamd</a>.</p>
+<ul>
+<li><strong>0</strong> =&gt; disabled</li>
+<li>1 =&gt; enabled</li>
+</ul>
+<h5 id="enable_rspamd_redis"><a class="toclink" href="#enable_rspamd_redis">ENABLE_RSPAMD_REDIS</a></h5>
+<p>Explicit control over running a Redis instance within the container. By default, this value will match what is set for <a href="#enable_rspamd"><code>ENABLE_RSPAMD</code></a>.</p>
+<p>The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.</p>
+<details class="note">
+<summary>Configuring Rspamd for an external Redis instance</summary>
+<p>You will need to <a href="https://rspamd.com/doc/configuration/redis.html">provide configuration</a> at <code>/etc/rspamd/local.d/redis.conf</code> similar to:</p>
+<div class="highlight"><pre><span></span><code>servers = &quot;redis.example.test:6379&quot;;
+expand_keys = true;
+</code></pre></div>
+</details>
+<ul>
+<li>0 =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<h5 id="rspamd_check_authenticated"><a class="toclink" href="#rspamd_check_authenticated">RSPAMD_CHECK_AUTHENTICATED</a></h5>
+<p>This settings controls whether checks should be performed on emails coming from authenticated users (i.e. most likely outgoing emails). The default value is <code>0</code> in order to align better with SpamAssassin. <strong>We recommend</strong> reading through <a href="https://rspamd.com/doc/tutorials/scanning_outbound.html">the Rspamd documentation on scanning outbound emails</a> though to decide for yourself whether you need and want this feature.</p>
+<div class="admonition note">
+<p class="admonition-title">Not all checks and actions are disabled</p>
+<p>DKIM signing of e-mails will still happen.</p>
+</div>
+<ul>
+<li><strong>0</strong> =&gt; No checks will be performed for authenticated users</li>
+<li>1 =&gt; All default checks will be performed for authenticated users</li>
+</ul>
+<h5 id="rspamd_greylisting"><a class="toclink" href="#rspamd_greylisting">RSPAMD_GREYLISTING</a></h5>
+<p>Controls whether the <a href="https://rspamd.com/doc/modules/greylisting.html">Rspamd Greylisting module</a> is enabled. This module can further assist in avoiding spam emails by <a href="https://en.wikipedia.org/wiki/Greylisting_(email)">greylisting</a> e-mails with a certain spam score.</p>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<h5 id="rspamd_learn"><a class="toclink" href="#rspamd_learn">RSPAMD_LEARN</a></h5>
+<p>When enabled,</p>
+<ol>
+<li>the "<a href="https://rspamd.com/doc/configuration/statistic.html#autolearning">autolearning</a>" feature is turned on;</li>
+<li>the Bayes classifier will be trained (with the help of Sieve scripts) when moving mails<ol>
+<li>from anywhere to the <code>Junk</code> folder (learning this email as spam);</li>
+<li>from the <code>Junk</code> folder into the <code>INBOX</code> (learning this email as ham).</li>
+</ol>
+</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Attention</p>
+<p>As of now, the spam learning database is global (i.e. available to all users). If one user deliberately trains it with malicious data, then it will ruin your detection rate.</p>
+<p>This feature is suitably only for users who can tell ham from spam and users that can be trusted.</p>
+</div>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<h5 id="rspamd_hfilter"><a class="toclink" href="#rspamd_hfilter">RSPAMD_HFILTER</a></h5>
+<p>Can be used to enable or disable the <a href="https://www.rspamd.com/doc/modules/hfilter.html">Hfilter group module</a>. This is used by DMS to adjust the <code>HFILTER_HOSTNAME_UNKNOWN</code> symbol, increasing its default weight to act similar to Postfix's <code>reject_unknown_client_hostname</code>, without the need to outright reject a message.</p>
+<ul>
+<li>0 =&gt; Disabled</li>
+<li><strong>1</strong> =&gt; Enabled</li>
+</ul>
+<h5 id="rspamd_hfilter_hostname_unknown_score"><a class="toclink" href="#rspamd_hfilter_hostname_unknown_score">RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE</a></h5>
+<p>Can be used to control the score when the <a href="#rspamd_hfilter"><code>HFILTER_HOSTNAME_UNKNOWN</code> symbol</a> applies. A higher score is more punishing. Setting it to 15 (the default score for rejecting an e-mail) is equivalent to rejecting the email when the check fails.</p>
+<p>Default: 6 (which corresponds to the <code>add_header</code> action)</p>
+<h5 id="rspamd_neural"><a class="toclink" href="#rspamd_neural">RSPAMD_NEURAL</a></h5>
+<p>Can be used to enable or disable the <a href="https://www.rspamd.com/doc/modules/neural.html">Neural network module</a>. This is an experimental anti-spam weigh method using three neural networks in the configuration added here. As far as we can tell it trains itself by using other modules to find out what spam is. It will take a while (a week or more) to train its first neural network. The config trains new networks all the time and discards old networks.
+Since it is experimental, it is switched off by default.</p>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<h4 id="reports"><a class="toclink" href="#reports">Reports</a></h4>
+<h5 id="pflogsumm_trigger"><a class="toclink" href="#pflogsumm_trigger">PFLOGSUMM_TRIGGER</a></h5>
+<p>Enables regular Postfix log summary ("pflogsumm") mail reports.</p>
+<ul>
+<li><strong>not set</strong> =&gt; No report</li>
+<li>daily_cron =&gt; Daily report for the previous day</li>
+<li>logrotate =&gt; Full report based on the mail log when it is rotated</li>
+</ul>
+<p>This is a new option. The old REPORT options are still supported for backwards compatibility.
+If this is not set and reports are enabled with the old options, logrotate will be used.</p>
+<h5 id="pflogsumm_recipient"><a class="toclink" href="#pflogsumm_recipient">PFLOGSUMM_RECIPIENT</a></h5>
+<p>Recipient address for Postfix log summary reports.</p>
+<ul>
+<li><strong>not set</strong> =&gt; Use POSTMASTER_ADDRESS</li>
+<li>=&gt; Specify the recipient address(es)</li>
+</ul>
+<h5 id="pflogsumm_sender"><a class="toclink" href="#pflogsumm_sender">PFLOGSUMM_SENDER</a></h5>
+<p>Sender address (<code>FROM</code>) for pflogsumm reports (if Postfix log summary reports are enabled).</p>
+<ul>
+<li><strong>not set</strong> =&gt; Use REPORT_SENDER</li>
+<li>=&gt; Specify the sender address</li>
+</ul>
+<h5 id="logwatch_interval"><a class="toclink" href="#logwatch_interval">LOGWATCH_INTERVAL</a></h5>
+<p>Interval for logwatch report.</p>
+<ul>
+<li><strong>none</strong> =&gt; No report is generated</li>
+<li>daily =&gt; Send a daily report</li>
+<li>weekly =&gt; Send a report every week</li>
+</ul>
+<h5 id="logwatch_recipient"><a class="toclink" href="#logwatch_recipient">LOGWATCH_RECIPIENT</a></h5>
+<p>Recipient address for logwatch reports if they are enabled.</p>
+<ul>
+<li><strong>not set</strong> =&gt; Use REPORT_RECIPIENT or POSTMASTER_ADDRESS</li>
+<li>=&gt; Specify the recipient address(es)</li>
+</ul>
+<h5 id="logwatch_sender"><a class="toclink" href="#logwatch_sender">LOGWATCH_SENDER</a></h5>
+<p>Sender address (<code>FROM</code>) for logwatch reports if logwatch reports are enabled.</p>
+<ul>
+<li><strong>not set</strong> =&gt; Use REPORT_SENDER</li>
+<li>=&gt; Specify the sender address</li>
+</ul>
+<h5 id="report_recipient"><a class="toclink" href="#report_recipient">REPORT_RECIPIENT</a></h5>
+<p>Defines who receives reports (if they are enabled).</p>
+<ul>
+<li><strong>empty</strong> =&gt; Use POSTMASTER_ADDRESS</li>
+<li>=&gt; Specify the recipient address</li>
+</ul>
+<h5 id="report_sender"><a class="toclink" href="#report_sender">REPORT_SENDER</a></h5>
+<p>Defines who sends reports (if they are enabled).</p>
+<ul>
+<li><strong>empty</strong> =&gt; <code>mailserver-report@&lt;YOUR DOMAIN&gt;</code></li>
+<li>=&gt; Specify the sender address</li>
+</ul>
+<h5 id="logrotate_interval"><a class="toclink" href="#logrotate_interval">LOGROTATE_INTERVAL</a></h5>
+<p>Changes the interval in which log files are rotated.</p>
+<ul>
+<li><strong>weekly</strong> =&gt; Rotate log files weekly</li>
+<li>daily =&gt; Rotate log files daily</li>
+<li>monthly =&gt; Rotate log files monthly</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>LOGROTATE_INTERVAL</code> only manages <code>logrotate</code> within the container for services we manage internally.</p>
+<p>The entire log output for the container is still available via <code>docker logs mailserver</code> (or your respective container name). If you want to configure external log rotation for that container output as well, : <a href="https://docs.docker.com/config/containers/logging/configure/">Docker Logging Drivers</a>.</p>
+<p>By default, the logs are lost when the container is destroyed (eg: re-creating via <code>docker compose down &amp;&amp; docker compose up -d</code>). To keep the logs, mount a volume (to <code>/var/log/mail/</code>).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This variable can also determine the interval for Postfix's log summary reports, see <a href="#pflogsumm_trigger"><code>PFLOGSUMM_TRIGGER</code></a>.</p>
+</div>
+<h5 id="logrotate_count"><a class="toclink" href="#logrotate_count">LOGROTATE_COUNT</a></h5>
+<p>Defines how many files are kept by logrotate.</p>
+<ul>
+<li><strong>4</strong> =&gt; Number of files</li>
+</ul>
+<h4 id="spamassassin"><a class="toclink" href="#spamassassin">SpamAssassin</a></h4>
+<h5 id="enable_spamassassin"><a class="toclink" href="#enable_spamassassin">ENABLE_SPAMASSASSIN</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; SpamAssassin is disabled</li>
+<li>1 =&gt; SpamAssassin is enabled</li>
+</ul>
+<details class="info">
+<summary>SpamAssassin analyzes incoming mail and assigns a spam score</summary>
+<p>Integration with Amavis involves processing mail based on the assigned spam score via <a href="https://www.ijs.si/software/amavisd/amavisd-new-docs.html#tagkill"><code>SA_TAG</code>, <code>SA_TAG2</code> and <code>SA_KILL</code></a>.</p>
+<p>These settings have equivalent ENV supported by DMS for easy adjustments, as documented below.</p>
+</details>
+<h5 id="enable_spamassassin_kam"><a class="toclink" href="#enable_spamassassin_kam">ENABLE_SPAMASSASSIN_KAM</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; KAM disabled</li>
+<li>1 =&gt; KAM enabled</li>
+</ul>
+<p><a href="https://mcgrail.com/template/projects#KAM1">KAM</a> is a 3rd party SpamAssassin ruleset, provided by the McGrail Foundation. If SpamAssassin is enabled, KAM can be used in addition to the default ruleset.</p>
+<h5 id="spamassassin_spam_to_inbox"><a class="toclink" href="#spamassassin_spam_to_inbox">SPAMASSASSIN_SPAM_TO_INBOX</a></h5>
+<ul>
+<li>0 =&gt; (<em>Amavis action: <code>D_BOUNCE</code></em>): Spam messages will be bounced (<em>rejected</em>) without any notification (<em>dangerous</em>).</li>
+<li><strong>1</strong> =&gt; (<em>Amavis action: <code>D_PASS</code></em>): Spam messages will be delivered to the inbox.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Amavis action configured by this setting:</p>
+<ul>
+<li>Influences the behavior of the <a href="#sa_kill"><code>SA_KILL</code></a> setting.</li>
+<li>Applies to the Amavis config parameters <code>$final_spam_destiny</code> and <code>$final_bad_header_destiny</code>.</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">This ENV setting is related to</p>
+<ul>
+<li><a href="#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK=1</code></a></li>
+<li><a href="#mark_spam_as_read"><code>MARK_SPAM_AS_READ=1</code></a></li>
+<li><a href="#spam_subject"><code>SPAM_SUBJECT</code></a></li>
+</ul>
+</div>
+<h5 id="sa_tag"><a class="toclink" href="#sa_tag">SA_TAG</a></h5>
+<ul>
+<li><strong>2.0</strong> =&gt; add 'spam info' headers at, or above this spam score</li>
+</ul>
+<p>Mail is not yet considered spam at this spam score, but for purposes like diagnostics it can be useful to identify mail with a spam score at a lower bound than <code>SA_TAG2</code>.</p>
+<details class="example">
+<summary><code>X-Spam</code> headers appended to mail</summary>
+<p>Send a simple mail to a local DMS account <code>hello@example.com</code>:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dms<span class="w"> </span>swaks<span class="w"> </span>--server<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--to<span class="w"> </span>hello@example.com<span class="w"> </span>--body<span class="w"> </span><span class="s1">&#39;spam&#39;</span>
+</code></pre></div>
+<p>Inspecting the raw mail you will notice several <code>X-Spam</code> headers were added to the mail like this:</p>
+<div class="highlight"><pre><span></span><code>X-Spam-Flag: NO
+X-Spam-Score: 4.162
+X-Spam-Level: ****
+X-Spam-Status: No, score=4.162 tagged_above=2 required=4
+        tests=[BODY_SINGLE_WORD=1, DKIM_ADSP_NXDOMAIN=0.8,
+        NO_DNS_FOR_FROM=0.379, NO_RECEIVED=-0.001, NO_RELAYS=-0.001,
+        PYZOR_CHECK=1.985] autolearn=no autolearn_force=no
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">The <code>X-Spam-Score</code> is <code>4.162</code></p>
+<p>High enough for <code>SA_TAG</code> to trigger adding these headers, but not high enough for <code>SA_TAG2</code> (<em>which would set <code>X-Spam-Flag: YES</code> instead</em>).</p>
+</div>
+</details>
+<h5 id="sa_tag2"><a class="toclink" href="#sa_tag2">SA_TAG2</a></h5>
+<ul>
+<li><strong>6.31</strong> =&gt; add 'spam detected' headers at, or above this level</li>
+</ul>
+<p>When a spam score is high enough, mark mail as spam (<em>Appends the mail header: <code>X-Spam-Flag: YES</code></em>).</p>
+<div class="admonition info">
+<p class="admonition-title">Interaction with other ENV</p>
+<ul>
+<li><a href="#spam_subject"><code>SPAM_SUBJECT</code></a> modifies the mail subject to better communicate spam mail to the user.</li>
+<li><a href="#move_spam_to_junk"><code>MOVE_SPAM_TO_JUNK=1</code></a>: The mail is still delivered, but to the recipient(s) junk folder instead. This feature reduces the usefulness of <code>SPAM_SUBJECT</code>.</li>
+</ul>
+</div>
+<h5 id="sa_kill"><a class="toclink" href="#sa_kill">SA_KILL</a></h5>
+<ul>
+<li><strong>10.0</strong> =&gt; quarantine + triggers action to handle spam</li>
+</ul>
+<p>Controls the spam score threshold for triggering an action on mail that has a high spam score.</p>
+<details class="tip">
+<summary>Choosing an appropriate <code>SA_KILL</code> value</summary>
+<p>The value should be high enough to be represent confidence in mail as spam:</p>
+<ul>
+<li>Too low: The action taken may prevent legitimate mail (ham) that was incorrectly detected as spam from being delivered successfully.</li>
+<li>Too high: Allows more spam to bypass the <code>SA_KILL</code> trigger (<em>how to treat mail with high confidence that it is actually spam</em>).</li>
+</ul>
+<p>Experiences from DMS users with these settings has been <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3058#issuecomment-1420268148">collected here</a>, along with <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3058#issuecomment-1416547911">some direct configuration guides</a> (<em>under "Resources for references"</em>).</p>
+</details>
+<details class="info">
+<summary>Trigger action</summary>
+<p>DMS will configure Amavis with either of these actions based on the DMS <a href="#spamassassin_spam_to_inbox"><code>SPAMASSASSIN_SPAM_TO_INBOX</code></a> ENV setting:</p>
+<ul>
+<li><code>D_PASS</code> (<strong>default</strong>):<ul>
+<li>Accept mail and deliver it to the recipient(s), despite the high spam score. A copy is still stored in quarantine.</li>
+<li>This is a good default to start with until you are more confident in an <code>SA_KILL</code> threshold that won't accidentally discard / bounce legitimate mail users are expecting to arrive but is detected as spam.</li>
+</ul>
+</li>
+<li><code>D_BOUNCE</code>:<ul>
+<li>Additionally sends a bounce notification (DSN).</li>
+<li>The <a href="https://www.ijs.si/software/amavisd/amavisd-new-docs.html#actions">DSN is suppressed</a> (<em>no bounce sent</em>) when the spam score exceeds the Amavis <code>$sa_dsn_cutoff_level</code> config setting (default: <code>10</code>). With the DMS <code>SA_KILL</code> default also being <code>10</code>, no DSN will ever be sent.</li>
+</ul>
+</li>
+<li><code>D_REJECT</code> / <code>D_DISCARD</code>:<ul>
+<li>These two aren't configured by DMS, but are valid alternative action values if configuring Amavis directly.</li>
+</ul>
+</li>
+</ul>
+</details>
+<details class="note">
+<summary>Quarantined mail</summary>
+<p>When mail has a spam score that reaches the <code>SA_KILL</code> threshold:</p>
+<ul>
+<li><a href="https://www.ijs.si/software/amavisd/amavisd-new-docs.html#quarantine">It will be quarantined</a> regardless of the <code>SA_KILL</code> action to perform.</li>
+<li>With <code>D_PASS</code> the delivered mail also appends an <code>X-Quarantine-ID</code> mail header. The ID value of this header is part of the quarantined file name.</li>
+</ul>
+<p>If emails are quarantined, they are compressed and stored at a location:</p>
+<ul>
+<li>Default: <code>/var/lib/amavis/virusmails/</code></li>
+<li>When the <a href="../advanced/optional-config/#volumes-state"><code>/var/mail-state/</code> volume</a> is present: <code>/var/mail-state/lib-amavis/virusmails/</code></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Easily list mail stored in quarantine with <code>find</code> and the quarantine path:</p>
+<div class="highlight"><pre><span></span><code>find<span class="w"> </span>/var/lib/amavis/virusmails<span class="w"> </span>-type<span class="w"> </span>f
+</code></pre></div>
+</div>
+</details>
+<h5 id="sa_shortcircuit_bayes_spam"><a class="toclink" href="#sa_shortcircuit_bayes_spam">SA_SHORTCIRCUIT_BAYES_SPAM</a></h5>
+<ul>
+<li><strong>1</strong> =&gt; will activate SpamAssassin short circuiting for bayes spam detection.</li>
+</ul>
+<p>This will uncomment the respective line in <code>/etc/spamassasin/local.cf</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Activate this only if you are confident in your bayes database for identifying spam.</p>
+</div>
+<h5 id="sa_shortcircuit_bayes_ham"><a class="toclink" href="#sa_shortcircuit_bayes_ham">SA_SHORTCIRCUIT_BAYES_HAM</a></h5>
+<ul>
+<li><strong>1</strong> =&gt; will activate SpamAssassin short circuiting for bayes ham detection</li>
+</ul>
+<p>This will uncomment the respective line in <code>/etc/spamassasin/local.cf</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Activate this only if you are confident in your bayes database for identifying ham.</p>
+</div>
+<h4 id="fetchmail"><a class="toclink" href="#fetchmail">Fetchmail</a></h4>
+<h5 id="enable_fetchmail"><a class="toclink" href="#enable_fetchmail">ENABLE_FETCHMAIL</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; <code>fetchmail</code> disabled</li>
+<li>1 =&gt; <code>fetchmail</code> enabled</li>
+</ul>
+<h5 id="fetchmail_poll"><a class="toclink" href="#fetchmail_poll">FETCHMAIL_POLL</a></h5>
+<ul>
+<li><strong>300</strong> =&gt; <code>fetchmail</code> The number of seconds for the interval</li>
+</ul>
+<h5 id="fetchmail_parallel"><a class="toclink" href="#fetchmail_parallel">FETCHMAIL_PARALLEL</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; <code>fetchmail</code> runs with a single config file <code>/etc/fetchmailrc</code></li>
+<li>1 =&gt; <code>/etc/fetchmailrc</code> is split per poll entry. For every poll entry a separate fetchmail instance is started to <a href="https://otremba.net/wiki/Fetchmail_(Debian)#Immediate_Download_via_IMAP_IDLE">allow having multiple imap idle connections per server</a> (<em>when poll entries reference the same IMAP server</em>).</li>
+</ul>
+<p>Note: The defaults of your fetchmailrc file need to be at the top of the file. Otherwise it won't be added correctly to all separate <code>fetchmail</code> instances.</p>
+<h4 id="getmail"><a class="toclink" href="#getmail">Getmail</a></h4>
+<h5 id="enable_getmail"><a class="toclink" href="#enable_getmail">ENABLE_GETMAIL</a></h5>
+<p>Enable or disable <code>getmail</code>.</p>
+<ul>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
+</ul>
+<h5 id="getmail_poll"><a class="toclink" href="#getmail_poll">GETMAIL_POLL</a></h5>
+<ul>
+<li><strong>5</strong> =&gt; <code>getmail</code> The number of minutes for the interval. Min: 1; Default: 5.</li>
+</ul>
+<h4 id="oauth2"><a class="toclink" href="#oauth2">OAUTH2</a></h4>
+<h5 id="enable_oauth2"><a class="toclink" href="#enable_oauth2">ENABLE_OAUTH2</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; OAUTH2 authentication is disabled</li>
+<li>1 =&gt; OAUTH2 authentication is enabled</li>
+</ul>
+<h5 id="oauth2_introspection_url"><a class="toclink" href="#oauth2_introspection_url">OAUTH2_INTROSPECTION_URL</a></h5>
+<ul>
+<li>=&gt; Specify the user info endpoint URL of the oauth2 provider (<em>eg: <code>https://oauth2.example.com/userinfo/</code></em>)</li>
+</ul>
+<h4 id="ldap"><a class="toclink" href="#ldap">LDAP</a></h4>
+<h5 id="ldap_start_tls"><a class="toclink" href="#ldap_start_tls">LDAP_START_TLS</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; no</li>
+<li>yes =&gt; LDAP over TLS enabled for Postfix</li>
+</ul>
+<h5 id="ldap_server_host"><a class="toclink" href="#ldap_server_host">LDAP_SERVER_HOST</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; mail.example.com</li>
+<li>=&gt; Specify the <code>&lt;dns-name&gt;</code> / <code>&lt;ip-address&gt;</code> where the LDAP server is reachable via a URI like: <code>ldaps://mail.example.com</code>.</li>
+<li>Note: You must include the desired URI scheme (<code>ldap://</code>, <code>ldaps://</code>, <code>ldapi://</code>).</li>
+</ul>
+<h5 id="ldap_search_base"><a class="toclink" href="#ldap_search_base">LDAP_SEARCH_BASE</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; ou=people,dc=domain,dc=com</li>
+<li>=&gt; e.g. LDAP_SEARCH_BASE=dc=mydomain,dc=local</li>
+</ul>
+<h5 id="ldap_bind_dn"><a class="toclink" href="#ldap_bind_dn">LDAP_BIND_DN</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; cn=admin,dc=domain,dc=com</li>
+<li>=&gt; take a look at examples of SASL_LDAP_BIND_DN</li>
+</ul>
+<h5 id="ldap_bind_pw"><a class="toclink" href="#ldap_bind_pw">LDAP_BIND_PW</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; admin</li>
+<li>=&gt; Specify the password to bind against ldap</li>
+</ul>
+<h5 id="ldap_query_filter_user"><a class="toclink" href="#ldap_query_filter_user">LDAP_QUERY_FILTER_USER</a></h5>
+<ul>
+<li>e.g. <code>(&amp;(mail=%s)(mailEnabled=TRUE))</code></li>
+<li>=&gt; Specify how ldap should be asked for users</li>
+</ul>
+<h5 id="ldap_query_filter_group"><a class="toclink" href="#ldap_query_filter_group">LDAP_QUERY_FILTER_GROUP</a></h5>
+<ul>
+<li>e.g. <code>(&amp;(mailGroupMember=%s)(mailEnabled=TRUE))</code></li>
+<li>=&gt; Specify how ldap should be asked for groups</li>
+</ul>
+<h5 id="ldap_query_filter_alias"><a class="toclink" href="#ldap_query_filter_alias">LDAP_QUERY_FILTER_ALIAS</a></h5>
+<ul>
+<li>e.g. <code>(&amp;(mailAlias=%s)(mailEnabled=TRUE))</code></li>
+<li>=&gt; Specify how ldap should be asked for aliases</li>
+</ul>
+<h5 id="ldap_query_filter_domain"><a class="toclink" href="#ldap_query_filter_domain">LDAP_QUERY_FILTER_DOMAIN</a></h5>
+<ul>
+<li>e.g. <code>(&amp;(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))</code></li>
+<li>=&gt; Specify how ldap should be asked for domains</li>
+</ul>
+<h5 id="ldap_query_filter_senders"><a class="toclink" href="#ldap_query_filter_senders">LDAP_QUERY_FILTER_SENDERS</a></h5>
+<ul>
+<li><strong>empty</strong>  =&gt; use user/alias/group maps directly, equivalent to <code>(|($LDAP_QUERY_FILTER_USER)($LDAP_QUERY_FILTER_ALIAS)($LDAP_QUERY_FILTER_GROUP))</code></li>
+<li>=&gt; Override how ldap should be asked if a sender address is allowed for a user</li>
+</ul>
+<h5 id="dovecot_tls"><a class="toclink" href="#dovecot_tls">DOVECOT_TLS</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; no</li>
+<li>yes =&gt; LDAP over TLS enabled for Dovecot</li>
+</ul>
+<h4 id="dovecot"><a class="toclink" href="#dovecot">Dovecot</a></h4>
+<p>The following variables overwrite the default values for <code>/etc/dovecot/dovecot-ldap.conf.ext</code>.</p>
+<h5 id="dovecot_base"><a class="toclink" href="#dovecot_base">DOVECOT_BASE</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt;  same as <code>LDAP_SEARCH_BASE</code></li>
+<li>=&gt; Tell Dovecot to search only below this base entry. (e.g. <code>ou=people,dc=domain,dc=com</code>)</li>
+</ul>
+<h5 id="dovecot_default_pass_scheme"><a class="toclink" href="#dovecot_default_pass_scheme">DOVECOT_DEFAULT_PASS_SCHEME</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt;  <code>SSHA</code></li>
+<li>=&gt; Select one crypt scheme for password hashing from this list of <a href="https://doc.dovecot.org/configuration_manual/authentication/password_schemes/">password schemes</a>.</li>
+</ul>
+<h5 id="dovecot_dn"><a class="toclink" href="#dovecot_dn">DOVECOT_DN</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_BIND_DN</code></li>
+<li>=&gt; Bind dn for LDAP connection. (e.g. <code>cn=admin,dc=domain,dc=com</code>)</li>
+</ul>
+<h5 id="dovecot_dnpass"><a class="toclink" href="#dovecot_dnpass">DOVECOT_DNPASS</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_BIND_PW</code></li>
+<li>=&gt; Password for LDAP dn specified in <code>DOVECOT_DN</code>.</li>
+</ul>
+<h5 id="dovecot_uris"><a class="toclink" href="#dovecot_uris">DOVECOT_URIS</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_SERVER_HOST</code></li>
+<li>=&gt; Specify a space separated list of LDAP URIs.</li>
+<li>Note: You must include the desired URI scheme (<code>ldap://</code>, <code>ldaps://</code>, <code>ldapi://</code>).</li>
+</ul>
+<h5 id="dovecot_ldap_version"><a class="toclink" href="#dovecot_ldap_version">DOVECOT_LDAP_VERSION</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; 3</li>
+<li>2 =&gt; LDAP version 2 is used</li>
+<li>3 =&gt; LDAP version 3 is used</li>
+</ul>
+<h5 id="dovecot_auth_bind"><a class="toclink" href="#dovecot_auth_bind">DOVECOT_AUTH_BIND</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; no</li>
+<li>yes =&gt; Enable <a href="https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds">LDAP authentication binds</a></li>
+</ul>
+<h5 id="dovecot_user_filter"><a class="toclink" href="#dovecot_user_filter">DOVECOT_USER_FILTER</a></h5>
+<ul>
+<li>e.g. <code>(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))</code></li>
+</ul>
+<h5 id="dovecot_user_attrs"><a class="toclink" href="#dovecot_user_attrs">DOVECOT_USER_ATTRS</a></h5>
+<ul>
+<li>e.g. <code>homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail</code></li>
+<li>=&gt; Specify the directory to dovecot attribute mapping that fits your directory structure.</li>
+<li>Note: This is necessary for directories that do not use the Postfix Book Schema.</li>
+<li>Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.</li>
+<li>More details on the <a href="https://wiki.dovecot.org/AuthDatabase/LDAP/Userdb">Dovecot Wiki</a></li>
+</ul>
+<h5 id="dovecot_pass_filter"><a class="toclink" href="#dovecot_pass_filter">DOVECOT_PASS_FILTER</a></h5>
+<ul>
+<li>e.g. <code>(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))</code></li>
+<li><strong>empty</strong> =&gt; same as <code>DOVECOT_USER_FILTER</code></li>
+</ul>
+<h5 id="dovecot_pass_attrs"><a class="toclink" href="#dovecot_pass_attrs">DOVECOT_PASS_ATTRS</a></h5>
+<ul>
+<li>e.g. <code>uid=user,userPassword=password</code></li>
+<li>=&gt; Specify the directory to dovecot variable mapping that fits your directory structure.</li>
+<li>Note: This is necessary for directories that do not use the Postfix Book Schema.</li>
+<li>Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.</li>
+<li>More details on the <a href="https://wiki.dovecot.org/AuthDatabase/LDAP/PasswordLookups">Dovecot Wiki</a></li>
+</ul>
+<h4 id="postgrey"><a class="toclink" href="#postgrey">Postgrey</a></h4>
+<h5 id="enable_postgrey"><a class="toclink" href="#enable_postgrey">ENABLE_POSTGREY</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; <code>postgrey</code> is disabled</li>
+<li>1 =&gt; <code>postgrey</code> is enabled</li>
+</ul>
+<h5 id="postgrey_delay"><a class="toclink" href="#postgrey_delay">POSTGREY_DELAY</a></h5>
+<ul>
+<li><strong>300</strong> =&gt; greylist for N seconds</li>
+</ul>
+<p>Note: This postgrey setting needs <code>ENABLE_POSTGREY=1</code></p>
+<h5 id="postgrey_max_age"><a class="toclink" href="#postgrey_max_age">POSTGREY_MAX_AGE</a></h5>
+<ul>
+<li><strong>35</strong> =&gt; delete entries older than N days since the last time that they have been seen</li>
+</ul>
+<p>Note: This postgrey setting needs <code>ENABLE_POSTGREY=1</code></p>
+<h5 id="postgrey_auto_whitelist_clients"><a class="toclink" href="#postgrey_auto_whitelist_clients">POSTGREY_AUTO_WHITELIST_CLIENTS</a></h5>
+<ul>
+<li><strong>5</strong> =&gt; whitelist host after N successful deliveries (N=0 to disable whitelisting)</li>
+</ul>
+<p>Note: This postgrey setting needs <code>ENABLE_POSTGREY=1</code></p>
+<h5 id="postgrey_text"><a class="toclink" href="#postgrey_text">POSTGREY_TEXT</a></h5>
+<ul>
+<li><strong>Delayed by Postgrey</strong> =&gt; response when a mail is greylisted</li>
+</ul>
+<p>Note: This postgrey setting needs <code>ENABLE_POSTGREY=1</code></p>
+<h4 id="sasl-auth"><a class="toclink" href="#sasl-auth">SASL Auth</a></h4>
+<h5 id="enable_saslauthd"><a class="toclink" href="#enable_saslauthd">ENABLE_SASLAUTHD</a></h5>
+<ul>
+<li><strong>0</strong> =&gt; <code>saslauthd</code> is disabled</li>
+<li>1 =&gt; <code>saslauthd</code> is enabled</li>
+</ul>
+<h5 id="saslauthd_mechanisms"><a class="toclink" href="#saslauthd_mechanisms">SASLAUTHD_MECHANISMS</a></h5>
+<p>DMS only implements support for these mechanisms:</p>
+<ul>
+<li><strong><code>ldap</code></strong> =&gt; Authenticate against an LDAP server</li>
+<li><code>rimap</code> =&gt; Authenticate against an IMAP server</li>
+</ul>
+<h5 id="saslauthd_mech_options"><a class="toclink" href="#saslauthd_mech_options">SASLAUTHD_MECH_OPTIONS</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; None</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>With <code>SASLAUTHD_MECHANISMS=rimap</code> you need to specify the ip-address / servername of the IMAP server, such as <code>SASLAUTHD_MECH_OPTIONS=127.0.0.1</code>.</p>
+</div>
+<h5 id="saslauthd_ldap_server"><a class="toclink" href="#saslauthd_ldap_server">SASLAUTHD_LDAP_SERVER</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; Use the same value as <code>LDAP_SERVER_HOST</code></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You must include the desired URI scheme (<code>ldap://</code>, <code>ldaps://</code>, <code>ldapi://</code>).</p>
+</div>
+<h5 id="saslauthd_ldap_start_tls"><a class="toclink" href="#saslauthd_ldap_start_tls">SASLAUTHD_LDAP_START_TLS</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; <code>no</code></li>
+<li><code>yes</code> =&gt; Enable <code>ldap_start_tls</code> option</li>
+</ul>
+<h5 id="saslauthd_ldap_tls_check_peer"><a class="toclink" href="#saslauthd_ldap_tls_check_peer">SASLAUTHD_LDAP_TLS_CHECK_PEER</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; <code>no</code></li>
+<li><code>yes</code> =&gt; Enable <code>ldap_tls_check_peer</code> option</li>
+</ul>
+<h5 id="saslauthd_ldap_tls_cacert_dir"><a class="toclink" href="#saslauthd_ldap_tls_cacert_dir">SASLAUTHD_LDAP_TLS_CACERT_DIR</a></h5>
+<p>Path to directory with CA (Certificate Authority) certificates.</p>
+<ul>
+<li><strong>empty</strong> =&gt; Nothing is added to the configuration</li>
+<li>Any value =&gt; Fills the <code>ldap_tls_cacert_dir</code> option</li>
+</ul>
+<h5 id="saslauthd_ldap_tls_cacert_file"><a class="toclink" href="#saslauthd_ldap_tls_cacert_file">SASLAUTHD_LDAP_TLS_CACERT_FILE</a></h5>
+<p>File containing CA (Certificate Authority) certificate(s).</p>
+<ul>
+<li><strong>empty</strong> =&gt; Nothing is added to the configuration</li>
+<li>Any value =&gt; Fills the <code>ldap_tls_cacert_file</code> option</li>
+</ul>
+<h5 id="saslauthd_ldap_bind_dn"><a class="toclink" href="#saslauthd_ldap_bind_dn">SASLAUTHD_LDAP_BIND_DN</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_BIND_DN</code></li>
+<li>specify an object with privileges to search the directory tree</li>
+<li>e.g. active directory: SASLAUTHD_LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=net</li>
+<li>e.g. openldap: SASLAUTHD_LDAP_BIND_DN=cn=admin,dc=mydomain,dc=net</li>
+</ul>
+<h5 id="saslauthd_ldap_password"><a class="toclink" href="#saslauthd_ldap_password">SASLAUTHD_LDAP_PASSWORD</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_BIND_PW</code></li>
+</ul>
+<h5 id="saslauthd_ldap_search_base"><a class="toclink" href="#saslauthd_ldap_search_base">SASLAUTHD_LDAP_SEARCH_BASE</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; same as <code>LDAP_SEARCH_BASE</code></li>
+<li>specify the search base</li>
+</ul>
+<h5 id="saslauthd_ldap_filter"><a class="toclink" href="#saslauthd_ldap_filter">SASLAUTHD_LDAP_FILTER</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; default filter <code>(&amp;(uniqueIdentifier=%u)(mailEnabled=TRUE))</code></li>
+<li>e.g. for active directory: <code>(&amp;(sAMAccountName=%U)(objectClass=person))</code></li>
+<li>e.g. for openldap: <code>(&amp;(uid=%U)(objectClass=person))</code></li>
+</ul>
+<h5 id="saslauthd_ldap_password_attr"><a class="toclink" href="#saslauthd_ldap_password_attr">SASLAUTHD_LDAP_PASSWORD_ATTR</a></h5>
+<p>Specify what password attribute to use for password verification.</p>
+<ul>
+<li><strong>empty</strong> =&gt; Nothing is added to the configuration but the documentation says it is <code>userPassword</code> by default.</li>
+<li>Any value =&gt; Fills the <code>ldap_password_attr</code> option</li>
+</ul>
+<h5 id="saslauthd_ldap_auth_method"><a class="toclink" href="#saslauthd_ldap_auth_method">SASLAUTHD_LDAP_AUTH_METHOD</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; <code>bind</code> will be used as a default value</li>
+<li><code>fastbind</code> =&gt; The fastbind method is used</li>
+<li><code>custom</code> =&gt; The custom method uses userPassword attribute to verify the password</li>
+</ul>
+<h5 id="saslauthd_ldap_mech"><a class="toclink" href="#saslauthd_ldap_mech">SASLAUTHD_LDAP_MECH</a></h5>
+<p>Specify the authentication mechanism for SASL bind.</p>
+<ul>
+<li><strong>empty</strong> =&gt; Nothing is added to the configuration</li>
+<li>Any value =&gt; Fills the <code>ldap_mech</code> option</li>
+</ul>
+<h4 id="srs-sender-rewriting-scheme"><a class="toclink" href="#srs-sender-rewriting-scheme">SRS (Sender Rewriting Scheme)</a></h4>
+<h5 id="srs_sender_classes"><a class="toclink" href="#srs_sender_classes">SRS_SENDER_CLASSES</a></h5>
+<p>An email has an "envelope" sender (indicating the sending server) and a
+"header" sender (indicating who sent it). More strict SPF policies may require
+you to replace both instead of just the envelope sender.</p>
+<p><a href="https://www.mybluelinux.com/what-is-email-envelope-and-email-header/">More info</a>.</p>
+<ul>
+<li><strong>envelope_sender</strong> =&gt; Rewrite only envelope sender address</li>
+<li>header_sender =&gt; Rewrite only header sender (not recommended)</li>
+<li>envelope_sender,header_sender =&gt; Rewrite both senders</li>
+</ul>
+<h5 id="srs_exclude_domains"><a class="toclink" href="#srs_exclude_domains">SRS_EXCLUDE_DOMAINS</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; Envelope sender will be rewritten for all domains</li>
+<li>provide comma separated list of domains to exclude from rewriting</li>
+</ul>
+<h5 id="srs_secret"><a class="toclink" href="#srs_secret">SRS_SECRET</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; generated when the container is started for the first time</li>
+<li>provide a secret to use in base64</li>
+<li>you may specify multiple keys, comma separated. the first one is used for signing and the remaining will be used for verification. this is how you rotate and expire keys</li>
+<li>if you have a cluster/swarm make sure the same keys are on all nodes</li>
+<li>example command to generate a key: <code>dd if=/dev/urandom bs=24 count=1 2&gt;/dev/null | base64</code></li>
+</ul>
+<h5 id="srs_domainname"><a class="toclink" href="#srs_domainname">SRS_DOMAINNAME</a></h5>
+<ul>
+<li><strong>empty</strong> =&gt; Derived from <a href="#override_hostname"><code>OVERRIDE_HOSTNAME</code></a>, <code>$DOMAINNAME</code> (internal), or the container's hostname</li>
+<li>Set this if auto-detection fails, isn't what you want, or you wish to have a separate container handle DSNs</li>
+</ul>
+<h4 id="relay-host"><a class="toclink" href="#relay-host">Relay Host</a></h4>
+<p>Supported ENV for the <a href="../advanced/mail-forwarding/relay-hosts/">Relay Host</a> feature.</p>
+<div class="admonition note">
+<p class="admonition-title">Prefer <code>DEFAULT_RELAY_HOST</code> instead of <code>RELAY_HOST</code></p>
+<p>This is advised unless you need support for sender domain opt-out (via <code>setup relay exclude-domain</code>).</p>
+<p>The implementation for <code>RELAY_HOST</code> is not compatible with LDAP.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Opt-in for relay host support</p>
+<p>Enable relaying only for specific sender domains instead by using <code>setup relay add-domain</code>.</p>
+<p><strong>NOTE:</strong> Presently there is a caveat when relay host credentials are configured (<em>which is incompatible with opt-in</em>).</p>
+</div>
+<h5 id="default_relay_host"><a class="toclink" href="#default_relay_host">DEFAULT_RELAY_HOST</a></h5>
+<p>Configures a default relay host.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<ul>
+<li>All mail sent outbound from DMS will be relayed through the configured host, unless sender-dependent relayhost maps have been configured (<em>which have precedence</em>).</li>
+<li>The host value may optionally be wrapped in brackets (<em>skips DNS query for MX record</em>): <code>[mail.example.com]:587</code> vs <code>example.com:587</code></li>
+</ul>
+</div>
+<div class="admonition abstract">
+<p class="admonition-title">Technical Details</p>
+<p>This ENV internally configures the Postfix <code>main.cf</code> setting: <a href="https://www.postfix.org/postconf.5.html#relayhost"><code>relayhost</code></a></p>
+</div>
+<h5 id="relay_host"><a class="toclink" href="#relay_host">RELAY_HOST</a></h5>
+<p>Configures a default relay host.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Expects a value like <code>mail.example.com</code>. Internally this will be wrapped to <code>[mail.example.com]</code>, so it should resolve to the MTA directly.</p>
+<div class="admonition warning">
+<p class="admonition-title">Do not use with <code>DEFAULT_RELAY_HOST</code></p>
+<p><code>RELAY_HOST</code> has precedence as it is configured with <code>sender_dependent_relayhost_maps</code>.</p>
+</div>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<ul>
+<li>This is a legacy ENV. It is however required for the opt-out feature of <code>postfix-relaymap.cf</code> to work.</li>
+<li>Internal configuration however differs from <code>DEFAULT_RELAY_HOST</code>.</li>
+</ul>
+</div>
+<div class="admonition abstract">
+<p class="admonition-title">Technical Details</p>
+<p>This feature is configured internally using the:</p>
+<ul>
+<li>Postfix setting with config: <a href="https://www.postfix.org/postconf.5.html#sender_dependent_relayhost_maps"><code>sender_dependent_relayhost_maps = texthash:/etc/postfix/relayhost_map</code></a></li>
+<li>DMS Config volume support via: <code>postfix-relaymap.cf</code> (<em>generates <code>/etc/postfix/relayhost_map</code></em>)</li>
+</ul>
+<p>All known mail domains managed by DMS will be configured to relay outbound mail to <code>RELAY_HOST</code> by adding them implicitly to <code>/etc/postfix/relayhost_map</code>, except for domains using the opt-out feature of <code>postfix-relaymap.cf</code>.</p>
+</div>
+<h5 id="relay_port"><a class="toclink" href="#relay_port">RELAY_PORT</a></h5>
+<p>Default =&gt; 25</p>
+<p>Support for configuring a different port than 25 for <code>RELAY_HOST</code> to use.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Requires <code>RELAY_HOST</code>.</p>
+</div>
+<h4 id="relay-host-credentials"><a class="toclink" href="#relay-host-credentials">Relay Host Credentials</a></h4>
+<div class="admonition warning">
+<p class="admonition-title">Configuring relay host credentials enforces outbound authentication</p>
+<p>Presently when <code>RELAY_USER</code> + <code>RELAY_PASSWORD</code> or <code>postfix-sasl-password.cf</code> are configured, all outbound mail traffic is configured to require a secure connection established and forbids the omission of credentials.</p>
+<p>Additional feature work is required to only enforce these requirements on mail sent through a configured relay host.</p>
+</div>
+<h5 id="relay_user"><a class="toclink" href="#relay_user">RELAY_USER</a></h5>
+<h5 id="relay_password"><a class="toclink" href="#relay_password">RELAY_PASSWORD</a></h5>
+<p>Provide the credentials to use with <code>RELAY_HOST</code> or <code>DEFAULT_RELAY_HOST</code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Alternative credentials config</p>
+<p>You may prefer to use <code>setup relay add-auth</code> to avoid risking ENV exposing secrets.</p>
+<ul>
+<li>With the CLI command, you must provide relay credentials for each of your sender domains.</li>
+<li>Alternatively manually edit <code>postfix-sasl-password.cf</code> with the correct relayhost entry (<em><code>DEFAULT_RELAY_HOST</code> value, or as defined in <code>/etc/postfix/relayhost_map</code></em>) to provide credentials per relayhost configured.</li>
+</ul>
+</div>
+<div class="admonition abstract">
+<p class="admonition-title">Technical Details</p>
+<p>Credentials for relay hosts are configured internally using the:</p>
+<ul>
+<li>Postfix setting with config: <a href="https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps"><code>smtp_sasl_password_maps = texthash:/etc/postfix/sasl_passwd</code></a></li>
+<li>DMS Config volume support via: <code>postfix-sasl-password.cf</code> (<em>generates <code>/etc/postfix/sasl_passwd</code></em>)</li>
+</ul>
+<hr />
+<p>When <code>postfix-sasl-password.cf</code> is present, DMS will copy it internally to <code>/etc/postfix/sasl_passwd</code>.</p>
+<ul>
+<li>DMS provides support for mapping credentials by sender domain:<ul>
+<li>Explicitly via <code>setup relay add-auth</code> (<em>creates / updates <code>postfix-sasl-password.cf</code></em>).</li>
+<li>Implicitly via the relay ENV support (<em>configures all known DMS managed domains to use the relay ENV</em>).</li>
+</ul>
+</li>
+<li>Credentials can be explicitly configured for specific relay hosts instead of sender domains:<ul>
+<li>Add the exact relayhost value (<code>host:port</code> / <code>[host]:port</code>) from the generated <code>/etc/postfix/relayhost_map</code>, or <code>main.cf:relayhost</code> (<code>DEFAULT_RELAY_HOST</code>).</li>
+<li><code>setup relay ...</code> is missing support, you must instead add these manually to <code>postfix-sasl-password.cf</code>.</li>
+</ul>
+</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      <p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
