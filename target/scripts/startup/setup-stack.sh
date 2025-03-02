@@ -144,5 +144,5 @@ function __log_fixes() {
   # Volume permissions should be corrected:
   # https://github.com/docker-mailserver/docker-mailserver-helm/issues/137
   chmod 755 /var/log/mail/
-  chmod 640 /var/log/mail/*
+  find /var/log/mail/ -type f -exec chmod 640 {} +
 }

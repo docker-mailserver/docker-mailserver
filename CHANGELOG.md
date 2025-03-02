@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Updates
+
+**Internal:**
+  - Improved permission updating command to prevent errors when no logs are present ([#4391](https://github.com/docker-mailserver/docker-mailserver/pull/4391))
+
 ## [v15.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.0)
 
 ### Breaking
