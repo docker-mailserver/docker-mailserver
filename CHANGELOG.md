@@ -6,12 +6,22 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Added
+
+- **Internal:**
+  - Added the Smallstep `step` CLI command for future internal usage ([#4376](https://github.com/docker-mailserver/docker-mailserver/pull/4376))
+
 ### Fixes
 
 - **Postfix:**
   - `setup email restrict` generated configs now only prepend to `dms_smtpd_sender_restrictions` ([#4379](https://github.com/docker-mailserver/docker-mailserver/pull/4379))
 - **Internal:**
   - A permissions fix for `/var/log/mail` that was [added in DMS v15]((https://github.com/docker-mailserver/docker-mailserver/pull/4374)) no longer encounters an error when no log files are present during a container restart, such as with a `tmpfs` volume mount ([#4391](https://github.com/docker-mailserver/docker-mailserver/pull/4391))
+
+### Updates
+
+- **Internal:**
+  - Minor improvements to `_install_utils()` in `packages.sh` ([#4376](https://github.com/docker-mailserver/docker-mailserver/pull/4376))
 
 ## [v15.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.0)
 
