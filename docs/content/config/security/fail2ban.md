@@ -22,6 +22,10 @@ hide:
     cap_add:
       - NET_ADMIN
     ```
+To use Fail2Ban, change the following line to `1` in your `mailserver.env`:
+```
+ENABLE_FAIL2BAN=1
+```
 
 !!! bug "Running Fail2Ban on Older Kernels"
 
