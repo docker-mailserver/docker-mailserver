@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/logo/favicon-32x32.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
     
     
       
@@ -2521,16 +2521,39 @@
 <p><a href="https://en.wikipedia.org/wiki/Fail2ban">Source</a></p>
 </div>
 <h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>DMS must be launched with the <code>NET_ADMIN</code> capability in order to be able to install the NFTables rules that actually ban IP addresses. Thus, either include <code>--cap-add=NET_ADMIN</code> in the <code>docker run</code> command, or the equivalent in the <code>compose.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">cap_add</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
+<p>Enabling Fail2Ban support can be done via ENV, but also requires granting at least the <code>NET_ADMIN</code> capability to interact with the kernel and ban IP addresses.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="docker-compose" name="__tabbed_1" type="radio" /><input id="docker-cli" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="docker-compose">Docker Compose</label><label for="docker-cli">Docker CLI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span>
+<span class="w">    </span><span class="nt">cap_add</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cap-add<span class="o">=</span>NET_ADMIN<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--env<span class="w"> </span><span class="nv">ENABLE_FAIL2BAN</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Security risk of adding non-default capabilties</p>
+<p>DMS bundles F2B into the image for convenience to simplify integration and deployment.</p>
+<p>The <a href="https://0xn3va.gitbook.io/cheat-sheets/container/escaping/excessive-capabilities#cap_net_admin"><code>NET_ADMIN</code></a> and <a href="https://0xn3va.gitbook.io/cheat-sheets/container/escaping/excessive-capabilities#cap_net_raw"><code>NET_RAW</code></a> capabilities are not granted by default to the container root user, as they can be used to compromise security.</p>
+<p>If this risk concerns you, it may be wiser to instead prefer only granting these capabilities to a dedicated Fail2Ban container (<a href="https://docs.linuxserver.io/images/docker-fail2ban">example</a>).</p>
 </div>
 <div class="admonition bug">
 <p class="admonition-title">Running Fail2Ban on Older Kernels</p>
-<p>DMS configures F2B to use NFTables, not IPTables (legacy). We have observed that older systems, for example NAS systems, do not support the modern NFTables rules. You will need to configure F2B to use legacy IPTables again, for example with the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf"><code>fail2ban-jail.cf</code></a>, see the <a href="#custom-files">section on configuration further down below</a>.</p>
+<p>DMS configures F2B to use <a href="https://en.wikipedia.org/wiki/Nftables">NFTables</a>, not <a href="https://developers.redhat.com/blog/2020/08/18/iptables-the-two-variants-and-their-relationship-with-nftables#two_variants_of_the_iptables_command">IPTables (legacy)</a>.</p>
+<p>We have observed that older systems (for example NAS systems), do not support the modern NFTables rules. You will need to configure F2B to use legacy IPTables again, for example with the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf"><code>fail2ban-jail.cf</code></a>, see the <a href="#custom-files">section on configuration further down below</a>.</p>
 </div>
 <h3 id="dms-defaults"><a class="toclink" href="#dms-defaults">DMS Defaults</a></h3>
 <p>DMS will automatically ban IP addresses of hosts that have generated 6 failed attempts over the course of the last week. The bans themselves last for one week. The Postfix jail is configured to use <code>mode = extra</code> in DMS.</p>
@@ -2569,7 +2592,7 @@
 <h2 id="rootless-container"><a class="toclink" href="#rootless-container">Running Inside A Rootless Container</a></h2>
 <p><a href="https://github.com/rootless-containers/rootlesskit"><code>RootlessKit</code></a> is the <em>fakeroot</em> implementation for supporting <em>rootless mode</em> in Docker and Podman. By default, RootlessKit uses the <a href="https://github.com/rootless-containers/rootlesskit/blob/v0.14.5/docs/port.md#port-drivers"><code>builtin</code> port forwarding driver</a>, which does not propagate source IP addresses.</p>
 <p>It is necessary for F2B to have access to the real source IP addresses in order to correctly identify clients. This is achieved by changing the port forwarding driver to <a href="https://github.com/rootless-containers/slirp4netns"><code>slirp4netns</code></a>, which is slower than the builtin driver but does preserve the real source IPs.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="docker" name="__tabbed_1" type="radio" /><input id="podman" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="docker">Docker</label><label for="podman">Podman</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="docker" name="__tabbed_2" type="radio" /><input id="podman" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="docker">Docker</label><label for="podman">Podman</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>For <a href="https://docs.docker.com/engine/security/rootless">rootless mode</a> in Docker, create <code>~/.config/systemd/user/docker.service.d/override.conf</code> with the following content:</p>
