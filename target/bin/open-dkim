@@ -76,7 +76,7 @@ function _parse_arguments() {
     case "${1}" in
 
       ( 'keysize' )
-        if [[ -n ${2+set} ]]; then
+        if [[ -n ${2:-} ]]; then
           KEYSIZE="${2}"
           _log 'trace' "Keysize set to '${KEYSIZE}'"
         else
@@ -85,7 +85,7 @@ function _parse_arguments() {
         ;;
 
       ( 'selector' )
-        if [[ -n ${2+set} ]]; then
+        if [[ -n ${2:-} ]]; then
           SELECTOR="${2}"
           _log 'trace' "Selector set to '${SELECTOR}'"
         else
@@ -94,7 +94,7 @@ function _parse_arguments() {
         ;;
 
       ( 'domain' )
-        if [[ -n ${2+set} ]]; then
+        if [[ -n ${2:-} ]]; then
           DMS_DOMAINS="${2}"
           _log 'trace' "Domain(s) set to '${DMS_DOMAINS}'"
         else
