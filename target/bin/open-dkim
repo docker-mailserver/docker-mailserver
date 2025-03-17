@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # shellcheck source=../scripts/helpers/index.sh
 source /usr/local/bin/helpers/index.sh
@@ -109,7 +109,7 @@ function _parse_arguments() {
 
       ( * )
         __usage
-        _exit_with_error "Unknown option(s) '${1}' ${2:+"and '${2}'"}"
+        _exit_with_error "Unknown option(s) ${*}"
         ;;
     esac
 
@@ -164,7 +164,7 @@ function _generate_domains_config() {
 
   # Generate the default vhost (equivalent to /etc/postfix/vhost),
   # unless CLI arg DMS_DOMAINS provided an alternative list to use instead:
-  if [[ -z ${DMS_DOMAINS} ]]; then
+  if [[ -z ${DMS_DOMAINS:-} ]]; then
     _obtain_hostname_and_domainname
     # uses TMP_VHOST:
     _vhost_collect_postfix_domains
