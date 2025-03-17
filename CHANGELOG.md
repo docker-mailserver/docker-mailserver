@@ -22,7 +22,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Internal:**
   - Minor improvements to `_install_utils()` in `packages.sh` ([#4376](https://github.com/docker-mailserver/docker-mailserver/pull/4376))
-  - `*.conf` files are now included when when checking for changes in the Rspamd configuration ([#4418](https://github.com/docker-mailserver/docker-mailserver/pull/4418))
+  - all custom files are now included when checking for changes in the Rspamd configuration ([#4418](https://github.com/docker-mailserver/docker-mailserver/pull/4418))
 
 ## [v15.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.0)
 
