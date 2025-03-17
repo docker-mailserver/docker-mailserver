@@ -43,7 +43,7 @@ function _monitored_files_checksums() {
 
     # Check whether Rspamd is used and if so, monitor it's changes as well
     if [[ ${ENABLE_RSPAMD} -eq 1 ]] && [[ -d ${RSPAMD_DMS_D} ]]; then
-      readarray -d '' STAGING_FILES_RSPAMD < <(find "${RSPAMD_DMS_D}" -type f -name "*.sh" -print0)
+      readarray -d '' STAGING_FILES_RSPAMD < <(find "${RSPAMD_DMS_D}" -type f -print0)
       STAGING_FILES+=("${STAGING_FILES_RSPAMD[@]}")
     fi
   fi

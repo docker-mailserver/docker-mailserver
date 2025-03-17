@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Internal:**
   - Minor improvements to `_install_utils()` in `packages.sh` ([#4376](https://github.com/docker-mailserver/docker-mailserver/pull/4376))
+  - Change detection support for Rspamd now monitors all files at the rspamd Config Volume directory ([#4418](https://github.com/docker-mailserver/docker-mailserver/pull/4418))
 
 ## [v15.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.0)
 
