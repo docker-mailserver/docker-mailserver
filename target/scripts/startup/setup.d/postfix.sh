@@ -99,11 +99,13 @@ function _setup_postfix_late() {
   # https://www.postfix.org/access.5.html
   __postfix__log 'trace' 'Configuring user access'
   if [[ -f /tmp/docker-mailserver/postfix-send-access.cf ]]; then
+    # Prefer to prepend to our specialized variant instead:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/4379
     sed -i -E 's|^(dms_smtpd_sender_restrictions =)|\1 check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf
   fi
 
   if [[ -f /tmp/docker-mailserver/postfix-receive-access.cf ]]; then
-    sed -i -E 's|^(dms_smtpd_recipient_restrictions =)|\1 check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|' /etc/postfix/main.cf
+    sed -i -E 's|^(smtpd_recipient_restrictions =)|\1 check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|' /etc/postfix/main.cf
   fi
 
   __postfix__log 'trace' 'Configuring relay host'
