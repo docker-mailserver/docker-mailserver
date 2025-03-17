@@ -68,9 +68,10 @@ smtpd_forbid_bare_newline = yes
 # smtpd_forbid_bare_newline_exclusions = $mynetworks
 
 # Custom defined parameters for DMS:
-# reject_unknown_sender_domain: https://github.com/docker-mailserver/docker-mailserver/issues/3716#issuecomment-1868033234
+# Custom sender restrictions overview: https://github.com/docker-mailserver/docker-mailserver/pull/4379#issuecomment-2670365917
+# `reject_unknown_sender_domain`: https://github.com/docker-mailserver/docker-mailserver/issues/3716#issuecomment-1868033234
 dms_smtpd_sender_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unknown_sender_domain
-# Submission ports 587 and 465 support for SPOOF_PROTECTION=1
+# `SPOOF_PROTECTION=1` support requires prepending `reject_authenticated_sender_login_mismatch`
 mua_sender_restrictions = reject_authenticated_sender_login_mismatch, $dms_smtpd_sender_restrictions
 
 # Postscreen settings to drop zombies/open relays/spam early

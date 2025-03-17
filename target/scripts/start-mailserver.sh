@@ -43,7 +43,6 @@ function _register_functions() {
   # ? >> Setup
 
   _register_setup_function '_setup_vmail_id'
-  _register_setup_function '_setup_logs_general'
   _register_setup_function '_setup_timezone'
 
   if [[ ${SMTP_ONLY} -ne 1 ]]; then
@@ -182,6 +181,9 @@ if [[ -f /CONTAINER_START ]]; then
   # We cannot skip all setup routines because some need to run _after_
   # the initial setup (and hence, they cannot be moved to the check stack).
   _setup_directory_and_file_permissions
+
+  # shellcheck source=./startup/setup.d/mail_state.sh
+  source /usr/local/bin/setup.d/mail_state.sh
   _setup_adjust_state_permissions
 else
   _setup
