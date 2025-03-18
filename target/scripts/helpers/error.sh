@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function _exit_with_error() {
-  if [[ -n ${1+set} ]]; then
+  if [[ -n ${1:-} ]]; then
     _log 'error' "${1}"
   else
     _log 'error' "Call to '_exit_with_error' is missing a message to log"
