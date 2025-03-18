@@ -15,14 +15,17 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Postfix:**
   - `setup email restrict` generated configs now only prepend to `dms_smtpd_sender_restrictions` ([#4379](https://github.com/docker-mailserver/docker-mailserver/pull/4379))
+- **Rspamd:**
+  - Change detection support now monitors all files found within the DMS _Config Volume_ Rspamd directory ([#4418](https://github.com/docker-mailserver/docker-mailserver/pull/4418))
 - **Internal:**
   - A permissions fix for `/var/log/mail` that was [added in DMS v15]((https://github.com/docker-mailserver/docker-mailserver/pull/4374)) no longer encounters an error when no log files are present during a container restart, such as with a `tmpfs` volume mount ([#4391](https://github.com/docker-mailserver/docker-mailserver/pull/4391))
+  - The DMS _State Volume_ (`/var/mail-state`) will now ensure it's file tree is accessible for services when the volume was created with missing executable bit ([#4420](https://github.com/docker-mailserver/docker-mailserver/pull/4420))
+  - The DMS _Config Volume_ (`/tmp/docker-mailserver`) now correctly updates permissions on container restarts ([#4417](https://github.com/docker-mailserver/docker-mailserver/pull/4417))
 
 ### Updates
 
 - **Internal:**
   - Minor improvements to `_install_utils()` in `packages.sh` ([#4376](https://github.com/docker-mailserver/docker-mailserver/pull/4376))
-  - Change detection support for Rspamd now monitors all files at the rspamd Config Volume directory ([#4418](https://github.com/docker-mailserver/docker-mailserver/pull/4418))
 
 ## [v15.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.0)
 
