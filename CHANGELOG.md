@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Fixes
 
 - **Postfix**
-  - ensure message content is not modified by header filter ([#4426](https://github.com/docker-mailserver/docker-mailserver/pull/4426))
+  - ensure message content is not modified by header filter ([#4427](https://github.com/docker-mailserver/docker-mailserver/pull/4427))
 
 ## [v15.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.1)
 
