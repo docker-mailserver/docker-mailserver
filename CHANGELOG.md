@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Fixes
+
+- **Postfix**
+  - ensure message content is not modified by header filter ([#4426](https://github.com/docker-mailserver/docker-mailserver/pull/4426))
+
 ## [v15.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.1)
 
 ### Added
