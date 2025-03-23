@@ -2,9 +2,11 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v15.0.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v15.0.1...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [v15.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.1)
 
 ### Added
 
@@ -13,10 +15,16 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixes
 
+- **Docs**
+  - Gender-neutral language
 - **Postfix:**
   - `setup email restrict` generated configs now only prepend to `dms_smtpd_sender_restrictions` ([#4379](https://github.com/docker-mailserver/docker-mailserver/pull/4379))
+- **Rspamd:**
+  - Change detection support now monitors all files found within the DMS _Config Volume_ Rspamd directory ([#4418](https://github.com/docker-mailserver/docker-mailserver/pull/4418))
 - **Internal:**
   - A permissions fix for `/var/log/mail` that was [added in DMS v15]((https://github.com/docker-mailserver/docker-mailserver/pull/4374)) no longer encounters an error when no log files are present during a container restart, such as with a `tmpfs` volume mount ([#4391](https://github.com/docker-mailserver/docker-mailserver/pull/4391))
+  - The DMS _State Volume_ (`/var/mail-state`) will now ensure it's file tree is accessible for services when the volume was created with missing executable bit ([#4420](https://github.com/docker-mailserver/docker-mailserver/pull/4420))
+  - The DMS _Config Volume_ (`/tmp/docker-mailserver`) now correctly updates permissions on container restarts ([#4417](https://github.com/docker-mailserver/docker-mailserver/pull/4417))
 
 ### Updates
 

@@ -95,6 +95,11 @@ function _setup_save_states() {
 function _setup_adjust_state_permissions() {
   [[ ! -d ${DMS_STATE_DIR} ]] && return 0
 
+  # Parent directories must have executable bit set to descend the file tree for access,
+  # as each service running as a non-root user requires this to access their state directory,
+  # `/var/mail-state` must allow all users `+x`:
+  chmod +x "${DMS_STATE_DIR}"
+
   # This ensures the user and group of the files from the external mount have their
   # numeric ID values in sync. New releases where the installed packages order changes
   # can change the values in the Docker image, causing an ownership mismatch.
