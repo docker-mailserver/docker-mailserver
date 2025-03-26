@@ -22,8 +22,6 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixes
 
-- **Docs**
-  - Gender-neutral language
 - **Postfix:**
   - `setup email restrict` generated configs now only prepend to `dms_smtpd_sender_restrictions` ([#4379](https://github.com/docker-mailserver/docker-mailserver/pull/4379))
 - **Rspamd:**
