@@ -2,206 +2,206 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/faq/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/introduction/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/usage/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/debugging/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/environment/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/pop3/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/setup.sh/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/account-management/overview/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/account-management/provisioner/file/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/account-management/provisioner/ldap/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/account-management/supplementary/master-accounts/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/account-management/supplementary/oauth2/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/full-text-search/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/ipv6/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/kubernetes/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-fetchmail/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-getmail/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-sieve/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/optional-config/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/podman/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-forwarding/aws-ses/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-forwarding/gmail-smtp/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-forwarding/relay-hosts/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/maintenance/update-and-cleanup/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/override-defaults/dovecot/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/override-defaults/postfix/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/override-defaults/user-patches/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/best-practices/autodiscover/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/best-practices/dkim_dmarc_spf/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/best-practices/mta-sts/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/security/fail2ban/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/security/mail_crypt/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/security/rspamd/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/security/ssl/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/config/security/understanding-the-ports/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/contributing/general/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/contributing/issues-and-pull-requests/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/contributing/tests/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/tutorials/basic-installation/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/tutorials/blog-posts/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/tutorials/crowdsec/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/tutorials/docker-build/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/tutorials/dovecot-solr/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/tutorials/mailserver-behind-proxy/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/use-cases/auth-lua/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/use-cases/bind-smtp-network-interface/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/use-cases/external-relay-only-mailserver/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/use-cases/forward-only-mailserver-with-ldap-authentication/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/use-cases/imap-folders/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/v15.0/examples/use-cases/ios-mail-push-support/</loc>
-         <lastmod>2025-03-23</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
 </urlset>
