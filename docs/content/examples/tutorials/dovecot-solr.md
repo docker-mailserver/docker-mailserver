@@ -148,7 +148,7 @@ docker compose exec mailserver doveadm fts rescan -A
 
 ### Notes
 
-1. As of writing of this guide, SOLR 9.8 is the current release. This release introduces a notable [change][solr-9.8-change]: it no longer automaticly loads additional jars via <lib> directives. This behaviour is no deprecated and will be completely removed from SOLR 10 and onwards. The current dovecot scheme however does need this so you need to add an extra environment variable to your `compose.yaml` if you want to use SOLR 9.8.x:
+1. As of writing of this guide, SOLR 9.8 is the current release. This release introduces a notable [change][solr-9.8-change]: it no longer automatically loads additional jars via <lib> directives. This behaviour is now deprecated and will be completely removed from SOLR 10 and onwards. The current dovecot scheme however does need this, so you need to add an extra environment variable to your `compose.yaml` if you want to use SOLR 9.8.x:
 
 ```yaml
 ...
