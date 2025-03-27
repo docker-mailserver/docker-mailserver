@@ -157,7 +157,7 @@ docker compose exec mailserver doveadm fts rescan -A
       - SOLR_OPTS: "-Dsolr.config.lib.enabled=true"
 ```
 
-2. If you use [podman][podman] the composer build 'trick' only works with more recent versions of podman-compose, more recent then the version that currently ships with [EPEL][fedora-epel] for example. You should really be using [Quadlets][podman-quadlets] though if you use podman, which is a topic of its own and doesn't fit in this tutorial.
+2. If you use [podman][podman] the composer build 'trick' only works with more recent versions of podman-compose, more recent than the version that currently ships with [EPEL][fedora-epel] for example. You should really be using [Quadlets][podman-quadlets] though if you use podman, which is a topic of its own and doesn't fit in this tutorial.
 
 [docs::user-patches]: ../../config/advanced/override-defaults/user-patches.md
 [docs::dovecot::full-text-search]: ../../config/advanced/full-text-search.md
