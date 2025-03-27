@@ -146,6 +146,19 @@ docker compose exec mailserver doveadm fts rescan -A
 
     Usually within 15 minutes or so, you should be able to search your mail using the Dovecot FTS feature! :tada:
 
+### Notes
+
+1. As of writing of this guide, SOLR 9.8 is the current release. This release introduces a notable [change][solr-9.8-change]: it no longer automaticly loads additional jars via <lib> directives. This behaviour is no deprecated and will be completely removed from SOLR 10 and onwards. The current dovecot scheme however does need this so you need to add an extra environment variable to your `compose.yaml` if you want to use SOLR 9.8.x:
+
+```yaml
+...
+    environment:
+      ...
+      - SOLR_OPTS: "-Dsolr.config.lib.enabled=true"
+```
+
+2. If you use [podman][podman] the composer build 'trick' only works with more recent versions of podman-compose, more recent then the version that currently ships with [EPEL][fedora-epel] for example. You should really be using [Quadlets][podman-quadlets] though if you use podman, which is a topic of its own and doesn't fit in this tutorial.
+
 [docs::user-patches]: ../../config/advanced/override-defaults/user-patches.md
 [docs::dovecot::full-text-search]: ../../config/advanced/full-text-search.md
 [gh-dms::feature-request::dovecot-solr-package]: https://github.com/docker-mailserver/docker-mailserver/issues/4052
@@ -154,3 +167,9 @@ docker compose exec mailserver doveadm fts rescan -A
 [dockerfile-solr-uidgid]: https://github.com/apache/solr-docker/blob/9cd850b72309de05169544395c83a85b329d6b86/9.6/Dockerfile#L89-L92
 [github-solr]: https://github.com/apache/solr
 [github-dovecot::core-docs]: https://github.com/dovecot/core/tree/main/doc
+
+[solr-9.8-change]: https://issues.apache.org/jira/browse/SOLR-16781
+
+[podman]: https://podman.io
+[fedora-epel]: https://docs.fedoraproject.org/en-US/epel/
+[podman-quadlets]: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
