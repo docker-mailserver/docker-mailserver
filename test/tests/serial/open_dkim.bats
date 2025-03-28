@@ -62,7 +62,7 @@ function teardown() { _default_teardown ; }
 
   __init_container_without_waiting
 
-  __should_generate_dkim_key 6
+  __should_generate_dkim_key 7
   __assert_outputs_common_dkim_logs
 
   __should_have_tables_trustedhosts_for_domain
@@ -78,7 +78,7 @@ function teardown() { _default_teardown ; }
   # Only mount single config file (postfix-virtual.cf):
   __init_container_without_waiting "${PWD}/test/config/postfix-virtual.cf:/tmp/docker-mailserver/postfix-virtual.cf:ro"
 
-  __should_generate_dkim_key 5
+  __should_generate_dkim_key 6
   __assert_outputs_common_dkim_logs
 
   __should_have_tables_trustedhosts_for_domain
@@ -95,7 +95,7 @@ function teardown() { _default_teardown ; }
   # Only mount single config file (postfix-accounts.cf):
   __init_container_without_waiting "${PWD}/test/config/postfix-accounts.cf:/tmp/docker-mailserver/postfix-accounts.cf:ro"
 
-  __should_generate_dkim_key 5
+  __should_generate_dkim_key 6
   __assert_outputs_common_dkim_logs
 
   __should_have_tables_trustedhosts_for_domain
@@ -113,7 +113,7 @@ function teardown() { _default_teardown ; }
   __init_container_without_waiting '/tmp/docker-mailserver'
 
   # generate first key (with a custom selector)
-  __should_generate_dkim_key 4 '1024' 'domain1.tld' 'mailer'
+  __should_generate_dkim_key 5 '1024' 'domain1.tld' 'mailer'
   __assert_outputs_common_dkim_logs
   # generate two additional keys different to the previous one
   __should_generate_dkim_key 2 '1024' 'domain2.tld,domain3.tld'
@@ -183,15 +183,15 @@ function __assert_logged_dkim_creation() {
 
 function __assert_outputs_common_dkim_logs() {
   refute_output --partial 'No entries found, no keys to make'
-  assert_output --partial 'Creating DKIM KeyTable'
-  assert_output --partial 'Creating DKIM SigningTable'
-  assert_output --partial 'Creating DKIM TrustedHosts'
+  assert_output --partial "Creating OpenDKIM config '/tmp/docker-mailserver/opendkim/KeyTable'"
+  assert_output --partial "Creating OpenDKIM config '/tmp/docker-mailserver/opendkim/SigningTable'"
+  assert_output --partial "Creating OpenDKIM config '/tmp/docker-mailserver/opendkim/TrustedHosts'"
 }
 
 function __should_support_creating_key_of_size() {
   local EXPECTED_KEYSIZE=${1:-}
 
-  __should_generate_dkim_key 6 "${EXPECTED_KEYSIZE}"
+  __should_generate_dkim_key 7 "${EXPECTED_KEYSIZE}"
   __assert_outputs_common_dkim_logs
   __assert_logged_dkim_creation 'localdomain2.com'
   __assert_logged_dkim_creation 'localhost.localdomain'

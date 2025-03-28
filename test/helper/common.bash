@@ -56,7 +56,7 @@ function __handle_container_name() {
   if [[ -n ${1:-} ]] && [[ ${1:-} =~ ^dms-test_ ]]; then
     printf '%s' "${1}"
     return 0
-  elif [[ -n ${CONTAINER_NAME+set} ]]; then
+  elif [[ -n ${CONTAINER_NAME:-} ]]; then
     printf '%s' "${CONTAINER_NAME}"
     return 0
   else
