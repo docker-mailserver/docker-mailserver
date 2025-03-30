@@ -163,7 +163,7 @@ services:
 
     From the Solr 10 release onwards, this opt-in ENV will no longer be available.
 
-    If Dovecot has not updated their example Solr config ([upstream PR][dovecot::pr::solr-config-lib]), you will need to manually modify the Solr XML config.
+    If Dovecot has not updated their example Solr config ([upstream PR][dovecot::pr::solr-config-lib]), you will need to manually modify the Solr XML config to remove the `<lib>` directives and replace the suggested ENV `SOLR_CONFIG_LIB_ENABLED=true` with `SOLR_MODULES=analysis-extras`.
 
 [docs::user-patches]: ../../config/advanced/override-defaults/user-patches.md
 [docs::dovecot::full-text-search]: ../../config/advanced/full-text-search.md
