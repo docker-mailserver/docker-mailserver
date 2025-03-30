@@ -146,6 +146,25 @@ docker compose exec mailserver doveadm fts rescan -A
 
     Usually within 15 minutes or so, you should be able to search your mail using the Dovecot FTS feature! :tada:
 
+### Compatibility
+
+Since Solr 9.8.0 was released (Jan 2025), a breaking change [deprecates support for `<lib>` directives][solr::9.8::lib-directive] which is presently used by the Dovecot supplied Solr config (`solr-config-9.xml`) to automatically load additional jars required.
+
+To enable support for `<lib>` directives, add the following ENV to your `solr` container:
+
+```yaml
+services:
+  solr:
+    environment:
+      SOLR_CONFIG_LIB_ENABLED: true
+```
+
+!!! warning "Solr 10"
+
+    From the Solr 10 release onwards, this opt-in ENV will no longer be available.
+
+    If Dovecot has not updated their example Solr config ([upstream PR][dovecot::pr::solr-config-lib]), you will need to manually modify the Solr XML config to remove the `<lib>` directives and replace the suggested ENV `SOLR_CONFIG_LIB_ENABLED=true` with `SOLR_MODULES=analysis-extras`.
+
 [docs::user-patches]: ../../config/advanced/override-defaults/user-patches.md
 [docs::dovecot::full-text-search]: ../../config/advanced/full-text-search.md
 [gh-dms::feature-request::dovecot-solr-package]: https://github.com/docker-mailserver/docker-mailserver/issues/4052
@@ -154,3 +173,6 @@ docker compose exec mailserver doveadm fts rescan -A
 [dockerfile-solr-uidgid]: https://github.com/apache/solr-docker/blob/9cd850b72309de05169544395c83a85b329d6b86/9.6/Dockerfile#L89-L92
 [github-solr]: https://github.com/apache/solr
 [github-dovecot::core-docs]: https://github.com/dovecot/core/tree/main/doc
+
+[solr::9.8::lib-directive]: https://issues.apache.org/jira/browse/SOLR-16781
+[dovecot::pr::solr-config-lib]: https://github.com/dovecot/core/pull/238
