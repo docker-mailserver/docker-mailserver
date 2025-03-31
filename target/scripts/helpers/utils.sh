@@ -131,9 +131,9 @@ function _reload_postfix() {
 # 1. No first and second argument is supplied
 # 2. The second argument is a path to a file that does not exist
 function _replace_by_env_in_file() {
-  if [[ -z ${1+set} ]]; then
+  if [[ -z ${1:-} ]]; then
     _dms_panic__invalid_value 'first argument unset' 'utils.sh:_replace_by_env_in_file'
-  elif [[ -z ${2+set} ]]; then
+  elif [[ -z ${2:-} ]]; then
     _dms_panic__invalid_value 'second argument unset' 'utils.sh:_replace_by_env_in_file'
   elif [[ ! -f ${2} ]]; then
     _dms_panic__invalid_value "file '${2}' does not exist" 'utils.sh:_replace_by_env_in_file'

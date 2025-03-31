@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Updates
+
+- **Documentation:**
+  - Added a compatibility note for a Dovecot + Solr 9.8 breaking change ([#4433](https://github.com/docker-mailserver/docker-mailserver/pull/4433))
+- **Internal:**
+  - Refactored `setup config dkim` (`open-dkim`) ([#4375](https://github.com/docker-mailserver/docker-mailserver/pull/4375))
+
 ## [v15.0.2](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.2)
 
 ### Fixes
