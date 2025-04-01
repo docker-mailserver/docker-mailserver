@@ -1142,7 +1142,8 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates
 [docs-tls-selfsigned]: ./security/ssl.md#self-signed-certificates
-[docs-accounts-quota]: ./user-management.md#quotas
+[docs-accounts-quota]: ./account-management/overview.md#quotas
+[docs::account-management::overview]: ./account-management/overview.md
 [docs::relay-host]: ./advanced/mail-forwarding/relay-hosts.md
 [docs::dms-volumes-state]: ./advanced/optional-config.md#volumes-state
 [postfix-config::relayhost]: https://www.postfix.org/postconf.5.html#relayhost
