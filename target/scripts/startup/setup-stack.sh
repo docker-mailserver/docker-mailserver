@@ -82,7 +82,9 @@ function _setup_timezone() {
   fi
 }
 
-function _setup_apply_fixes_after_configuration() {
+# Misc checks and fixes migrated here until next refactor:
+# NOTE: `start-mailserver.sh` runs this along with `mail-state.sh` during container restarts
+function _setup_directory_and_file_permissions() {
   _log 'trace' 'Removing leftover PID files from a stop/start'
   find /var/run/ -not -name 'supervisord.pid' -name '*.pid' -delete
   touch /dev/shm/supervisor.sock
@@ -101,9 +103,11 @@ function _setup_apply_fixes_after_configuration() {
     _log 'debug' "Ensuring '${RSPAMD_DMS_DKIM_D}' is owned by '_rspamd:_rspamd'"
     chown -R _rspamd:_rspamd "${RSPAMD_DMS_DKIM_D}"
   fi
+
+  __log_fixes
 }
 
-function _run_user_patches() {
+function _setup_run_user_patches() {
   local USER_PATCHES='/tmp/docker-mailserver/user-patches.sh'
 
   if [[ -f ${USER_PATCHES} ]]; then
@@ -112,4 +116,33 @@ function _run_user_patches() {
   else
     _log 'trace' "No optional '${USER_PATCHES}' provided"
   fi
+}
+
+function __log_fixes() {
+  _log 'debug' 'Ensuring /var/log/mail owneership + permissions are correct'
+
+  # File/folder permissions are fine when using docker volumes, but may be wrong
+  # when file system folders are mounted into the container.
+  # Set the expected values and create missing folders/files just in case.
+  mkdir -p /var/log/{mail,supervisor}
+
+  # TODO: Remove these lines in a future release once concerns are resolved:
+  # https://github.com/docker-mailserver/docker-mailserver/pull/4370#issuecomment-2661762043
+  chown syslog:root /var/log/mail
+
+  if [[ ${ENABLE_CLAMAV} -eq 1 ]]; then
+    # TODO: Consider assigning /var/log/mail a writable non-root group for other processes like ClamAV?
+    # - Check if ClamAV is capable of creating files itself when they're missing?
+    # - Alternatively a symlink to /var/log/mail from the original intended location would allow write access
+    #   as a user to the symlink location, while keeping ownership as root at /var/log/mail
+    # - `LogSyslog false` for clamd.conf + freshclam.conf could possibly be enabled instead of log files?
+    #   However without better filtering in place (once Vector is adopted), this should be avoided.
+    touch /var/log/mail/{clamav,freshclam}.log
+    chown clamav:adm /var/log/mail/{clamav,freshclam}.log
+  fi
+
+  # Volume permissions should be corrected:
+  # https://github.com/docker-mailserver/docker-mailserver-helm/issues/137
+  chmod 755 /var/log/mail/
+  find /var/log/mail/ -type f -exec chmod 640 {} +
 }

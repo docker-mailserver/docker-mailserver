@@ -7,10 +7,11 @@ set -ex
 # `build --strict` ensures the build fails when any warnings are omitted.
 docker run \
   --rm \
+  --quiet \
   --user "$(id -u):$(id -g)" \
-  --volume "${PWD}:/docs" \
+  --volume "./:/docs" \
   --name "build-docs" \
-  squidfunk/mkdocs-material:9.5 build --strict
+  squidfunk/mkdocs-material:9.6 build --strict
 
 # Remove unnecessary build artifacts: https://github.com/squidfunk/mkdocs-material/issues/2519
 # site/ is the build output folder.

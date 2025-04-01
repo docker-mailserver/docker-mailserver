@@ -55,6 +55,10 @@ ${ORANGE}EXAMPLES${RESET}
     ${LWHITE}setup config dkim domain example.com${RESET}
         Generate the DKIM key for a different domain (example.com).
 
+    ${LWHITE}setup config dkim keytype ed25519 domain edward.com selector elliptic-test${RESET}
+        Generate the DKIM key using the ED25519 elliptic curve for the domain
+        edward.com and the selector elliptic-test.
+
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain
     errors, the script will exit early with a non-zero exit status.

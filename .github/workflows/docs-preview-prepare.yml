@@ -7,74 +7,68 @@ on:
       - '.github/workflows/scripts/docs/build-docs.sh'
       - '.github/workflows/docs-preview-prepare.yml'
 
-# If the workflow for a PR is triggered multiple times, previous existing runs will be canceled.
-# eg: Applying multiple suggestions from a review directly via the Github UI.
-# Instances of the 2nd phase of this workflow (via `workflow_run`) presently lack concurrency limits due to added complexity.
+# If this workflow is triggered while already running for the PR, cancel any earlier running instances:
+# Instances of the 2nd phase of this workflow (via `workflow_run`) lack any concurrency limits due to added complexity.
 concurrency:
   group: deploypreview-pullrequest-${{ github.event.pull_request.number }}
   cancel-in-progress: true
+
+env:
+  # Build output directory (created by the mkdocs-material container, keep this in sync with `build-docs.sh`):
+  BUILD_DIR: docs/site/
+  # These two are only needed to construct `PREVIEW_URL`:
+  PREVIEW_SITE_NAME: dms-doc-previews
+  PREVIEW_SITE_PREFIX: pullrequest-${{ github.event.pull_request.number }}
 
 # `pull_request` workflow is unreliable alone: Non-collaborator contributions lack access to secrets for security reasons.
 # A separate workflow (docs-preview-deploy.yml) handles the deploy after the potentially untrusted code is first run in this workflow.
 # See: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
 permissions:
+  # Required by `actions/checkout` for git checkout:
   contents: read
 
 jobs:
   prepare-preview:
     name: 'Build Preview'
-    runs-on: ubuntu-22.04
-    env:
-      BUILD_DIR: docs/site
-      NETLIFY_SITE_PREFIX: pullrequest-${{ github.event.pull_request.number }}
-      NETLIFY_SITE_NAME: dms-doc-previews
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: 'Build with mkdocs-material via Docker'
-        working-directory: docs
-        env:
-          PREVIEW_URL: 'https://${NETLIFY_SITE_PREFIX}--${NETLIFY_SITE_NAME}.netlify.app/'
-          NETLIFY_BRANDING: '<a href="https://www.netlify.com/"><img alt="Deploys by Netlify" src="https://www.netlify.com/img/global/badges/netlify-color-accent.svg" style="float: right;"></a>'
-        run: |
-          # Adjust mkdocs.yml for preview build
-          sed -i "s|^site_url:.*|site_url: '${PREVIEW_URL}'|" mkdocs.yml
+      # ================== #
+      # Build docs preview #
+      # ================== #
 
-          # Insert sponsor branding into page content (Provider OSS plan requirement):
-          # Upstream does not provide a nicer maintainable way to do this..
-          # Prepends HTML to copyright text and then aligns to the right side.
+      - name: 'Build with mkdocs-material via Docker'
+        working-directory: docs/
+        env:
+          PREVIEW_URL: 'https://${{ env.PREVIEW_SITE_PREFIX }}--${{ env.PREVIEW_SITE_NAME }}.netlify.app/'
+        run: |
+          # Adjust `mkdocs.yml` for the preview build requirements:
+          # - Replace production `site_url` with the preview URL (only affects the canonical link: https://en.wikipedia.org/wiki/Canonical_link_element#HTML)
+          # - Prepend Netlify logo link to `copyright` content
+          sed -i "s|^site_url:.*|site_url: '${{ env.PREVIEW_URL }}'|" mkdocs.yml
+
+          # Insert branding into page content (Netlify OSS plan requirement):
+          # - `mkdocs-material` does not provide a better way to do this.
+          # - Prepends HTML to the copyright text and then aligns the logo to the right-side of the page.
+          NETLIFY_BRANDING='<a href="https://www.netlify.com/"><img alt="Deploys by Netlify" src="https://www.netlify.com/img/global/badges/netlify-color-accent.svg" style="float: right;"></a>'
           sed -i "s|^copyright: '|copyright: '${NETLIFY_BRANDING}|" mkdocs.yml
-          # Need to override a CSS media query for parent element to always be full width:
+          # Override a CSS media query for the parent element to always be full width:
           echo '.md-footer-copyright { width: 100%; }' >> content/assets/css/customizations.css
 
-          ../.github/workflows/scripts/docs/build-docs.sh
+          # Build and prepare for upload:
+          echo "::group::Build (stdout)"
+          bash ../.github/workflows/scripts/docs/build-docs.sh
+          echo "::endgroup::"
 
       # ============================== #
       # Volley over to secure workflow #
       # ============================== #
 
-      # Minimize risk of upload failure by bundling files to a single compressed archive (tar + zstd).
-      # Bundles build dir and env file into a compressed archive, nested file paths will be preserved.
-      - name: 'Prepare artifact for transfer'
-        env:
-          # As a precaution, reference this value by an interpolated ENV var;
-          # instead of interpolating user controllable input directly in the shell script..
-          # https://github.com/docker-mailserver/docker-mailserver/issues/2332#issuecomment-998326798
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          # Save ENV for transfer
-          {
-            echo "PR_HEADSHA=${{ github.event.pull_request.head.sha }}"
-            echo "PR_NUMBER=${{ github.event.pull_request.number }}"
-            echo "PR_TITLE=${PR_TITLE}"
-            echo "NETLIFY_SITE_PREFIX=${{ env.NETLIFY_SITE_PREFIX }}"
-            echo "BUILD_DIR=${{ env.BUILD_DIR }}"
-          } >> pr.env
-          tar --zstd -cf artifact.tar.zst pr.env ${{ env.BUILD_DIR }}
-
+      # Archives directory `path` into a ZIP file:
       - name: 'Upload artifact for workflow transfer'
         uses: actions/upload-artifact@v4
         with:
           name: preview-build
-          path: artifact.tar.zst
+          path: ${{ env.BUILD_DIR }}
           retention-days: 1

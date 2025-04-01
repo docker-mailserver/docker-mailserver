@@ -79,6 +79,8 @@ EOF
     if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]]; then
       postconf 'virtual_mailbox_maps = texthash:/etc/postfix/vmailbox'
     fi
+    # Historical context regarding decision to use LMTP instead of LDA (do not change this):
+    # https://github.com/docker-mailserver/docker-mailserver/issues/4178#issuecomment-2375489302
     postconf 'virtual_transport = lmtp:unix:/var/run/dovecot/lmtp'
   fi
 
@@ -91,13 +93,19 @@ EOF
 function _setup_postfix_late() {
   _log 'debug' 'Configuring Postfix (late setup)'
 
+  # These two config files are `access` database tables managed via `setup email restrict`:
+  # NOTE: Prepends to existing restrictions, thus has priority over other permit/reject policies that follow.
+  # https://www.postfix.org/postconf.5.html#smtpd_sender_restrictions
+  # https://www.postfix.org/access.5.html
   __postfix__log 'trace' 'Configuring user access'
   if [[ -f /tmp/docker-mailserver/postfix-send-access.cf ]]; then
-    sed -i -E 's|(smtpd_sender_restrictions =)|\1 check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf
+    # Prefer to prepend to our specialized variant instead:
+    # https://github.com/docker-mailserver/docker-mailserver/pull/4379
+    sed -i -E 's|^(dms_smtpd_sender_restrictions =)|\1 check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf,|' /etc/postfix/main.cf
   fi
 
   if [[ -f /tmp/docker-mailserver/postfix-receive-access.cf ]]; then
-    sed -i -E 's|(smtpd_recipient_restrictions =)|\1 check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|' /etc/postfix/main.cf
+    sed -i -E 's|^(smtpd_recipient_restrictions =)|\1 check_recipient_access texthash:/tmp/docker-mailserver/postfix-receive-access.cf,|' /etc/postfix/main.cf
   fi
 
   __postfix__log 'trace' 'Configuring relay host'
@@ -129,7 +137,7 @@ function __postfix__setup_override_configuration() {
     # Do not directly output to 'main.cf' as this causes a read-write-conflict.
     # `postconf` output is filtered to skip expected warnings regarding overrides:
     # https://github.com/docker-mailserver/docker-mailserver/pull/3880#discussion_r1510414576
-    postconf -n >/tmp/postfix-main-new.cf 2> >(grep -v 'overriding earlier entry')
+    postconf -n >/tmp/postfix-main-new.cf 2> >(grep -v 'overriding earlier entry' >&2)
 
     mv /tmp/postfix-main-new.cf /etc/postfix/main.cf
     _adjust_mtime_for_postfix_maincf

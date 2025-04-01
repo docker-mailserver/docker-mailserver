@@ -4,6 +4,8 @@ title: 'feature request: '
 labels:
   - kind/new feature
   - meta/needs triage
+projects:
+  - DMS Core Backlog
 
 body:
   - type: markdown

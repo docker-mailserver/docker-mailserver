@@ -234,8 +234,9 @@ function _should_have_correct_mail_headers() {
   # but Amavis is changing that. It also changes protocol from SMTP to ESMTP.
   assert_line --index 7 --partial 'Received: from localhost (localhost [127.0.0.1])'
   assert_line --index 8 --partial "by ${EXPECTED_FQDN} (Postfix) with ESMTP id"
-  assert_line --index 14 --partial 'Message-Id:'
-  assert_line --index 14 --partial "@${EXPECTED_FQDN}>"
+  assert_line --index 14 'X-MS-Reactions: disallow'
+  assert_line --index 15 --partial 'Message-Id:'
+  assert_line --index 15 --partial "@${EXPECTED_FQDN}>"
 
   # Mail contents example:
   #

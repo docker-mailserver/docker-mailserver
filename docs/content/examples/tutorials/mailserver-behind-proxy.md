@@ -136,6 +136,8 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
 
         Postfix and Dovecot are both compatible with PROXY protocol v1 and v2.
 
+#### Ports
+
 ??? abstract "Technical Details - Ports (Traefik config)"
 
     !!! info "Explicit TLS (STARTTLS)"
@@ -259,6 +261,12 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
     postconf -P 12525/inet/postscreen_upstream_proxy_protocol=haproxy 12525/inet/syslog_name=smtp-proxyprotocol
     ```
 
+    Supporting port 25 with an additional PROXY protocol port will also require a `postfix-main.cf` override line for `postscreen` to work correctly:
+
+    ```cf  title="docker-data/dms/config/postfix-main.cf"
+    postscreen_cache_map = proxy:btree:$data_directory/postscreen_cache
+    ```
+
     ---
 
     Dovecot is mostly the same as before:
@@ -380,7 +388,7 @@ While PROXY protocol works well with the reverse proxy, you may have some contai
 [docs::overrides::postfix]: ../../config/advanced/override-defaults/postfix.md
 [docs::overrides::user-patches]: ../../config/advanced/override-defaults/user-patches.md
 [docs::ipv6::security-risks]: ../../config/advanced/ipv6.md#what-can-go-wrong
-[docs::tls::traefik]: ../../config/security/ssl.md#traefik-v2
+[docs::tls::traefik]: ../../config/security/ssl.md#traefik
 [docs::env::permit_docker]: ../../config/environment.md#permit_docker
 [gh-dms::dns-rewrite-example]: https://github.com/docker-mailserver/docker-mailserver/issues/3866#issuecomment-1928877236
 

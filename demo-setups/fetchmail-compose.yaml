@@ -1,0 +1,60 @@
+# Docs: https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-fetchmail
+# Additional context, with CLI commands for verification:
+# https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570
+
+services:
+  dms-fetch:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest # :15.0
+    hostname: mail.example.test
+    environment:
+      ENABLE_FETCHMAIL: 1
+      # We change this setting to 10 for quicker testing:
+      FETCHMAIL_POLL: 10
+    # Link the DNS lookup `remote.test` to resolve to the `dms-remote` container IP (for `@remote.test` address):
+    # This is only for this example, since no real DNS service is configured, this is a Docker internal DNS feature:
+    links:
+      - "dms-remote:remote.test"
+    # NOTE: Optional, You only need to publish ports if you want to verify via your own mail client.
+    #ports:
+    #  - "465:465"  # ESMTP (implicit TLS)
+    #  - "993:993"  # IMAP4 (implicit TLS)
+    # You'd normally use `volumes` here but for simplicity of the example, all config is contained within `compose.yaml`:
+    configs:
+      - source: dms-accounts-fetch
+        target: /tmp/docker-mailserver/postfix-accounts.cf
+      - source: fetchmail
+        target: /tmp/docker-mailserver/fetchmail.cf
+
+  dms-remote:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest # :15.0
+    hostname: mail.remote.test
+    environment:
+      # Allows for us send a test mail easily by trusting any mail client run within this container (`swaks`):
+      PERMIT_DOCKER: container
+      # Alternatively, trust and accept any mail received from clients in same subnet of dms-fetch:
+      #PERMIT_DOCKER: connected-networks
+    configs:
+      - source: dms-accounts-remote
+        target: /tmp/docker-mailserver/postfix-accounts.cf
+
+# Using the Docker Compose `configs.content` feature instead of volume mounting separate files.
+# NOTE: This feature requires Docker Compose v2.23.1 (Nov 2023) or newer:
+# https://github.com/compose-spec/compose-spec/pull/446
+configs:
+  fetchmail:
+    content: |
+      poll 'mail.remote.test' proto imap
+        user 'jane.doe@remote.test'
+        pass 'secret'
+        is 'john.doe@example.test'
+        no sslcertck
+
+  # DMS requires an account to complete setup, configure one for each instance:
+  # NOTE: Both accounts are configured with the same password (SHA512-CRYPT hashed), `secret`.
+  dms-accounts-fetch:
+    content: |
+      john.doe@example.test|{SHA512-CRYPT}$$6$$sbgFRCmQ.KWS5ryb$$EsWrlYosiadgdUOxCBHY0DQ3qFbeudDhNMqHs6jZt.8gmxUwiLVy738knqkHD4zj4amkb296HFqQ3yDq4UXt8.
+
+  dms-accounts-remote:
+    content: |
+      jane.doe@remote.test|{SHA512-CRYPT}$$6$$sbgFRCmQ.KWS5ryb$$EsWrlYosiadgdUOxCBHY0DQ3qFbeudDhNMqHs6jZt.8gmxUwiLVy738knqkHD4zj4amkb296HFqQ3yDq4UXt8.

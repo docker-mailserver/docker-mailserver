@@ -1,7 +1,11 @@
 #!/bin/bash
 
+# When 'pipefail' is enabled, the exit status of the pipeline reflects the exit status of the last command that fails.
+# Without 'pipefail', the exit status of a pipeline is determined by the exit status of the last command in the pipeline.
 set -o pipefail
-shopt -s globstar inherit_errexit
+
+# Allows the usage of '**' in patterns, e.g. ls **/*
+shopt -s globstar
 
 # ------------------------------------------------------------
 # ? >> Sourcing helpers & stacks
@@ -34,13 +38,11 @@ function _register_functions() {
   # ? >> Checks
 
   _register_check_function '_check_hostname'
-  _register_check_function '_check_log_level'
   _register_check_function '_check_spam_prefix'
 
   # ? >> Setup
 
   _register_setup_function '_setup_vmail_id'
-  _register_setup_function '_setup_logs_general'
   _register_setup_function '_setup_timezone'
 
   if [[ ${SMTP_ONLY} -ne 1 ]]; then
@@ -59,7 +61,6 @@ function _register_functions() {
       ;;
 
     ( 'LDAP' )
-      _environment_variables_ldap
       _register_setup_function '_setup_ldap'
       ;;
 
@@ -72,15 +73,8 @@ function _register_functions() {
       ;;
   esac
 
-  if [[ ${ENABLE_OAUTH2} -eq 1 ]]; then
-      _environment_variables_oauth2
-      _register_setup_function '_setup_oauth2'
-  fi
-
-  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]]; then
-    _environment_variables_saslauthd
-    _register_setup_function '_setup_saslauthd'
-  fi
+  [[ ${ENABLE_OAUTH2} -eq 1 ]] && _register_setup_function '_setup_oauth2'
+  [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_setup_function '_setup_saslauthd'
 
   _register_setup_function '_setup_dovecot_inet_protocols'
 
@@ -94,7 +88,6 @@ function _register_functions() {
   _register_setup_function '_setup_ssl'
   _register_setup_function '_setup_docker_permit'
   _register_setup_function '_setup_mailname'
-  _register_setup_function '_setup_dovecot_hostname'
 
   _register_setup_function '_setup_postfix_early'
 
@@ -118,20 +111,23 @@ function _register_functions() {
   _register_setup_function '_setup_logwatch'
 
   _register_setup_function '_setup_save_states'
-  _register_setup_function '_setup_apply_fixes_after_configuration'
-  _register_setup_function '_environment_variables_export'
+  _register_setup_function '_setup_adjust_state_permissions'
 
   if [[ ${ENABLE_MTA_STS} -eq 1 ]]; then
     _register_setup_function '_setup_mta_sts'
     _register_start_daemon '_start_daemon_mta_sts_daemon'
   fi
 
+  # ! The following functions must be executed after all other setup functions
+  _register_setup_function '_setup_directory_and_file_permissions'
+  _register_setup_function '_setup_run_user_patches'
+
   # ? >> Daemons
 
   _register_start_daemon '_start_daemon_cron'
   _register_start_daemon '_start_daemon_rsyslog'
 
-  [[ ${SMTP_ONLY}               -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
+  [[ ${SMTP_ONLY} -ne 1 ]] && _register_start_daemon '_start_daemon_dovecot'
 
   if [[ ${ENABLE_UPDATE_CHECK} -eq 1 ]]; then
     if [[ ${DMS_RELEASE} != 'edge' ]]; then
@@ -161,6 +157,7 @@ function _register_functions() {
   [[ ${ENABLE_CLAMAV}           -eq 1 ]] &&	_register_start_daemon '_start_daemon_clamav'
   [[ ${ENABLE_AMAVIS}           -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
   [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] && _register_start_daemon '_start_daemon_changedetector'
+  [[ ${ENABLE_GETMAIL}          -eq 1 ]] && _register_start_daemon '_start_daemon_getmail'
 }
 
 # ------------------------------------------------------------
@@ -169,35 +166,42 @@ function _register_functions() {
 # ? >> Executing all stacks / actual start of DMS
 # ------------------------------------------------------------
 
+_early_supervisor_setup
+_early_variables_setup
+
+_log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
+
+_register_functions
+_check
+
 # Ensure DMS only adjusts config files for a new container.
 # Container restarts should skip as they retain the modified config.
-if [[ ! -f /CONTAINER_START ]]; then
-  _early_supervisor_setup
-  _early_variables_setup
+if [[ -f /CONTAINER_START ]]; then
+  _log 'info' 'Container was restarted. Skipping most setup routines.'
+  # We cannot skip all setup routines because some need to run _after_
+  # the initial setup (and hence, they cannot be moved to the check stack).
+  _setup_directory_and_file_permissions
 
-  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
-
-  _register_functions
-  _check
-  _setup
-  _run_user_patches
+  # shellcheck source=./startup/setup.d/mail_state.sh
+  source /usr/local/bin/setup.d/mail_state.sh
+  _setup_adjust_state_permissions
 else
-  # container was restarted
-  _early_variables_setup
-
-  _log 'info' 'Container was restarted. Skipping setup routines.'
-  _log 'info' "Welcome to docker-mailserver ${DMS_RELEASE}"
-
-  _register_functions
+  _setup
 fi
 
 # marker to check if container was restarted
 date >/CONTAINER_START
 
+# Container logs will receive updates from this log file:
+MAIN_LOGFILE=/var/log/mail/mail.log
+# NOTE: rsyslogd would usually create this later during `_start_daemons`, however it would already exist if the container was restarted.
+touch "${MAIN_LOGFILE}"
+# Ensure `tail` follows the correct position of the log file for this container start (new logs begin once `_start_daemons` is called)
+TAIL_START=$(( $(wc -l < "${MAIN_LOGFILE}") + 1 ))
+
 [[ ${LOG_LEVEL} =~ (debug|trace) ]] && print-environment
 _start_daemons
 
+# Container start-up scripts completed. `tail` will now pipe the log updates to stdout:
 _log 'info' "${HOSTNAME} is up and running"
-
-touch /var/log/mail/mail.log
-exec tail -Fn 0 /var/log/mail/mail.log
+exec tail -Fn "+${TAIL_START}" "${MAIN_LOGFILE}"

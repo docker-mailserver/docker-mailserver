@@ -1,8 +1,0 @@
-#! /bin/bash
-
-GETMAILDIR=/tmp/docker-mailserver/getmail
-for FILE in /etc/getmailrc.d/getmailrc*; do
-  if ! pgrep -f "${FILE}$" &>/dev/null; then
-    getmail --getmaildir "${GETMAILDIR}" --rcfile "${FILE}"
-  fi
-done

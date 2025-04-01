@@ -1,119 +1,166 @@
-name: 'Documentation (run)'
+name: 'Documentation (Deploy)'
 
 on:
+  # This workflow runs off the primary branch which provides access to the `secrets` context:
   workflow_run:
     workflows: ['Documentation (PR)']
     types:
       - completed
 
-# Note: If limiting concurrency is required for this workflow:
-# 1. Add an additional job prior to `preview` to get the PR number make it an output.
-# 2. Assign that new job as a `needs` dependency for the `preview` job.
-# It is still required for `preview` job to download the artifact so that it can access the preview build files.
+permissions:
+  # Required by `actions/download-artifact`:
+  actions: read
+  # Required by `set-pr-context`:
+  contents: read
+  # Required by `marocchino/sticky-pull-request-comment` (write) + `set-pr-context` (read):
+  pull-requests: write
+  # Required by `myrotvorets/set-commit-status-action`:
+  statuses: write
 
-# This workflow runs off the primary branch and has access to secrets as expected.
 jobs:
-  preview:
-    name: 'Deploy Preview'
-    runs-on: ubuntu-22.04
-    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+  # NOTE: This is handled as pre-requisite job to minimize the noise from acquiring these two outputs needed for `deploy-preview` ENV:
+  pr-context:
+    name: 'Acquire PR Context'
+    runs-on: ubuntu-24.04
+    outputs:
+      PR_HEADSHA: ${{ steps.set-pr-context.outputs.head-sha }}
+      PR_NUMBER:  ${{ steps.set-pr-context.outputs.number   }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' }}
     steps:
+      - name: 'Get PR context'
+        id: set-pr-context
+        env:
+          # Token is required for the GH CLI:
+          GH_TOKEN: ${{ github.token }}
+          # Best practice for scripts is to reference via ENV at runtime. Avoid using GHA context expressions in the script content directly:
+          # https://github.com/docker-mailserver/docker-mailserver/pull/4247#discussion_r1827067475
+          PR_TARGET_REPO: ${{ github.repository }}
+          # If the PR is from a fork, prefix it with `<owner-login>:`, otherwise only the PR branch name is relevant:
+          PR_BRANCH: |-
+            ${{
+              (github.event.workflow_run.head_repository.owner.login != github.event.workflow_run.repository.owner.login)
+                && format('{0}:{1}', github.event.workflow_run.head_repository.owner.login, github.event.workflow_run.head_branch)
+                || github.event.workflow_run.head_branch
+            }}
+        # Use the GH CLI to query the PR branch, which provides the PR number and head SHA to assign as outputs:
+        # (`--jq` formats JSON to `key=value` pairs and renames `headRefOid` to `head-sha`)
+        run: |
+          gh pr view --repo "${PR_TARGET_REPO}" "${PR_BRANCH}" \
+            --json 'number,headRefOid' \
+            --jq '"number=\(.number)\nhead-sha=\(.headRefOid)"' \
+            >> "${GITHUB_OUTPUT}"
 
-      # ======================== #
-      # Restore workflow context #
-      # ======================== #
-
-      # Retrieve the artifact uploaded from `docs-preview-prepare.yml` workflow run that triggered this deployment
-      - name: 'Download build artifact'
+  deploy-preview:
+    name: 'Deploy Preview'
+    runs-on: ubuntu-24.04
+    needs: [pr-context]
+    env:
+      # NOTE: Keep this in sync with the equivalent ENV in `docs-preview-prepare.yml`:
+      BUILD_DIR: docs/site/
+      # PR head SHA (latest commit):
+      PR_HEADSHA: ${{ needs.pr-context.outputs.PR_HEADSHA }}
+      PR_NUMBER:  ${{ needs.pr-context.outputs.PR_NUMBER  }}
+      # Deploy URL preview prefix (the site name for this prefix is managed at Netlify):
+      PREVIEW_SITE_PREFIX: pullrequest-${{ needs.pr-context.outputs.PR_NUMBER }}
+    steps:
+      - name: 'Retrieve and extract the built docs preview'
         uses: actions/download-artifact@v4
         with:
           name: preview-build
+          path: ${{ env.BUILD_DIR }}
+          # These are needed due this approach relying on `workflow_run`, so that it can access the build artifact:
+          # (uploaded from the associated `docs-preview-prepare.yml` workflow run)
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
-
-      - name: 'Extract build artifact'
-        run: tar -xf artifact.tar.zst
-
-      - name: 'Restore preserved ENV'
-        run: cat pr.env >> "${GITHUB_ENV}"
 
       # ==================== #
       # Deploy preview build #
       # ==================== #
 
-      # Manage workflow deployment status. `enable-commit-status` from `nwtgck/actions-netlify` would handle this,
-      # but presently does not work correctly via split workflow. It is useful in a split workflow as the 1st stage
-      # no longer indicates if the entire workflow/deployment was successful.
-      - name: 'Commit Status: Set Workflow Status as Pending'
+      # Manage workflow deployment status (Part 1/2):
+      # NOTE:
+      # - `workflow_run` trigger does not appear on the PR/commit checks status, only the initial prepare workflow triggered.
+      #   This adds our own status check for this 2nd half of the workflow starting as `pending`, followed by `success` / `failure` at the end.
+      # - `enable-commit-status` from `nwtgck/actions-netlify` would have handled this,
+      #   but the context `github.sha` that action tries to use references the primary branch commit that this workflow runs from, not the relevant PR commit.
+      - name: 'Commit Status (1/2) - Set Workflow Status as Pending'
         uses: myrotvorets/set-commit-status-action@v2.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: pending
-          # Should match `env.PR_HEADSHA` when triggered by `pull_request` event workflow,
-          # Avoids failure of ENV being unavailable if job fails early:
-          sha: ${{ github.event.workflow_run.head_sha }}
+          sha: ${{ env.PR_HEADSHA }}
           context: 'Deploy Preview (pull_request => workflow_run)'
 
       - name: 'Send preview build to Netlify'
         uses: nwtgck/actions-netlify@v3.0
-        id: preview
+        id: preview-netlify
         timeout-minutes: 1
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_SITE_ID:    ${{ secrets.NETLIFY_SITE_ID    }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          # Fail the job early if credentials are missing / invalid:
+          # Fail the job when the required Netlify credentials are missing from ENV:
           fails-without-credentials: true
-          # Sets/creates the Netlify deploy URL prefix.
-          # Uses the PR number for uniqueness:
-          alias: ${{ env.NETLIFY_SITE_PREFIX }}
+          # Set/create the Netlify deploy URL prefix:
+          alias: ${{ env.PREVIEW_SITE_PREFIX }}
           # Only publish the contents of the build output:
           publish-dir: ${{ env.BUILD_DIR }}
           # Custom message for the deploy log on Netlify:
-          deploy-message: '${{ env.PR_TITLE }} (PR #${{ env.PR_NUMBER }} @ commit: ${{ env.PR_HEADSHA }})'
+          deploy-message: 'Preview Build (PR #${{ env.PR_NUMBER }} @ commit: ${{ env.PR_HEADSHA }}'
 
-          # Note: Split workflow incorrectly references latest primary branch commit for deployment.
-          # Assign to non-default Deployment Environment for better management:
-          github-deployment-environment: documentation-previews
-          github-deployment-description: 'Preview deploy for documentation PRs'
-
-          # Note - PR context used by this action is incorrect. These features are broken with split workflow:
-          # https://github.com/nwtgck/actions-netlify/issues/545
           # Disable unwanted action defaults:
-          # Disable adding deploy comment on pre-merge commit (Github creates this for PR diff):
+          # This input does not fallback to the GITHUB_TOKEN taken from context, nor log that it will skip extra features of the action when this input is not set:
+          # https://github.com/nwtgck/actions-netlify/issues/1219
+          # github-token: ${{ secrets.GITHUB_TOKEN }}
+          # NOTE: These features won't work correctly when the triggered workflow is not run from the PR branch due to assumed `pull_request` context:
+          # https://github.com/nwtgck/actions-netlify/issues/545
+          # Disable adding a comment to the commit belonging to context `github.sha` about the successful deployment (redundant and often wrong commit):
           enable-commit-comment: false
-          # Disable adding a "Netlify - Netlify deployment" check status:
+          # Disable adding a "Netlify - Netlify deployment" PR check status (workflow job status is sufficient):
           enable-commit-status: false
-          # Disable. We provide a custom PR comment in the next action:
+          # Disable adding a comment about successful deployment status to the PR.
+          # Prefer `marocchino/sticky-pull-request-comment` instead (more flexible and allows custom message):
           enable-pull-request-comment: false
+          # Opt-out of deployment feature:
+          # NOTE:
+          # - When affected by `nwtgck/actions-netlify/issues/545`, the deployments published reference the wrong commit and thus information.
+          # - While the feature creates or assigns a deployment to associate the build with, it is unrelated to the related environments feature (secrets/vars):
+          #   https://github.com/nwtgck/actions-netlify/issues/538#issuecomment-833983970
+          #   https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-deployments/viewing-deployment-history
+          #   https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-deployments/managing-environments-for-deployment
+          enable-github-deployment: false
+          # Assign to non-default Deployment Environment for better management:
+          # github-deployment-environment: documentation-previews
+          # github-deployment-description: 'Preview deploy for documentation PRs'
 
           # If a `netlify.toml` config is ever needed, enable this:
           # netlify-config-path: ./docs/netlify.toml
-          # If ever switching from Github Pages, enable this conditionally (false by default):
+          # If ever switching from Github Pages, enable this only when not deploying a preview build (false by default):
           # production-deploy: false
 
-      - name: 'Comment on PR: Add/Update deployment status'
+      - name: 'Comment on PR with preview link'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           number: ${{ env.PR_NUMBER }}
           header: preview-comment
           recreate: true
           message: |
-            [Documentation preview for this PR](${{ steps.preview.outputs.deploy-url }}) is ready! :tada:
+            [Documentation preview for this PR](${{ steps.preview-netlify.outputs.deploy-url }}) is ready! :tada:
 
             Built with commit: ${{ env.PR_HEADSHA }}
 
-      - name: 'Commit Status: Update deployment status'
+      # Manage workflow deployment status (Part 2/2):
+      - name: 'Commit Status (2/2) - Update deployment status'
         uses: myrotvorets/set-commit-status-action@v2.0.1
-        # Always run this step regardless of job failing early:
+        # Always run this step regardless of the job failing early:
         if: ${{ always() }}
+        # Custom status descriptions:
         env:
           DEPLOY_SUCCESS: Successfully deployed preview.
           DEPLOY_FAILURE: Failed to deploy preview.
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status == 'success' && 'success' || 'failure' }}
-          sha: ${{ github.event.workflow_run.head_sha }}
+          sha: ${{ env.PR_HEADSHA }}
           context: 'Deploy Preview (pull_request => workflow_run)'
           description: ${{ job.status == 'success' && env.DEPLOY_SUCCESS || env.DEPLOY_FAILURE }}

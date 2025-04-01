@@ -62,7 +62,7 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # which would require an extra memory of 500MB+ during an image build.
 # When using `COPY --link`, the `--chown` option is only compatible with numeric ID values.
 # hadolint ignore=DL3021
-COPY --link --chown=200 --from=docker.io/clamav/clamav:latest /var/lib/clamav /var/lib/clamav
+COPY --link --chown=200 --from=docker.io/clamav/clamav-debian:latest /var/lib/clamav /var/lib/clamav
 
 RUN <<EOF
   # `COPY --link --chown=200` has a bug when built by the buildx docker-container driver.
@@ -82,22 +82,12 @@ EOF
 
 # install fts_xapian plugin
 
-COPY --from=stage-compile dovecot-fts-xapian-1.7.12_1.7.12_*.deb /
-RUN dpkg -i /dovecot-fts-xapian-1.7.12_1.7.12_*.deb && rm /dovecot-fts-xapian-1.7.12_1.7.12_*.deb
+COPY --from=stage-compile dovecot-fts-xapian-*.deb /
+RUN dpkg -i /dovecot-fts-xapian-*.deb && rm /dovecot-fts-xapian-*.deb
 
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
 RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
-WORKDIR /usr/share/dovecot
-
-# hadolint ignore=SC2016,SC2086,SC2069
-RUN <<EOF
-  sedfile -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
-  sedfile -i -e 's/#mail_plugins = \$mail_plugins/mail_plugins = \$mail_plugins sieve/g' /etc/dovecot/conf.d/15-lda.conf
-  sedfile -i -e 's/^.*lda_mailbox_autocreate.*/lda_mailbox_autocreate = yes/g' /etc/dovecot/conf.d/15-lda.conf
-  sedfile -i -e 's/^.*lda_mailbox_autosubscribe.*/lda_mailbox_autosubscribe = yes/g' /etc/dovecot/conf.d/15-lda.conf
-  sedfile -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS:="postmaster@domain.com"}'/g' /etc/dovecot/conf.d/15-lda.conf
-EOF
 
 # -----------------------------------------------
 # --- Rspamd ------------------------------------
@@ -109,14 +99,15 @@ COPY target/rspamd/local.d/ /etc/rspamd/local.d/
 # --- OAUTH2 ------------------------------------
 # -----------------------------------------------
 
-COPY target/dovecot/auth-oauth2.conf.ext /etc/dovecot/conf.d
 COPY target/dovecot/dovecot-oauth2.conf.ext /etc/dovecot
+COPY target/dovecot/auth-oauth2.conf.ext /etc/dovecot/conf.d
 
 # -----------------------------------------------
 # --- LDAP & SpamAssassin's Cron ----------------
 # -----------------------------------------------
 
 COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
+COPY target/dovecot/auth-ldap.conf.ext /etc/dovecot/conf.d
 COPY \
   target/postfix/ldap-users.cf \
   target/postfix/ldap-groups.cf \
@@ -185,8 +176,6 @@ COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
   ln -s  /var/log/mail/mail.log     /var/log/mail.log
   ln -sf /var/log/mail/fail2ban.log /var/log/fail2ban.log
-  # disable sshd jail
-  rm /etc/fail2ban/jail.d/defaults-debian.conf
 EOF
 
 COPY target/opendkim/opendkim.conf /etc/opendkim.conf
@@ -214,7 +203,8 @@ EOF
 RUN echo 'Reason_Message = Message {rejectdefer} due to: {spf}.' >>/etc/postfix-policyd-spf-python/policyd-spf.conf
 
 COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
-COPY target/getmail/getmailrc /etc/getmailrc_general
+COPY target/getmail/getmailrc_general /etc/getmailrc_general
+COPY target/getmail/getmail-service.sh /usr/local/bin/
 COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 
 # DH parameters for DHE cipher suites, ffdhe4096 is the official standard 4096-bit DH params now part of TLS 1.3
