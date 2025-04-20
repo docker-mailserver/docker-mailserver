@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Added
+
+- **Environment Variables:**
+  - `CHECK_FOR_CHANGES_INTERVAL_SEC` makes it possible to configure execution interval of the ``check-for-changes.sh`` script. ([#4450](https://github.com/docker-mailserver/docker-mailserver/pull/4450))
+    - Default value is set to ``20`` (was originally ``2``) to improve idle server load.
+
 ### Updates
 
 - **Documentation:**
