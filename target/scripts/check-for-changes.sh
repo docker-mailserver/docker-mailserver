@@ -211,7 +211,7 @@ function _rspamd_changes() {
 
 while true; do
   _check_for_changes
-  sleep 2
+  sleep ${CHECK_FOR_CHANGES_INTERVAL_SEC:-20}
 done
 
 exit 0

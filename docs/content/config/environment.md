@@ -360,6 +360,12 @@ Default: empty (no prefix will be added to e-mails)
 
     Add trailing white-space by quote wrapping the value: `SPAM_SUBJECT='[SPAM] '`
 
+##### CHECK_FOR_CHANGES_INTERVAL_SEC
+
+Defines how often the background check for changes (e.g. if the configuration changed or a new certificate needs to be applied) should be executed.
+
+Default: ``20``
+
 #### Rspamd
 
 ##### ENABLE_RSPAMD
