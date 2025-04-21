@@ -211,7 +211,7 @@ function _rspamd_changes() {
 
 while true; do
   _check_for_changes
-  sleep ${CHECK_FOR_CHANGES_INTERVAL_SEC:-20}
+  sleep ${DMS_CONFIG_POLL:-2}
 done
 
 exit 0
