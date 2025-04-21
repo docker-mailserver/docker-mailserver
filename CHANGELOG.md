@@ -8,9 +8,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
-- **Environment Variables:**
-  - `CHECK_FOR_CHANGES_INTERVAL_SEC` makes it possible to configure execution interval of the ``check-for-changes.sh`` script. ([#4450](https://github.com/docker-mailserver/docker-mailserver/pull/4450))
-    - Default value is set to ``20`` (was originally ``2``) to improve idle server load.
+- **Internal:**
+  - [`DMS_CONFIG_POLL`](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/environment/#dms_config_poll) supports adjusting the polling rate (seconds) for the change detection service `check-for-changes.sh` ([#4450](https://github.com/docker-mailserver/docker-mailserver/pull/4450))
 
 ### Updates
 
