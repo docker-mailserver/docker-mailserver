@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Added
+
+- **Internal:**
+  - [`DMS_CONFIG_POLL`](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/environment/#dms_config_poll) supports adjusting the polling rate (seconds) for the change detection service `check-for-changes.sh` ([#4450](https://github.com/docker-mailserver/docker-mailserver/pull/4450))
+
 ### Updates
 
 - **Documentation:**
