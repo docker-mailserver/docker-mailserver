@@ -366,6 +366,23 @@ Default: empty (no prefix will be added to e-mails)
 
     Add trailing white-space by quote wrapping the value: `SPAM_SUBJECT='[SPAM] '`
 
+##### DMS_CONFIG_POLL
+
+Defines how often DMS polls [monitored config files][gh::monitored-configs] for changes in the DMS Config Volume. This also includes TLS certificates and is often relied on for applying changes managed via `setup` CLI commands.
+
+- **`2`** => How often (in seconds) [change detection][gh::check-for-changes] is performed.
+
+!!! note "Decreasing the frequency of polling for changes"
+
+    Raising the value will delay how soon a change is detected which may impact UX expectations for responsiveness, but reduces resource usage when changes are rare.
+
+!!! info
+
+    When using `ACCOUNT_PROVISIONER=LDAP`, the change detection feature is presently disabled.
+
+[gh::check-for-changes]: https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/scripts/check-for-changes.sh#L37
+[gh::monitored-configs]: https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/scripts/helpers/change-detection.sh#L30-L42
+
 #### Rspamd
 
 ##### ENABLE_RSPAMD

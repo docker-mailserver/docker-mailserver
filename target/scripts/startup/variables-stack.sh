@@ -157,6 +157,7 @@ function __environment_variables_general_setup() {
   _log 'trace' 'Setting miscellaneous environment variables'
 
   VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
+  VARS[DMS_CONFIG_POLL]="${DMS_CONFIG_POLL:=2}"
   VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
   VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
   VARS[GETMAIL_POLL]="${GETMAIL_POLL:=5}"
