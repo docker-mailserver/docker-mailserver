@@ -106,7 +106,6 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
   VARS[ENABLE_IMAP]="${ENABLE_IMAP:=1}"
   VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
-  VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
   VARS[ENABLE_RSPAMD]="${ENABLE_RSPAMD:=0}"
   VARS[ENABLE_RSPAMD_REDIS]="${ENABLE_RSPAMD_REDIS:=${ENABLE_RSPAMD}}"
   VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
@@ -114,6 +113,15 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_SPAMASSASSIN_KAM]="${ENABLE_SPAMASSASSIN_KAM:=0}"
   VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
   VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
+
+  # The Dovecot Quotas feature is presently only supported with the default FILE account provisioner,
+  # Enforce disabling the feature, unless it's been explicitly set via ENV (to avoid mismatch between explicit ENV and sourcing from /etc/dms-settings)
+  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -neq 1 ]]; then
+    _log 'debug' "The 'ENABLE_QUOTAS' feature is enabled by default but is not compatible with your config. Disabling"
+    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=0}"
+  else
+    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
+  fi
 
   _log 'trace' 'Setting IP, DNS and SSL environment variables'
 
