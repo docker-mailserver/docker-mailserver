@@ -8,6 +8,10 @@ source /usr/local/bin/helpers/index.sh
 source /etc/dms-settings 2>/dev/null
 
 function _main() {
+  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]]; then
+    _exit_with_error "This command is only compatible with 'ACCOUNT_PROVISIONER=FILE'"
+  fi
+
   local DATABASE_ACCOUNTS='/tmp/docker-mailserver/postfix-accounts.cf'
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
 
