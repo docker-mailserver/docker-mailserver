@@ -111,7 +111,7 @@ function _configure_and_run_dms_container() {
 
 function _should_support_expected_cipherlists() {
   # Make a directory with test user ownership. Avoids Docker creating this with root ownership.
-  # TODO: Can switch to filename prefix for JSON output when this is resolved: https://github.com/drwetter/testssl.sh/issues/1845
+  # TODO: Can switch to filename prefix for JSON output when this is resolved: https://github.com/testssl/testssl.sh/issues/1845
   local RESULTS_PATH="${TLS_RESULTS_DIR}/${TEST_VARIANT}"
   mkdir -p "${RESULTS_PATH}"
 
@@ -156,7 +156,7 @@ function _collect_cipherlists() {
   # NOTE: Batch testing ports via `--file` doesn't properly bubble up failure.
   # If the failure for a test is misleading consider testing a single port with:
   # local TESTSSL_CMD=(--quiet --jsonfile-pretty "/output/port_${PORT}.json" --starttls smtp "${TEST_DOMAIN}:${PORT}")
-  # TODO: Can use `jq` to check for failure when this is resolved: https://github.com/drwetter/testssl.sh/issues/1844
+  # TODO: Can use `jq` to check for failure when this is resolved: https://github.com/testssl/testssl.sh/issues/1844
 
   # `--user "<uid>:<gid>"` is a workaround: Avoids `permission denied` write errors for json output, uses `id` to match user uid & gid.
   run docker run --rm \
