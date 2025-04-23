@@ -13,7 +13,7 @@ There are multiple options to enable SSL (via [`SSL_TYPE`][docs-env::ssl-type]):
 After installation, you can test your setup with:
 
 - [`checktls.com`](https://www.checktls.com/TestReceiver)
-- [`testssl.sh`](https://github.com/drwetter/testssl.sh)
+- [`testssl.sh`](https://github.com/testssl/testssl.sh)
 
 !!! warning "Exposure of DNS labels through Certificate Transparency"
 
