@@ -1022,6 +1022,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#dms_config_poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      DMS_CONFIG_POLL
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4209,6 +4218,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#dms_config_poll" class="md-nav__link">
+    <span class="md-ellipsis">
+      DMS_CONFIG_POLL
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -5505,6 +5523,19 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 <summary>Including trailing white-space</summary>
 <p>Add trailing white-space by quote wrapping the value: <code>SPAM_SUBJECT='[SPAM] '</code></p>
 </details>
+<h5 id="dms_config_poll"><a class="toclink" href="#dms_config_poll">DMS_CONFIG_POLL</a></h5>
+<p>Defines how often DMS polls <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/scripts/helpers/change-detection.sh#L30-L42">monitored config files</a> for changes in the DMS Config Volume. This also includes TLS certificates and is often relied on for applying changes managed via <code>setup</code> CLI commands.</p>
+<ul>
+<li><strong><code>2</code></strong> =&gt; How often (in seconds) <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/scripts/check-for-changes.sh#L37">change detection</a> is performed.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Decreasing the frequency of polling for changes</p>
+<p>Raising the value will delay how soon a change is detected which may impact UX expectations for responsiveness, but reduces resource usage when changes are rare.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>When using <code>ACCOUNT_PROVISIONER=LDAP</code>, the change detection feature is presently disabled.</p>
+</div>
 <h4 id="rspamd"><a class="toclink" href="#rspamd">Rspamd</a></h4>
 <h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
 <p>Enable or disable <a href="../security/rspamd/">Rspamd</a>.</p>
