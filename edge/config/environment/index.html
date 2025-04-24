@@ -5423,6 +5423,11 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <li>0 =&gt; Dovecot quota is disabled</li>
 </ul>
 <p>See <a href="../account-management/overview/#quotas">mailbox quota</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Compatibility</p>
+<p>This feature is presently only compatible with <code>ACCOUNT_PROVISIONER=FILE</code>.</p>
+<p>When using a different provisioner (or <code>SMTP_ONLY=1</code>) this ENV will instead default to <code>0</code>.</p>
+</div>
 <h5 id="postfix_message_size_limit"><a class="toclink" href="#postfix_message_size_limit">POSTFIX_MESSAGE_SIZE_LIMIT</a></h5>
 <p>Set the message size limit for all users. If set to zero, the size will be unlimited (not recommended!). Size is in bytes.</p>
 <ul>
