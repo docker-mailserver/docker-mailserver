@@ -247,6 +247,12 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 
 See [mailbox quota][docs-accounts-quota].
 
+!!! info "Compatibility"
+
+    This feature is presently only compatible with `ACCOUNT_PROVISIONER=FILE`.
+
+    When using a different provisioner (or `SMTP_ONLY=1`) this ENV will instead default to `0`.
+
 ##### POSTFIX_MESSAGE_SIZE_LIMIT
 
 Set the message size limit for all users. If set to zero, the size will be unlimited (not recommended!). Size is in bytes.
