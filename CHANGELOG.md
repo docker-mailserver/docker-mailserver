@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Internal:**
   - [`DMS_CONFIG_POLL`](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/environment/#dms_config_poll) supports adjusting the polling rate (seconds) for the change detection service `check-for-changes.sh` ([#4450](https://github.com/docker-mailserver/docker-mailserver/pull/4450))
+  - [`LOGIN_TRUSTED_NETWORKS`](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/environment/#login_trusted_networks) allows specifying trusted networks for Dovecot login connections, enabling the client to tell the server what the original client's IP address was
 
 ### Updates
 

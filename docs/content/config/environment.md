@@ -320,6 +320,13 @@ Note: More details at <http://www.postfix.org/postconf.5.html#inet_protocols>
 
 Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 
+##### LOGIN_TRUSTED_NETWORKS
+
+Specify trusted networks for Dovecot login connections. This setting allows the client connection to tell the server what the original client's IP address was.
+
+- **empty** => No trusted networks configured
+- Example: "10.0.0.0/8 192.168.0.0/16"
+
 ##### MOVE_SPAM_TO_JUNK
 
 - 0 => Spam messages will be delivered to the inbox.
