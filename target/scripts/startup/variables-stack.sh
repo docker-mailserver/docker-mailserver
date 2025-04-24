@@ -62,7 +62,7 @@ function __environment_variables_general_setup() {
   VARS[DMS_VMAIL_UID]="${DMS_VMAIL_UID:=5000}"
   VARS[DMS_VMAIL_GID]="${DMS_VMAIL_GID:=5000}"
 
-  # user-customizable are last
+  # user-customizable are next
 
   _log 'trace' 'Setting anti-spam & anti-virus environment variables'
 
@@ -113,15 +113,6 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_SPAMASSASSIN_KAM]="${ENABLE_SPAMASSASSIN_KAM:=0}"
   VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
   VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
-
-  # The Dovecot Quotas feature is presently only supported with the default FILE account provisioner,
-  # Enforce disabling the feature, unless it's been explicitly set via ENV (to avoid mismatch between explicit ENV and sourcing from /etc/dms-settings)
-  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' || ${SMTP_ONLY} -eq 1 ]] && [[ ${ENABLE_QUOTAS:-1} -eq 1 ]]; then
-    _log 'debug' "The 'ENABLE_QUOTAS' feature is enabled (by default) but is not compatible with your config. Disabling"
-    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=0}"
-  else
-    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
-  fi
 
   _log 'trace' 'Setting IP, DNS and SSL environment variables'
 
@@ -175,6 +166,18 @@ function __environment_variables_general_setup() {
   VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
   VARS[TZ]="${TZ:=}"
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
+
+  _log 'trace' 'Setting environment variables that require other variables to be set first'
+
+  # The Dovecot Quotas feature is presently only supported with the default FILE account provisioner,
+  # Enforce disabling the feature, unless it's been explicitly set via ENV (to avoid mismatch between
+  # explicit ENV and sourcing from /etc/dms-settings)
+  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' || ${SMTP_ONLY} -eq 1 ]] && [[ ${ENABLE_QUOTAS:-1} -eq 1 ]]; then
+    _log 'debug' "The 'ENABLE_QUOTAS' feature is enabled (by default) but is not compatible with your config. Disabling"
+    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=0}"
+  else
+    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
+  fi
 }
 
 function __environment_variables_log_level() {
