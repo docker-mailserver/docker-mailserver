@@ -116,8 +116,8 @@ function __environment_variables_general_setup() {
 
   # The Dovecot Quotas feature is presently only supported with the default FILE account provisioner,
   # Enforce disabling the feature, unless it's been explicitly set via ENV (to avoid mismatch between explicit ENV and sourcing from /etc/dms-settings)
-  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -ne 1 ]]; then
-    _log 'debug' "The 'ENABLE_QUOTAS' feature is enabled by default but is not compatible with your config. Disabling"
+  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' || ${SMTP_ONLY} -eq 1 ]] && [[ ${ENABLE_QUOTAS:-1} -eq 1 ]]; then
+    _log 'debug' "The 'ENABLE_QUOTAS' feature is enabled (by default) but is not compatible with your config. Disabling"
     VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=0}"
   else
     VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
