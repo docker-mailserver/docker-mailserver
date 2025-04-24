@@ -11,6 +11,9 @@ function _setup_dovecot() {
   mv /etc/dovecot/protocols.d/imapd.protocol /etc/dovecot/protocols.d/imapd.protocol.disab
   mv /etc/dovecot/protocols.d/managesieved.protocol /etc/dovecot/protocols.d/managesieved.protocol.disab
 
+  # Setup login_trusted_networks if specified
+  _setup_dovecot_login_trusted_networks
+
   # NOTE: While Postfix will deliver to Dovecot via LMTP (Previously LDA until DMS v2),
   # LDA may be used via other services like Getmail being configured to use /usr/lib/dovecot/deliver
   # when mail does not need to go through Postfix.
@@ -235,6 +238,16 @@ function _setup_dovecot_inet_protocols() {
   fi
 
   sedfile -i "s|^#listen =.*|listen = ${PROTOCOL}|g" /etc/dovecot/dovecot.conf
+}
+
+function _setup_dovecot_login_trusted_networks() {
+  [[ -z ${LOGIN_TRUSTED_NETWORKS} ]] && return 0
+
+  _log 'debug' 'Setting up Dovecot login_trusted_networks'
+  _log 'trace' "Adding trusted networks: ${LOGIN_TRUSTED_NETWORKS}"
+
+  # Uncomment and set login_trusted_networks in dovecot.conf
+  sedfile -i "s|^#login_trusted_networks =.*|login_trusted_networks = ${LOGIN_TRUSTED_NETWORKS}|g" /etc/dovecot/dovecot.conf
 }
 
 function _setup_dovecot_dhparam() {
