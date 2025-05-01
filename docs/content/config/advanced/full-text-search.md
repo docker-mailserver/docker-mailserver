@@ -141,4 +141,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
 
 See [#905](https://github.com/docker-mailserver/docker-mailserver/issues/905)
 
+Attempting to enable commented out features in the config example above [may not be functional][gh::xapian-decode2text].
+
 [docs-faq-sa-learn-cron]: ../../faq.md#how-can-i-make-spamassassin-better-recognize-spam
+[gh::xapian-decode2text]: https://github.com/orgs/docker-mailserver/discussions/4461#discussioncomment-13002388
