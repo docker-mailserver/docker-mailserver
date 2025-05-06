@@ -130,66 +130,66 @@ docker compose ps
     2. Run [`systemctl --user daemon-reload`][systemd-docs::systemctl::daemon-reload], which will trigger the Quadlet service generator. This command is required whenever you adjust config in `dms.container`.
     3. You should now be able to start the service with `systemctl --user start dms`.
 
-```ini title="dms.container"
-[Unit]
-Description="Docker Mail Server"
-Documentation=https://docker-mailserver.github.io/docker-mailserver/latest
+    ```ini title="dms.container"
+    [Unit]
+    Description="Docker Mail Server"
+    Documentation=https://docker-mailserver.github.io/docker-mailserver/latest
 
-[Service]
-Restart=always
-# Optional - This will run before the container starts:
-# - It ensures all the DMS volumes have the host directories created for you.
-# - For `mkdir` command to leverage the shell brace expansion syntax, you need to run it via bash.
-ExecStartPre=/usr/bin/bash -c 'mkdir -p %h/volumes/%N/{mail-data,mail-state,mail-logs,config}'
+    [Service]
+    Restart=always
+    # Optional - This will run before the container starts:
+    # - It ensures all the DMS volumes have the host directories created for you.
+    # - For `mkdir` command to leverage the shell brace expansion syntax, you need to run it via bash.
+    ExecStartPre=/usr/bin/bash -c 'mkdir -p %h/volumes/%N/{mail-data,mail-state,mail-logs,config}'
 
-# This section enables the service at generation, avoids requiring `systemctl --user enable dms`:
-# - `multi-user.target` => root
-# - `default.target` => rootless
-[Install]
-WantedBy=default.target
+    # This section enables the service at generation, avoids requiring `systemctl --user enable dms`:
+    # - `multi-user.target` => root
+    # - `default.target` => rootless
+    [Install]
+    WantedBy=default.target
 
-[Container]
-ContainerName=%N
-HostName=mail.example.com
-Image=docker.io/mailserver/docker-mailserver:latest
+    [Container]
+    ContainerName=%N
+    HostName=mail.example.com
+    Image=docker.io/mailserver/docker-mailserver:latest
 
-PublishPort=25:25
-PublishPort=143:143
-PublishPort=587:587
-PublishPort=993:993
+    PublishPort=25:25
+    PublishPort=143:143
+    PublishPort=587:587
+    PublishPort=993:993
 
-# The container UID for root will be mapped to the host UID running this Quadlet service.
-# All other UIDs in the container are mapped via the sub-id range for that user from host configs `/etc/subuid` + `/etc/subgid`.
-UIDMap=+0:@%U
+    # The container UID for root will be mapped to the host UID running this Quadlet service.
+    # All other UIDs in the container are mapped via the sub-id range for that user from host configs `/etc/subuid` + `/etc/subgid`.
+    UIDMap=+0:@%U
 
-# Volumes (Base location example: `%h/volumes/%N` => `~/volumes/dms`)
-# NOTE: If your host has SELinux enabled, avoid permission errors by appending the mount option `:Z`.
-Volume=%h/volumes/%N/mail-data:/var/mail
-Volume=%h/volumes/%N/mail-state:/var/mail-state
-Volume=%h/volumes/%N/mail-logs:/var/log/mail
-Volume=%h/volumes/%N/config:/tmp/docker-mailserver
-# Optional - Additional mounts:
-# NOTE: For SELinux, when using the `z` or `Z` mount options:
-#   Take caution if choosing a host location not belonging to your user. Consider using `SecurityLabelDisable=true` instead.
-#   https://docs.podman.io/en/latest/markdown/podman-run.1.html#volume-v-source-volume-host-dir-container-dir-options
-Volume=%h/volumes/certbot/certs:/etc/letsencrypt:ro
+    # Volumes (Base location example: `%h/volumes/%N` => `~/volumes/dms`)
+    # NOTE: If your host has SELinux enabled, avoid permission errors by appending the mount option `:Z`.
+    Volume=%h/volumes/%N/mail-data:/var/mail
+    Volume=%h/volumes/%N/mail-state:/var/mail-state
+    Volume=%h/volumes/%N/mail-logs:/var/log/mail
+    Volume=%h/volumes/%N/config:/tmp/docker-mailserver
+    # Optional - Additional mounts:
+    # NOTE: For SELinux, when using the `z` or `Z` mount options:
+    #   Take caution if choosing a host location not belonging to your user. Consider using `SecurityLabelDisable=true` instead.
+    #   https://docs.podman.io/en/latest/markdown/podman-run.1.html#volume-v-source-volume-host-dir-container-dir-options
+    Volume=%h/volumes/certbot/certs:/etc/letsencrypt:ro
 
-# Podman can create a timer (defaults to daily at midnight) to check the `registry` or `local` storage for detecting if the
-# image tag points to a new digest, if so it updates the image and restarts the service (similar to `containrrr/watchtower`):
-# https://docs.podman.io/en/latest/markdown/podman-auto-update.1.html
-AutoUpdate=registry
+    # Podman can create a timer (defaults to daily at midnight) to check the `registry` or `local` storage for detecting if the
+    # image tag points to a new digest, if so it updates the image and restarts the service (similar to `containrrr/watchtower`):
+    # https://docs.podman.io/en/latest/markdown/podman-auto-update.1.html
+    AutoUpdate=registry
 
-# Podman Quadlet has a better alternative instead of a volume directly bind mounting `/etc/localtime` to match the host TZ:
-# https://docs.podman.io/en/latest/markdown/podman-run.1.html#tz-timezone
-# NOTE: Should the host modify the system TZ, neither approach will sync the change to the `/etc/localtime` inside the running container.
-Timezone=local
+    # Podman Quadlet has a better alternative instead of a volume directly bind mounting `/etc/localtime` to match the host TZ:
+    # https://docs.podman.io/en/latest/markdown/podman-run.1.html#tz-timezone
+    # NOTE: Should the host modify the system TZ, neither approach will sync the change to the `/etc/localtime` inside the running container.
+    Timezone=local
 
-Environment=SSL_TYPE=letsencrypt
-# NOTE: You may need to adjust the default `NETWORK_INTERFACE`:
-# https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#network_interface
-#Environment=NETWORK_INTERFACE=enp1s0
-#Environment=NETWORK_INTERFACE=tap0
-```
+    Environment=SSL_TYPE=letsencrypt
+    # NOTE: You may need to adjust the default `NETWORK_INTERFACE`:
+    # https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#network_interface
+    #Environment=NETWORK_INTERFACE=enp1s0
+    #Environment=NETWORK_INTERFACE=tap0
+    ```
 
 ??? info "Systemd specifiers"
 
