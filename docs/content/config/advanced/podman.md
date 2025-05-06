@@ -45,16 +45,6 @@ docker compose ps
 
 You should see that docker-mailserver is running now.
 
-### Self-start in Rootful Mode
-
-Podman is daemonless, that means if you want docker-mailserver self-start while boot up the system, you have to generate a systemd file with Podman CLI.
-
-```bash
-podman generate systemd mailserver > /etc/systemd/system/mailserver.service
-systemctl daemon-reload
-systemctl enable --now mailserver.service
-```
-
 ## Installation in Rootless Mode
 
 Running [rootless containers][podman-docs::rootless-mode] is one of Podman's major features. But due to some restrictions, deploying docker-mailserver in rootless mode is not as easy compared to rootful mode.
@@ -97,10 +87,6 @@ docker compose ps
 ```
 
 ### Rootless Quadlet
-
-!!! warning "`podman generate systemd` is deprecated"
-
-    The [`podman generate systemd`][podman-docs::cli::generate-systemd] command has been deprecated [since Podman v4.7][gh::podman::release-4.7] (Sep 2023) in favor of Quadlets (_available [since Podman v4.4][gh::podman::release-4.4]_).
 
 !!! info "What is a Quadlet?"
 
@@ -260,7 +246,7 @@ Podman supports a few different approaches for this functionality. For rootless 
 
 ??? warning "Impact on disk usage of images with Rootless"
 
-    **NOTE:** This should not usually be a concern, but has been documented here to explain the impact of creating new user namespaces (_such as by running a container with settings like `UIDMap` that differ between runs_).
+    **NOTE:** This should not usually be a concern, but is documented here to explain the impact of creating new user namespaces (_such as by running a container with settings like `UIDMap` that differ between runs_).
 
     ---
 
@@ -274,6 +260,40 @@ Podman supports a few different approaches for this functionality. For rootless 
 
     - `UIDMap=+0:@%U` is equivalent from ID 2 onwards.
     - `UIDMap=+5000:@%U` is equivalent from ID 5001 onwards. This is relevant with DMS as the container UID 200 is assigned to ClamAV, the offset introduced will now incur a `chown` copy of 230MB.
+
+## Start DMS container at boot
+
+Unlike Docker, Podman is daemonless thus containers do not start at boot. You can create your own systemd service to schedule this or use the Podman CLI.
+
+!!! warning "`podman generate systemd` is deprecated"
+
+    The [`podman generate systemd`][podman-docs::cli::generate-systemd] command has been deprecated [since Podman v4.7][gh::podman::release-4.7] (Sep 2023) in favor of Quadlets (_available [since Podman v4.4][gh::podman::release-4.4]_).
+
+!!! example "Create a systemd service"
+
+    Use the Podman CLI to generate a systemd service at the rootful or rootless location.
+
+    === "Rootful"
+
+        ```bash
+        podman generate systemd mailserver > /etc/systemd/system/mailserver.service
+        systemctl daemon-reload
+        systemctl enable --now mailserver.service
+        ```
+
+    === "Rootless"
+
+        ```bash
+        podman generate systemd mailserver > ~/.config/systemd/user/mailserver.service
+        systemctl --user daemon-reload
+        systemctl enable --user --now mailserver.service
+        ```
+
+A systemd user service will only start when that specific user logs in and stops when after log out. To instead allow user services to run when that user has no active session running run:
+
+```bash
+loginctl enable-linger <username>
+```
 
 ### Security in Rootless Mode
 
@@ -320,24 +340,6 @@ You must also add the ENV `NETWORK_INTERFACE=tap0`, because Podman uses a [hard-
 !!! note
 
     `podman-compose` is not compatible with this configuration.
-
-### Self-start in Rootless Mode
-
-Generate a systemd file with the Podman CLI.
-
-```bash
-podman generate systemd mailserver > ~/.config/systemd/user/mailserver.service
-systemctl --user daemon-reload
-systemctl enable --user --now mailserver.service
-```
-
-Systemd's user space service is only started when a specific user logs in and stops when you log out. In order to make it to start with the system, we need to enable linger with `loginctl`
-
-```bash
-loginctl enable-linger <username>
-```
-
-Remember to run this command as root user.
 
 ### Port Forwarding
 
