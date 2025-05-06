@@ -122,9 +122,13 @@ docker compose ps
 
 #### Example Quadlet file
 
-1. Create your DMS Quadlet at `~/.config/containers/systemd/dms.container` with the example content shown below.
-2. Run [`systemctl --user daemon-reload`][systemd-docs::systemctl::daemon-reload], which will trigger the Quadlet service generator (_required whenever you adjust config in `dms.container`_).
-3. You should now be able to start the service with `systemctl --user start dms`.
+???+ example
+
+    1. Create your DMS Quadlet at `~/.config/containers/systemd/dms.container` with the example content shown below.
+        - Adjust settings like `HostName` as needed. You may prefer a different convention for your `Volume` host paths.
+        - Some syntax like systemd specifiers and Podman's `UIDMap` value are explained in detail after this example.
+    2. Run [`systemctl --user daemon-reload`][systemd-docs::systemctl::daemon-reload], which will trigger the Quadlet service generator. This command is required whenever you adjust config in `dms.container`.
+    3. You should now be able to start the service with `systemctl --user start dms`.
 
 ```ini title="dms.container"
 [Unit]
@@ -187,13 +191,13 @@ Environment=SSL_TYPE=letsencrypt
 #Environment=NETWORK_INTERFACE=tap0
 ```
 
-!!! info "Systemd specifiers"
+??? info "Systemd specifiers"
 
     Systemd has a [variety of specifiers][systemd-docs::config-specifiers] (_prefixed with `%`_) that help manage configs.
     
-    Here are the ones used from the above example:
+    Here are the ones used in the Quadlet config example:
 
-    - ***`%h`:** Location of the users home directory. Use this instead of `~` (_which would only work in a shell, not this config_).
+    - **`%h`:** Location of the users home directory. Use this instead of `~` (_which would only work in a shell, not this config_).
     - **`%N`:** Represents the unit service name, which is taken from the filename excluding the extension (_thus `dms.container` => `dms`_).
     - **`%U`:** The UID of the user running this service. The next section details the relevance with `UIDMap`.
 
@@ -223,17 +227,17 @@ Podman supports a few different approaches for this functionality. For rootless 
 - Each mapping must be unique, thus only a single container UID can map to your rootless UID on the host. Every other container UID mapped must be within the configured range from `/etc/subuid`.
 - Rootless containers have one additional level of mapping involved. This is an offset from their `/etc/subuid` entry starting from `0`, but can be inferred when the intended UID on the host is prefixed with `@`
 
-!!! example 
+??? tip "Why should I prefer `UIDMap=+0:@%U`? How does the `@` syntax work?"
 
     The most common case is to map the containers root user (UID `0`) to your host user ID.
 
     For a rootless user with the UID `1000` on the host, any of the following `UIDMap` values are equivalent:
 
-    - **`UIDMap=+0:0`:** The 1st `0` is the container root ID and the 2nd `0` refers to host mapping ID. For rootless the mapping ID is an indirect offset to their user entry in `/etc/subuid` where `0` maps to their host user ID.
-    - **`UIDMap=+0:@1000`:** A rootless Quadlet can also use `@` as a prefix which tells Podman to infer the mapping ID from `/etc/subuid`.
+    - **`UIDMap=+0:0`:** The 1st `0` is the container root ID and the 2nd `0` refers to host mapping ID. For rootless the mapping ID is an indirect offset to their user entry in `/etc/subuid` where `0` maps to their host user ID, while `1` or higher maps to the users subuid range.
+    - **`UIDMap=+0:@1000`:** A rootless Quadlet can also use `@` as a prefix which Podman will then instead lookup as the host ID in `/etc/subuid` to get the offset value. If the host user ID was `1000`, then `@1000` would resolve that to `0`.
     - **`UIDMap=+0:@%U`:** Instead of providing the explicit rootless UID, a better approach is to leverage `%U` (_a [systemd specifier][systemd-docs::config-specifiers]_) which will resolve to the UID of your rootless user that starts the Quadlet service.
 
-??? tip "What is the `+` syntax?"
+??? tip "What is the `+` syntax used with `UIDMap`?"
 
     Prefixing the container ID with `+` is a a podman feature similar to `@`, which ensures `/etc/subuid` is mapped fully.
 
@@ -254,19 +258,19 @@ Podman supports a few different approaches for this functionality. For rootless 
 
     Within the container you can view these mappings via `cat /proc/self/uid_map`.
 
-??? warning "Rootless image disk usage"
+??? warning "Impact on disk usage of images with Rootless"
 
-    **NOTE:** This should not usually be a concern. It has been documented to explain the impact of creating new user namespaces (_such as by tweaking settings like `UIDMap` multiple times_).
+    **NOTE:** This should not usually be a concern, but has been documented here to explain the impact of creating new user namespaces (_such as by running a container with settings like `UIDMap` that differ between runs_).
 
     ---
 
     Rootless containers [perform a copy of the image with `chown`][caveat::podman::rootless::image-chown] during the first pull/run of the image.
 
     - The larger the image to copy, the longer the initial delay on first use.
-    - This process will be repeated if the `UIDMap` / `GIDMap` settings are changed to a value that has not been used previously (_accumulating more disk usage with additional image copies_).
+    - This process will be repeated if the `UIDMap` / `GIDMap` settings are changed to a value that has not been used previously (_accumulating more disk usage with additional image layer copies_).
     - Only when the original image is removed will any of these associated `chown` image copies be purged from storage.
 
-    When you specify a `UIDMap` like shown in the prior tip for the `+` syntax with `UIDMap=+0:5000`, if the `/proc/self/uid_map` shows a row with the first two columns as equivalent then no excess `chown` should be applied.
+    When you specify a `UIDMap` like demonstrated in the earlier tip for the `+` syntax with `UIDMap=+0:5000`, if the `/proc/self/uid_map` shows a row with the first two columns as equivalent then no excess `chown` should be applied.
 
     - `UIDMap=+0:@%U` is equivalent from ID 2 onwards.
     - `UIDMap=+5000:@%U` is equivalent from ID 5001 onwards. This is relevant with DMS as the container UID 200 is assigned to ClamAV, the offset introduced will now incur a `chown` copy of 230MB.
