@@ -6,6 +6,10 @@ title: Environment Variables
 
     Values in **bold** are the default values. If an option doesn't work as documented here, check if you are running the latest image. The current `master` branch corresponds to the image `ghcr.io/docker-mailserver/docker-mailserver:edge`.
 
+!!! tip
+
+    If an environment variable `<VAR>__FILE` is set and points to a valid file, the content of that file will be loaded into `<VAR>`.
+
 #### General
 
 ##### OVERRIDE_HOSTNAME
