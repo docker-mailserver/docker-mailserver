@@ -19,10 +19,6 @@ All notable changes to this project will be documented in this file. The format 
   - Refactored `setup config dkim` (`open-dkim`) ([#4375](https://github.com/docker-mailserver/docker-mailserver/pull/4375))
   - `setup email list` and the default `ENABLE_QUOTAS=1` ENV now better communicates when config is incompatible ([#4453](https://github.com/docker-mailserver/docker-mailserver/pull/4453))
 
-### Fixes
-- **Internal:**
-  - Legacy saslauthd mechanisms (`pam`, `shadow`, `mysql`) removed from ENV ([#4472](https://github.com/docker-mailserver/docker-mailserver/pull/4472))
-
 ## [v15.0.2](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.2)
 
 ### Fixes
