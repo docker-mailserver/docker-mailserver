@@ -263,7 +263,7 @@ function __environment_variables_from_files() {
 
     if [[ -f "${file_path}" ]]; then
       _log 'info' "Getting secret ${env_var} from ${file_path}"
-      export "${env_var}"="$(< "${file_path}")"
+      printf -v "${env_var}" '%s' "$(< "${file_path}")"
     else
       _log 'error' "File ${file_path} does not exist, defined in ${file_env_var}"
     fi
