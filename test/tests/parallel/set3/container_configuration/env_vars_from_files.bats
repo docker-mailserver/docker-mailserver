@@ -47,7 +47,6 @@ function setup_file() {
 }
 
 function teardown_file() {
-  rm -f "${FILE_WITH_VALUE}"
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}"
 }
 
