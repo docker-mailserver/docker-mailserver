@@ -249,23 +249,27 @@ function __environment_variables_export() {
   sort -o /etc/dms-settings /etc/dms-settings
 }
 
-# This function reads any environment variable ending with `__FILE` from its
-# referenced file, then makes it available under the same name without `__FILE`.
+# This function sets any environment variable with a value from a referenced file
+# when an equivalent ENV with a `__FILE` suffix exists with a valid file path as the value.
 function __environment_variables_from_files() {
-  for file_env_var in $(env | grep -Po '^.+?__FILE'); do
-    local env_var="${file_env_var/__FILE/}"
-    local file_path="${!file_env_var}"
+  for ENV_WITH_FILE_REF in $(env | grep -Po '^.+?__FILE'); do
+    # Store the ENV name without the `__FILE` suffix:
+    local TARGET_ENV="${ENV_WITH_FILE_REF/__FILE/}"
+    # Store the value of the `__FILE` ENV:
+    local FILE_PATH="${!ENV_WITH_FILE_REF}"
 
-    if [[ -n "${!env_var}" ]]; then
-      _log 'warn' "Ignoring ${env_var} since ${file_env_var} is also set"
+    # Skip sourcing form `__FILE` if ENV is already set:
+    if [[ -n "${!TARGET_ENV}" ]]; then
+      _log 'warn' "Ignoring ${TARGET_ENV} since ${ENV_WITH_FILE_REF} is also set"
       continue
     fi
 
-    if [[ -f "${file_path}" ]]; then
-      _log 'info' "Getting secret ${env_var} from ${file_path}"
-      printf -v "${env_var}" '%s' "$(< "${file_path}")"
+    # Otherwise retrieve the value from file and set the ENV or fail if invalid reference:
+    if [[ -f "${FILE_PATH}" ]]; then
+      _log 'info' "Getting secret ${TARGET_ENV} from ${FILE_PATH}"
+      printf -v "${TARGET_ENV}" '%s' "$(< "${FILE_PATH}")"
     else
-      _log 'error' "File ${file_path} does not exist, defined in ${file_env_var}"
+      _log 'error' "File ${FILE_PATH} does not exist, defined in ${ENV_WITH_FILE_REF}"
     fi
   done
 }
