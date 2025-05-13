@@ -8,7 +8,6 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Breaking
 
-- **environment variables** ending in `__FILE` will cause the content of the file addressed by their value to be written in the corresponding variable without the `__FILE` suffix
 - **saslauthd** mechanism support via ENV `SASLAUTHD_MECHANISMS` with `pam`, `shadow`, `mysql` values has been removed. Only `ldap` and `rimap` remain supported ([#4259](https://github.com/docker-mailserver/docker-mailserver/pull/4259))
 - **getmail6** has been refactored: ([#4156](https://github.com/docker-mailserver/docker-mailserver/pull/4156))
   - The [DMS config volume](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/optional-config/#volumes) now has support for `getmailrc_general.cf` for overriding [common default settings](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-getmail/#common-options). If you previously mounted this config file directly to `/etc/getmailrc_general` you should switch to our config volume support.
@@ -20,6 +19,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- **environment variables** ending in `__FILE` will cause the content of the file addressed by their value to be written in the corresponding variable without the `__FILE` suffix
 - **Internal:**
   - Add password confirmation to several `setup` CLI subcommands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
   - Added a `debug getmail` subcommand to `setup` ([#4346](https://github.com/docker-mailserver/docker-mailserver/pull/4346))
