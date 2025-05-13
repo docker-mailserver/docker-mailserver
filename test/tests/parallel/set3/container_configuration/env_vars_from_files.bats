@@ -28,12 +28,13 @@ function setup_file() {
   )
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  # ENV is already set explicitly, logs warning:
+  # ENV is already set explicitly, a warning should be logged:
   CONTAINER_NAME=${CONTAINER2_NAME}
   _init_with_defaults
   local CUSTOM_SETUP_ARGUMENTS=(
-    --env TEST_ENV="manual-secret"
-    --env TEST_ENV__FILE="${FILEPATH_VALID}"
+    --env ENABLE_POP3="0"
+    --env ENABLE_POP3__FILE="${FILEPATH_VALID}"
+    -v "${FILE_WITH_VALUE}:${FILEPATH_VALID}"
   )
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
