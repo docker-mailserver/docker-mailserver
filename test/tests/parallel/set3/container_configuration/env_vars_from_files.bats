@@ -68,7 +68,7 @@ function teardown_file() {
 
   run docker logs "${CONTAINER_NAME}"
   assert_success
-  assert_line --partial "Ignoring TEST_ENV since TEST_ENV__FILE is also set"
+  assert_line --partial "ENV value will not be sourced from 'ENABLE_POP3__FILE' since 'ENABLE_POP3' is already set"
 }
 
 @test "Referencing a non-existent file logs an error" {
