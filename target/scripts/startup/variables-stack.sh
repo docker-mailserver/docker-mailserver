@@ -260,7 +260,7 @@ function __environment_variables_from_files() {
 
     # Skip sourcing form `__FILE` if ENV is already set:
     if [[ -n "${!TARGET_ENV}" ]]; then
-      _log 'warn' "Ignoring ${TARGET_ENV} since ${ENV_WITH_FILE_REF} is also set"
+      _log 'warn' "ENV value will not be sourced from '${ENV_WITH_FILE_REF}' since '${TARGET_ENV}' is already set"
       continue
     fi
 
