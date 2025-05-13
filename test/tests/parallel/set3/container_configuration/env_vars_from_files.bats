@@ -56,6 +56,8 @@ function teardown_file() {
 @test "ENV can be set from a file" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
 
+  # /var/log/mail/mail.log is not equivalent to stdout content,
+  # Relevant log content only available via docker logs:
   run docker logs "${CONTAINER_NAME}"
   assert_success
   assert_line --partial "Getting secret ENABLE_POP3 from ${FILEPATH_VALID}"
@@ -68,6 +70,8 @@ function teardown_file() {
 @test "Non-empty ENV have precedence over their __FILE variant" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
 
+  # /var/log/mail/mail.log is not equivalent to stdout content,
+  # Relevant log content only available via docker logs:
   run docker logs "${CONTAINER_NAME}"
   assert_success
   assert_line --partial "ENV value will not be sourced from 'ENABLE_POP3__FILE' since 'ENABLE_POP3' is already set"
@@ -76,6 +80,8 @@ function teardown_file() {
 @test "Referencing a non-existent file logs an error" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
+  # /var/log/mail/mail.log is not equivalent to stdout content,
+  # Relevant log content only available via docker logs:
   run docker logs "${CONTAINER_NAME}"
   assert_success
   assert_line --partial "File ${FILEPATH_INVALID} does not exist"
