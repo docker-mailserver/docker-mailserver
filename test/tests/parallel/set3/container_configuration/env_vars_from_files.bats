@@ -15,13 +15,13 @@ function setup_file() {
   export CONTAINER_NAME
   export FILEPATH_VALID='/tmp/file-with-value'
   export FILEPATH_INVALID='/path/to/non-existent-file'
-
-  export FILE_WITH_VALUE="${TEST_TMP_CONFIG}/test_secret"
-  echo 1 > "${FILE_WITH_VALUE}"
+  export FILE_WITH_VALUE
 
   # ENV is set via file content (valid file path):
   CONTAINER_NAME=${CONTAINER1_NAME}
   _init_with_defaults
+  FILE_WITH_VALUE=${TEST_TMP_CONFIG}/test_secret
+  echo 1 > "${FILE_WITH_VALUE}"
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_POP3__FILE="${FILEPATH_VALID}"
     -v "${FILE_WITH_VALUE}:${FILEPATH_VALID}"
@@ -31,6 +31,8 @@ function setup_file() {
   # ENV is already set explicitly, a warning should be logged:
   CONTAINER_NAME=${CONTAINER2_NAME}
   _init_with_defaults
+  FILE_WITH_VALUE=${TEST_TMP_CONFIG}/test_secret
+  echo 1 > "${FILE_WITH_VALUE}"
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_POP3="0"
     --env ENABLE_POP3__FILE="${FILEPATH_VALID}"
