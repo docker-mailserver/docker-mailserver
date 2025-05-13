@@ -8,7 +8,7 @@ title: Environment Variables
 
 !!! tip
 
-    If an environment variable `<VAR>__FILE` is set and points to a valid file, the content of that file will be loaded into `<VAR>`.
+    If an environment variable `<VAR>__FILE` is set with a valid file path as the value, the content of that file will become the value for `<VAR>` (_provided `<VAR>` has not already been set_).
 
 #### General
 
