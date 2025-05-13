@@ -57,6 +57,7 @@ function teardown_file() {
   assert_success
   assert_line --partial "Getting secret ENABLE_POP3 from ${FILEPATH_VALID}"
 
+  # Verify ENABLE_POP3 was enabled (disabled by default), by checking this file path is valid:
   _run_in_container [ -f /etc/dovecot/protocols.d/pop3d.protocol ]
   assert_success
 }
