@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- **Environment Variables:**
+  - [ENV can be declared with a `__FILE` suffix](https://docker-mailserver.github.io/docker-mailserver/v15.1/config/environment/) to read a value from a file during initial DMS setup scripts ([#4359](https://github.com/docker-mailserver/docker-mailserver/pull/4359))
 - **Internal:**
   - [`DMS_CONFIG_POLL`](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/environment/#dms_config_poll) supports adjusting the polling rate (seconds) for the change detection service `check-for-changes.sh` ([#4450](https://github.com/docker-mailserver/docker-mailserver/pull/4450))
 
@@ -66,7 +68,6 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
-- **environment variables** ending in `__FILE` will cause the content of the file addressed by their value to be written in the corresponding variable without the `__FILE` suffix
 - **Internal:**
   - Add password confirmation to several `setup` CLI subcommands ([#4072](https://github.com/docker-mailserver/docker-mailserver/pull/4072))
   - Added a `debug getmail` subcommand to `setup` ([#4346](https://github.com/docker-mailserver/docker-mailserver/pull/4346))
