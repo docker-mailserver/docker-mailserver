@@ -35,6 +35,10 @@ There are many functions that aid in writing tests. **We urge you to use them!**
 
 We encourage you to try both of the approaches mentioned above. To make understanding and using the helper functions easy, every function contains detailed documentation comments. Read them carefully!
 
+!!! tip
+
+    If your test needs to add or create additional files, our helpers will [manage a disposable config directory per container][technical-guide::test-tmp-config] for you with the path stored in the `TEST_TMP_CONFIG` ENV (outside the container, `/tmp/docker-mailserver` within the container).
+
 ### How Are Tests Run?
 
 Tests are split into two categories:
@@ -141,3 +145,4 @@ $ make clean tests
 [testing-prs]: https://github.com/docker-mailserver/docker-mailserver/blob/master/.github/workflows/test_merge_requests.yml
 [get-docker]: https://docs.docker.com/get-docker/
 [docs-bats-parallel]: https://bats-core.readthedocs.io/en/v1.8.2/usage.html#parallel-execution
+[technical-guide::test-tmp-config]: https://github.com/docker-mailserver/docker-mailserver/pull/4359#issuecomment-2817591085

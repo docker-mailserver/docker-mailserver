@@ -206,7 +206,7 @@ Please read [the SSL page in the documentation][docs-tls] for more information.
 Configures the handling of creating mails with forged sender addresses.
 
 - **0** => (not recommended) Mail address spoofing allowed. Any logged in user may create email messages with a [forged sender address](https://en.wikipedia.org/wiki/Email_spoofing).
-- 1 => Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
+- 1 => Mail spoofing denied. Each user may only send with their own or their alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
 
 ##### ENABLE_SRS
 
@@ -250,6 +250,12 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 - 0 => Dovecot quota is disabled
 
 See [mailbox quota][docs-accounts-quota].
+
+!!! info "Compatibility"
+
+    This feature is presently only compatible with `ACCOUNT_PROVISIONER=FILE`.
+
+    When using a different provisioner (or `SMTP_ONLY=1`) this ENV will instead default to `0`.
 
 ##### POSTFIX_MESSAGE_SIZE_LIMIT
 
@@ -363,6 +369,23 @@ Default: empty (no prefix will be added to e-mails)
 ??? example "Including trailing white-space"
 
     Add trailing white-space by quote wrapping the value: `SPAM_SUBJECT='[SPAM] '`
+
+##### DMS_CONFIG_POLL
+
+Defines how often DMS polls [monitored config files][gh::monitored-configs] for changes in the DMS Config Volume. This also includes TLS certificates and is often relied on for applying changes managed via `setup` CLI commands.
+
+- **`2`** => How often (in seconds) [change detection][gh::check-for-changes] is performed.
+
+!!! note "Decreasing the frequency of polling for changes"
+
+    Raising the value will delay how soon a change is detected which may impact UX expectations for responsiveness, but reduces resource usage when changes are rare.
+
+!!! info
+
+    When using `ACCOUNT_PROVISIONER=LDAP`, the change detection feature is presently disabled.
+
+[gh::check-for-changes]: https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/scripts/check-for-changes.sh#L37
+[gh::monitored-configs]: https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/scripts/helpers/change-detection.sh#L30-L42
 
 #### Rspamd
 

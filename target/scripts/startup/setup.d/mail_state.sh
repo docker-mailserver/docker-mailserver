@@ -1,9 +1,11 @@
 #!/bin/bash
 
+DMS_STATE_DIR='/var/mail-state'
+
 # Consolidate all states into a single directory
 # (/var/mail-state) to allow persistence using docker volumes
 function _setup_save_states() {
-  if [[ ! -d ${DMS_STATE_DIR:?DMS_STATE_DIR is not set} ]]; then
+  if [[ ! -d ${DMS_STATE_DIR} ]]; then
     _log 'debug' "'${DMS_STATE_DIR}' is not present - not consolidating state"
     return 0
   fi
@@ -91,7 +93,12 @@ function _setup_save_states() {
 # These corrections are to fix changes to UID/GID values between upgrades,
 # or when ownership/permissions were altered externally on the host (eg: migration or system scripts)
 function _setup_adjust_state_permissions() {
-  [[ ! -d ${DMS_STATE_DIR:?DMS_STATE_DIR is not set} ]] && return 0
+  [[ ! -d ${DMS_STATE_DIR} ]] && return 0
+
+  # Parent directories must have executable bit set to descend the file tree for access,
+  # as each service running as a non-root user requires this to access their state directory,
+  # `/var/mail-state` must allow all users `+x`:
+  chmod +x "${DMS_STATE_DIR}"
 
   # This ensures the user and group of the files from the external mount have their
   # numeric ID values in sync. New releases where the installed packages order changes

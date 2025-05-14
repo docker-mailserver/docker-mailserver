@@ -17,17 +17,6 @@ function _early_variables_setup() {
   __environment_variables_export
 }
 
-# Declare a variable as readonly if it is not already set.
-function __declare_readonly() {
-  local VARIABLE_NAME=${1:?Variable name required when declaring a variable as readonly}
-  local VARIABLE_VALUE=${2:?Variable value required when declaring a variable as readonly}
-
-  if [[ ! -v ${VARIABLE_NAME} ]]; then
-    readonly "${VARIABLE_NAME}=${VARIABLE_VALUE}"
-    VARS[${VARIABLE_NAME}]="${VARIABLE_VALUE}"
-  fi
-}
-
 # This function handles variables that are deprecated. This allows a
 # smooth transition period, without the need of removing a variable
 # completely with a single version.
@@ -74,11 +63,7 @@ function __environment_variables_general_setup() {
   VARS[DMS_VMAIL_UID]="${DMS_VMAIL_UID:=5000}"
   VARS[DMS_VMAIL_GID]="${DMS_VMAIL_GID:=5000}"
 
-  # internal variables are next
-
-  __declare_readonly 'DMS_STATE_DIR' '/var/mail-state'
-
-  # user-customizable are last
+  # user-customizable are next
 
   _log 'trace' 'Setting anti-spam & anti-virus environment variables'
 
@@ -122,7 +107,6 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
   VARS[ENABLE_IMAP]="${ENABLE_IMAP:=1}"
   VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
-  VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
   VARS[ENABLE_RSPAMD]="${ENABLE_RSPAMD:=0}"
   VARS[ENABLE_RSPAMD_REDIS]="${ENABLE_RSPAMD_REDIS:=${ENABLE_RSPAMD}}"
   VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
@@ -165,6 +149,7 @@ function __environment_variables_general_setup() {
   _log 'trace' 'Setting miscellaneous environment variables'
 
   VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
+  VARS[DMS_CONFIG_POLL]="${DMS_CONFIG_POLL:=2}"
   VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
   VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
   VARS[GETMAIL_POLL]="${GETMAIL_POLL:=5}"
@@ -182,6 +167,18 @@ function __environment_variables_general_setup() {
   VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
   VARS[TZ]="${TZ:=}"
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
+
+  _log 'trace' 'Setting environment variables that require other variables to be set first'
+
+  # The Dovecot Quotas feature is presently only supported with the default FILE account provisioner,
+  # Enforce disabling the feature, unless it's been explicitly set via ENV (to avoid mismatch between
+  # explicit ENV and sourcing from /etc/dms-settings)
+  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' || ${SMTP_ONLY} -eq 1 ]] && [[ ${ENABLE_QUOTAS:-1} -eq 1 ]]; then
+    _log 'debug' "The 'ENABLE_QUOTAS' feature is enabled (by default) but is not compatible with your config. Disabling"
+    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=0}"
+  else
+    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
+  fi
 }
 
 function __environment_variables_log_level() {

@@ -43,12 +43,12 @@ RESET=$(echo -ne   '\e[0m')
 # message is logged. Likewise when the second argument
 # is missing. Both failures will return with exit code '1'.
 function _log() {
-  if [[ -z ${1+set} ]]; then
+  if [[ -z ${1:-} ]]; then
     _log 'error' "Call to '_log' is missing a valid log level"
     return 1
   fi
 
-  if [[ -z ${2+set} ]]; then
+  if [[ -z ${2:-} ]]; then
     _log 'error' "Call to '_log' is missing a message to log"
     return 1
   fi
@@ -116,7 +116,7 @@ function _log() {
 # variables file. If this does not yield a value either,
 # use the default log level.
 function _get_log_level_or_default() {
-  if [[ -n ${LOG_LEVEL+set} ]]; then
+  if [[ -n ${LOG_LEVEL:-} ]]; then
     echo "${LOG_LEVEL}"
   elif [[ -e /etc/dms-settings ]] && grep -q -E "^LOG_LEVEL='[a-z]+'" /etc/dms-settings; then
     grep '^LOG_LEVEL=' /etc/dms-settings | cut -d "'" -f 2

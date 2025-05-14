@@ -17,7 +17,7 @@
 # This function is internal and should not be used in tests.
 function __initialize_variables() {
   function __check_if_set() {
-    if [[ ${!1+set} != 'set' ]]; then
+    if [[ -z ${!1:-} ]]; then
       echo "ERROR: (helper/setup.sh) '${1:?No variable name given to __check_if_set}' is not set" >&2
       exit 1
     fi
