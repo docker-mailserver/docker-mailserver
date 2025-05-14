@@ -15,7 +15,8 @@ function setup_file() {
   export CONTAINER_NAME
   export FILEPATH_VALID='/tmp/file-with-value'
   export FILEPATH_INVALID='/path/to/non-existent-file'
-  export FILE_WITH_VALUE
+  # Each `_init_with_defaults` call updates the `TEST_TMP_CONFIG` location to create a container specific file:
+  local FILE_WITH_VALUE
 
   # ENV is set via file content (valid file path):
   CONTAINER_NAME=${CONTAINER1_NAME}
