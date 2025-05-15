@@ -61,7 +61,7 @@ function teardown_file() {
   # Relevant log content only available via docker logs:
   run docker logs "${CONTAINER_NAME}"
   assert_success
-  assert_line --partial "Getting secret ENABLE_POP3 from ${FILEPATH_VALID}"
+  assert_line --partial "Getting secret 'ENABLE_POP3' from '${FILEPATH_VALID}'"
 
   # Verify ENABLE_POP3 was enabled (disabled by default), by checking this file path is valid:
   _run_in_container [ -f /etc/dovecot/protocols.d/pop3d.protocol ]
@@ -85,5 +85,5 @@ function teardown_file() {
   # Relevant log content only available via docker logs:
   run docker logs "${CONTAINER_NAME}"
   assert_success
-  assert_line --partial "File ${FILEPATH_INVALID} does not exist"
+  assert_line --partial "File defined for secret 'TEST' with path '${FILEPATH_INVALID}' does not exist"
 }
