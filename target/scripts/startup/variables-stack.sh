@@ -249,26 +249,29 @@ function __environment_variables_export() {
 # This function sets any environment variable with a value from a referenced file
 # when an equivalent ENV with a `__FILE` suffix exists with a valid file path as the value.
 function __environment_variables_from_files() {
+  # Iterate through all ENV found with a `__FILE` suffix:
   while read -r ENV_WITH_FILE_REF; do
-    # Store the ENV name without the `__FILE` suffix:
-    local TARGET_ENV_NAME="${ENV_WITH_FILE_REF/__FILE/}"
-    local -n TARGET_ENV="${ENV_WITH_FILE_REF/__FILE/}"
     # Store the value of the `__FILE` ENV:
     local FILE_PATH="${!ENV_WITH_FILE_REF}"
+    # Store the ENV name without the `__FILE` suffix:
+    local TARGET_ENV_NAME="${ENV_WITH_FILE_REF/__FILE/}"
+    # Assign a value representing a variable name,
+    # `-n` will alias `TARGET_ENV` so that it is treated as if it were the referenced variable:
+    local -n TARGET_ENV="${TARGET_ENV_NAME}"
 
-    # Skip sourcing from `__FILE` if ENV is already set:
+    # Skip if the target ENV is already set:
     if [[ -v TARGET_ENV ]]; then
-      _log 'warn' "ENV value will not be sourced from '${ENV_WITH_FILE_REF}' since '${TARGET_ENV_NAME}' is already set"
+      _log 'warn' "Ignoring '${TARGET_ENV_NAME}' since '${ENV_WITH_FILE_REF}' is also set"
       continue
     fi
 
-    # Otherwise, retrieve the value from a file and set
-    # the ENV, or fail if the reference is invalid:
+    # Skip if the file path provided is invalid:
     if [[ ! -f ${FILE_PATH} ]]; then
       _log 'warn' "File defined for secret '${TARGET_ENV_NAME}' with path '${FILE_PATH}' does not exist"
       continue
     fi
 
+    # Read the value from a file and assign it to the intended ENV:
     _log 'info' "Getting secret '${TARGET_ENV_NAME}' from '${FILE_PATH}'"
     TARGET_ENV="$(< "${FILE_PATH}")"
   done < <(env | grep -Po '^.+?__FILE')

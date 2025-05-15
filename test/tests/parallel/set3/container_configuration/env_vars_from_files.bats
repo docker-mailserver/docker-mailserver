@@ -45,7 +45,7 @@ function setup_file() {
   CONTAINER_NAME=${CONTAINER3_NAME}
   _init_with_defaults
   local CUSTOM_SETUP_ARGUMENTS=(
-    --env TEST__FILE="${FILEPATH_INVALID}"
+    --env ENABLE_POP3__FILE="${FILEPATH_INVALID}"
   )
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
@@ -85,5 +85,5 @@ function teardown_file() {
   # Relevant log content only available via docker logs:
   run docker logs "${CONTAINER_NAME}"
   assert_success
-  assert_line --partial "File defined for secret 'TEST' with path '${FILEPATH_INVALID}' does not exist"
+  assert_line --partial "File defined for secret 'ENABLE_POP3' with path '${FILEPATH_INVALID}' does not exist"
 }
