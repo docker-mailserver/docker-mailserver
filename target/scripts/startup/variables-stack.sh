@@ -5,6 +5,7 @@ declare -A VARS
 
 function _early_variables_setup() {
   __environment_variables_log_level
+  __environment_variables_from_files
   _obtain_hostname_and_domainname
   __environment_variables_backwards_compatibility
   __environment_variables_general_setup
@@ -243,4 +244,35 @@ function __environment_variables_export() {
 
   sort -o /root/.bashrc     /root/.bashrc
   sort -o /etc/dms-settings /etc/dms-settings
+}
+
+# This function sets any environment variable with a value from a referenced file
+# when an equivalent ENV with a `__FILE` suffix exists with a valid file path as the value.
+function __environment_variables_from_files() {
+  # Iterate through all ENV found with a `__FILE` suffix:
+  while read -r ENV_WITH_FILE_REF; do
+    # Store the value of the `__FILE` ENV:
+    local FILE_PATH="${!ENV_WITH_FILE_REF}"
+    # Store the ENV name without the `__FILE` suffix:
+    local TARGET_ENV_NAME="${ENV_WITH_FILE_REF/__FILE/}"
+    # Assign a value representing a variable name,
+    # `-n` will alias `TARGET_ENV` so that it is treated as if it were the referenced variable:
+    local -n TARGET_ENV="${TARGET_ENV_NAME}"
+
+    # Skip if the target ENV is already set:
+    if [[ -v TARGET_ENV ]]; then
+      _log 'warn' "ENV value will not be sourced from '${ENV_WITH_FILE_REF}' since '${TARGET_ENV_NAME}' is already set"
+      continue
+    fi
+
+    # Skip if the file path provided is invalid:
+    if [[ ! -f ${FILE_PATH} ]]; then
+      _log 'warn' "File defined for secret '${TARGET_ENV_NAME}' with path '${FILE_PATH}' does not exist"
+      continue
+    fi
+
+    # Read the value from a file and assign it to the intended ENV:
+    _log 'info' "Getting secret '${TARGET_ENV_NAME}' from '${FILE_PATH}'"
+    TARGET_ENV="$(< "${FILE_PATH}")"
+  done < <(env | grep -Po '^.+?__FILE')
 }
