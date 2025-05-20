@@ -119,7 +119,7 @@ function _setup_run_user_patches() {
 }
 
 function __log_fixes() {
-  _log 'debug' 'Ensuring /var/log/mail owneership + permissions are correct'
+  _log 'debug' 'Ensuring /var/log/mail ownership + permissions are correct'
 
   # File/folder permissions are fine when using docker volumes, but may be wrong
   # when file system folders are mounted into the container.
