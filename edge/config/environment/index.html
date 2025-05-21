@@ -5382,9 +5382,17 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <h5 id="tls_level"><a class="toclink" href="#tls_level">TLS_LEVEL</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; modern</li>
-<li>modern =&gt; Enables TLSv1.2 and modern ciphers only. (default)</li>
-<li>intermediate =&gt; Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.</li>
+<li><code>modern</code> =&gt; Limits the cipher suite to secure ciphers only.</li>
+<li><code>intermediate</code> =&gt; Relaxes security by adding additional ciphers for broader compatibility.</li>
 </ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>In both cases TLS v1.2 is the minimum protocol version supported.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Prior to DMS v12.0, <code>TLS_LEVEL=intermediate</code> additionally supported TLS versions 1.0 and 1.1. If you still have legacy devices that can only use these versions of TLS, please follow <a href="https://github.com/docker-mailserver/docker-mailserver/pull/2945#issuecomment-1949907964">this workaround advice</a>.</p>
+</div>
 <h5 id="spoof_protection"><a class="toclink" href="#spoof_protection">SPOOF_PROTECTION</a></h5>
 <p>Configures the handling of creating mails with forged sender addresses.</p>
 <ul>
