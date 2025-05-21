@@ -198,8 +198,16 @@ Please read [the SSL page in the documentation][docs-tls] for more information.
 ##### TLS_LEVEL
 
 - **empty** => modern
-- modern => Enables TLSv1.2 and modern ciphers only. (default)
-- intermediate => Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.
+- `modern` => Limits the cipher suite to secure ciphers only.
+- `intermediate` => Relaxes security by adding additional ciphers for broader compatibility.
+
+!!! info
+
+    In both cases TLS v1.2 is the minimum protocol version supported.
+
+!!! note
+
+    Prior to DMS v12.0, `TLS_LEVEL=intermediate` additionally supported TLS versions 1.0 and 1.1. If you still have legacy devices that can only use these versions of TLS, please follow [this workaround advice][gh-issue::tls-legacy-workaround].
 
 ##### SPOOF_PROTECTION
 
@@ -1174,3 +1182,4 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
 [postfix-config::relayhost]: https://www.postfix.org/postconf.5.html#relayhost
 [postfix-config::relayhost_maps]: https://www.postfix.org/postconf.5.html#sender_dependent_relayhost_maps
 [postfix-config::sasl_passwd]: https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
+[gh-issue::tls-legacy-workaround]: https://github.com/docker-mailserver/docker-mailserver/pull/2945#issuecomment-1949907964
