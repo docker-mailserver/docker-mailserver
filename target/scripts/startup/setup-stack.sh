@@ -104,6 +104,12 @@ function _setup_directory_and_file_permissions() {
     chown -R _rspamd:_rspamd "${RSPAMD_DMS_DKIM_D}"
   fi
 
+  # Parent directories must have the executable bit set to descend the file tree for access,
+  # as each service in the container running as a non-root user requires this to access any subpath,
+  # `/tmp/docker-mailserver` must allow all users `+x` (notably required for `_rspamd` user read access):
+  local DMS_CONFIG_DIR=/tmp/docker-mailserver
+  chmod +x "${DMS_CONFIG_DIR}"
+
   __log_fixes
 }
 
