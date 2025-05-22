@@ -2794,15 +2794,15 @@
 <span class="w">      </span><span class="c1"># These are examples, configure the equivalent for any additional ports you proxy.</span>
 <span class="w">      </span><span class="c1"># Explicit TLS (STARTTLS):</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-smtp.rule=HostSNI(`*`)</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-smtp.entrypoints=smtp</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-smtp.service=smtp</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-smtp.entrypoints=mail-smtp</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-smtp.service=mail-smtp</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.services.mail-smtp.loadbalancer.server.port=25</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.services.mail-smtp.loadbalancer.proxyProtocol.version=2</span>
 
 <span class="w">      </span><span class="c1"># Implicit TLS is no different, except for optional HostSNI support:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-submissions.rule=HostSNI(`*`)</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-submissions.entrypoints=smtp-submissions</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-submissions.service=smtp-submissions</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-submissions.entrypoints=mail-submissions</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.routers.mail-submissions.service=mail-submissions</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.services.mail-submissions.loadbalancer.server.port=465</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.tcp.services.mail-submissions.loadbalancer.proxyProtocol.version=2</span>
 <span class="w">      </span><span class="c1"># NOTE: Optionally match by SNI rule, this requires TLS passthrough (not compatible with STARTTLS):</span>
