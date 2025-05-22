@@ -114,15 +114,15 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
           # These are examples, configure the equivalent for any additional ports you proxy.
           # Explicit TLS (STARTTLS):
           - traefik.tcp.routers.mail-smtp.rule=HostSNI(`*`)
-          - traefik.tcp.routers.mail-smtp.entrypoints=smtp
-          - traefik.tcp.routers.mail-smtp.service=smtp
+          - traefik.tcp.routers.mail-smtp.entrypoints=mail-smtp
+          - traefik.tcp.routers.mail-smtp.service=mail-smtp
           - traefik.tcp.services.mail-smtp.loadbalancer.server.port=25
           - traefik.tcp.services.mail-smtp.loadbalancer.proxyProtocol.version=2
 
           # Implicit TLS is no different, except for optional HostSNI support:
           - traefik.tcp.routers.mail-submissions.rule=HostSNI(`*`)
-          - traefik.tcp.routers.mail-submissions.entrypoints=smtp-submissions
-          - traefik.tcp.routers.mail-submissions.service=smtp-submissions
+          - traefik.tcp.routers.mail-submissions.entrypoints=mail-submissions
+          - traefik.tcp.routers.mail-submissions.service=mail-submissions
           - traefik.tcp.services.mail-submissions.loadbalancer.server.port=465
           - traefik.tcp.services.mail-submissions.loadbalancer.proxyProtocol.version=2
           # NOTE: Optionally match by SNI rule, this requires TLS passthrough (not compatible with STARTTLS):
