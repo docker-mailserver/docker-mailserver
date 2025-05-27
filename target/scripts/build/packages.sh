@@ -78,22 +78,6 @@ function _install_utils() {
     | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=1 "${SWAKS_RELEASE}/swaks"
 }
 
-function _install_postfix() {
-  _log 'debug' 'Installing Postfix'
-
-  _log 'warn' 'Applying workaround for Postfix bug (see https://github.com/docker-mailserver/docker-mailserver/issues/2023#issuecomment-855326403)'
-
-  # Debians postfix package has a post-install script that expects a valid FQDN hostname to work:
-  mv /bin/hostname /bin/hostname.bak
-  echo "echo 'docker-mailserver.invalid'" >/bin/hostname
-  chmod +x /bin/hostname
-  apt-get "${QUIET}" install --no-install-recommends postfix
-  mv /bin/hostname.bak /bin/hostname
-
-  # Irrelevant - Debian's default `chroot` jail config for Postfix needed a separate syslog socket:
-  rm /etc/rsyslog.d/postfix.conf
-}
-
 function _install_packages() {
   _log 'debug' 'Installing all packages now'
 
@@ -125,7 +109,7 @@ function _install_packages() {
   )
 
   local POSTFIX_PACKAGES=(
-    pflogsumm postgrey postfix-ldap postfix-mta-sts-resolver
+    pflogsumm postgrey postfix postfix-ldap postfix-mta-sts-resolver
     postfix-pcre postfix-policyd-spf-python postsrsd
   )
 
@@ -266,11 +250,13 @@ function _post_installation_steps() {
   _log 'trace' 'Removing leftovers from APT'
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
+
+  # Irrelevant - Debian's default `chroot` jail config for Postfix needed a separate syslog socket:
+  rm /etc/rsyslog.d/postfix.conf
 }
 
 _pre_installation_steps
 _install_utils
-_install_postfix
 _install_packages
 _install_dovecot
 _install_rspamd
