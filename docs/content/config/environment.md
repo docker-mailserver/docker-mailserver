@@ -19,6 +19,12 @@ If you can't set your hostname (_eg: you're in a container platform that doesn't
 - **empty** => Uses the `hostname -f` command to get canonical hostname for DMS to use.
 - => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.
 
+!!! warning
+
+    `OVERRIDE_HOSTNAME` is not a complete replacement for adjusting the containers configured hostname. It is a best effort workaround for supporting deployment environments like kubernetes.
+
+    Typically this feature is only useful when software supports configuring settings to use a value that'd otherwise default to the hostname. Some software like [Fetchmail are known to be incompatible][gh-issue::hostname-compatibility] as they retrieve the hostname via querying the kernel.
+
 ##### LOG_LEVEL
 
 Set the log level for DMS. This is mostly relevant for container startup scripts and change detection event feedback.
@@ -1183,3 +1189,4 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
 [postfix-config::relayhost_maps]: https://www.postfix.org/postconf.5.html#sender_dependent_relayhost_maps
 [postfix-config::sasl_passwd]: https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
 [gh-issue::tls-legacy-workaround]: https://github.com/docker-mailserver/docker-mailserver/pull/2945#issuecomment-1949907964
+[gh-issue::hostname-compatibility]: https://github.com/docker-mailserver/docker-mailserver-helm/issues/168#issuecomment-2911782106
