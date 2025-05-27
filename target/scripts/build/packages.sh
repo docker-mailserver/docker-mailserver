@@ -83,12 +83,14 @@ function _install_postfix() {
 
   _log 'warn' 'Applying workaround for Postfix bug (see https://github.com/docker-mailserver/docker-mailserver/issues/2023#issuecomment-855326403)'
 
-  # Debians postfix package has a post-install script that expects a valid FQDN hostname to work:
-  mv /bin/hostname /bin/hostname.bak
-  echo "echo 'docker-mailserver.invalid'" >/bin/hostname
-  chmod +x /bin/hostname
+  # Debians postfix package has a post-install script that expects a valid FQDN hostname to work.
+  # Replace the hostname command to instead output temporary hostname that is fully-qualified:
+  mv /usr/bin/hostname /usr/bin/hostname.bak
+  echo -e "#!/bin/bash\necho 'docker-mailserver.invalid'" >/usr/bin/hostname
+  chmod +x /usr/bin/hostname
+  # Install the postfix package, then restore the original hostname command afterwards:
   apt-get "${QUIET}" install --no-install-recommends postfix
-  mv /bin/hostname.bak /bin/hostname
+  mv /usr/bin/hostname.bak /usr/bin/hostname
 
   # Irrelevant - Debian's default `chroot` jail config for Postfix needed a separate syslog socket:
   rm /etc/rsyslog.d/postfix.conf
