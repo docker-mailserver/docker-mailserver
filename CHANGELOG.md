@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Environment Variables:**
   - [ENV can be declared with a `__FILE` suffix](https://docker-mailserver.github.io/docker-mailserver/v15.1/config/environment/) to read a value from a file during initial DMS setup scripts ([#4359](https://github.com/docker-mailserver/docker-mailserver/pull/4359))
-  - Added additional info about `OVERRIDE_HOSTNAME` in `mailserver.env` 
+  - Added additional info about `OVERRIDE_HOSTNAME` in `mailserver.env` ([#4492](https://github.com/docker-mailserver/docker-mailserver/pull/4492))
 - **Internal:**
   - [`DMS_CONFIG_POLL`](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/environment/#dms_config_poll) supports adjusting the polling rate (seconds) for the change detection service `check-for-changes.sh` ([#4450](https://github.com/docker-mailserver/docker-mailserver/pull/4450))
 
