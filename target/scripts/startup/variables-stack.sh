@@ -4,7 +4,7 @@
 declare -A VARS
 
 function _early_variables_setup() {
-  __environment_variables_log_level
+  __ensure_valid_log_level
   __environment_variables_from_files
   _obtain_hostname_and_domainname
   __environment_variables_backwards_compatibility
@@ -182,7 +182,7 @@ function __environment_variables_general_setup() {
 }
 
 # `LOG_LEVEL` must be set early to correctly filter calls to `scripts/helpers/log.sh:_log()`
-function __environment_variables_log_level() {
+function __ensure_valid_log_level() {
   if [[ ! ${LOG_LEVEL:-info} =~ ^(trace|debug|info|warn|error)$ ]]; then
     _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default: 'info')"
     LOG_LEVEL='info'
