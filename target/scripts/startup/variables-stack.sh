@@ -153,6 +153,7 @@ function __environment_variables_general_setup() {
   VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
   VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
   VARS[GETMAIL_POLL]="${GETMAIL_POLL:=5}"
+  VARS[LOG_LEVEL]="${LOG_LEVEL:=info}"
   VARS[LOGROTATE_INTERVAL]="${LOGROTATE_INTERVAL:=weekly}"
   VARS[LOGROTATE_COUNT]="${LOGROTATE_COUNT:=4}"
   VARS[LOGWATCH_INTERVAL]="${LOGWATCH_INTERVAL:=none}"
@@ -182,10 +183,9 @@ function __environment_variables_general_setup() {
 
 # `LOG_LEVEL` must be set early to correctly filter calls to `scripts/helpers/log.sh:_log()`
 function __environment_variables_log_level() {
-  VARS[LOG_LEVEL]="${LOG_LEVEL:=info}"
-
-  if [[ ! ${LOG_LEVEL} =~ ^(trace|debug|info|warn|error)$ ]]; then
+  if [[ ! ${LOG_LEVEL:-info} =~ ^(trace|debug|info|warn|error)$ ]]; then
     _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default: 'info')"
+    LOG_LEVEL='info'
   fi
 }
 
