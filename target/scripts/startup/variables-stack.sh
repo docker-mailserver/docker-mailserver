@@ -153,7 +153,6 @@ function __environment_variables_general_setup() {
   VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
   VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
   VARS[GETMAIL_POLL]="${GETMAIL_POLL:=5}"
-  VARS[LOG_LEVEL]="${LOG_LEVEL:=info}"
   VARS[LOGROTATE_INTERVAL]="${LOGROTATE_INTERVAL:=weekly}"
   VARS[LOGROTATE_COUNT]="${LOGROTATE_COUNT:=4}"
   VARS[LOGWATCH_INTERVAL]="${LOGWATCH_INTERVAL:=none}"
@@ -181,21 +180,12 @@ function __environment_variables_general_setup() {
   fi
 }
 
+# `LOG_LEVEL` must be set early to correctly filter calls to `scripts/helpers/log.sh:_log()`
 function __environment_variables_log_level() {
-  if [[ ${LOG_LEVEL} == 'trace' ]] \
-  || [[ ${LOG_LEVEL} == 'debug' ]] \
-  || [[ ${LOG_LEVEL} == 'info' ]]  \
-  || [[ ${LOG_LEVEL} == 'warn' ]]  \
-  || [[ ${LOG_LEVEL} == 'error' ]]
-  then
-    return 0
-  else
-    local DEFAULT_LOG_LEVEL='info'
-    _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default '${DEFAULT_LOG_LEVEL}')"
+  VARS[LOG_LEVEL]="${LOG_LEVEL:=info}"
 
-    # shellcheck disable=SC2034
-    VARS[LOG_LEVEL]="${DEFAULT_LOG_LEVEL}"
-    LOG_LEVEL="${DEFAULT_LOG_LEVEL}"
+  if [[ ! ${LOG_LEVEL} =~ ^(trace|debug|info|warn|error)$ ]]; then
+    _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default: 'info')"
   fi
 }
 
