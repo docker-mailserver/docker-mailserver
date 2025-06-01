@@ -25,6 +25,6 @@ services:
     # cap_add:
     #   - NET_ADMIN
     healthcheck:
-      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      test: "nc -z localhost 25"
       timeout: 3s
       retries: 0
