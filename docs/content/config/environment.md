@@ -14,10 +14,22 @@ title: Environment Variables
 
 ##### OVERRIDE_HOSTNAME
 
-If you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will have priority over `docker run --hostname`, or the equivalent `hostname:` field in `compose.yaml`.
+If you cannot set your DMS FQDN as your hostname (_eg: you're in a container runtime lacks the equivalent of Docker's `--hostname`_), specify it via this environment variable.
 
-- **empty** => Uses the `hostname -f` command to get canonical hostname for DMS to use.
+- **empty** => Internally uses the `hostname --fqdn` command to get the canonical hostname assigned to the DMS container.
 - => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.
+
+!!! info
+
+    `OVERRIDE_HOSTNAME` is checked early during DMS container setup. When set it will be preferred over querying the containers hostname via the `hostname --fqdn` command (_configured via `docker run --hostname` or the equivalent `hostname:` field in `compose.yaml`_).
+
+!!! warning "Compatibility may differ"
+
+    `OVERRIDE_HOSTNAME` is not a complete replacement for adjusting the containers configured hostname. It is a best effort workaround for supporting deployment environments like Kubernetes or when using Docker with `--network=host`.
+
+    Typically this feature is only useful when software supports configuring a specific hostname to use, instead of a default fallback that infers the hostname (such as retrieving the hostname via libc / NSS). [Fetchmail is known to be incompatible][gh--issue::hostname-compatibility] with this ENV, requiring manual workarounds.
+
+    Compatibility differences are being [tracked here][gh-issue::dms-fqdn] as they become known.
 
 ##### LOG_LEVEL
 
@@ -1183,3 +1195,5 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
 [postfix-config::relayhost_maps]: https://www.postfix.org/postconf.5.html#sender_dependent_relayhost_maps
 [postfix-config::sasl_passwd]: https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
 [gh-issue::tls-legacy-workaround]: https://github.com/docker-mailserver/docker-mailserver/pull/2945#issuecomment-1949907964
+[gh-issue::hostname-compatibility]: https://github.com/docker-mailserver/docker-mailserver-helm/issues/168#issuecomment-2911782106
+[gh-issue::dms-fqdn]: https://github.com/docker-mailserver/docker-mailserver/issues/3520#issuecomment-1700191973
