@@ -59,6 +59,8 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         setup fail2ban ${RESET}
         setup fail2ban ${CYAN}ban${RESET} <IP>
         setup fail2ban ${CYAN}unban${RESET} <IP>
+        setup fail2ban ${CYAN}ignore${RESET} <IP OR CDIR RANGE>
+        setup fail2ban ${CYAN}consider${RESET} <IP OR CDIR RANGE>
         setup fail2ban ${CYAN}log${RESET}
         setup fail2ban ${CYAN}status${RESET}
 

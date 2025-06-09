@@ -5,6 +5,7 @@ source /usr/local/bin/helpers/index.sh
 
 function __usage() {
   echo "Usage: ./setup.sh fail2ban [<ban|unban> <IP>]"
+  echo "       ./setup.sh fail2ban [<ignore|consider> <IP OR CDIR RANGE>]"
   echo "       ./setup.sh fail2ban log"
   echo "       ./setup.sh fail2ban status"
 }
