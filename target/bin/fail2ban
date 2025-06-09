@@ -21,6 +21,7 @@ done
 
 if [[ -z ${1} ]]; then
   IPS_BANNED=0
+  IPS_IGNORED=0
 
   for JAIL in "${JAILS[@]}"; do
     BANNED_IPS=$(fail2ban-client status "${JAIL}" | grep -oP '(?<=Banned IP list:\s).+')
@@ -29,9 +30,16 @@ if [[ -z ${1} ]]; then
       echo "Banned in ${JAIL}: ${BANNED_IPS}"
       IPS_BANNED=1
     fi
+    IGNORED_IPS=$(fail2ban-client get "${JAIL}" ignoreip | grep -oP '(?<=[|`]-\s).+')
+
+    if [[ -n ${IGNORED_IPS} ]]; then
+      echo "Ignored in ${JAIL}: ${IGNORED_IPS}"
+      IPS_IGNORED=1
+    fi
   done
 
   [[ ${IPS_BANNED} -eq 0 ]] && _log 'info' "No IPs have been banned"
+  [[ ${IPS_IGNORED} -eq 0 ]] && _log 'info' "No IPs are ignored"
 else
 
   case "${1}" in
