@@ -78,7 +78,7 @@ This following configuration files inside the `docker-data/dms/config/` volume w
 [github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf
 [github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf
 
-### Viewing All Bans
+### Viewing All Bans and Ignores
 
 When just running
 
@@ -86,7 +86,7 @@ When just running
 setup fail2ban
 ```
 
-the script will show all banned IP addresses.
+the script will show all banned and ignored IP addresses.
 
 To get a more detailed `status` view, run
 
@@ -100,6 +100,14 @@ You can manage F2B with the `setup` script. The usage looks like this:
 
 ```bash
 docker exec <CONTAINER NAME> setup fail2ban [<ban|unban> <IP>]
+```
+
+### Managing Ignores
+
+If there are IPs or IP ranges you wish for fail2ban (never ban) this can be done like so:
+
+```bash
+docker exec <CONTAINER NAME> setup fail2ban [<ignore|consider> <IP OR CDIR RANGE>]
 ```
 
 ### Viewing the Log File
