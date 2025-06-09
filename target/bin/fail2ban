@@ -69,6 +69,38 @@ else
       fi
       ;;
 
+    ( 'ignore' )
+      shift
+      if [[ -n ${1} ]]; then
+
+        for JAIL in "${JAILS[@]}"; do
+          fail2ban-client set "${JAIL}" addignoreip "${@}" 2>&1
+
+          [ $? -eq 0 ] && echo "Will ignore from ${JAIL}"
+        done
+
+      else
+        _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban ignore <IP or CDIR range>'"
+        exit 0
+      fi
+      ;;
+
+    ( 'consider' )
+      shift
+      if [[ -n ${1} ]]; then
+
+        for JAIL in "${JAILS[@]}"; do
+          RESULT=$(fail2ban-client set "${JAIL}" delignoreip "${@}" 2>&1)
+
+          [[ ${RESULT} != *"x not in list"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo "Will consider from ${JAIL}: ${RESULT}"
+        done
+
+      else
+        _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban consider <IP or CDIR range>'"
+        exit 0
+      fi
+      ;;
+
     ( 'log' )
       cat /var/log/mail/fail2ban.log
       ;;
