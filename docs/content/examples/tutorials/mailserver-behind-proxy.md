@@ -258,7 +258,7 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
     # Create a variant for port 25 too (NOTE: Port 10025 is already assigned in DMS to Amavis):
     postconf -Mf smtp/inet | sed -e s/^smtp/12525/ >> /etc/postfix/master.cf
     # Enable PROXY Protocol support (different setting as port 25 is handled via postscreen), optionally configure a `syslog_name` to distinguish in logs:
-    postconf -P 12525/inet/postscreen_upstream_proxy_protocol=haproxy 12525/inet/syslog_name=smtp-proxyprotocol
+    postconf -P 12525/inet/postscreen_upstream_proxy_protocol=haproxy 12525/inet/syslog_name=postfix/smtpd-proxyprotocol
     ```
 
     Supporting port 25 with an additional PROXY protocol port will also require a `postfix-main.cf` override line for `postscreen` to work correctly:
@@ -279,12 +279,12 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
     haproxy_trusted_networks = 172.16.42.2
 
     service imap-login {
-      inet_listener imap-proxied {
+      inet_listener imap-proxyprotocol {
         haproxy = yes
         port = 10143
       }
 
-      inet_listener imaps-proxied {
+      inet_listener imaps-proxyprotocol {
         haproxy = yes
         port = 10993
         ssl = yes
@@ -292,12 +292,12 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
     }
 
     service pop3-login {
-      inet_listener pop3-proxied {
+      inet_listener pop3-proxyprotocol {
         haproxy = yes
         port = 10110
       }
 
-      inet_listener pop3s-proxied {
+      inet_listener pop3s-proxyprotocol {
         haproxy = yes
         port = 10995
         ssl = yes
@@ -305,7 +305,7 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
     }
 
     service managesieve-login {
-      inet_listener sieve-proxied {
+      inet_listener sieve-proxyprotocol {
         haproxy = yes
         port = 14190
       }
