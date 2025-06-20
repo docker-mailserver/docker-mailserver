@@ -5,6 +5,7 @@ source /usr/local/bin/helpers/index.sh
 
 function __usage() {
   echo "Usage: ./setup.sh fail2ban [<ban|unban> <IP>]"
+  echo "       ./setup.sh fail2ban [<ignore|consider> <IP OR CDIR RANGE>]"
   echo "       ./setup.sh fail2ban log"
   echo "       ./setup.sh fail2ban status"
 }
@@ -20,6 +21,7 @@ done
 
 if [[ -z ${1} ]]; then
   IPS_BANNED=0
+  IPS_IGNORED=0
 
   for JAIL in "${JAILS[@]}"; do
     BANNED_IPS=$(fail2ban-client status "${JAIL}" | grep -oP '(?<=Banned IP list:\s).+')
@@ -28,9 +30,16 @@ if [[ -z ${1} ]]; then
       echo "Banned in ${JAIL}: ${BANNED_IPS}"
       IPS_BANNED=1
     fi
+    IGNORED_IPS=$(fail2ban-client get "${JAIL}" ignoreip | grep -oP '(?<=[|`]-\s).+')
+
+    if [[ -n ${IGNORED_IPS} ]]; then
+      echo "Ignored in ${JAIL}: ${IGNORED_IPS}"
+      IPS_IGNORED=1
+    fi
   done
 
   [[ ${IPS_BANNED} -eq 0 ]] && _log 'info' "No IPs have been banned"
+  [[ ${IPS_IGNORED} -eq 0 ]] && _log 'info' "No IPs are ignored"
 else
 
   case "${1}" in
@@ -65,6 +74,38 @@ else
 
       else
         _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban' to get a list of banned IP addresses"
+        exit 0
+      fi
+      ;;
+
+    ( 'ignore' )
+      shift
+      if [[ -n ${1} ]]; then
+
+        for JAIL in "${JAILS[@]}"; do
+          fail2ban-client set "${JAIL}" addignoreip "${@}" 2>&1
+
+          [ $? -eq 0 ] && echo "Will ignore from ${JAIL}"
+        done
+
+      else
+        _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban ignore <IP or CDIR range>'"
+        exit 0
+      fi
+      ;;
+
+    ( 'consider' )
+      shift
+      if [[ -n ${1} ]]; then
+
+        for JAIL in "${JAILS[@]}"; do
+          RESULT=$(fail2ban-client set "${JAIL}" delignoreip "${@}" 2>&1)
+
+          [[ ${RESULT} != *"x not in list"* ]] && [[ ${RESULT} != *"NOK"* ]] && echo "Will consider from ${JAIL}: ${RESULT}"
+        done
+
+      else
+        _log 'warn' "You need to specify an IP address: Run './setup.sh fail2ban consider <IP or CDIR range>'"
         exit 0
       fi
       ;;
