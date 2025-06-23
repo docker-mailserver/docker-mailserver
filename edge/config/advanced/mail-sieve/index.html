@@ -2597,7 +2597,7 @@
 
 <span class="c1"># Check if the mail recipient address has a tag (:detail)</span>
 <span class="nb">if</span> <span class="nb">envelope</span> <span class="nt">:detail</span> <span class="nt">:matches</span> <span class="s">&quot;to&quot;</span> <span class="s">&quot;*&quot;</span> <span class="p">{</span>
-  <span class="c1"># Create a variable `tag`, with the the captured `to` value normalized (SoCIAL =&gt; Social)</span>
+  <span class="c1"># Create a variable `tag`, with the captured `to` value normalized (SoCIAL =&gt; Social)</span>
   <span class="kd">set</span> <span class="nt">:lower</span> <span class="nt">:upperfirst</span> <span class="s">&quot;tag&quot;</span> <span class="s">&quot;${1}&quot;</span><span class="p">;</span>
 
   <span class="c1"># Store the mail into a folder with the tag name, nested under your inbox folder:</span>
