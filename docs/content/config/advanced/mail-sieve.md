@@ -94,7 +94,7 @@ When mail is delivered to your account, it is possible to organize storing mail 
 
     # Check if the mail recipient address has a tag (:detail)
     if envelope :detail :matches "to" "*" {
-      # Create a variable `tag`, with the the captured `to` value normalized (SoCIAL => Social)
+      # Create a variable `tag`, with the captured `to` value normalized (SoCIAL => Social)
       set :lower :upperfirst "tag" "${1}";
 
       # Store the mail into a folder with the tag name, nested under your inbox folder:
