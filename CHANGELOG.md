@@ -15,7 +15,8 @@ All notable changes to this project will be documented in this file. The format 
   - [`DMS_CONFIG_POLL`](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/environment/#dms_config_poll) supports adjusting the polling rate (seconds) for the change detection service `check-for-changes.sh` ([#4450](https://github.com/docker-mailserver/docker-mailserver/pull/4450))
 
 ### Fixes
-
+- **DKIM**
+  - `setup config dkim domain subdomain.example.com` no longer throws an error if the owner of config/opendkim/keys does not exist in the container ([#4517](https://github.com/docker-mailserver/docker-mailserver/pull/4517))
 - **Internal:**
   - The DMS _Config Volume_ (`/tmp/docker-mailserver`) will now ensure it's file tree is accessible for services when the volume was created with missing executable bit ([#4487](https://github.com/docker-mailserver/docker-mailserver/pull/4487))
   - Removed the build-time hostname workaround for Postfix as Debian has since patched their post-install script ([#4493](https://github.com/docker-mailserver/docker-mailserver/pull/4493))
