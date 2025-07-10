@@ -152,8 +152,9 @@ function _generate_dkim_keys() {
 
   # Ensure ownership is consistent for all content belonging to the base directory,
   # During container startup, an internal copy will be made via `_setup_opendkim()`
-  # with ownership we expect, while this chown is for the benefit of the users ownership.
-  chown -R "$(stat -c '%U:%G' "${OPENDKIM_BASE_DIR}")" "${OPENDKIM_BASE_DIR}"
+  # with ownership we expect, while this chown is for the benefit of the users' ownership.
+  # use numerical uid and gid in case the owner of the directory does not exist inside container
+  chown -R "$(stat -c '%u:%g' "${OPENDKIM_BASE_DIR}")" "${OPENDKIM_BASE_DIR}"
 }
 
 # Prepare a file with one domain per line (iterated via while loop as DKIM_DOMAIN):
