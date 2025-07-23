@@ -148,9 +148,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         ---
 
-        In case you have not already provided a default DKIM signing configuration, the script will create one and write it to `/etc/rspamd/override.d/dkim_signing.conf`. If this file already exists, it will not be overwritten.
-
-        When you're already using [the `rspamd/override.d/` directory][docs-rspamd-config-dropin], the file is created inside your volume and therefore persisted correctly. If you are not using `rspamd/override.d/`, you will need to persist the file yourself (otherwise it is lost on container restart).
+        In case you have not already provided a default DKIM signing configuration, the script will create one and write it to `/tmp/docker-mailserver/rspamd/override.d/dkim_signing.conf` (which will be persisted with the default volume mounts). If this file already exists, it will not be overwritten.
 
         An example of what a default configuration file for DKIM signing looks like can be found by expanding the example below.
 
