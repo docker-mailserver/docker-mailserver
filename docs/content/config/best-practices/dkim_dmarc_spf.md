@@ -55,7 +55,6 @@ You'll need to repeat this process if you add any new domains.
 You should have:
 
 - At least one [email account setup][docs-accounts]
-- Attached a [volume for config][docs-volumes-config] to persist the generated files to local storage
 
 !!! example "Creating DKIM Keys"
 
