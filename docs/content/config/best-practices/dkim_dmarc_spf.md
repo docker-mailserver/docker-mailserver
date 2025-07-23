@@ -120,9 +120,6 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
     After running `setup config dkim`, your new DKIM key files (_and OpenDKIM config_) have been added to `/tmp/docker-mailserver/opendkim/`.
 
-    !!! info "Restart required"
-
-        After restarting DMS, outgoing mail will now be signed with your new DKIM key(s) :tada:
 
 === "Rspamd"
 
@@ -223,6 +220,10 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
         When `check_pubkey = true;` is set, Rspamd will query the DNS record for each DKIM selector, verifying each public key matches the private key configured.
 
         If there is a mismatch, a warning will be emitted to the Rspamd log `/var/log/mail/rspamd.log`.
+
+!!! info "Restart required"
+
+    After restarting DMS, outgoing mail will now be signed with your new DKIM key(s) :tada:
 
 ### DNS Record { #dkim-dns }
 
