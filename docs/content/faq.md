@@ -95,11 +95,132 @@ All files are using the Unix format with `LF` line endings. Please do not use `C
 
 DMS supports multiple domains out of the box, so you can do this:
 
-``` BASH
+```bash
 ./setup.sh email add user1@example.com
 ./setup.sh email add user1@example.de
 ./setup.sh email add user1@server.example.org
 ```
+
+Please remember, you have to setup TLS for multiple domains. Ether you are using the same Certificate for all mail domains, or you can use following script to automate SNI setup with `letsencrypt`.
+
+??? example
+
+    You have to save this script as `user-patches.sh`. Please refer to [How to adjust settings with the `user-patches.sh` script](#how-to-adjust-settings-with-the-user-patchessh-script).
+
+    ```bash
+    #!/bin/bash
+    ##
+    # Adapted from https://forum.howtoforge.com/threads/postfix-dovecot-sni-for-letsencrypt-certificates-via-cron-script-auto.86878/
+    # Maintened in https://git.sitnikov.eu/gas/Postfix-Dovecot-SNI
+    ##
+    
+    if [ $(grep -E "^indexed = " /etc/postfix/main.cf | wc -l) -eq 0 ]; then
+           echo 'indexed = ${default_database_type}:${config_directory}/' >> /etc/postfix/main.cf
+    fi
+    if [ $(grep -E "^tls_server_sni_maps = " /etc/postfix/main.cf | wc -l) -eq 0 ]; then
+           echo 'tls_server_sni_maps = ${indexed}sni' >> /etc/postfix/main.cf
+    fi
+    [[ ! -f /etc/dovecot/conf.d/99-ispconfig-custom-config.conf ]] && touch /etc/dovecot/conf.d/99-ispconfig-custom-config.conf
+    
+    if [ $(grep -E "^\!include_try /etc/dovecot/sni.conf" /etc/dovecot/conf.d/99-ispconfig-custom-config.conf | wc -l) -eq 0 ] \
+    && [ $(grep -E "^\!include_try /etc/dovecot/sni.conf" /etc/dovecot/dovecot.conf | wc -l) -eq 0 ]
+    then
+           echo '!include_try /etc/dovecot/sni.conf' >> /etc/dovecot/conf.d/99-ispconfig-custom-config.conf
+    fi
+    
+    letsencrypt="/etc/letsencrypt/live"
+    dovecotsni="/etc/dovecot/sni.conf"
+    postfixchains="/etc/postfix/sni-chains"
+    postfixsni="/etc/postfix/sni"
+    # Do not need to reload, script will start before postfix and dovecont
+    reload="false"
+    # White list of domains, e.g. "mail." will meet all domains containing it.
+    # Leave empty to disable
+    whitelist=""
+    
+    [ ! -d "${postfixchains}" ] && mkdir ${postfixchains}
+    [ ! -f "${dovecotsni}" ] && touch ${dovecotsni}
+    [ ! -f "${postfixsni}" ] && touch ${postfixsni}
+    [ -f "${dovecotsni}.new" ] && rm -f "${dovecotsni}.new"
+    [ -f "${postfixsni}.new" ] && rm -f "${postfixsni}.new"
+    
+    echo "# Generated automatically by /root/scripts/sni-dovecot-postfix.sh" >> ${dovecotsni}.new
+    
+    for domain in $(echo -e "$(find /var/www/ -maxdepth 1 -mindepth 1 -type l | awk -F"/var/www/" '{print $2}')\n$(find ${letsencrypt}/ -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | sort)" | sort | uniq)
+    do
+    
+           # Check if domain is whitelisted
+           if [[ -n "$whitelist" && "$domain" != *"$whitelist"* ]]; then
+                   continue
+           fi
+    
+           # Check for LE certificate
+           if [ -e ${letsencrypt}/${domain}/fullchain.pem ]; then
+                   cert="${letsencrypt}/${domain}/fullchain.pem"
+                   key="${letsencrypt}/${domain}/privkey.pem"
+                   generate="Letsencrypt"
+           # Check for ISPCONFIG installed certificate
+           elif [ -e /var/www/${domain}/ssl/${domain}.crt ]; then
+                   cert="/var/www/${domain}/ssl/${domain}.crt"
+                   key="/var/www/${domain}/ssl/${domain}.key"
+                   generate="Ispconfig"
+           # There is no certificate anywhere for this domain
+           else
+                   generate="false"
+           fi
+    
+           if [ "${generate}" == "Letsencrypt" ] || [ "${generate}" == "Ispconfig" ]; then
+    
+                   echo "Processing ${domain} SNI (detected ${generate} certificate)"
+    
+                   # Dovecot SNI
+                   echo "local_name \"*.${domain} ${domain}\" {" >> ${dovecotsni}.new
+                   echo "    ssl_cert = <${cert}"  >> ${dovecotsni}.new
+                   echo "    ssl_key = <${key}"  >> ${dovecotsni}.new
+                   echo "}"  >> ${dovecotsni}.new
+    
+    
+                   # Postfix SNI Chains
+                   if [ -e ${postfixchains}/${domain}.pem ]; then
+                           awk '{print $0}' ${key} ${cert} > ${postfixchains}/${domain}.pem.new
+                           if [ $(diff ${postfixchains}/${domain}.pem.new ${postfixchains}/${domain}.pem | wc -l) -eq 0 ]; then
+                                   rm -f ${postfixchains}/${domain}.pem.new
+                           else
+                                   mv ${postfixchains}/${domain}.pem.new ${postfixchains}/${domain}.pem
+                                   echo "(${domain} certificate has been modified)"
+                                   reload="true"
+                           fi
+                   else
+                           # Need to do it in two lines because ispconfig key file does not end with \r\n
+                           awk '{print $0}' ${key} ${cert} > ${postfixchains}/${domain}.pem
+                           reload="true"
+                   fi
+                   chmod 600 ${postfixchains}/${domain}.pem
+                   echo "${domain} ${postfixchains}/${domain}.pem" >> ${postfixsni}.new
+                   echo ".${domain} ${postfixchains}/${domain}.pem" >> ${postfixsni}.new
+    
+           fi
+    
+    done
+    
+    if [ $(diff ${dovecotsni}.new ${dovecotsni} | wc -l) -gt 0 ] || [ ${reload} == "true" ]; then
+           echo ""
+           echo "Detected changes in Dovecot SNI: executing reload"
+           cat ${dovecotsni}.new > ${dovecotsni}
+           # systemctl reload dovecot.service
+    fi
+    
+    if [ $(diff ${postfixsni}.new ${postfixsni} | wc -l) -gt 0 ] || [ ${reload} == "true" ]; then
+           echo ""
+           echo "Detected changes in Postfix SNI: executing postmap and reload"
+           cat ${postfixsni}.new > ${postfixsni}
+           /usr/sbin/postmap -F /etc/postfix/sni
+           # systemctl reload postfix
+    fi
+    
+    [ -f "${dovecotsni}.new" ] && rm -f "${dovecotsni}.new"
+    [ -f "${postfixsni}.new" ] && rm -f "${postfixsni}.new"
+    ```
 
 ### What about backups?
 
