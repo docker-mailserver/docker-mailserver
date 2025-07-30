@@ -1,11 +1,11 @@
-# Docs: https://docker-mailserver.github.io/docker-mailserver/v14.0/config/advanced/mail-forwarding/relay-hosts/
+# Docs: https://docker-mailserver.github.io/docker-mailserver/v15.0/config/advanced/mail-forwarding/relay-hosts/
 # Additional context, with CLI commands for verification:
 # https://github.com/docker-mailserver/docker-mailserver/issues/4136#issuecomment-2253693490
 
 services:
   # This would represent your actual DMS container:
   dms-sender:
-    image: mailserver/docker-mailserver:latest # :14.0
+    image: mailserver/docker-mailserver:latest # :15.0
     hostname: mail.example.test
     environment:
       # All outbound mail will be relayed through this host
@@ -37,21 +37,17 @@ services:
 
   # Pretend this is your third-party relay service:
   dms-relay:
-    image: mailserver/docker-mailserver:latest # :14.0
+    image: mailserver/docker-mailserver:latest # :15.0
     hostname: smtp.relay-service.test
     environment:
       # WORKAROUND: Bypass security checks from the mail-client (dms-sender container)
-      # (avoids needing valid DNS for this example)
+      # (avoids needing expected DNS records to run this example)
       - PERMIT_DOCKER=connected-networks
       # TLS is required when relaying to dms-relay via ports 587 / 465
       # (dms-relay will then relay the mail to dms-destination over port 25)
       - SSL_TYPE=manual
       - SSL_KEY_PATH=/tmp/tls/key.pem
       - SSL_CERT_PATH=/tmp/tls/cert.pem
-    # WORKAROUND: `links` is required due to lack of properly configured DNS.
-    # (resolves destination.test to the IP of the dms-destination container)
-    links:
-      - "dms-destination:destination.test"
     configs:
       - source: dms-accounts-relay
         target: /tmp/docker-mailserver/postfix-accounts.cf
@@ -62,10 +58,16 @@ services:
 
   # Pretend this is another mail server that your target recipient belongs to (like Gmail):
   dms-destination:
-    image: mailserver/docker-mailserver:latest # :14.0
+    image: mailserver/docker-mailserver:latest # :15.0
     hostname: mail.destination.test
-    # Same workaround for purposes of the example, with the target recipient provisioned to accept mail
+    # WORKAROUND: dms-relay must be able to resolve DNS for `@destination.test` to the IP of this container:
+    # Normally a MX record would direct mail to the MTA (eg: `mail.destination.test`)
+    networks:
+      default:
+        aliases:
+          - destination.test
     environment:
+      # WORKAROUND: Same workaround as needed for dms-relay
       - PERMIT_DOCKER=connected-networks
     configs:
       - source: dms-accounts-destination
@@ -75,6 +77,13 @@ services:
 # NOTE: This feature requires Docker Compose v2.23.1 (Nov 2023) or newer:
 # https://github.com/compose-spec/compose-spec/pull/446
 configs:
+  # `postfix-main.cf`, a single line change to make all outbound SMTP connections over implicit TLS instead of the default explicit TLS (StartTLS).
+  # NOTE: If you need to only selectively relay mail, you would need to instead adjust this on the relay service in `/etc/postfix/master.cf`,
+  # However DMS presently modifies this when using the DMS Relay Host feature support, which may override `postfix-master.cf` or `user-patches.sh` due to `check-for-changes.sh`.
+  dms-main:
+    content: |
+      smtp_tls_wrappermode=yes
+
   # DMS expects an account to be configured to run, this example provides accounts already created.
   # Login credentials:
   # user: "john.doe@example.test" password: "secret"
@@ -93,13 +102,6 @@ configs:
   dms-accounts-destination:
     content: |
       jane.doe@destination.test|{SHA512-CRYPT}$$6$$o65y1ZXC4ooOPLwZ$$7TF1nYowEtNJpH6BwJBgdj2pPAxaCvhIKQA6ww5zdHm/AA7aemY9eoHC91DOgYNaKj1HLxSeWNDdvrp6mbtUY.
-
-  # This is `postfix-main.cf`, single line change to make all outbound SMTP connections over port 465 instead of 25 (default)
-  # If you selectively relay mail, you would need to adjust this on the relay service in `/etc/postfix/master.cf`,
-  # However DMS presently modifies this when using the DMS Relay Host feature support, which may override `postfix-master.cf` or `user-patches.sh` due to `check-for-changes.sh`.
-  dms-main:
-    content: |
-      smtp_tls_wrappermode=yes
 
   # TLS files:
   # - Use an ECDSA cert that's been signed by a self-signed CA for TLS cert verification.

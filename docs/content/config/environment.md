@@ -6,14 +6,30 @@ title: Environment Variables
 
     Values in **bold** are the default values. If an option doesn't work as documented here, check if you are running the latest image. The current `master` branch corresponds to the image `ghcr.io/docker-mailserver/docker-mailserver:edge`.
 
+!!! tip
+
+    If an environment variable `<VAR>__FILE` is set with a valid file path as the value, the content of that file will become the value for `<VAR>` (_provided `<VAR>` has not already been set_).
+
 #### General
 
 ##### OVERRIDE_HOSTNAME
 
-If you can't set your hostname (_eg: you're in a container platform that doesn't let you_) specify it via this environment variable. It will have priority over `docker run --hostname`, or the equivalent `hostname:` field in `compose.yaml`.
+If you cannot set your DMS FQDN as your hostname (_eg: you're in a container runtime lacks the equivalent of Docker's `--hostname`_), specify it via this environment variable.
 
-- **empty** => Uses the `hostname -f` command to get canonical hostname for DMS to use.
+- **empty** => Internally uses the `hostname --fqdn` command to get the canonical hostname assigned to the DMS container.
 - => Specify an FQDN (fully-qualified domain name) to serve mail for. The hostname is required for DMS to function correctly.
+
+!!! info
+
+    `OVERRIDE_HOSTNAME` is checked early during DMS container setup. When set it will be preferred over querying the containers hostname via the `hostname --fqdn` command (_configured via `docker run --hostname` or the equivalent `hostname:` field in `compose.yaml`_).
+
+!!! warning "Compatibility may differ"
+
+    `OVERRIDE_HOSTNAME` is not a complete replacement for adjusting the containers configured hostname. It is a best effort workaround for supporting deployment environments like Kubernetes or when using Docker with `--network=host`.
+
+    Typically this feature is only useful when software supports configuring a specific hostname to use, instead of a default fallback that infers the hostname (such as retrieving the hostname via libc / NSS). [Fetchmail is known to be incompatible][gh--issue::hostname-compatibility] with this ENV, requiring manual workarounds.
+
+    Compatibility differences are being [tracked here][gh-issue::dms-fqdn] as they become known.
 
 ##### LOG_LEVEL
 
@@ -194,15 +210,23 @@ Please read [the SSL page in the documentation][docs-tls] for more information.
 ##### TLS_LEVEL
 
 - **empty** => modern
-- modern => Enables TLSv1.2 and modern ciphers only. (default)
-- intermediate => Enables TLSv1, TLSv1.1 and TLSv1.2 and broad compatibility ciphers.
+- `modern` => Limits the cipher suite to secure ciphers only.
+- `intermediate` => Relaxes security by adding additional ciphers for broader compatibility.
+
+!!! info
+
+    In both cases TLS v1.2 is the minimum protocol version supported.
+
+!!! note
+
+    Prior to DMS v12.0, `TLS_LEVEL=intermediate` additionally supported TLS versions 1.0 and 1.1. If you still have legacy devices that can only use these versions of TLS, please follow [this workaround advice][gh-issue::tls-legacy-workaround].
 
 ##### SPOOF_PROTECTION
 
 Configures the handling of creating mails with forged sender addresses.
 
 - **0** => (not recommended) Mail address spoofing allowed. Any logged in user may create email messages with a [forged sender address](https://en.wikipedia.org/wiki/Email_spoofing).
-- 1 => Mail spoofing denied. Each user may only send with his own or his alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
+- 1 => Mail spoofing denied. Each user may only send with their own or their alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
 
 ##### ENABLE_SRS
 
@@ -246,6 +270,12 @@ Set the mailbox size limit for all users. If set to zero, the size will be unlim
 - 0 => Dovecot quota is disabled
 
 See [mailbox quota][docs-accounts-quota].
+
+!!! info "Compatibility"
+
+    This feature is presently only compatible with `ACCOUNT_PROVISIONER=FILE`.
+
+    When using a different provisioner (or `SMTP_ONLY=1`) this ENV will instead default to `0`.
 
 ##### POSTFIX_MESSAGE_SIZE_LIMIT
 
@@ -295,7 +325,7 @@ Customize the update check interval. Number + Suffix. Suffix must be 's' for sec
 - sdbox => (experimental) uses Dovecot high-performance mailbox format, one file contains one message
 - mdbox ==> (experimental) uses Dovecot high-performance mailbox format, multiple messages per file and multiple files per box
 
-This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to [Dovecot Documentation](https://wiki2.dovecot.org/MailboxFormat).
+This option has been added in November 2019. Using other format than Maildir is considered as experimental in docker-mailserver and should only be used for testing purpose. For more details, please refer to [Dovecot Documentation](https://doc.dovecot.org/admin_manual/mailbox_formats/#mailbox-formats).
 
 ##### POSTFIX_REJECT_UNKNOWN_CLIENT_HOSTNAME
 
@@ -359,6 +389,23 @@ Default: empty (no prefix will be added to e-mails)
 ??? example "Including trailing white-space"
 
     Add trailing white-space by quote wrapping the value: `SPAM_SUBJECT='[SPAM] '`
+
+##### DMS_CONFIG_POLL
+
+Defines how often DMS polls [monitored config files][gh::monitored-configs] for changes in the DMS Config Volume. This also includes TLS certificates and is often relied on for applying changes managed via `setup` CLI commands.
+
+- **`2`** => How often (in seconds) [change detection][gh::check-for-changes] is performed.
+
+!!! note "Decreasing the frequency of polling for changes"
+
+    Raising the value will delay how soon a change is detected which may impact UX expectations for responsiveness, but reduces resource usage when changes are rare.
+
+!!! info
+
+    When using `ACCOUNT_PROVISIONER=LDAP`, the change detection feature is presently disabled.
+
+[gh::check-for-changes]: https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/scripts/check-for-changes.sh#L37
+[gh::monitored-configs]: https://github.com/docker-mailserver/docker-mailserver/blob/v15.0.0/target/scripts/helpers/change-detection.sh#L30-L42
 
 #### Rspamd
 
@@ -1147,3 +1194,6 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
 [postfix-config::relayhost]: https://www.postfix.org/postconf.5.html#relayhost
 [postfix-config::relayhost_maps]: https://www.postfix.org/postconf.5.html#sender_dependent_relayhost_maps
 [postfix-config::sasl_passwd]: https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps
+[gh-issue::tls-legacy-workaround]: https://github.com/docker-mailserver/docker-mailserver/pull/2945#issuecomment-1949907964
+[gh-issue::hostname-compatibility]: https://github.com/docker-mailserver/docker-mailserver-helm/issues/168#issuecomment-2911782106
+[gh-issue::dms-fqdn]: https://github.com/docker-mailserver/docker-mailserver/issues/3520#issuecomment-1700191973

@@ -25,7 +25,7 @@ function setup_file() {
     --env SPOOF_PROTECTION=1
     --env SSL_TYPE='snakeoil'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
-    --health-cmd "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+    --health-cmd "ss --listening --ipv4 --tcp | grep --silent ':smtp' || exit 1"
   )
   _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 

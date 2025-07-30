@@ -48,7 +48,7 @@ We will later dig into DKIM, DMARC & SPF, but for now, these are the records tha
 - The **MX record** tells everyone which (DNS) name is responsible for e-mails on your domain.
     Because you want to keep the option of running another service on the domain name itself, you run your mail server on `mail.example.com`.
     This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.
-    In theory, you mail server could even serve e-mails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.
+    Your mail server could also handle emails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.
 - The **A record** tells everyone which IP address the DNS name `mail.example.com` resolves to.
 - The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
 

@@ -12,9 +12,17 @@ if [[ -f /etc/dms-settings ]] && [[ $(_get_dms_env_value 'ENABLE_RSPAMD') -eq 1 
   fi
 fi
 
-KEYSIZE=2048
-SELECTOR=mail
-DOMAINS=
+function _main() {
+  # Default parameters (updated by `_parse_arguments()`):
+  local KEYSIZE=2048
+  local SELECTOR=mail
+  local DMS_DOMAINS=
+
+  _require_n_parameters_or_print_usage 0 "${@}"
+  _parse_arguments "${@}"
+
+  _generate_dkim_keys
+}
 
 function __usage() {
   printf '%s' "${PURPLE}OPEN-DKIM${RED}(${YELLOW}8${RED})
@@ -57,122 +65,172 @@ ${ORANGE}EXAMPLES${RESET}
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain
-    errors, the script will exit early with exit status 2.
+    errors, the script will exit early with a non-zero exit status.
 
 "
 }
 
-_require_n_parameters_or_print_usage 0 "${@}"
+function _parse_arguments() {
+  # Parse the command args through iteration:
+  while [[ ${#} -gt 0 ]]; do
+    case "${1}" in
 
-while [[ ${#} -gt 0 ]]; do
-  case "${1}" in
-    ( 'keysize' )
-      if [[ -n ${2+set} ]]; then
-        KEYSIZE="${2}"
-        shift
-        shift
-      else
-        _exit_with_error "No keysize provided after 'keysize' argument"
-      fi
-      ;;
+      ( 'keysize' )
+        if [[ -n ${2:-} ]]; then
+          KEYSIZE="${2}"
+          _log 'trace' "Keysize set to '${KEYSIZE}'"
+        else
+          _exit_with_error "No keysize provided after 'keysize' argument"
+        fi
+        ;;
 
-    ( 'selector' )
-      if [[ -n ${2+set} ]]; then
-        # shellcheck disable=SC2034
-        SELECTOR="${2}"
-        shift
-        shift
-      else
-        _exit_with_error "No selector provided after 'selector' argument"
-      fi
-      ;;
+      ( 'selector' )
+        if [[ -n ${2:-} ]]; then
+          SELECTOR="${2}"
+          _log 'trace' "Selector set to '${SELECTOR}'"
+        else
+          _exit_with_error "No selector provided after 'selector' argument"
+        fi
+        ;;
 
-    ( 'domain' )
-      if [[ -n ${2+set} ]]; then
-        DOMAINS="${2}"
-        shift
-        shift
-      else
-        _exit_with_error "No domain(s) provided after 'domain' argument"
-      fi
-      ;;
+      ( 'domain' )
+        if [[ -n ${2:-} ]]; then
+          DMS_DOMAINS="${2}"
+          _log 'trace' "Domain(s) set to '${DMS_DOMAINS}'"
+        else
+          _exit_with_error "No domain(s) provided after 'domain' argument"
+        fi
+        ;;
 
-    ( * )
-      __usage
-      _exit_with_error "Unknown options '${1}' ${2:+and \'${2}\'}"
-      ;;
+      ( 'help' )
+          __usage
+          exit 0
+          ;;
 
-  esac
-done
+      ( * )
+        __usage
+        _exit_with_error "Unknown option(s) ${*}"
+        ;;
+    esac
 
+    # Discard these two args (option + value) now that they've been processed:
+    shift 2
+  done
+}
+
+function _generate_dkim_keys() {
+  _generate_domains_config
+  if [[ ! -s ${DATABASE_VHOST} ]]; then
+    _log 'warn' 'No entries found, no keys to make'
+    exit 0
+  fi
+
+  # Initialize OpenDKIM configs if necessary:
+  _create_opendkim_configs
+
+  # Generate a keypair per domain and add reference to OpenDKIM configs:
+  local ENTRY_KEY KEY_TABLE_ENTRY SIGNING_TABLE_ENTRY
+  while read -r DKIM_DOMAIN; do
+    _create_dkim_key "${DKIM_DOMAIN}"
+
+    # Create / Update OpenDKIM configs with new DKIM key:
+    ENTRY_KEY="${SELECTOR}._domainkey.${DKIM_DOMAIN}"
+    KEY_TABLE_ENTRY="${ENTRY_KEY} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
+    SIGNING_TABLE_ENTRY="*@${DKIM_DOMAIN} ${ENTRY_KEY}"
+
+    # If no existing entry, add one:
+    if ! grep -q "${KEY_TABLE_ENTRY}" "${KEY_TABLE_FILE}"; then
+      echo "${KEY_TABLE_ENTRY}" >> "${KEY_TABLE_FILE}"
+    fi
+    if ! grep -q "${SIGNING_TABLE_ENTRY}" "${SIGNING_TABLE_FILE}"; then
+      echo "${SIGNING_TABLE_ENTRY}" >> "${SIGNING_TABLE_FILE}"
+    fi
+  done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
+
+  # No longer needed, remove:
+  rm "${DATABASE_VHOST}"
+
+  # Ensure ownership is consistent for all content belonging to the base directory,
+  # During container startup, an internal copy will be made via `_setup_opendkim()`
+  # with ownership we expect, while this chown is for the benefit of the users' ownership.
+  # use numerical uid and gid in case the owner of the directory does not exist inside container
+  chown -R "$(stat -c '%u:%g' "${OPENDKIM_BASE_DIR}")" "${OPENDKIM_BASE_DIR}"
+}
+
+# Prepare a file with one domain per line (iterated via while loop as DKIM_DOMAIN):
+# Depends on methods from `scripts/helpers/postfix.sh`:
 DATABASE_VHOST='/tmp/vhost.dkim'
-# Prepare a file with one domain per line:
 function _generate_domains_config() {
   local TMP_VHOST='/tmp/vhost.dkim.tmp'
 
   # Generate the default vhost (equivalent to /etc/postfix/vhost),
-  # unless CLI arg DOMAINS provided an alternative list to use instead:
-  if [[ -z ${DOMAINS} ]]; then
+  # unless CLI arg DMS_DOMAINS provided an alternative list to use instead:
+  if [[ -z ${DMS_DOMAINS:-} ]]; then
     _obtain_hostname_and_domainname
     # uses TMP_VHOST:
     _vhost_collect_postfix_domains
   else
-    tr ',' '\n' <<< "${DOMAINS}" >"${TMP_VHOST}"
+    tr ',' '\n' <<< "${DMS_DOMAINS}" >"${TMP_VHOST}"
   fi
 
-  # uses DATABASE_VHOST + TMP_VHOST:
+  # Uses DATABASE_VHOST + TMP_VHOST:
   _create_vhost
 }
 
-_generate_domains_config
-if [[ ! -s ${DATABASE_VHOST} ]]; then
-  _log 'warn' 'No entries found, no keys to make'
-  exit 0
-fi
+# `opendkim-genkey` generates two files at the configured `--directory`:
+# - <selector>.private (Private key, PEM encoded)
+# - <selector>.txt (Public key, formatted as a TXT record for a RFC 1035 DNS Zone file)
+function _create_dkim_key() {
+  DKIM_DOMAIN=${1?Expected to be provided a domain}
 
-while read -r DKIM_DOMAIN; do
-  mkdir -p "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
+  OPENDKIM_DOMAINKEY_DIR="${OPENDKIM_BASE_DIR}/keys/${DKIM_DOMAIN}"
+  mkdir -p "${OPENDKIM_DOMAINKEY_DIR}"
 
-  if [[ ! -f "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private" ]]; then
-    _log 'info' "Creating DKIM private key '/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private'"
+  DKIM_KEY_FILE="${OPENDKIM_DOMAINKEY_DIR}/${SELECTOR}.private"
+  if [[ ! -f "${DKIM_KEY_FILE}" ]]; then
+    _log 'info' "Creating DKIM private key '${DKIM_KEY_FILE}'"
 
+    # NOTE:
+    # --domain only affects a comment in the generated DNS Zone file
+    # --subdomains is the default,
+    # --nosubdomains would add `t=s` to the DNS TXT record generated
+    # http://www.opendkim.org/opendkim-genkey.8.html
     opendkim-genkey \
       --bits="${KEYSIZE}" \
       --subdomains \
       --domain="${DKIM_DOMAIN}" \
       --selector="${SELECTOR}" \
-      --directory="/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
+      --directory="${OPENDKIM_DOMAINKEY_DIR}"
   fi
+}
 
-  # fix permissions to use the same user:group as /tmp/docker-mailserver/opendkim/keys
-  chown -R "$(stat -c '%U:%G' /tmp/docker-mailserver/opendkim/keys)" "/tmp/docker-mailserver/opendkim/keys/${DKIM_DOMAIN}"
+OPENDKIM_BASE_DIR='/tmp/docker-mailserver/opendkim'
+KEY_TABLE_FILE="${OPENDKIM_BASE_DIR}/KeyTable"
+SIGNING_TABLE_FILE="${OPENDKIM_BASE_DIR}/SigningTable"
+TRUSTED_HOSTS_FILE="${OPENDKIM_BASE_DIR}/TrustedHosts"
+# Create configs if missing:
+function _create_opendkim_configs() {
+  mkdir -p "${OPENDKIM_BASE_DIR}"
+  local OPENDKIM_CONFIGS=(
+    "${KEY_TABLE_FILE}"
+    "${SIGNING_TABLE_FILE}"
+    "${TRUSTED_HOSTS_FILE}"
+  )
 
-  # write to KeyTable if necessary
-  KEYTABLEENTRY="${SELECTOR}._domainkey.${DKIM_DOMAIN} ${DKIM_DOMAIN}:${SELECTOR}:/etc/opendkim/keys/${DKIM_DOMAIN}/${SELECTOR}.private"
-  if [[ ! -f "/tmp/docker-mailserver/opendkim/KeyTable" ]]; then
-    _log 'debug' 'Creating DKIM KeyTable'
-    echo "${KEYTABLEENTRY}" >/tmp/docker-mailserver/opendkim/KeyTable
-  else
-    if ! grep -q "${KEYTABLEENTRY}" "/tmp/docker-mailserver/opendkim/KeyTable"; then
-      echo "${KEYTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/KeyTable
+  # Only create if the file doesn't exist (avoids modifying mtime):
+  for FILE in "${OPENDKIM_CONFIGS[@]}"; do
+    if [[ ! -f "${FILE}" ]]; then
+      _log 'debug' "Creating OpenDKIM config '${FILE}'"
+      touch "${FILE}"
     fi
-  fi
+  done
 
-  # write to SigningTable if necessary
-  SIGNINGTABLEENTRY="*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}"
-  if [[ ! -f /tmp/docker-mailserver/opendkim/SigningTable ]]; then
-    _log 'debug' 'Creating DKIM SigningTable'
-    echo "*@${DKIM_DOMAIN} ${SELECTOR}._domainkey.${DKIM_DOMAIN}" >/tmp/docker-mailserver/opendkim/SigningTable
-  else
-    if ! grep -q "${SIGNINGTABLEENTRY}" /tmp/docker-mailserver/opendkim/SigningTable; then
-      echo "${SIGNINGTABLEENTRY}" >>/tmp/docker-mailserver/opendkim/SigningTable
-    fi
+  # If file exists but is empty, add default hosts to trust:
+  if [[ ! -s "${TRUSTED_HOSTS_FILE}" ]]; then
+    _log 'debug' 'Adding default trust to OpenDKIM TrustedHosts config'
+    echo "127.0.0.1" >  "${TRUSTED_HOSTS_FILE}"
+    echo "localhost" >> "${TRUSTED_HOSTS_FILE}"
   fi
-done < <(_get_valid_lines_from_file "${DATABASE_VHOST}")
+}
 
-# create TrustedHosts if missing
-if [[ -d /tmp/docker-mailserver/opendkim ]] && [[ ! -f /tmp/docker-mailserver/opendkim/TrustedHosts ]]; then
-  _log 'debug' 'Creating DKIM TrustedHosts'
-  echo "127.0.0.1" >/tmp/docker-mailserver/opendkim/TrustedHosts
-  echo "localhost" >>/tmp/docker-mailserver/opendkim/TrustedHosts
-fi
+_main "${@}"

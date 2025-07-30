@@ -19,7 +19,11 @@ function _main() {
   for MAIL_ACCOUNT in "${@}"; do
     _account_should_already_exist
 
-    [[ ${MAILDEL} -eq 1 ]] && _remove_maildir "${MAIL_ACCOUNT}"
+    if [[ ${MAILDEL} -eq 1 ]]; then
+      _remove_maildir "${MAIL_ACCOUNT}"
+    else
+      _log 'info' "The mailbox data will not be deleted."
+    fi
 
     _manage_virtual_aliases_delete '_' "${MAIL_ACCOUNT}" \
       || _exit_with_error "Aliases for '${MAIL_ACCOUNT}' could not be deleted"
@@ -31,7 +35,7 @@ function _main() {
     _manage_accounts_delete "${MAIL_ACCOUNT}" \
       || _exit_with_error "'${MAIL_ACCOUNT}' could not be deleted"
 
-    _log 'info' "'${MAIL_ACCOUNT}' and associated data deleted"
+    _log 'info' "'${MAIL_ACCOUNT}' and associated data (aliases, quotas) deleted"
   done
 }
 
@@ -43,14 +47,14 @@ ${ORANGE}USAGE${RESET}
 
 ${ORANGE}OPTIONS${RESET}
     -y
-        Skip prompt by approving to ${LWHITE}delete all mail storage${RESET} for the account(s).
+        Skip prompt by approving to ${LWHITE}delete all mail data${RESET} for the account(s).
 
     ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
 
 ${ORANGE}DESCRIPTION${RESET}
     Delete a mail account, including associated data (aliases, quotas) and
-    optionally the mailbox storage for that account.
+    optionally the mailbox data for that account.
 
 ${ORANGE}EXAMPLES${RESET}
     ${LWHITE}./setup.sh email del user@example.com${RESET}
@@ -87,12 +91,10 @@ function _parse_options() {
 function _maildel_request_if_missing() {
   if [[ ${MAILDEL} -eq 0 ]]; then
     local MAILDEL_CHOSEN
-    read -r -p "Do you want to delete the mailbox as well (removing all mails)? [Y/n] " MAILDEL_CHOSEN
+    read -r -p "Do you want to delete the mailbox data as well (removing all mails)? [y/N] " MAILDEL_CHOSEN
 
-    # TODO: Why would MAILDEL be set to true if MAILDEL_CHOSEN is empty?
-    if [[ ${MAILDEL_CHOSEN} =~ (y|Y|yes|Yes) ]] || [[ -z ${MAILDEL_CHOSEN} ]]; then
-      MAILDEL=1
-    fi
+    # Delete mailbox data only if the user provides explicit confirmation.
+    [[ ${MAILDEL_CHOSEN,,} == "y" ]] && MAILDEL=1
   fi
 }
 
@@ -103,10 +105,10 @@ function _remove_maildir() {
   local DOMAIN_PART="${MAIL_ACCOUNT#*@}"
   local MAIL_ACCOUNT_STORAGE_DIR="/var/mail/${DOMAIN_PART}/${LOCAL_PART}"
 
-  [[ ! -d ${MAIL_ACCOUNT_STORAGE_DIR} ]] && _exit_with_error "Mailbox directory '${MAIL_ACCOUNT_STORAGE_DIR}' does not exist"
+  [[ ! -d ${MAIL_ACCOUNT_STORAGE_DIR} ]] && _exit_with_error "Mailbox data directory '${MAIL_ACCOUNT_STORAGE_DIR}' does not exist"
 
-  _log 'info' "Deleting Mailbox: '${MAIL_ACCOUNT_STORAGE_DIR}'"
-  rm -R "${MAIL_ACCOUNT_STORAGE_DIR}" || _exit_with_error 'Mailbox could not be deleted'
+  _log 'info' "Deleting mailbox data: '${MAIL_ACCOUNT_STORAGE_DIR}'"
+  rm -R "${MAIL_ACCOUNT_STORAGE_DIR}" || _exit_with_error 'Mailbox data could not be deleted'
   # Remove parent directory too if it's empty:
   rmdir "/var/mail/${DOMAIN_PART}" &>/dev/null
 }

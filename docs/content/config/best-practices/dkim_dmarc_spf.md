@@ -29,7 +29,7 @@ Cloudflare has written an [article about DKIM, DMARC and SPF][cloudflare-dkim-dm
 When DKIM is enabled:
 
 1. Inbound mail will verify any included DKIM signatures
-2. Outbound mail is signed (_when you're sending domain has a configured DKIM key_)
+2. Outbound mail is signed (_when your sending domain has a configured DKIM key_)
 
 DKIM requires a public/private key pair to enable **signing (_via private key_)** your outgoing mail, while the receiving end must query DNS to **verify (_via public key_)** that the signature is trustworthy.
 
@@ -54,7 +54,7 @@ You'll need to repeat this process if you add any new domains.
 
 You should have:
 
-- At least one [email account setup][docs-accounts-add]
+- At least one [email account setup][docs-accounts]
 - Attached a [volume for config][docs-volumes-config] to persist the generated files to local storage
 
 !!! example "Creating DKIM Keys"
@@ -76,7 +76,7 @@ You should have:
 ??? info "Changing the key size"
 
     The keypair generated for using with DKIM presently defaults to RSA-2048. This is a good size but you can lower the security to `1024-bit`, or increase it to `4096-bit` (_discouraged as that is excessive_).
-    
+
     To generate a key with different size (_for RSA 1024-bit_) run:
 
     ```sh
@@ -137,7 +137,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         If you have multiple domains, you need to:
 
-        - Create a key wth `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` for each domain DMS should sign outgoing mail for.
+        - Create a key with `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` for each domain DMS should sign outgoing mail for.
         - Provide a custom `dkim_signing.conf` (for which an example is shown below), as the default config only supports one domain.
 
     !!! info "About the Helper Script"

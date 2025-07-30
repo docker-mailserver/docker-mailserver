@@ -155,13 +155,6 @@ function __setup__security__clamav() {
   if [[ ${ENABLE_CLAMAV} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring ClamAV'
 
-    local FILE
-    for FILE in /var/log/mail/{clamav,freshclam}.log; do
-      touch "${FILE}"
-      chown clamav:adm "${FILE}"
-      chmod 640 "${FILE}"
-    done
-
     if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]; then
       _log 'trace' "Setting ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
 
@@ -209,13 +202,14 @@ function __setup__security__fail2ban() {
     fi
 
     echo '[Definition]' >/etc/fail2ban/filter.d/custom.conf
+
+    _log 'trace' 'Configuring fail2ban logrotate rotate count and interval'
+    [[ ${LOGROTATE_COUNT} -ne 4 ]]          && sedfile -i "s|rotate 4$|rotate ${LOGROTATE_COUNT}|" /etc/logrotate.d/fail2ban
+    [[ ${LOGROTATE_INTERVAL} != "weekly" ]] && sedfile -i "s|weekly$|${LOGROTATE_INTERVAL}|"       /etc/logrotate.d/fail2ban
   else
     _log 'debug' 'Fail2Ban is disabled'
     rm -f /etc/logrotate.d/fail2ban
   fi
-  _log 'trace' 'Configuring fail2ban logrotate rotate count and interval'
-  [[ ${LOGROTATE_COUNT} -ne 4 ]]          && sedfile -i "s|rotate 4$|rotate ${LOGROTATE_COUNT}|" /etc/logrotate.d/fail2ban
-  [[ ${LOGROTATE_INTERVAL} != "weekly" ]] && sedfile -i "s|weekly$|${LOGROTATE_INTERVAL}|"       /etc/logrotate.d/fail2ban
 }
 
 function __setup__security__amavis() {

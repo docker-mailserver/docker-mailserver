@@ -4,9 +4,17 @@
 declare -A VARS
 
 function _early_variables_setup() {
+  __ensure_valid_log_level
+  __environment_variables_from_files
   _obtain_hostname_and_domainname
   __environment_variables_backwards_compatibility
   __environment_variables_general_setup
+
+  [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]] && __environment_variables_ldap
+  [[ ${ENABLE_OAUTH2} -eq 1 ]]           && __environment_variables_oauth2
+  [[ ${ENABLE_SASLAUTHD} -eq 1 ]]        && __environment_variables_saslauthd
+
+  __environment_variables_export
 }
 
 # This function handles variables that are deprecated. This allows a
@@ -55,6 +63,8 @@ function __environment_variables_general_setup() {
   VARS[DMS_VMAIL_UID]="${DMS_VMAIL_UID:=5000}"
   VARS[DMS_VMAIL_GID]="${DMS_VMAIL_GID:=5000}"
 
+  # user-customizable are next
+
   _log 'trace' 'Setting anti-spam & anti-virus environment variables'
 
   VARS[AMAVIS_LOGLEVEL]="${AMAVIS_LOGLEVEL:=0}"
@@ -97,7 +107,6 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
   VARS[ENABLE_IMAP]="${ENABLE_IMAP:=1}"
   VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
-  VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
   VARS[ENABLE_RSPAMD]="${ENABLE_RSPAMD:=0}"
   VARS[ENABLE_RSPAMD_REDIS]="${ENABLE_RSPAMD_REDIS:=${ENABLE_RSPAMD}}"
   VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
@@ -140,6 +149,7 @@ function __environment_variables_general_setup() {
   _log 'trace' 'Setting miscellaneous environment variables'
 
   VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
+  VARS[DMS_CONFIG_POLL]="${DMS_CONFIG_POLL:=2}"
   VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
   VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
   VARS[GETMAIL_POLL]="${GETMAIL_POLL:=5}"
@@ -157,17 +167,31 @@ function __environment_variables_general_setup() {
   VARS[SUPERVISOR_LOGLEVEL]="${SUPERVISOR_LOGLEVEL:=warn}"
   VARS[TZ]="${TZ:=}"
   VARS[UPDATE_CHECK_INTERVAL]="${UPDATE_CHECK_INTERVAL:=1d}"
+
+  _log 'trace' 'Setting environment variables that require other variables to be set first'
+
+  # The Dovecot Quotas feature is presently only supported with the default FILE account provisioner,
+  # Enforce disabling the feature, unless it's been explicitly set via ENV (to avoid mismatch between
+  # explicit ENV and sourcing from /etc/dms-settings)
+  if [[ ${ACCOUNT_PROVISIONER} != 'FILE' || ${SMTP_ONLY} -eq 1 ]] && [[ ${ENABLE_QUOTAS:-1} -eq 1 ]]; then
+    _log 'debug' "The 'ENABLE_QUOTAS' feature is enabled (by default) but is not compatible with your config. Disabling"
+    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=0}"
+  else
+    VARS[ENABLE_QUOTAS]="${ENABLE_QUOTAS:=1}"
+  fi
 }
 
-function _environment_variables_oauth2() {
-  _log 'debug' 'Setting OAUTH2-related environment variables now'
-
-  VARS[OAUTH2_INTROSPECTION_URL]="${OAUTH2_INTROSPECTION_URL:=}"
+# `LOG_LEVEL` must be set early to correctly filter calls to `scripts/helpers/log.sh:_log()`
+function __ensure_valid_log_level() {
+  if [[ ! ${LOG_LEVEL:-info} =~ ^(trace|debug|info|warn|error)$ ]]; then
+    _log 'warn' "Log level '${LOG_LEVEL}' is invalid (falling back to default: 'info')"
+    LOG_LEVEL='info'
+  fi
 }
 
 # This function handles environment variables related to LDAP.
 # NOTE: SASLAuthd and Dovecot LDAP support inherit these common ENV.
-function _environment_variables_ldap() {
+function __environment_variables_ldap() {
   _log 'debug' 'Setting LDAP-related environment variables now'
 
   VARS[LDAP_BIND_DN]="${LDAP_BIND_DN:=}"
@@ -177,9 +201,15 @@ function _environment_variables_ldap() {
   VARS[LDAP_START_TLS]="${LDAP_START_TLS:=no}"
 }
 
+function __environment_variables_oauth2() {
+  _log 'debug' 'Setting OAUTH2-related environment variables now'
+
+  VARS[OAUTH2_INTROSPECTION_URL]="${OAUTH2_INTROSPECTION_URL:=}"
+}
+
 # This function handles environment variables related to SASLAUTHD
 # LDAP specific ENV handled in: `startup/setup.d/saslauthd.sh:_setup_saslauthd()`
-function _environment_variables_saslauthd() {
+function __environment_variables_saslauthd() {
   _log 'debug' 'Setting SASLAUTHD-related environment variables now'
 
   # This ENV is only used by the supervisor service config `saslauth.conf`:
@@ -190,7 +220,7 @@ function _environment_variables_saslauthd() {
 # This function Writes the contents of the `VARS` map (associative array)
 # to locations where they can be sourced from (e.g. `/etc/dms-settings`)
 # or where they can be used by Bash directly (e.g. `/root/.bashrc`).
-function _environment_variables_export() {
+function __environment_variables_export() {
   _log 'debug' "Exporting environment variables now (creating '/etc/dms-settings')"
 
   : >/root/.bashrc     # make DMS variables available in login shells and their subprocesses
@@ -204,4 +234,35 @@ function _environment_variables_export() {
 
   sort -o /root/.bashrc     /root/.bashrc
   sort -o /etc/dms-settings /etc/dms-settings
+}
+
+# This function sets any environment variable with a value from a referenced file
+# when an equivalent ENV with a `__FILE` suffix exists with a valid file path as the value.
+function __environment_variables_from_files() {
+  # Iterate through all ENV found with a `__FILE` suffix:
+  while read -r ENV_WITH_FILE_REF; do
+    # Store the value of the `__FILE` ENV:
+    local FILE_PATH="${!ENV_WITH_FILE_REF}"
+    # Store the ENV name without the `__FILE` suffix:
+    local TARGET_ENV_NAME="${ENV_WITH_FILE_REF/__FILE/}"
+    # Assign a value representing a variable name,
+    # `-n` will alias `TARGET_ENV` so that it is treated as if it were the referenced variable:
+    local -n TARGET_ENV="${TARGET_ENV_NAME}"
+
+    # Skip if the target ENV is already set:
+    if [[ -v TARGET_ENV ]]; then
+      _log 'warn' "ENV value will not be sourced from '${ENV_WITH_FILE_REF}' since '${TARGET_ENV_NAME}' is already set"
+      continue
+    fi
+
+    # Skip if the file path provided is invalid:
+    if [[ ! -f ${FILE_PATH} ]]; then
+      _log 'warn' "File defined for secret '${TARGET_ENV_NAME}' with path '${FILE_PATH}' does not exist"
+      continue
+    fi
+
+    # Read the value from a file and assign it to the intended ENV:
+    _log 'info' "Getting secret '${TARGET_ENV_NAME}' from '${FILE_PATH}'"
+    TARGET_ENV="$(< "${FILE_PATH}")"
+  done < <(env | grep -Po '^.+?__FILE')
 }

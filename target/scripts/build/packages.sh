@@ -24,47 +24,58 @@ function _pre_installation_steps() {
   apt-get "${QUIET}" upgrade
 
   _log 'trace' 'Installing packages that are needed early'
-  # add packages usually required by apt to
-  # - not log unnecessary warnings
-  # - be able to add PPAs early (e.g., Rspamd)
+  # Add packages usually required by apt to:
   local EARLY_PACKAGES=(
-    apt-utils # avoid useless warnings
-    apt-transport-https ca-certificates curl gnupg # required for adding PPAs
-    systemd-standalone-sysusers # avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953)
+    # Avoid logging unnecessary warnings:
+    apt-utils
+    # Required for adding third-party repos (/etc/apt/sources.list.d) as alternative package sources (eg: Dovecot CE and Rspamd):
+    apt-transport-https ca-certificates curl gnupg
+    # Avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953):
+    systemd-standalone-sysusers
   )
   apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
 }
 
+# Install third-party commands to /usr/local/bin
 function _install_utils() {
+  local ARCH_A
+  ARCH_A=$(uname --machine)
+  # Alternate naming convention support: x86_64 (amd64) / aarch64 (arm64)
+  # https://en.wikipedia.org/wiki/X86-64#Industry_naming_conventions
+  local ARCH_B
+  case "${ARCH_A}" in
+    ( 'x86_64'  ) ARCH_B='amd64' ;;
+    ( 'aarch64' ) ARCH_B='arm64' ;;
+    ( * )
+      _log 'error' "Unsupported arch: '${ARCH_A}'"
+      return 1
+      ;;
+  esac
+
+  # TIP: `*.tar.gz` releases tend to forget to reset UID/GID ownership when archiving.
+  # When extracting with `tar` as `root` the archived UID/GID is kept, unless using `--no-same-owner`.
+  # Likewise when the binary is in a nested location the full archived path
+  # must be provided + `--strip-components` to extract the file to the target directory.
+  # Doing this avoids the need for (`mv` + `rm`) or (`--to-stdout` + `chmod +x`)
   _log 'debug' 'Installing utils sourced from Github'
+
   _log 'trace' 'Installing jaq'
-  local JAQ_TAG='v2.0.0'
-  curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-$(uname -m)-unknown-linux-gnu" -o /usr/bin/jaq
-  chmod +x /usr/bin/jaq
+  local JAQ_TAG='v2.1.0'
+  curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-$(uname -m)-unknown-linux-gnu" -o /usr/local/bin/jaq
+  chmod +x /usr/local/bin/jaq
+
+  _log 'trace' 'Installing step'
+  local STEP_RELEASE='0.28.2'
+  curl -sSfL "https://github.com/smallstep/cli/releases/download/v${STEP_RELEASE}/step_linux_${STEP_RELEASE}_${ARCH_B}.tar.gz" \
+    | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=2 "step_${STEP_RELEASE}/bin/step"
 
   _log 'trace' 'Installing swaks'
+  # `perl-doc` is required for `swaks --help` to work:
   apt-get "${QUIET}" install --no-install-recommends perl-doc
   local SWAKS_VERSION='20240103.0'
   local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
-  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" | tar -xz
-  mv "${SWAKS_RELEASE}/swaks" /usr/local/bin
-  rm -r "${SWAKS_RELEASE}"
-}
-
-function _install_postfix() {
-  _log 'debug' 'Installing Postfix'
-
-  _log 'warn' 'Applying workaround for Postfix bug (see https://github.com/docker-mailserver/docker-mailserver/issues/2023#issuecomment-855326403)'
-
-  # Debians postfix package has a post-install script that expects a valid FQDN hostname to work:
-  mv /bin/hostname /bin/hostname.bak
-  echo "echo 'docker-mailserver.invalid'" >/bin/hostname
-  chmod +x /bin/hostname
-  apt-get "${QUIET}" install --no-install-recommends postfix
-  mv /bin/hostname.bak /bin/hostname
-
-  # Irrelevant - Debian's default `chroot` jail config for Postfix needed a separate syslog socket:
-  rm /etc/rsyslog.d/postfix.conf
+  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" \
+    | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=1 "${SWAKS_RELEASE}/swaks"
 }
 
 function _install_packages() {
@@ -98,7 +109,7 @@ function _install_packages() {
   )
 
   local POSTFIX_PACKAGES=(
-    pflogsumm postgrey postfix-ldap postfix-mta-sts-resolver
+    pflogsumm postgrey postfix postfix-ldap postfix-mta-sts-resolver
     postfix-pcre postfix-policyd-spf-python postsrsd
   )
 
@@ -136,43 +147,56 @@ function _install_dovecot() {
     dovecot-pop3d dovecot-sieve
   )
 
-  # Dovecot packages for community supported features.
+  # Additional Dovecot packages for supporting the DMS community (docs-only guide contributions).
   DOVECOT_PACKAGES+=(dovecot-auth-lua)
 
-  # Dovecot's deb community repository only provides x86_64 packages, so do not include it
-  # when building for another architecture.
+  # (Opt-in via ENV) Change repo source for dovecot packages to a third-party repo maintained by Dovecot.
+  # NOTE: AMD64 / x86_64 is the only supported arch from the Dovecot CE repo (thus noDMS built for ARM64 / aarch64)
+  # Repo: https://repo.dovecot.org/ce-2.4-latest/debian/bookworm/dists/bookworm/main/
+  # Docs: https://repo.dovecot.org/#debian
   if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]] && [[ "$(uname --machine)" == "x86_64" ]]; then
-    _log 'trace' 'Using Dovecot community repository'
-    curl -sSfL https://repo.dovecot.org/DOVECOT-REPO-GPG | gpg --import
-    gpg --export ED409DA1 > /etc/apt/trusted.gpg.d/dovecot.gpg
-    echo "deb https://repo.dovecot.org/ce-2.3-latest/debian/${VERSION_CODENAME} ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/dovecot.list
+    # WARNING: Repo only provides Debian Bookworm package support for Dovecot CE 2.4+.
+    # As Debian Bookworm only packages Dovecot 2.3.x, building DMS with this alternative package repo may not yet be compatible with DMS:
+    # - 2.3.19: https://salsa.debian.org/debian/dovecot/-/tree/stable/bookworm
+    # - 2.3.21: https://salsa.debian.org/debian/dovecot/-/tree/stable/bookworm-backports
 
-    _log 'trace' 'Updating Dovecot package signatures'
+    _log 'trace' 'Adding third-party package repository (Dovecot)'
+    curl -fsSL https://repo.dovecot.org/DOVECOT-REPO-GPG-2.4 | gpg --dearmor > /usr/share/keyrings/upstream-dovecot.gpg
+    echo \
+      "deb [signed-by=/usr/share/keyrings/upstream-dovecot.gpg] https://repo.dovecot.org/ce-2.4-latest/debian/${VERSION_CODENAME} ${VERSION_CODENAME} main" \
+      > /etc/apt/sources.list.d/upstream-dovecot.list
+
+    # Refresh package index:
     apt-get "${QUIET}" update
 
-    # Additional community package needed for Lua support if the Dovecot community repository is used.
+    # This repo instead provides `dovecot-auth-lua` as a transitional package to `dovecot-lua`,
+    # thus this extra package is required to retain lua support:
     DOVECOT_PACKAGES+=(dovecot-lua)
   fi
 
   _log 'debug' 'Installing Dovecot'
   apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
 
-  # dependency for fts_xapian
+  # Runtime dependency for fts_xapian (built via `compile.sh`):
   apt-get "${QUIET}" install --no-install-recommends libxapian30
 }
 
 function _install_rspamd() {
-  _log 'debug' 'Installing Rspamd'
-  _log 'trace' 'Adding Rspamd PPA'
-  curl -sSfL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor >/etc/apt/trusted.gpg.d/rspamd.gpg
-  echo \
-    "deb [signed-by=/etc/apt/trusted.gpg.d/rspamd.gpg] http://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" \
-    >/etc/apt/sources.list.d/rspamd.list
+  # NOTE: DMS only supports the rspamd package via using the third-party repo maintained by Rspamd (AMD64 + ARM64):
+  # Repo: https://rspamd.com/apt-stable/dists/bookworm/main/
+  # Docs: https://rspamd.com/downloads.html#debian-and-ubuntu-linux
+  # NOTE: Debian 12 provides Rspamd 3.4 (too old) and Rspamd discourages it's use
 
-  _log 'trace' 'Updating package index after adding PPAs'
+  _log 'trace' 'Adding third-party package repository (Rspamd)'
+  curl -fsSL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
+  echo \
+    "deb [signed-by=/usr/share/keyrings/upstream-rspamd.gpg] https://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" \
+    > /etc/apt/sources.list.d/upstream-rspamd.list
+
+  # Refresh package index:
   apt-get "${QUIET}" update
 
-  _log 'trace' 'Installing actual package'
+  _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" install rspamd redis-server
 }
 
@@ -226,11 +250,13 @@ function _post_installation_steps() {
   _log 'trace' 'Removing leftovers from APT'
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
+
+  # Irrelevant - Debian's default `chroot` jail config for Postfix needed a separate syslog socket:
+  rm /etc/rsyslog.d/postfix.conf
 }
 
 _pre_installation_steps
 _install_utils
-_install_postfix
 _install_packages
 _install_dovecot
 _install_rspamd

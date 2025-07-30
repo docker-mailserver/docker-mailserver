@@ -24,39 +24,41 @@ As the official DMS image does not provide `dovecot-solr`, you'll need to includ
 !!! quote ""
 
     === "`user-patches.sh`"
-    
+
         If you'd prefer to avoid a custom image build. This approach is simpler but with the caveat that any time the container is restarted, you'll have a delay as the package is installed each time.
-    
+
         ```bash
         #!/bin/bash
-    
+
         apt-get update && apt-get install dovecot-solr
         ```
-    
+
     === "`compose.yaml`"
-    
+
         A custom DMS image does not add much friction. You do not need a separate `Dockerfile` as Docker Compose supports building from an inline `Dockerfile` in your `compose.yaml`.
-    
+
         The `image` key of the service is swapped for the `build` key instead, as shown below:
-    
+
         ```yaml
         services:
           mailserver:
             hostname: mail.example.com
             # The `image` setting now represents the tag for the local build configured below:
-            image: local/dms:14.0
+            image: local/dms:${DMS_TAG?Must set DMS image tag}
             # Local build (no need to try pull `image` remotely):
             pull_policy: build
             # Add this `build` section to your real `compose.yaml` for your DMS service:
             build:
               dockerfile_inline: |
-                FROM docker.io/mailserver/docker-mailserver:14.0
+                FROM docker.io/mailserver/docker-mailserver:${DMS_TAG?Must set DMS image tag}
                 RUN apt-get update && apt-get install dovecot-solr
         ```
-    
-        - Just run `docker compose up` and it will pull DMS and build your custom image to run a container.
-        - Updating to a new DMS release is straight-forward, just adjust the version tag as you normally would. If you make future changes that don't apply, you may need to force a rebuild.
-        - This approach only needs to install the package once with the image build itself. This minimizes delay of container startup.
+
+        This approach only needs to install the package once with the image build itself which minimizes the delay of container startup.
+
+        - Just run `DMS_TAG='14.0' docker compose up` and it will pull the DMS image, then build your custom DMS image to run a new container instance.
+        - Updating to a new DMS release is straight-forward, just adjust the `DMS_TAG` ENV value or change the image tag directly in `compose.yaml` as you normally would to upgrade an image.
+        - If you make future changes to the `dockerfile_inline` that don't seem to be applied, you may need to force a rebuild with `DMS_TAG='14.0' docker compose up --build`.
 
 !!! note "Why doesn't DMS include `dovecot-solr`?"
 
@@ -144,6 +146,25 @@ docker compose exec mailserver doveadm fts rescan -A
 
     Usually within 15 minutes or so, you should be able to search your mail using the Dovecot FTS feature! :tada:
 
+### Compatibility
+
+Since Solr 9.8.0 was released (Jan 2025), a breaking change [deprecates support for `<lib>` directives][solr::9.8::lib-directive] which is presently used by the Dovecot supplied Solr config (`solr-config-9.xml`) to automatically load additional jars required.
+
+To enable support for `<lib>` directives, add the following ENV to your `solr` container:
+
+```yaml
+services:
+  solr:
+    environment:
+      SOLR_CONFIG_LIB_ENABLED: true
+```
+
+!!! warning "Solr 10"
+
+    From the Solr 10 release onwards, this opt-in ENV will no longer be available.
+
+    If Dovecot has not updated their example Solr config ([upstream PR][dovecot::pr::solr-config-lib]), you will need to manually modify the Solr XML config to remove the `<lib>` directives and replace the suggested ENV `SOLR_CONFIG_LIB_ENABLED=true` with `SOLR_MODULES=analysis-extras`.
+
 [docs::user-patches]: ../../config/advanced/override-defaults/user-patches.md
 [docs::dovecot::full-text-search]: ../../config/advanced/full-text-search.md
 [gh-dms::feature-request::dovecot-solr-package]: https://github.com/docker-mailserver/docker-mailserver/issues/4052
@@ -152,3 +173,6 @@ docker compose exec mailserver doveadm fts rescan -A
 [dockerfile-solr-uidgid]: https://github.com/apache/solr-docker/blob/9cd850b72309de05169544395c83a85b329d6b86/9.6/Dockerfile#L89-L92
 [github-solr]: https://github.com/apache/solr
 [github-dovecot::core-docs]: https://github.com/dovecot/core/tree/main/doc
+
+[solr::9.8::lib-directive]: https://issues.apache.org/jira/browse/SOLR-16781
+[dovecot::pr::solr-config-lib]: https://github.com/dovecot/core/pull/238

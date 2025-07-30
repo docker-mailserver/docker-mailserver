@@ -111,7 +111,7 @@ This could be from outdated software, or running a system that isn't able to pro
 - **Container runtime:** Docker and Podman for example have subtle differences. DMS docs are primarily focused on Docker, but we try to document known issues where relevant.
 - **Rootless containers:** Introduces additional differences in behavior or requirements:
     - cgroup v2 is required for supporting rootless containers.
-    - Differences such as for container networking which may further affect support for IPv6 and preserving the client IP (Remote address). Example with Docker rootless are [binding a port to a specific interface][docker-rootless-interface] and the choice of [port forwarding driver][docs-rootless-portdriver].
+    - Differences such as for container networking which may further affect support for IPv6 and preserving the client IP (Remote address). Example with Docker rootless are [binding a port to a specific interface][docker-rootless-interface] and the choice of [port forwarding driver][docs::fail2ban::rootless-portdriver].
 
 [network::docker-userlandproxy]: https://github.com/moby/moby/issues/44721
 [network::docker-nftables]: https://github.com/moby/moby/issues/26824

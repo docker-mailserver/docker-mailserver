@@ -6,34 +6,60 @@ title: 'Security | Rspamd'
 
 Rspamd is a ["fast, free and open-source spam filtering system"][rspamd-web]. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd.
 
-If you want to take a look at the default configuration files for Rspamd that DMS packs, navigate to [`target/rspamd/` inside the repository][dms-repo::default-rspamd-configuration]. Please consult the [section "The Default Configuration"](#the-default-configuration) section down below for a written overview.
+If you want to take a look at the default configuration files for Rspamd that DMS adds, navigate to [`target/rspamd/` inside the repository][dms-repo::default-rspamd-configuration]. Please consult the [section "The Default Configuration"](#the-default-configuration) section down below for a written overview.
 
-## Related Environment Variables
+### Enable Rspamd
 
-The following environment variables are related to Rspamd:
+Rspamd is presently opt-in for DMS, but intended to become the default anti-spam service in a future release.
 
-1. [`ENABLE_RSPAMD`](../environment.md#enable_rspamd)
-2. [`ENABLE_RSPAMD_REDIS`](../environment.md#enable_rspamd_redis)
-3. [`RSPAMD_CHECK_AUTHENTICATED`](../environment.md#rspamd_check_authenticated)
-4. [`RSPAMD_GREYLISTING`](../environment.md#rspamd_greylisting)
-5. [`RSPAMD_HFILTER`](../environment.md#rspamd_hfilter)
-6. [`RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE`](../environment.md#rspamd_hfilter_hostname_unknown_score)
-7. [`RSPAMD_LEARN`](../environment.md#rspamd_learn)
-8. [`SPAM_SUBJECT`](../environment.md#spam_subject)
-9. [`MOVE_SPAM_TO_JUNK`][docs::spam-to-junk]
-10. [`MARK_SPAM_AS_READ`](../environment.md#mark_spam_as_read)
+DMS offers two anti-spam solutions:
 
-With these variables, you can enable Rspamd itself, and you can enable / disable certain features related to Rspamd.
+- Legacy (_Amavis, SpamAssassin, OpenDKIM, OpenDMARC_)
+- Rspamd (_Provides equivalent features of software from the legacy solution_)
 
-## The Default Configuration
+While you could configure Rspamd to only replace some of the legacy services, it is advised to only use Rspamd with the legacy services disabled.
 
-### Other Anti-Spam-Services
+!!! example "Switch to Rspamd"
 
-DMS packs other anti-spam services, like SpamAssassin or Amavis, next to Rspamd. There exist services, like ClamAV (`ENABLE_CLAMAV`), that Rspamd can utilize to improve the scanning. Except for ClamAV, we recommend disabling **all other** anti-spam services when using Rspamd. The [basic configuration shown below](#a-very-basic-configuration) provides a good starting point.
+    To use Rspamd add the following ENV config changes:
+    
+    ```env
+    ENABLE_RSPAMD=1
+    
+    # Rspamd replaces the functionality of all these anti-spam services, disable them:
+    ENABLE_OPENDKIM=0
+    ENABLE_OPENDMARC=0
+    ENABLE_POLICYD_SPF=0
+    ENABLE_AMAVIS=0
+    ENABLE_SPAMASSASSIN=0
+    # Greylisting is opt-in, if you had enabled Postgrey switch to the Rspamd equivalent:
+    ENABLE_POSTGREY=0
+    RSPAMD_GREYLISTING=1
+    
+    # Optional: Add anti-virus support with ClamAV (compatible with Rspamd):
+    ENABLE_CLAMAV=1
+    ```
+
+!!! info "Relevant Environment Variables"
+
+    The following environment variables are related to Rspamd:
+    
+    1. [`ENABLE_RSPAMD`](../environment.md#enable_rspamd)
+    2. [`ENABLE_RSPAMD_REDIS`](../environment.md#enable_rspamd_redis)
+    3. [`RSPAMD_CHECK_AUTHENTICATED`](../environment.md#rspamd_check_authenticated)
+    4. [`RSPAMD_GREYLISTING`](../environment.md#rspamd_greylisting)
+    5. [`RSPAMD_HFILTER`](../environment.md#rspamd_hfilter)
+    6. [`RSPAMD_HFILTER_HOSTNAME_UNKNOWN_SCORE`](../environment.md#rspamd_hfilter_hostname_unknown_score)
+    7. [`RSPAMD_LEARN`](../environment.md#rspamd_learn)
+    8. [`SPAM_SUBJECT`](../environment.md#spam_subject)
+    9. [`MOVE_SPAM_TO_JUNK`][docs::spam-to-junk]
+    10. [`MARK_SPAM_AS_READ`](../environment.md#mark_spam_as_read)
+
+## Overview of Rspamd support
 
 ### Mode of Operation
 
-!!! tip "Attention"
+!!! note "Attention"
 
     Read this section carefully if you want to understand how Rspamd is integrated into DMS and how it works (on a surface level).
 
@@ -79,12 +105,15 @@ DMS does not set a default password for the controller worker. You may want to d
 When Rspamd is enabled, we implicitly also start an instance of Redis in the container:
 
 - Redis is configured to persist its data via RDB snapshots to disk in the directory `/var/lib/redis` (_or the [`/var/mail-state/`][docs::dms-volumes-state] volume when present_).
-- With the volume mount, the snapshot will restore the Redis data across container restarts, and provide a way to keep backup.
+- With the volume mount, the snapshot will restore the Redis data across container updates, and provide a way to keep a backup.
+- Without a volume mount a containers internal state will persist across restarts until the container is recreated due to changes like ENV or upgrading the image for the container.
 
 Redis uses `/etc/redis/redis.conf` for configuration:
 
 - We adjust this file when enabling the internal Redis service.
 - If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV [`ENABLE_RSPAMD_REDIS=0`][docs::env::enable-redis] (_link also details required changes to the DMS Rspamd config_).
+
+If you are interested in using Valkey instead of Redis, please refer to [this guidance][gh-dms::guide::valkey].
 
 ### Web Interface
 
@@ -96,7 +125,7 @@ To use the web interface you will need to configure a password, [otherwise you w
 
 ??? example "Set a custom password"
 
-    Add this line to [your rspamd `custom-commands.conf` config](#with-the-help-of-a-custom-file) which sets the `password` option of the _controller worker_:
+    Add this line to [your Rspamd `custom-commands.conf` config](#with-the-help-of-a-custom-file) which sets the `password` option of the _controller worker_:
 
     ```
     set-option-for-controller password "your hashed password here"
@@ -108,9 +137,13 @@ To use the web interface you will need to configure a password, [otherwise you w
     docker exec -it <CONTAINER_NAME> rspamadm pw
     ```
 
+    ---
+
+    **Related:** A minimal Rspamd `compose.yaml` [example with a reverse-proxy for web access][gh-dms::guide::rspamd-web].
+
 ### DNS
 
-DMS does not supply custom values for DNS servers (to Rspamd). If you need to use custom DNS servers, which could be required when using [DNS-based deny/allowlists](#rbls-real-time-blacklists-dnsbls-dns-based-blacklists), you need to adjust [`options.inc`][rspamd-docs::basic-options] yourself. Make sure to also read our [FAQ page on DNS servers][docs::faq::dns-servers].
+DMS does not supply custom values for DNS servers (to Rspamd). If you need to use custom DNS servers, which could be required when using [DNS-based deny/allowlists](#rbls-real-time-blacklists-dnsbls-dns-based-blacklists), you need to adjust [`options.inc`][rspamd-docs::config::global] yourself. Make sure to also read our [FAQ page on DNS servers][docs::faq::dns-servers].
 
 !!! warning
 
@@ -142,7 +175,7 @@ You can choose to enable ClamAV, and Rspamd will then use it to check for viruse
 
 #### RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)
 
-The [RBL module][rspamd-docs::modules::rbl] is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body \[[source][www::rbl-vs-dnsbl]\].
+The [RBL module][rspamd-docs::modules::rbl] is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body ([source][www::rbl-vs-dnsbl]).
 
 !!! danger "Rspamd and DNS Block Lists"
 
@@ -152,106 +185,141 @@ The [RBL module][rspamd-docs::modules::rbl] is enabled by default. As a conseque
 
 ## Providing Custom Settings & Overriding Settings
 
-DMS brings sane default settings for Rspamd. They are located at `/etc/rspamd/local.d/` inside the container (or `target/rspamd/local.d/` in the repository).
+!!! info "Rspamd config overriding precedence"
 
-### Manually
+    Rspamd has a layered approach for configuration with [`local.d` and `override.d` config directories][rspamd-docs::config-directories].
 
-!!! question "What is [`docker-data/dms/config/`][docs::dms-volumes-config]?"
+    - DMS [extends the Rspamd default configs via `/etc/rspamd/local.d/`][dms-repo::default-rspamd-configuration].
+    - User config changes should be handled separately as overrides via the [DMS Config Volume][docs::dms-volumes-config] (`docker-data/dms/config/`) with either:
+        - `./rspamd/override.d/` - Config files placed here are copied to `/etc/rspamd/override.d/` during container startup.
+        - [`./rspamd/custom-commands.conf`](#with-the-help-of-a-custom-file) - Applied after copying any provided configs from `rspamd/override.d/` (DMS Config volume) to `/etc/rspamd/override.d/`.
 
-If you want to overwrite the default settings or provide your settings, you can place files at `docker-data/dms/config/rspamd/override.d/`. Files from this directory are copied to `/etc/rspamd/override.d/` during startup. These files [forcibly override][rspamd-docs::override-dir] Rspamd and DMS default settings.
+!!! abstract "Reference docs for Rspamd config"
 
-!!! question "What is the [`local.d` directory and how does it compare to `override.d`][rspamd-docs::config-directories]?"
+    - [Config Overview][rspamd-docs::config::overview], [Quickstart guide][rspamd-docs::config::quickstart], and [Config Syntax (UCL)][rspamd-docs::config::ucl-syntax]
+    - Global Options ([`options.inc`][rspamd-docs::config::global])
+    - [Workers][rspamd-docs::config::workers] ([`worker-controller.inc`][rspamd-docs::config::worker-controller], [`worker-proxy.inc`][rspamd-docs::config::worker-proxy])
+    - [Modules][rspamd-docs::modules] (_view each module page for their specific config options_)
 
-!!! warning "Clashing Overrides"
+!!! tip "View rendered config"
 
-    Note that when also [using the `custom-commands.conf` file](#with-the-help-of-a-custom-file), files in `override.d` may be overwritten in case you adjust them manually and with the help of the file.
+    `rspamadm configdump` will output the full rspamd configuration that is used should you need it for troubleshooting / inspection.
 
-### With the Help of a Custom File
+    - You can also see which modules are enabled / disabled via `rspamadm configdump --modules-state`
+    - Specific config sections like `dkim` or `worker` can also be used to filter the output to just those sections: `rspamadm configdump dkim worker`
+    - Use `--show-help` to include inline documentation for many settings.
 
-DMS provides the ability to do simple adjustments to Rspamd modules with the help of a single file. Just place a file called `custom-commands.conf` into `docker-data/dms/config/rspamd/`. If this file is present, DMS will evaluate it. The structure is simple, as each line in the file looks like this:
+### Using `custom-commands.conf` { #with-the-help-of-a-custom-file }
 
-```txt
-COMMAND ARGUMENT1 ARGUMENT2 ARGUMENT3
-```
+For convenience DMS provides a single config file that will directly create or modify multiple configs at `/etc/rspamd/override.d/`. This is handled as the final rspamd configuration step during container startup.
 
-where `COMMAND` can be:
+DMS will apply this config when you provide `rspamd/custom-commands.conf` in your DMS Config volume. Configure it with directive lines as documented below.
 
-1. `disable-module`: disables the module with name `ARGUMENT1`
-2. `enable-module`: explicitly enables the module with name `ARGUMENT1`
-3. `set-option-for-module`: sets the value for option `ARGUMENT2` to `ARGUMENT3` inside module `ARGUMENT1`
-4. `set-option-for-controller`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the controller worker
-5. `set-option-for-proxy`: set the value of option `ARGUMENT1` to `ARGUMENT2` for the proxy worker
-6. `set-common-option`: set the option `ARGUMENT1` that [defines basic Rspamd behavior][rspamd-docs::basic-options] to value `ARGUMENT2`
-7. `add-line`: this will add the complete line after `ARGUMENT1` (with all characters) to the file `/etc/rspamd/override.d/<ARGUMENT1>`
+!!! note "Only use this feature for `option = value` changes"
 
-!!! example "An Example Is [Shown Down Below](#adjusting-and-extending-the-very-basic-configuration)"
+    `custom-commands.conf` is only suitable for adding or replacing simple `option = value` settings for configs at `/etc/rspamd/override.d/`.
+  
+    - New settings are appended to the associated config file.
+    - When replacing an existing setting in an override config, that setting may be any matching line (_allowing for nested scopes, instead of only top-level keys_).
+  
+    Any changes involving more advanced [UCL config syntax][rspamd-docs::config::ucl-syntax] should instead add UCL config files directly to `rspamd/override.d/` (_in the DMS Config volume_).
 
-!!! note "File Names & Extensions"
+!!! info "`custom-commands.conf` syntax"
 
-    For command 1 - 3, we append the `.conf` suffix to the module name to get the correct file name automatically. For commands 4 - 6, the file name is fixed (you don't even need to provide it). For command 7, you will need to provide the whole file name (including the suffix) yourself!
+    There are 7 directives available to manage custom Rspamd configurations. Add these directive lines into `custom-commands.conf`, they will be processed sequentially.
 
-You can also have comments (the line starts with `#`) and blank lines in `custom-commands.conf` - they are properly handled and not evaluated.
+    **Directives:**
 
-!!! tip "Adjusting Modules This Way"
+    ```txt
+    # For /etc/rspamd/override.d/{options.inc,worker-controller.inc,worker-proxy}.inc
+    set-common-option         <OPTION NAME> <OPTION VALUE>
+    set-option-for-controller <OPTION NAME> <OPTION VALUE>
+    set-option-for-proxy      <OPTION NAME> <OPTION VALUE>
 
-    These simple commands are meant to give users the ability to _easily_ alter modules and their options. As a consequence, they are not powerful enough to enable multi-line adjustments. If you need to do something more complex, we advise to do that [manually](#manually)!
+    # For /etc/rspamd/override.d/<MODULE NAME>.conf
+    enable-module         <MODULE NAME>
+    disable-module        <MODULE NAME>
+    set-option-for-module <MODULE NAME> <OPTION NAME> <OPTION VALUE>
 
-## Examples & Advanced Configuration
+    # For /etc/rspamd/override.d/<FILENAME>
+    add-line <FILENAME> <CONTENT>
+    ```
 
-### A Very Basic Configuration
+    **Syntax:**
 
-Do you want to start using Rspamd? Rspamd is disabled by default, so you need to set the following environment variables:
+    - Blank lines are ok.
+    - `#` at the start of a line represents a comment for adding notes.
+    - `<OPTION VALUE>` and `<CONTENT>` will contain the remaining content of their line, any preceding inputs are delimited by white-space.
 
-```env
-ENABLE_RSPAMD=1
-# ClamAV is compatible with Rspamd. Optionally enable it for anti-virus support:
-ENABLE_CLAMAV=1
+    ---
 
-# Rspamd replaces the functionality of all these anti-spam services, disable them:
-ENABLE_OPENDKIM=0
-ENABLE_OPENDMARC=0
-ENABLE_POLICYD_SPF=0
-ENABLE_AMAVIS=0
-ENABLE_SPAMASSASSIN=0
+    ??? note "`<MODULE NAME>` can also target non-module configs"
 
-# Provided you've set `RSPAMD_GREYLISTING=1`, also disable Postgrey:
-ENABLE_POSTGREY=0
-```
+        An example is the `statistics` module, which has config to import a separate file (`classifier-bayes.conf`) for easier overrides to this section of the module config.
 
-This will enable Rspamd and disable services you don't need when using Rspamd.
+??? example
 
-### Adjusting and Extending The Very Basic Configuration
-
-Rspamd is running, but you want or need to adjust it? First, create a file named `custom-commands.conf` under `docker-data/dms/config/rspamd` (which translates to `/tmp/docker-mailserver/rspamd/` inside the container). Then add your changes:
-
-1. Say you want to be able to easily look at the frontend Rspamd provides on port 11334 (default) without the need to enter a password (maybe because you already provide authorization and authentication). You will have to adjust the controller worker: `set-option-for-controller secure_ip "0.0.0.0/0"`.
-2. Do you additionally want to enable the auto-spam-learning for the Bayes module? No problem: `set-option-for-module classifier-bayes autolearn true`.
-3. But the chartable module gets on your nerves? Easy: `disable-module chartable`.
-
-??? example "What Does the Result Look Like?"
-    Here is what the file looks like in the end:
-
-    ```bash
-    # See 1.
-    # ATTENTION: this disables authentication on the website - make sure you know what you're doing!
+    ```conf title="rspamd/custom-commands.conf"
+    # If you're confident you've properly secured access to the rspamd web service/API (Default port: 11334)
+    # with your own auth layer (eg: reverse-proxy) you can bypass rspamd requiring credentials:
+    # https://rspamd.com/doc/workers/controller.html#controller-configuration
     set-option-for-controller secure_ip "0.0.0.0/0"
 
-    # See 2.
+    # Some settings aren't documented well, you may find them in snippets or Rspamds default config files:
+    # https://rspamd.com/doc/tutorials/quickstart.html#using-of-milter-protocol-for-rspamd--16
+    # /etc/rspamd/worker-proxy.inc
+    set-option-for-proxy reject_message "Rejected - Detected as spam"
+
+    # Equivalent to the previous example, but `add-line` is more verbose:
+    add-line worker-proxy.inc reject_message = "Rejected - Detected as spam"
+
+    # Enable Bayes auto-learning feature to classify spam based on Rspamd action/score results:
+    # NOTE: The statistics module imports a separate file for classifier-bayes config
+    # https://rspamd.com/doc/configuration/statistic.html#autolearning
     set-option-for-module classifier-bayes autolearn true
 
-    # See 3.
+    # Disable the `chartable` module:
+    # https://rspamd.com/doc/modules/chartable.html
     disable-module chartable
     ```
+
+## Advanced Configuration
 
 ### DKIM Signing
 
 There is a dedicated [section for setting up DKIM with Rspamd in our documentation][docs::dkim-with-rspamd].
 
+### ARC (Authenticated Received Chain)
+
+[ARC][wikipedia::arc] support in DMS is opt-in via config file. [Enable the ARC Rspamd module][rspamd-docs::arc] by creating a config file at `docker-data/dms/config/rspamd/override.d/arc.conf`.
+
+!!! example
+
+    For each mail domain you have DMS manage, add the equivalent `example.com` sub-section to `domain` and adjust the `path` + `selector` fields as necessary.
+
+    ```conf title="rspamd/override.d/arc.conf"
+    sign_local = true;
+    sign_authenticated = true;
+
+    domain {
+        example.com {
+            path = "/tmp/docker-mailserver/rspamd/dkim/rsa-2048-mail-example.private.txt";
+            selector = "mail";
+        }
+    }
+    ```
+
+!!! tip "Using a common keypair"
+
+    As with DKIM, the keypair can be shared across your configured domains.
+
+    Your ARC config can share the same DKIM private key + selector (_with associated DNS record for the public key_).
+
 ### _Abusix_ Integration
 
 This subsection provides information about the integration of [Abusix][abusix-web], "a set of blocklists that work as an additional email security layer for your existing mail environment". The setup is straight-forward and well documented:
 
-1. [Create an account](https://app.abusix.com/)
+1. [Create an account][abusix-web::register]
 2. Retrieve your API key
 3. Navigate to the ["Getting Started" documentation for Rspamd][abusix-docs::rspamd-integration] and follow the steps described there
 4. Make sure to change `<APIKEY>` to your private API key
@@ -267,17 +335,28 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [rspamd-docs::web-ui::password]: https://www.rspamd.com/doc/tutorials/quickstart.html#setting-the-controller-password
 [rspamd-docs::modules]: https://rspamd.com/doc/modules/
 [rspamd-docs::modules::rbl]: https://rspamd.com/doc/modules/rbl.html
-[rspamd-docs::override-dir]: https://www.rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
 [rspamd-docs::config-directories]: https://rspamd.com/doc/faq.html#what-are-the-locald-and-overrided-directories
-[rspamd-docs::basic-options]: https://rspamd.com/doc/configuration/options.html
+[rspamd-docs::config::ucl-syntax]: https://rspamd.com/doc/configuration/ucl.html
+[rspamd-docs::config::overview]: https://rspamd.com/doc/configuration/index.html
+[rspamd-docs::config::quickstart]: https://rspamd.com/doc/tutorials/quickstart.html#configuring-rspamd
+[rspamd-docs::config::global]: https://rspamd.com/doc/configuration/options.html
+[rspamd-docs::config::workers]: https://rspamd.com/doc/workers/
+[rspamd-docs::config::worker-controller]: https://rspamd.com/doc/workers/controller.html
+[rspamd-docs::config::worker-proxy]: https://rspamd.com/doc/workers/rspamd_proxy.html
 
-[www::rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/?do=findComment&comment=119818
+[wikipedia::arc]: https://en.wikipedia.org/wiki/Authenticated_Received_Chain
+[rspamd-docs::arc]: https://rspamd.com/doc/modules/arc.html
+
+[www::rbl-vs-dnsbl]: https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/#comment-119818
 [abusix-web]: https://abusix.com/
+[abusix-web::register]: https://app.abusix.com/
 [abusix-docs::rspamd-integration]: https://abusix.com/docs/rspamd/
 [spamhaus::faq::dnsbl-usage]: https://www.spamhaus.org/faq/section/DNSBL%20Usage#365
 
-[dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/blob/v14.0.0/target/rspamd/local.d/actions.conf
-[dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v14.0.0/target/rspamd
+[dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd/local.d/actions.conf
+[dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd
+[gh-dms::guide::valkey]: https://github.com/docker-mailserver/docker-mailserver/issues/4001#issuecomment-2652596692
+[gh-dms::guide::rspamd-web]: https://github.com/orgs/docker-mailserver/discussions/4269#discussioncomment-11329588
 
 [docs::env::enable-redis]: ../environment.md#enable_rspamd_redis
 [docs::spam-to-junk]: ../environment.md#move_spam_to_junk
