@@ -137,7 +137,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         If you have multiple domains, you need to:
 
-        - Create a key wth `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` for each domain DMS should sign outgoing mail for.
+        - Create a key with `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` for each domain DMS should sign outgoing mail for.
         - Provide a custom `dkim_signing.conf` (for which an example is shown below), as the default config only supports one domain.
 
     !!! info "About the Helper Script"
