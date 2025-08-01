@@ -27,7 +27,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Documentation:**
   - Added a compatibility note for a Dovecot + Solr 9.8 breaking change ([#4433](https://github.com/docker-mailserver/docker-mailserver/pull/4433))
-  - Fixed path in DKIM helper setup script ([#4521](https://github.com/docker-mailserver/docker-mailserver/issues/4521))
+  - `setup config dkim` (rspamd) - Corrected the expected path for the generated `dkim_signing.conf` file is now found in the DMS config volume ([#4521](https://github.com/docker-mailserver/docker-mailserver/issues/4521))
 - **Internal:**
   - Refactored `setup config dkim` (`open-dkim`) ([#4375](https://github.com/docker-mailserver/docker-mailserver/pull/4375))
   - `setup email list` and the default `ENABLE_QUOTAS=1` ENV now better communicates when config is incompatible ([#4453](https://github.com/docker-mailserver/docker-mailserver/pull/4453))
