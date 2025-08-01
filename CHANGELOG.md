@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. The format 
   - [`DMS_CONFIG_POLL`](https://docker-mailserver.github.io/docker-mailserver/v15.0/config/environment/#dms_config_poll) supports adjusting the polling rate (seconds) for the change detection service `check-for-changes.sh` ([#4450](https://github.com/docker-mailserver/docker-mailserver/pull/4450))
 
 ### Fixes
+
 - **DKIM**
   - `setup config dkim domain subdomain.example.com` no longer throws an error if the owner of config/opendkim/keys does not exist in the container ([#4517](https://github.com/docker-mailserver/docker-mailserver/pull/4517))
 - **Fail2Ban**
@@ -27,6 +28,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Documentation:**
   - Added a compatibility note for a Dovecot + Solr 9.8 breaking change ([#4433](https://github.com/docker-mailserver/docker-mailserver/pull/4433))
+  - Updated the Podman documentation with deprecation warnings and up-to-date technologies such as rootless Quadlets and Pasta networking ([#4183](https://github.com/docker-mailserver/docker-mailserver/pull/4183))
   - `setup config dkim` (rspamd) - Corrected the expected path for the generated `dkim_signing.conf` file is now found in the DMS config volume ([#4521](https://github.com/docker-mailserver/docker-mailserver/issues/4521))
 - **Internal:**
   - Refactored `setup config dkim` (`open-dkim`) ([#4375](https://github.com/docker-mailserver/docker-mailserver/pull/4375))
