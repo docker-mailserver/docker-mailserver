@@ -148,9 +148,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         ---
 
-        In case you have not already provided a default DKIM signing configuration, the script will create one and write it to `/etc/rspamd/override.d/dkim_signing.conf`. If this file already exists, it will not be overwritten.
-
-        When you're already using [the `rspamd/override.d/` directory][docs-rspamd-config-dropin], the file is created inside your volume and therefore persisted correctly. If you are not using `rspamd/override.d/`, you will need to persist the file yourself (otherwise it is lost on container restart).
+        In case you have not already provided a default DKIM signing configuration, the script will create one and write it to `/tmp/docker-mailserver/rspamd/override.d/dkim_signing.conf`. If this file already exists, it will not be overwritten.
 
         An example of what a default configuration file for DKIM signing looks like can be found by expanding the example below.
 
@@ -364,7 +362,6 @@ volumes:
 [docs-env-opendkim]: ../environment.md#enable_opendkim
 [docs-env-rspamd]: ../environment.md#enable_rspamd
 [docs-env-spf-policyd]: ../environment.md#enable_policyd_spf
-[docs-rspamd-config-dropin]: ../security/rspamd.md#manually
 [cloudflare-dkim-dmarc-spf]: https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/
 [rfc-8301]: https://datatracker.ietf.org/doc/html/rfc8301#section-3.2
 [gh-discussion::dkim-key-rotation-expiry]: https://github.com/orgs/docker-mailserver/discussions/4068#discussioncomment-9784263
