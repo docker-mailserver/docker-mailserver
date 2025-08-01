@@ -2765,8 +2765,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <p>The script will persist the keys in <code>/tmp/docker-mailserver/rspamd/dkim/</code>. Hence, if you are already using the default volume mounts, the keys are persisted in a volume. The script also restarts Rspamd directly, so changes take effect without restarting DMS.</p>
 <p>The script provides you with log messages along the way of creating keys. In case you want to read the complete log, use <code>-v</code> (verbose) or <code>-vv</code> (very verbose).</p>
 <hr />
-<p>In case you have not already provided a default DKIM signing configuration, the script will create one and write it to <code>/etc/rspamd/override.d/dkim_signing.conf</code>. If this file already exists, it will not be overwritten.</p>
-<p>When you're already using <a href="../../security/rspamd/#manually">the <code>rspamd/override.d/</code> directory</a>, the file is created inside your volume and therefore persisted correctly. If you are not using <code>rspamd/override.d/</code>, you will need to persist the file yourself (otherwise it is lost on container restart).</p>
+<p>In case you have not already provided a default DKIM signing configuration, the script will create one and write it to <code>/tmp/docker-mailserver/rspamd/override.d/dkim_signing.conf</code>. If this file already exists, it will not be overwritten.</p>
 <p>An example of what a default configuration file for DKIM signing looks like can be found by expanding the example below.</p>
 </div>
 <details class="example">
