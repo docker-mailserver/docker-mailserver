@@ -192,14 +192,15 @@ function _install_rspamd() {
   # Docs: https://rspamd.com/downloads.html#debian-and-ubuntu-linux
   # NOTE: Debian 12 provides Rspamd 3.4 (too old) and Rspamd discourages it's use
 
-  _log 'trace' 'Adding third-party package repository (Rspamd)'
-  curl -fsSL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
-  echo \
-    "deb [signed-by=/usr/share/keyrings/upstream-rspamd.gpg] https://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" \
-    > /etc/apt/sources.list.d/upstream-rspamd.list
+  # TODO (Debian 13) re-enable later
+  # _log 'trace' 'Adding third-party package repository (Rspamd)'
+  # curl -fsSL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
+  # echo \
+  #   "deb [signed-by=/usr/share/keyrings/upstream-rspamd.gpg] https://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" \
+  #   > /etc/apt/sources.list.d/upstream-rspamd.list
 
-  # Refresh package index:
-  apt-get "${QUIET}" update
+  # # Refresh package index:
+  # apt-get "${QUIET}" update
 
   _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" install rspamd redis-server
