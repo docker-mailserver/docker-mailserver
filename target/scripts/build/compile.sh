@@ -18,7 +18,7 @@ function _install_build_deps() {
 }
 
 function _build_package() {
-  local XAPIAN_VERSION='1.9'
+  local XAPIAN_VERSION='1.9.1'
   curl -fsSL "https://github.com/grosjo/fts-xapian/releases/download/${XAPIAN_VERSION}/dovecot-fts-xapian-${XAPIAN_VERSION}.tar.gz" \
     | tar -xz
   cd "fts-xapian-${XAPIAN_VERSION}"
