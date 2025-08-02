@@ -192,14 +192,14 @@ EOF
 }
 
 function _install_rspamd() {
-  # NOTE: DMS only supports the rspamd package via using the third-party repo maintained by Rspamd (AMD64 + ARM64):
-  # Repo: https://rspamd.com/apt-stable/dists/bookworm/main/
+  # NOTE DMS only supports the rspamd package via using the
+  #      third-party repo maintained by Rspamd (AMD64 + ARM64)
+  # Repo: https://rspamd.com/apt-stable/dists/trixie/main/
   # Docs: https://rspamd.com/downloads.html#debian-and-ubuntu-linux
-  # NOTE: Debian 12 provides Rspamd 3.4 (too old) and Rspamd discourages it's use
 
   _log 'trace' 'Adding third-party package repository (Rspamd)'
   curl -fsSL https://rspamd.com/apt-stable/gpg.key \
-    | gpg --dearmor >/usr/share/keyrings/upstream-rspamd.gpg
+    | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
   cat >/etc/apt/sources.list.d/upstream-rspamd.sources <<EOF
 Types: deb
 URIs: https://rspamd.com/apt-stable/
@@ -208,8 +208,8 @@ Components: main
 Signed-By: /usr/share/keyrings/upstream-rspamd.gpg
 EOF
 
-  # Refresh package index:
-  apt-get "${QUIET}" update
+  # # Refresh package index:
+  # apt-get "${QUIET}" update
 
   _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" install rspamd redis-server
