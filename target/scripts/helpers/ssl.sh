@@ -345,18 +345,10 @@ function _setup_ssl() {
         -e '/smtpd_tls_auth_only/s|yes|no|' \
         "${POSTFIX_CONFIG_MASTER}"
 
-      # Dovecot configuration:
-      # https://doc.dovecot.org/configuration_manual/dovecot_ssl_configuration/
-      # > The plaintext authentication is always allowed (and SSL not required) for connections from localhost, as they’re assumed to be secure anyway.
-      # > This applies to all connections where the local and the remote IP addresses are equal.
-      # > Also IP ranges specified by login_trusted_networks setting are assumed to be secure.
-      #
-      # no => insecure auth allowed, yes (default) => plaintext auth only allowed over a secure connection (insecure connection acceptable for non-plaintext auth)
-      local DISABLE_PLAINTEXT_AUTH='no'
-      # no => disabled, yes => optional (secure connections not required), required (default) => mandatory (only secure connections allowed)
-      local DOVECOT_SSL_ENABLED='no'
-      sed -i -r "s|^#?(disable_plaintext_auth =).*|\1 ${DISABLE_PLAINTEXT_AUTH}|" /etc/dovecot/conf.d/10-auth.conf
-      sed -i -r "s|^(ssl =).*|\1 ${DOVECOT_SSL_ENABLED}|" "${DOVECOT_CONFIG_SSL}"
+      # ref: https://doc.dovecot.org/2.4.1/core/summaries/settings.html#auth_allow_cleartext
+      sed -i -r "s|^#?(auth_allow_cleartext =).*|\1 no|" /etc/dovecot/conf.d/10-auth.conf
+      # ref: https://doc.dovecot.org/2.4.1/core/summaries/settings.html#ssl
+      sed -i -r "s|^(ssl =).*|\1 no|" "${DOVECOT_CONFIG_SSL}"
       ;;
 
     ( 'snakeoil' ) # This is a temporary workaround for testing only, using the insecure snakeoil cert.
