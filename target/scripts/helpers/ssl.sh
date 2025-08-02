@@ -51,8 +51,8 @@ function _setup_ssl() {
 
     # Dovecot configuration
     sedfile -i -r \
-      -e "s|^(ssl_key =).*|\1 <${DOVECOT_KEY}|" \
-      -e "s|^(ssl_cert =).*|\1 <${DOVECOT_CERT}|" \
+      -e "s|^(ssl_server_key_file =).*|\1 <${DOVECOT_KEY}|" \
+      -e "s|^(ssl_server_cert_file =).*|\1 <${DOVECOT_CERT}|" \
       "${DOVECOT_CONFIG_SSL}"
   }
 
