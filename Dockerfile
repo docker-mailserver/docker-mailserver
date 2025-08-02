@@ -7,7 +7,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG DOVECOT_COMMUNITY_REPO=0
 ARG LOG_LEVEL=trace
 
-FROM docker.io/debian:12-slim AS stage-base
+# TODO (Debian 13) replace 'trixie' with '13'
+FROM docker.io/debian:trixie-slim AS stage-base
 
 ARG DEBIAN_FRONTEND
 ARG DOVECOT_COMMUNITY_REPO
@@ -20,11 +21,6 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # -----------------------------------------------
 
 COPY target/bin/sedfile /usr/local/bin/sedfile
-RUN <<EOF
-  chmod +x /usr/local/bin/sedfile
-  adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
-EOF
-
 COPY target/scripts/build/packages.sh /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
@@ -151,22 +147,6 @@ RUN <<EOF
   chmod 644 /etc/amavis/conf.d/*
 EOF
 
-# overcomplication necessary for CI
-# hadolint ignore=SC2086
-RUN <<EOF
-  for _ in {1..10}; do
-    su - amavis -c "razor-admin -create"
-    sleep 3
-    if su - amavis -c "razor-admin -register"; then
-      EC=0
-      break
-    else
-      EC=${?}
-    fi
-  done
-  exit ${EC}
-EOF
-
 # -----------------------------------------------
 # --- Fail2Ban, DKIM & DMARC --------------------
 # -----------------------------------------------
@@ -209,8 +189,7 @@ COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 
 # DH parameters for DHE cipher suites, ffdhe4096 is the official standard 4096-bit DH params now part of TLS 1.3
 # This file is for TLS <1.3 handshakes that rely on DHE cipher suites
-# Handled at build to avoid failures by doveadm validating ssl_dh filepath in 10-ssl.auth (eg generate-accounts)
-COPY target/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
+# Handled at build to avoid failures by doveadm validating ssl_server_dh_file filepath in 10-ssl.auth (eg generate-accounts)
 COPY target/shared/ffdhe4096.pem /etc/dovecot/dh.pem
 
 COPY \
