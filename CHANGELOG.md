@@ -37,7 +37,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Removed
 
 - **Fail2Ban**
-  - Removed `postfix-sasl` jail by default as it is covered by `postfix[mode=extra]` already ([#4529](https://github.com/docker-mailserver/docker-mailserver/pull/4529))
+  - Removed `postfix-sasl` jail by default as it is covered by `postfix[mode=extra]` already ([#4535](https://github.com/docker-mailserver/docker-mailserver/pull/4535))
 
 ## [v15.0.2](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.2)
 
