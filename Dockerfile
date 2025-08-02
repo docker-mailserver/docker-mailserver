@@ -20,11 +20,6 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # -----------------------------------------------
 
 COPY target/bin/sedfile /usr/local/bin/sedfile
-RUN <<EOF
-  chmod +x /usr/local/bin/sedfile
-  adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
-EOF
-
 COPY target/scripts/build/packages.sh /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
