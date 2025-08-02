@@ -34,6 +34,11 @@ All notable changes to this project will be documented in this file. The format 
   - Refactored `setup config dkim` (`open-dkim`) ([#4375](https://github.com/docker-mailserver/docker-mailserver/pull/4375))
   - `setup email list` and the default `ENABLE_QUOTAS=1` ENV now better communicates when config is incompatible ([#4453](https://github.com/docker-mailserver/docker-mailserver/pull/4453))
 
+### Removed
+
+- **Fail2Ban**
+  - Removed `postfix-sasl` jail by default as it is covered by `postfix[mode=extra]` already ([#4529](https://github.com/docker-mailserver/docker-mailserver/pull/4529))
+
 ## [v15.0.2](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v15.0.2)
 
 ### Fixes
