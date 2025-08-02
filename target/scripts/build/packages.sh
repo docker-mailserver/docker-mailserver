@@ -83,8 +83,7 @@ function _install_packages() {
 
   local ANTI_VIRUS_SPAM_PACKAGES=(
     clamav clamav-daemon
-    # spamassassin is used only with amavisd-new, while pyzor + razor are used by spamassasin
-    amavisd-new spamassassin pyzor razor
+    amavisd-new spamassassin
   )
 
   # predominantly for Amavis support
