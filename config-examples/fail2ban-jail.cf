@@ -29,9 +29,6 @@ enabled = true
 # https://github.com/docker-mailserver/docker-mailserver/issues/3256#issuecomment-1511188760
 mode = extra
 
-[postfix-sasl]
-enabled = true
-
 # This jail is used for manual bans.
 # To ban an IP address use: setup.sh fail2ban ban <IP>
 [custom]
