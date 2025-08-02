@@ -78,6 +78,15 @@ This following configuration files inside the `docker-data/dms/config/` volume w
 [github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf
 [github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf
 
+### SASL
+
+The `postfix` jail comes with `mode=extra` by default, which covers SASL login errors for our default SASL provider. Hence, the `postfix-sasl` jail has been disabled. If you switch to another SASL provider (e.g., SASLauthd), you may want to turn the `postfix-sasl` jail back on:
+
+```ini title="docker-data/dms/config/fail2ban-jail.cf"
+[postfix-sasl]
+enabled = true
+```
+
 ### Viewing All Bans
 
 When just running
