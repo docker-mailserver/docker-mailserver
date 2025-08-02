@@ -6,7 +6,7 @@
 # -o pipefail :: exit on error in pipes
 set -eE -u -o pipefail
 
-VERSION_CODENAME='bookworm'
+VERSION_CODENAME='trixie'
 
 # shellcheck source=../helpers/log.sh
 source /usr/local/bin/helpers/log.sh
