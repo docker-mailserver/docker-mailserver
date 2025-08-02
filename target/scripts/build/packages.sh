@@ -96,7 +96,7 @@ function _install_packages() {
   local CODECS_PACKAGES=(
     altermime arj bzip2
     cabextract cpio file
-    gzip lhasa liblz4-tool
+    gzip lhasa lz4
     lrzip lzop nomarch
     p7zip-full pax rpm2cpio
     unrar-free unzip xz-utils
