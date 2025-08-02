@@ -7,7 +7,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG DOVECOT_COMMUNITY_REPO=0
 ARG LOG_LEVEL=trace
 
-FROM docker.io/debian:12-slim AS stage-base
+# TODO (Debian 13) replace 'trixie' with '13'
+FROM docker.io/debian:trixie-slim AS stage-base
 
 ARG DEBIAN_FRONTEND
 ARG DOVECOT_COMMUNITY_REPO
