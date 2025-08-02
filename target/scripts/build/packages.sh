@@ -159,7 +159,7 @@ function _install_dovecot() {
   # NOTE: AMD64 / x86_64 is the only supported arch from the Dovecot CE repo (thus noDMS built for ARM64 / aarch64)
   # Repo: https://repo.dovecot.org/ce-2.4-latest/debian/bookworm/dists/bookworm/main/
   # Docs: https://repo.dovecot.org/#debian
-  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]] && [[ "$(uname --machine)" == "x86_64" ]]; then
+  if [[ ${DOVECOT_COMMUNITY_REPO:-0} -eq 1 ]] && [[ $(uname --machine) == x86_64 ]]; then
     # WARNING: Repo only provides Debian Bookworm package support for Dovecot CE 2.4+.
     # As Debian Bookworm only packages Dovecot 2.3.x, building DMS with this alternative package repo may not yet be compatible with DMS:
     # - 2.3.19: https://salsa.debian.org/debian/dovecot/-/tree/stable/bookworm
