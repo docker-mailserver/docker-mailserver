@@ -28,12 +28,17 @@ function _pre_installation_steps() {
   local EARLY_PACKAGES=(
     # Avoid logging unnecessary warnings:
     apt-utils
+    # we need this early for the creation of accounts like 'clamav'
+    adduser
     # Required for adding third-party repos (/etc/apt/sources.list.d) as alternative package sources (eg: Dovecot CE and Rspamd):
     apt-transport-https ca-certificates curl gnupg
     # Avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953):
     systemd-standalone-sysusers
   )
   apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
+
+  chmod +x /usr/local/bin/sedfile
+  adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
 }
 
 # Install third-party commands to /usr/local/bin
