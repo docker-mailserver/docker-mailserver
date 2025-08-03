@@ -1147,6 +1147,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#sasl" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#viewing-all-bans" class="md-nav__link">
     <span class="md-ellipsis">
       Viewing All Bans
@@ -2543,6 +2552,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#sasl" class="md-nav__link">
+    <span class="md-ellipsis">
+      SASL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#viewing-all-bans" class="md-nav__link">
     <span class="md-ellipsis">
       Viewing All Bans
@@ -2678,6 +2696,11 @@
 </ul>
 </li>
 </ol>
+<h3 id="sasl"><a class="toclink" href="#sasl">SASL</a></h3>
+<p>The <code>postfix</code> jail comes with <code>mode=extra</code> by default, which covers SASL login errors for our default SASL provider. Hence, the <code>postfix-sasl</code> jail has been disabled. If you switch to another SASL provider (e.g., SASLauthd), you may want to turn the <code>postfix-sasl</code> jail back on:</p>
+<div class="highlight"><span class="filename">docker-data/dms/config/fail2ban-jail.cf</span><pre><span></span><code><span class="k">[postfix-sasl]</span>
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+</code></pre></div>
 <h3 id="viewing-all-bans"><a class="toclink" href="#viewing-all-bans">Viewing All Bans</a></h3>
 <p>When just running</p>
 <div class="highlight"><pre><span></span><code>setup<span class="w"> </span>fail2ban
