@@ -2,6 +2,12 @@
 title: 'Advanced | iOS Mail Push Support'
 ---
 
+!!! warning "This is broken as of August 2025"
+
+    Apple has deprecated the API used for certificate renewal as it is currently implemented in dovecot-xaps-daemon for XAPPLEPUSHSERVICE. There is no fix available at the time this is being written; however, [Apple has indicated](https://github.com/stalwartlabs/stalwart/issues/747#issuecomment-3142925679) to some developers that an open IETF standard for push notifications is planned. There is an [open Apple Developer thread](https://developer.apple.com/forums/thread/778671?answerId=850357022#850357022) about this topic as well.
+
+!!! warning
+
 ## Introduction
 
 iOS Mail currently does not support the IMAP idle extension. Therefore users can only either check manually or configure intervals for fetching mails in their mail account preferences when using the default configuration.
