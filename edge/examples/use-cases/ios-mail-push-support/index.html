@@ -2585,6 +2585,11 @@
 
   <h1>iOS Mail Push Support</h1>
 
+<div class="admonition warning">
+<p class="admonition-title">Status - August 2025</p>
+<p>Apple has since deprecated their API used for certificate renewal (<em>see <a href="https://developer.apple.com/forums/thread/778671?answerId=850357022#850357022">this Apple Developer thread</a></em>) as it is currently implemented in <code>dovecot-xaps-daemon</code> for <code>XAPPLEPUSHSERVICE</code>. There is no actionable resolution for this issue known at this time.</p>
+<p><a href="https://github.com/stalwartlabs/stalwart/issues/747#issuecomment-3142925679">Apple has communicated plans</a> to implement an open IETF standard for push notifications.</p>
+</div>
 <h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
 <p>iOS Mail currently does not support the IMAP idle extension. Therefore users can only either check manually or configure intervals for fetching mails in their mail account preferences when using the default configuration.</p>
 <p>To support mail push Dovecot needs to advertise the <code>XAPPLEPUSHSERVICE</code> IMAP extension as well as sending the actual push notifications to the Apple Push Notification service (APNs) which will forward them to the device.</p>
