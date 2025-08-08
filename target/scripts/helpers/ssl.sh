@@ -345,9 +345,20 @@ function _setup_ssl() {
         -e '/smtpd_tls_auth_only/s|yes|no|' \
         "${POSTFIX_CONFIG_MASTER}"
 
-      # ref: https://doc.dovecot.org/2.4.1/core/summaries/settings.html#auth_allow_cleartext
-      sed -i -r "s|^#?(auth_allow_cleartext =).*|\1 no|" /etc/dovecot/conf.d/10-auth.conf
-      # ref: https://doc.dovecot.org/2.4.1/core/summaries/settings.html#ssl
+      # These two settings `auth_allow_cleartext` + `ssl` impact if TLS for connections is required,
+      # which can vary by auth mechanism used and context of the connecting client:
+      # - https://doc.dovecot.org/2.4.1/core/config/ssl.html#how-to-specify-when-ssl-tls-is-required
+      # - https://doc.dovecot.org/2.4.1/core/summaries/settings.html#auth_allow_cleartext
+      # - https://doc.dovecot.org/2.4.1/core/summaries/settings.html#ssl
+
+      # NOTE: Trusted clients (`secured` connections) almost always allow cleartext auth,
+      # with the exception of some when `ssl=required` as detailed in Dovecot docs:
+      # https://doc.dovecot.org/2.4.1/core/config/ssl.html#secured-connections
+
+      # Allow cleartext auth (mechanisms that don't protect secrets) without requiring an encrypted connection
+      sed -i -r "s|^#?(auth_allow_cleartext =).*|\1 yes|" /etc/dovecot/conf.d/10-auth.conf
+
+      # Disable TLS listeners on ports (`ssl=no`), unencrypted traffic only
       sed -i -r "s|^(ssl =).*|\1 no|" "${DOVECOT_CONFIG_SSL}"
       ;;
 

@@ -10,13 +10,11 @@ passdb passwd-file {
   passwd_file_path = /etc/dovecot/userdb
 }
 
-# !!! Attention !!!
-#   Do not add `scheme=SHA512-CRYPT` to the userdb args. This is not supported.
 userdb passwd-file {
   driver = passwd-file
   auth_username_format = %{user}
   passwd_file_path = /etc/dovecot/userdb
-  # Defaults field values for an entry if they're missing in `/etc/dovecot/userdb`.
+  # Default field values to use when they're not set for user accounts sourced via `/etc/dovecot/userdb`.
   # NOTE: That file is created from `postfix-accounts.cf` + `postfix-virtual.cf`
   fields {
     uid:default = docker
