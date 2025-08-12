@@ -20,7 +20,7 @@ body:
     id: context
     attributes:
       label: Context
-      description: Tell us how your request is related to DMS, one of its components or another issue / PR. Also **link all conected issues and PRs here**!
+      description: Tell us how your request is related to DMS, one of its components or another issue / PR. Also **link all connected issues and PRs here**!
     validations:
       required: true
   - type: textarea

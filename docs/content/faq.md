@@ -374,7 +374,7 @@ DMS does not manage those concerns, verify they are not causing your delivery pr
 - [mail-tester](https://www.mail-tester.com/) can test your deliverability.
 - [helloinbox](https://www.helloinbox.email/) provides a checklist of things to improve your deliverability.
 
-### SpamAssasin
+### SpamAssassin
 
 #### How can I manage my custom SpamAssassin rules?
 

@@ -93,7 +93,7 @@ function _trap_err_signal() {
 
   # shellcheck disable=SC2317
   function __log_unexpected_error() {
-    local MESSAGE="Unexpected error occured :: script = ${SCRIPT:-${0}} "
+    local MESSAGE="Unexpected error occurred :: script = ${SCRIPT:-${0}} "
     MESSAGE+=" | function = ${1:-none (global)}"
     MESSAGE+=" | command = ${2:-?}"
     MESSAGE+=" | line = ${3:-?}"

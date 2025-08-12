@@ -45,7 +45,7 @@ function _initial_setup() {
 
   # Test that certificate files exist for the configured `hostname`:
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
-  _should_succesfully_negotiate_tls "${TARGET_DOMAIN}"
+  _should_successfully_negotiate_tls "${TARGET_DOMAIN}"
   _should_not_support_fqdn_in_cert 'example.test'
 }
 
@@ -65,7 +65,7 @@ function _initial_setup() {
 
   #test domain has certificate files
   _should_have_valid_config "${TARGET_DOMAIN}" 'privkey.pem' 'fullchain.pem'
-  _should_succesfully_negotiate_tls "${TARGET_DOMAIN}"
+  _should_successfully_negotiate_tls "${TARGET_DOMAIN}"
   _should_not_support_fqdn_in_cert 'mail.example.test'
 }
 
@@ -148,7 +148,7 @@ function _initial_setup() {
     # The difference in support is:
     # - `example.test` should no longer be valid.
     # - `mail.example.test` should remain valid, but also allow any other subdomain/hostname.
-    _should_succesfully_negotiate_tls 'mail.example.test'
+    _should_successfully_negotiate_tls 'mail.example.test'
     _should_support_fqdn_in_cert 'fake.example.test'
     _should_not_support_fqdn_in_cert 'example.test'
   }

@@ -35,7 +35,7 @@ While indexing is memory intensive, you can configure the plugin to limit the am
         # disable indexing of folders
         # fts_autoindex_exclude = \Trash
 
-        # Index attachements
+        # Index attachments
         # fts_decoder = decode2text
     }
 

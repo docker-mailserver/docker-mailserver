@@ -159,7 +159,7 @@ function _should_restart_when_killed() {
 
   # Should kill the process successfully:
   # (which should then get restarted by supervisord)
-  # NOTE: The process name from `pkill --echo` does not always match the equivalent processs name from `pgrep --list-full`.
+  # NOTE: The process name from `pkill --echo` does not always match the equivalent process name from `pgrep --list-full`.
   # The oldest process returned (if multiple) should be the top-level process launched by supervisord,
   # the PID will verify the target process was killed correctly:
   local PID=$(_exec_in_container pgrep --full --oldest "${PROCESS}")

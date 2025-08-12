@@ -142,7 +142,7 @@ This page provides a technical reference for account management in DMS.
     - A subaddress has a tag delimiter (_default: `+`_), followed by the tag: `<local-part>+<tag>@<domain-part>`
     - The subaddress `user+github@example.com` would deliver mail to the same mailbox as `user@example.com`.
     - Tags are dynamic. Anything between the `+` and `@` is understood as the tag, no additional configuration required.
-    - Only the first occurence of the tag delimiter is recognized. Any additional occurences become part of the tag value itself.
+    - Only the first occurrence of the tag delimiter is recognized. Any additional occurrences become part of the tag value itself.
 
 ??? tip "When is subaddressing useful?"
 

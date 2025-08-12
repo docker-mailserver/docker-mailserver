@@ -68,7 +68,7 @@ function setup() {
   assert_output 'foo bar'
 }
 
-@test 'checking sedfile substitude failure (strict)' {
+@test 'checking sedfile substitute failure (strict)' {
   # try to change 'baz' to 'something' and fail
   _run_in_container sedfile --strict -i 's|baz|something|' "${TEST_FILE}"
   assert_failure

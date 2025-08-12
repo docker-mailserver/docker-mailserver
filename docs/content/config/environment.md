@@ -733,7 +733,7 @@ Controls the spam score threshold for triggering an action on mail that has a hi
 
 - **1** => will activate SpamAssassin short circuiting for bayes spam detection.
 
-This will uncomment the respective line in `/etc/spamassasin/local.cf`
+This will uncomment the respective line in `/etc/spamassassin/local.cf`
 
 !!! warning
 
@@ -743,7 +743,7 @@ This will uncomment the respective line in `/etc/spamassasin/local.cf`
 
 - **1** => will activate SpamAssassin short circuiting for bayes ham detection
 
-This will uncomment the respective line in `/etc/spamassasin/local.cf`
+This will uncomment the respective line in `/etc/spamassassin/local.cf`
 
 !!! warning
 

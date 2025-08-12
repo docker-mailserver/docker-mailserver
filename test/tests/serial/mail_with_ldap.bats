@@ -122,7 +122,7 @@ function setup_file() {
 
   # Extra ENV needed to support specific test-cases:
   local ENV_SUPPORT=(
-    # Required for openssl commands to be successul:
+    # Required for openssl commands to be successful:
     # NOTE: snakeoil cert is created (for `docker-mailserver.invalid`) via Debian post-install script for Postfix package.
     # TODO: Use proper TLS cert
     --env SSL_TYPE='snakeoil'
@@ -404,7 +404,7 @@ function _should_exist_in_ldap_tables() {
   # Each LDAP config file sets `query_filter` to lookup a key in LDAP (values defined in `.ldif` test files)
   # `mail` (ldap-users), `mailAlias` (ldap-aliases), `mailGroupMember` (ldap-groups)
   # `postmap` is queried with the mail account address, and the LDAP service should respond with
-  # `result_attribute` which is the LDAP `mail` value (should match what we'r'e quering `postmap` with)
+  # `result_attribute` which is the LDAP `mail` value (should match what we'r'e querying `postmap` with)
 
   _run_in_container postmap -q "${MAIL_ACCOUNT}" ldap:/etc/postfix/ldap-users.cf
   assert_success

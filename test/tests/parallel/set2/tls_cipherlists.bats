@@ -198,7 +198,7 @@ function get_cipherlist() {
   local TLS_VERSION=$1
 
   if [[ ${TLS_VERSION} == "TLSv1_3" ]]; then
-    # TLS v1.3 cipher suites are not user defineable and not unique to the available certificate(s).
+    # TLS v1.3 cipher suites are not user definable and not unique to the available certificate(s).
     # They do not support server enforced order either.
     echo '"TLS_AES_256_GCM_SHA384 TLS_CHACHA20_POLY1305_SHA256 TLS_AES_128_GCM_SHA256"'
   else
