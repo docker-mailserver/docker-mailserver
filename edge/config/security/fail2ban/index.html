@@ -2667,7 +2667,7 @@
 </div>
 </div>
 <div class="admonition warning">
-<p class="admonition-title">Security risk of adding non-default capabilties</p>
+<p class="admonition-title">Security risk of adding non-default capabilities</p>
 <p>DMS bundles F2B into the image for convenience to simplify integration and deployment.</p>
 <p>The <a href="https://0xn3va.gitbook.io/cheat-sheets/container/escaping/excessive-capabilities#cap_net_admin"><code>NET_ADMIN</code></a> and <a href="https://0xn3va.gitbook.io/cheat-sheets/container/escaping/excessive-capabilities#cap_net_raw"><code>NET_RAW</code></a> capabilities are not granted by default to the container root user, as they can be used to compromise security.</p>
 <p>If this risk concerns you, it may be wiser to instead prefer only granting these capabilities to a dedicated Fail2Ban container (<a href="https://docs.linuxserver.io/images/docker-fail2ban">example</a>).</p>
