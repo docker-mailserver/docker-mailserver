@@ -74,7 +74,7 @@ ${ORANGE}EXAMPLES${RESET}
         to input a password afterwards since no password was supplied.
 
     ${LWHITE}setup config dkim keysize 2048 domain 'example.com,not-example.com'${RESET}
-        Creates keys of length 2048 for the domains in comma-seperated list.
+        Creates keys of length 2048 for the domains in comma-separated list.
         This is necessary when using LDAP as the required domains cannot be inferred.
 
     ${LWHITE}setup config dkim help${RESET}

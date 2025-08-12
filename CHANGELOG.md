@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file. The format 
 - **Internal:**
   - The DMS _Config Volume_ (`/tmp/docker-mailserver`) will now ensure it's file tree is accessible for services when the volume was created with missing executable bit ([#4487](https://github.com/docker-mailserver/docker-mailserver/pull/4487))
   - Removed the build-time hostname workaround for Postfix as Debian has since patched their post-install script ([#4493](https://github.com/docker-mailserver/docker-mailserver/pull/4493))
+  - Fixed various typos across codebase ([#4552](https://github.com/docker-mailserver/docker-mailserver/pull/4552))
 
 ### Updates
 
@@ -155,7 +156,7 @@ The most noteworthy change of this release is the update of the container's base
     - Removed custom installations of Fail2Ban, getmail6 and Rspamd
     - Updated packages lists and added comments for maintainability
 - OpenDMARC upgrade: `v1.4.0` => `v1.4.2` ([#3841](https://github.com/docker-mailserver/docker-mailserver/pull/3841))
-  - Previous versions of OpenDMARC would place incoming mail from domains announcing `p=quarantaine` (_that fail the DMARC check_) into the [Postfix "hold" queue](https://www.postfix.org/QSHAPE_README.html#hold_queue) until administrative intervention.
+  - Previous versions of OpenDMARC would place incoming mail from domains announcing `p=quarantine` (_that fail the DMARC check_) into the [Postfix "hold" queue](https://www.postfix.org/QSHAPE_README.html#hold_queue) until administrative intervention.
   - [OpenDMARC v1.4.2 has disabled that feature by default](https://github.com/trusteddomainproject/OpenDMARC/issues/105), but it can be enabled again by adding the setting `HoldQuarantinedMessages true` to [`/etc/opendmarc.conf`](https://github.com/docker-mailserver/docker-mailserver/blob/v13.3.1/target/opendmarc/opendmarc.conf) (_provided from DMS_).
     - [Our `user-patches.sh` feature](https://docker-mailserver.github.io/docker-mailserver/latest/config/advanced/override-defaults/user-patches/) provides a convenient approach to updating that config file.
     - Please let us know if you disagree with the upstream default being carried with DMS, or the value of providing alternative configuration support within DMS.
@@ -330,11 +331,11 @@ DMS is now secured against the [recently published spoofing attack "SMTP Smuggli
 
 - The test suite now uses `swaks` instead of `nc`, which has multiple benefits ([#3732](https://github.com/docker-mailserver/docker-mailserver/pull/3732)):
   - `swaks` handles pipelining correctly, hence we can now use `reject_unauth_pipelining` in Postfix's configuration.
-  - `swaks` provides better CLI options that make many files superflous.
+  - `swaks` provides better CLI options that make many files superfluous.
   - `swaks` can also replace `openssl s_client` and handles authentication on submission ports better.
 - **Postfix:**
   - We now defer rejection from unauthorized pipelining until the SMTP `DATA` command via `smtpd_data_restrictions` (_i.e. at the end of the mail transfer transaction_) ([#3744](https://github.com/docker-mailserver/docker-mailserver/pull/3744))
-    - Prevously our configuration only handled this during the client and recipient restriction stages. Postfix will flag this activity when encountered, but the rejection now is handled at `DATA` where unauthorized pipelining would have been valid from this point.
+    - Previously our configuration only handled this during the client and recipient restriction stages. Postfix will flag this activity when encountered, but the rejection now is handled at `DATA` where unauthorized pipelining would have been valid from this point.
     - If you had the Amavis service enabled (default), this restriction was already in place. Otherwise the concerns expressed with `smtpd_data_restrictions = reject_unauth_pipelining` from the security section above apply. We have permitted trusted clients (_`$mynetworks` or authenticated_) to bypass this restriction.
 
 ## [v13.1.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v13.1.0)
@@ -565,7 +566,7 @@ Notable changes are:
 - Rspamd feature is promoted from preview status
 - Services no longer use `chroot`
 - Fail2Ban major version upgrade
-- ARMv7 platform is no longer suppoted
+- ARMv7 platform is no longer supported
 - TLS 1.2 is the minimum supported protocol
 - SMTP authentication on port 25 disabled
 - The value of `smtpd_sender_restrictions` for Postfix has replaced the value ([#3127](https://github.com/docker-mailserver/docker-mailserver/pull/3127)):

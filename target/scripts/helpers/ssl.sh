@@ -8,7 +8,7 @@ function _setup_dhparam() {
   _log 'debug' "Setting up ${DH_SERVICE} dhparam"
 
   if [[ -f ${DH_CUSTOM} ]]; then # use custom supplied dh params (assumes they're probably insecure)
-    _log 'trace' "${DH_SERVICE} will use custom provided DH paramters"
+    _log 'trace' "${DH_SERVICE} will use custom provided DH parameters"
     _log 'warn' "Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove '${DH_CUSTOM}'"
 
     cp -f "${DH_CUSTOM}" "${DH_DEST}"

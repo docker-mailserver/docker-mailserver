@@ -37,7 +37,7 @@ Enabling Fail2Ban support can be done via ENV, but also requires granting at lea
           --env ENABLE_FAIL2BAN=1
         ```
 
-!!! warning "Security risk of adding non-default capabilties"
+!!! warning "Security risk of adding non-default capabilities"
 
     DMS bundles F2B into the image for convenience to simplify integration and deployment.
 

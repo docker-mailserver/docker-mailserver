@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
 BATS_TEST_NAME_PREFIX='[ClamAV + SA] (disabled) '
-CONTAINER_NAME='dms-test_clamav-spamassasin_disabled'
+CONTAINER_NAME='dms-test_clamav-spamassassin_disabled'
 
 function setup_file() {
   _init_with_defaults

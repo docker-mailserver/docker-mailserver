@@ -194,7 +194,7 @@ function __create_key() {
   local KEYSIZE=${4:-2048}
   local FORCE=${5:-}
 
-  # Not quoting is intended here as we would othewise provide
+  # Not quoting is intended here as we would otherwise provide
   # the argument "''" (empty string), which would cause errors
   # shellcheck disable=SC2086
   _run_in_container setup config dkim ${FORCE} \

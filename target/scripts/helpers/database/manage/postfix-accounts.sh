@@ -56,7 +56,7 @@ function _manage_accounts_dovecotmaster_delete { _manage_accounts 'delete' "${DA
 #
 
 # These validation helpers rely on:
-# - Exteral vars to be declared prior to calling them (MAIL_ACCOUNT, PASSWD, DATABASE).
+# - External vars to be declared prior to calling them (MAIL_ACCOUNT, PASSWD, DATABASE).
 # - Calling external method '__usage' as part of error handling.
 
 # Also used by setquota, delquota

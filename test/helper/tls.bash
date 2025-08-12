@@ -15,7 +15,7 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 
 # For certs actually provisioned from LetsEncrypt the Root CA cert should not need to be provided,
 # as it would already be available by default in `/etc/ssl/certs`, requiring only the cert chain (fullchain.pem).
-function _should_succesfully_negotiate_tls() {
+function _should_successfully_negotiate_tls() {
   local FQDN=${1}
   # shellcheck disable=SC2031
   local CA_CERT=${2:-${TEST_CA_CERT}}

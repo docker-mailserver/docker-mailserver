@@ -30,7 +30,7 @@ function _wait_until_expected_count_is_matched() {
   }
 
   # WARNING: Keep in mind it is a '>=' comparison.
-  # If you provide an explict count to match, ensure it is not too low to cause a false-positive.
+  # If you provide an explicit count to match, ensure it is not too low to cause a false-positive.
   function __has_expected_count() {
     # shellcheck disable=SC2317
     [[ $(__get_count) -ge "${EXPECTED_COUNT}" ]]

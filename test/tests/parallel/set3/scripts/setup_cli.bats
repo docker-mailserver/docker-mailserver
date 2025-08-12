@@ -117,7 +117,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 
   # NOTE: Sometimes the directory still exists, possibly from change detection
-  # of the previous test (`email udpate`) triggering. Therefore, the function
+  # of the previous test (`email update`) triggering. Therefore, the function
   # `wait_until_change_detection_event_completes was added to the
   # `setup.sh email update` test.
   _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" bash -c '[[ ! -d /var/mail/example.com/user ]]'

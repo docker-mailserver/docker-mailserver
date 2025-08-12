@@ -107,7 +107,7 @@ configs:
   # - Use an ECDSA cert that's been signed by a self-signed CA for TLS cert verification.
   # - This cert is only valid for mail.example.test, mail.destination.test, smtp.relay-service.test
 
-  # `swaks` run in the container will need to reference this CA cert file for successful verficiation (optional).
+  # `swaks` run in the container will need to reference this CA cert file for successful verification (optional).
   tls-ca-cert:
     content: |
       -----BEGIN CERTIFICATE-----
