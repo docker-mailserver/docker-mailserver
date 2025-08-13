@@ -13,7 +13,7 @@ permissions:
 jobs:
   run-tests:
     name: 'Test'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         part: [serial, parallel/set1, parallel/set2, parallel/set3]
