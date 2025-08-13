@@ -6,7 +6,7 @@
 # -o pipefail :: exit on error in pipes
 set -eE -u -o pipefail
 
-VERSION_CODENAME='bookworm'
+VERSION_CODENAME='trixie'
 
 # shellcheck source=../helpers/log.sh
 source /usr/local/bin/helpers/log.sh
@@ -28,12 +28,17 @@ function _pre_installation_steps() {
   local EARLY_PACKAGES=(
     # Avoid logging unnecessary warnings:
     apt-utils
+    # we need this early for the creation of accounts like 'clamav'
+    adduser
     # Required for adding third-party repos (/etc/apt/sources.list.d) as alternative package sources (eg: Dovecot CE and Rspamd):
     apt-transport-https ca-certificates curl gnupg
     # Avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953):
     systemd-standalone-sysusers
   )
   apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
+
+  chmod +x /usr/local/bin/sedfile
+  adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
 }
 
 # Install third-party commands to /usr/local/bin
@@ -60,12 +65,12 @@ function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
 
   _log 'trace' 'Installing jaq'
-  local JAQ_TAG='v2.1.0'
+  local JAQ_TAG='v2.3.0'
   curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-$(uname -m)-unknown-linux-gnu" -o /usr/local/bin/jaq
   chmod +x /usr/local/bin/jaq
 
   _log 'trace' 'Installing step'
-  local STEP_RELEASE='0.28.2'
+  local STEP_RELEASE='0.28.7'
   curl -sSfL "https://github.com/smallstep/cli/releases/download/v${STEP_RELEASE}/step_linux_${STEP_RELEASE}_${ARCH_B}.tar.gz" \
     | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=2 "step_${STEP_RELEASE}/bin/step"
 
@@ -91,7 +96,7 @@ function _install_packages() {
   local CODECS_PACKAGES=(
     altermime arj bzip2
     cabextract cpio file
-    gzip lhasa liblz4-tool
+    gzip lhasa lz4
     lrzip lzop nomarch
     p7zip-full pax rpm2cpio
     unrar-free unzip xz-utils
@@ -154,17 +159,22 @@ function _install_dovecot() {
   # NOTE: AMD64 / x86_64 is the only supported arch from the Dovecot CE repo (thus noDMS built for ARM64 / aarch64)
   # Repo: https://repo.dovecot.org/ce-2.4-latest/debian/bookworm/dists/bookworm/main/
   # Docs: https://repo.dovecot.org/#debian
-  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]] && [[ "$(uname --machine)" == "x86_64" ]]; then
+  if [[ ${DOVECOT_COMMUNITY_REPO:-0} -eq 1 ]] && [[ $(uname --machine) == x86_64 ]]; then
     # WARNING: Repo only provides Debian Bookworm package support for Dovecot CE 2.4+.
     # As Debian Bookworm only packages Dovecot 2.3.x, building DMS with this alternative package repo may not yet be compatible with DMS:
     # - 2.3.19: https://salsa.debian.org/debian/dovecot/-/tree/stable/bookworm
     # - 2.3.21: https://salsa.debian.org/debian/dovecot/-/tree/stable/bookworm-backports
 
     _log 'trace' 'Adding third-party package repository (Dovecot)'
-    curl -fsSL https://repo.dovecot.org/DOVECOT-REPO-GPG-2.4 | gpg --dearmor > /usr/share/keyrings/upstream-dovecot.gpg
-    echo \
-      "deb [signed-by=/usr/share/keyrings/upstream-dovecot.gpg] https://repo.dovecot.org/ce-2.4-latest/debian/${VERSION_CODENAME} ${VERSION_CODENAME} main" \
-      > /etc/apt/sources.list.d/upstream-dovecot.list
+    curl -fsSL https://repo.dovecot.org/DOVECOT-REPO-GPG-2.4 \
+      | gpg --dearmor >/usr/share/keyrings/upstream-dovecot.gpg
+    cat >/etc/apt/sources.list.d/upstream-dovecot.sources <<EOF
+Types: deb
+URIs: https://repo.dovecot.org/ce-2.4-latest/debian/${VERSION_CODENAME}
+Suites: ${VERSION_CODENAME}
+Components: main
+Signed-By: /usr/share/keyrings/upstream-dovecot.gpg
+EOF
 
     # Refresh package index:
     apt-get "${QUIET}" update
@@ -182,18 +192,23 @@ function _install_dovecot() {
 }
 
 function _install_rspamd() {
-  # NOTE: DMS only supports the rspamd package via using the third-party repo maintained by Rspamd (AMD64 + ARM64):
-  # Repo: https://rspamd.com/apt-stable/dists/bookworm/main/
-  # Docs: https://rspamd.com/downloads.html#debian-and-ubuntu-linux
-  # NOTE: Debian 12 provides Rspamd 3.4 (too old) and Rspamd discourages it's use
+  # NOTE: DMS only supports the rspamd package via using the third-party
+  # repo maintained by Rspamd (AMD64 + ARM64):
+  # ref: https://rspamd.com/downloads.html#debian-and-ubuntu-linux
 
+  # TODO (Debian 13) re-enable later
   _log 'trace' 'Adding third-party package repository (Rspamd)'
-  curl -fsSL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
-  echo \
-    "deb [signed-by=/usr/share/keyrings/upstream-rspamd.gpg] https://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" \
-    > /etc/apt/sources.list.d/upstream-rspamd.list
+  curl -fsSL https://rspamd.com/apt-stable/gpg.key \
+    | gpg --dearmor >/usr/share/keyrings/upstream-rspamd.gpg
+  cat >/etc/apt/sources.list.d/upstream-rspamd.sources <<EOF
+Types: deb
+Enabled: No
+URIs: https://rspamd.com/apt-stable/
+Suites: ${VERSION_CODENAME}
+Components: main
+Signed-By: /usr/share/keyrings/upstream-rspamd.gpg
+EOF
 
-  # Refresh package index:
   apt-get "${QUIET}" update
 
   _log 'debug' 'Installing Rspamd'

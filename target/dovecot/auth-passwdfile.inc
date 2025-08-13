@@ -1,20 +1,24 @@
 # Authentication for passwd-file users. Included from 10-auth.conf.
 #
-# Documentation
-#   PassDB: https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/
-#   UserDB: https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/
-#
-# !!! Attention !!!
-#   Do not add `scheme=SHA512-CRYPT` to the userdb args. This is not supported.
+# ref: https://doc.dovecot.org/main/core/config/auth/databases/passwd_file.html
 
-passdb {
+passdb passwd-file {
   driver = passwd-file
-  mechanisms = plain login
-  args = scheme=SHA512-CRYPT username_format=%u /etc/dovecot/userdb
+  mechanisms_filter = plain login
+  default_password_scheme = SHA512-CRYPT
+  auth_username_format = %{user}
+  passwd_file_path = /etc/dovecot/userdb
 }
 
-userdb {
+userdb passwd-file {
   driver = passwd-file
-  args = username_format=%u /etc/dovecot/userdb
-  default_fields = uid=docker gid=docker home=/var/mail/%d/%u/home/
+  auth_username_format = %{user}
+  passwd_file_path = /etc/dovecot/userdb
+  # Default field values to use when they're not set for user accounts sourced via `/etc/dovecot/userdb`.
+  # NOTE: That file is created from `postfix-accounts.cf` + `postfix-virtual.cf`
+  fields {
+    uid:default = docker
+    gid:default = docker
+    home:default = /var/mail/%{user | domain}/%{user | username}/home/
+  }
 }
