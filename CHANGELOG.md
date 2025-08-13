@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Removed
+
+- **SpamAssassin**
+  - removed Pyzor and Razor ([#4548](https://github.com/docker-mailserver/docker-mailserver/pull/4548))
+
 ## [v15.1.0](https://github.com/docker-mailserver/docker-mailserver/compare/v15.1.0...HEAD)
 
 > [!NOTE]

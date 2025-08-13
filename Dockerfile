@@ -151,22 +151,6 @@ RUN <<EOF
   chmod 644 /etc/amavis/conf.d/*
 EOF
 
-# overcomplication necessary for CI
-# hadolint ignore=SC2086
-RUN <<EOF
-  for _ in {1..10}; do
-    su - amavis -c "razor-admin -create"
-    sleep 3
-    if su - amavis -c "razor-admin -register"; then
-      EC=0
-      break
-    else
-      EC=${?}
-    fi
-  done
-  exit ${EC}
-EOF
-
 # -----------------------------------------------
 # --- Fail2Ban, DKIM & DMARC --------------------
 # -----------------------------------------------

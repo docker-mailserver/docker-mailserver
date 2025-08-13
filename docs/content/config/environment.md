@@ -656,8 +656,8 @@ Mail is not yet considered spam at this spam score, but for purposes like diagno
     X-Spam-Level: ****
     X-Spam-Status: No, score=4.162 tagged_above=2 required=4
             tests=[BODY_SINGLE_WORD=1, DKIM_ADSP_NXDOMAIN=0.8,
-            NO_DNS_FOR_FROM=0.379, NO_RECEIVED=-0.001, NO_RELAYS=-0.001,
-            PYZOR_CHECK=1.985] autolearn=no autolearn_force=no
+            NO_DNS_FOR_FROM=0.379, NO_RECEIVED=-0.001, NO_RELAYS=-0.001]
+            autolearn=no autolearn_force=no
     ```
 
     !!! info "The `X-Spam-Score` is `4.162`"
