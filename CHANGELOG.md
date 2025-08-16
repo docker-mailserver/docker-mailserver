@@ -8,8 +8,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Removed
 
-- **SpamAssassin**
-  - removed Pyzor and Razor ([#4548](https://github.com/docker-mailserver/docker-mailserver/pull/4548))
+- **SpamAssassin:**
+  - Removed Pyzor + Razor due to maintenance concerns. From observations it is unlikely to have any notable regression ([#4548](https://github.com/docker-mailserver/docker-mailserver/pull/4548))
 
 ## [v15.1.0](https://github.com/docker-mailserver/docker-mailserver/compare/v15.1.0...HEAD)
 
