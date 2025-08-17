@@ -11,6 +11,14 @@ All notable changes to this project will be documented in this file. The format 
 - **SpamAssassin:**
   - Removed Pyzor + Razor due to maintenance concerns. From observations it is unlikely to have any notable regression ([#4548](https://github.com/docker-mailserver/docker-mailserver/pull/4548))
 
+### Updated
+
+- **Externally installed software**
+  - bumped `jaq` from `2.1.0` to [`2.3.0`](https://github.com/01mf02/jaq/releases/tag/v2.3.0) ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557))
+  - bumped `step` CLI from `0.28.2` to [`0.28.7`](https://github.com/smallstep/cli/releases/tag/v0.28.7)) ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557))
+- **Dovecot**
+  - Bumped Xapian version from `1.9` to [`1.9.1`](https://github.com/grosjo/fts-xapian/releases/tag/1.9.1) ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557)), which includes Dovecot 2.4 compatibility
+
 ## [v15.1.0](https://github.com/docker-mailserver/docker-mailserver/compare/v15.1.0...HEAD)
 
 > [!NOTE]
