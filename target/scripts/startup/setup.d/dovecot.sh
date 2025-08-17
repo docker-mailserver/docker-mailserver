@@ -236,7 +236,3 @@ function _setup_dovecot_inet_protocols() {
 
   sedfile -i "s|^#listen =.*|listen = ${PROTOCOL}|g" /etc/dovecot/dovecot.conf
 }
-
-function _setup_dovecot_dhparam() {
-  _setup_dhparam 'Dovecot' '/etc/dovecot/dh.pem'
-}

@@ -45,7 +45,6 @@ smtp_tls_protocols = !SSLv2,!SSLv3,!TLSv1,!TLSv1.1
 smtpd_tls_mandatory_ciphers = high
 smtpd_tls_mandatory_protocols = !SSLv2,!SSLv3,!TLSv1,!TLSv1.1
 smtpd_tls_exclude_ciphers = aNULL, SEED, CAMELLIA, RSA+AES, SHA1
-smtpd_tls_dh1024_param_file = /etc/postfix/dhparams.pem
 smtpd_tls_CApath = /etc/ssl/certs
 smtp_tls_CApath = /etc/ssl/certs
 
