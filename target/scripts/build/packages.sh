@@ -161,10 +161,15 @@ function _install_dovecot() {
     # - 2.3.21: https://salsa.debian.org/debian/dovecot/-/tree/stable/bookworm-backports
 
     _log 'trace' 'Adding third-party package repository (Dovecot)'
-    curl -fsSL https://repo.dovecot.org/DOVECOT-REPO-GPG-2.4 | gpg --dearmor > /usr/share/keyrings/upstream-dovecot.gpg
-    echo \
-      "deb [signed-by=/usr/share/keyrings/upstream-dovecot.gpg] https://repo.dovecot.org/ce-2.4-latest/debian/${VERSION_CODENAME} ${VERSION_CODENAME} main" \
-      > /etc/apt/sources.list.d/upstream-dovecot.list
+    curl -fsSL https://repo.dovecot.org/DOVECOT-REPO-GPG-2.4 \
+      | gpg --dearmor >/usr/share/keyrings/upstream-dovecot.gpg
+    cat >/etc/apt/sources.list.d/upstream-dovecot.sources <<EOF
+Types: deb
+URIs: https://repo.dovecot.org/ce-2.4-latest/debian/${VERSION_CODENAME}
+Suites: ${VERSION_CODENAME}
+Components: main
+Signed-By: /usr/share/keyrings/upstream-dovecot.gpg
+EOF
 
     # Refresh package index:
     apt-get "${QUIET}" update
@@ -188,10 +193,15 @@ function _install_rspamd() {
   # NOTE: Debian 12 provides Rspamd 3.4 (too old) and Rspamd discourages it's use
 
   _log 'trace' 'Adding third-party package repository (Rspamd)'
-  curl -fsSL https://rspamd.com/apt-stable/gpg.key | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
-  echo \
-    "deb [signed-by=/usr/share/keyrings/upstream-rspamd.gpg] https://rspamd.com/apt-stable/ ${VERSION_CODENAME} main" \
-    > /etc/apt/sources.list.d/upstream-rspamd.list
+  curl -fsSL https://rspamd.com/apt-stable/gpg.key \
+    | gpg --dearmor >/usr/share/keyrings/upstream-rspamd.gpg
+  cat >/etc/apt/sources.list.d/upstream-rspamd.sources <<EOF
+Types: deb
+URIs: https://rspamd.com/apt-stable/
+Suites: ${VERSION_CODENAME}
+Components: main
+Signed-By: /usr/share/keyrings/upstream-rspamd.gpg
+EOF
 
   # Refresh package index:
   apt-get "${QUIET}" update
