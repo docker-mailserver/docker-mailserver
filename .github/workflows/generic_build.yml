@@ -28,7 +28,7 @@ jobs:
       build-cache-key: ${{ steps.derive-image-cache-key.outputs.digest }}
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
