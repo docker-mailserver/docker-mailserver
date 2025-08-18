@@ -12,8 +12,9 @@ All notable changes to this project will be documented in this file. The format 
   - Removed Pyzor + Razor due to maintenance concerns. From observations it is unlikely to have any notable regression ([#4548](https://github.com/docker-mailserver/docker-mailserver/pull/4548))
 
 ### Updated
-- **APT**
-  - Updated `.list` => `.sources` according to the new [DEB822](https://repolib.readthedocs.io/en/latest/deb822-format.html) format ([#4556](https://github.com/docker-mailserver/docker-mailserver/pull/4556))
+
+- **Internal:**
+  - Aligning with the change in upstream Debian, APT package repositories added by DMS have migrated the format from `.list` to `.sources` ([DEB822](https://repolib.readthedocs.io/en/latest/deb822-format.html)) ([#4556](https://github.com/docker-mailserver/docker-mailserver/pull/4556))
 
 ## [v15.1.0](https://github.com/docker-mailserver/docker-mailserver/compare/v15.1.0...HEAD)
 
