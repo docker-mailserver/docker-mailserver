@@ -21,6 +21,8 @@ function _main() {
 
     if [[ ${MAILDEL} -eq 1 ]]; then
       _remove_maildir "${MAIL_ACCOUNT}"
+    elif [[ ${MAILDEL} -eq 2 ]]; then
+      _log 'info' "Mailbox data explicitly kept (using -n)."
     else
       _log 'info' "The mailbox data will not be deleted."
     fi
@@ -48,6 +50,8 @@ ${ORANGE}USAGE${RESET}
 ${ORANGE}OPTIONS${RESET}
     -y
         Skip prompt by approving to ${LWHITE}delete all mail data${RESET} for the account(s).
+    -n
+        Skip prompt by declining to ${LWHITE}delete all mail data${RESET} for the account(s).
 
     ${BLUE}Generic Program Information${RESET}
         help       Print the usage information.
@@ -65,6 +69,10 @@ ${ORANGE}EXAMPLES${RESET}
         Delete the two mail accounts requested, their associated data and
         delete the mailbox data for both accounts without asking.
 
+    ${LWHITE}./setup.sh email del -n user@example.com extra-user@example.com${RESET}
+        Delete the two mail accounts requested, their associated data and DO NOT
+        delete the mailbox data for both accounts without asking.
+
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided
     or arguments contain errors, the script will exit early with exit status 1.
@@ -73,12 +81,14 @@ ${ORANGE}EXIT STATUS${RESET}
 }
 
 function _parse_options() {
-  while getopts ":yY" OPT; do
+  while getopts ":yYnN" OPT; do
     case "${OPT}" in
       ( 'y' | 'Y' )
         MAILDEL=1
         ;;
-
+      ( 'n' | 'N' )
+        MAILDEL=2
+        ;;
       ( * )
         __usage
         _exit_with_error "The option '${OPT}' is unknown"
