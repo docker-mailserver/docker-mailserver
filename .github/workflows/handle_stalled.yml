@@ -5,13 +5,13 @@ on:
     - cron: "0 1 * * *"
 
 permissions:
+  actions: write
   contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   stale:
-    permissions:
-      issues: write
-      pull-requests: write
     runs-on: ubuntu-24.04
     steps:
       - name: Close stale issues
