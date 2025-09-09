@@ -7,7 +7,7 @@ smtp-amavis     unix    -       -       n       -       2       smtp
   -o syslog_name=postfix/$service_name
   -o smtp_data_done_timeout=1200
   -o smtp_send_xforward_command=yes
-  -o disable_dns_lookups=yes
+  -o smtp_dns_support_level=disabled
   -o max_use=20
   -o smtp_tls_security_level=none
   -o smtp_tls_wrappermode=no
