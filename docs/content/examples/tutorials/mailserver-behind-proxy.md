@@ -259,7 +259,7 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
     postconf -Mf smtp/inet | sed -e s/^smtp/12525/ >> /etc/postfix/master.cf
     # Enable PROXY Protocol support:
     # - Uses a different setting as port 25 is handled via the postscreen service
-    # - Optionally configure a `syslog_name` to distinguish in logs:
+    # - Optionally configure a `syslog_name` to distinguish in logs
     postconf -P \
       12525/inet/postscreen_upstream_proxy_protocol=haproxy \
       12525/inet/syslog_name=postfix/smtpd-proxyprotocol
