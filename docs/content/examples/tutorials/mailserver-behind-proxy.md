@@ -257,14 +257,16 @@ The below guidance is focused on configuring [Traefik][traefik-web], but the adv
 
     # Create a variant for port 25 too (NOTE: Port 10025 is already assigned in DMS to Amavis):
     postconf -Mf smtp/inet | sed -e s/^smtp/12525/ >> /etc/postfix/master.cf
-    # Enable PROXY Protocol support (different setting as port 25 is handled via postscreen), optionally configure a `syslog_name` to distinguish in logs:
-    postconf -P 12525/inet/postscreen_upstream_proxy_protocol=haproxy 12525/inet/syslog_name=postfix/smtpd-proxyprotocol
-    ```
+    # Enable PROXY Protocol support:
+    # - Uses a different setting as port 25 is handled via the postscreen service
+    # - Optionally configure a `syslog_name` to distinguish in logs
+    postconf -P \
+      12525/inet/postscreen_upstream_proxy_protocol=haproxy \
+      12525/inet/syslog_name=postfix/smtpd-proxyprotocol
 
-    Supporting port 25 with an additional PROXY protocol port will also require a `postfix-main.cf` override line for `postscreen` to work correctly:
-
-    ```cf  title="docker-data/dms/config/postfix-main.cf"
-    postscreen_cache_map = proxy:btree:$data_directory/postscreen_cache
+    # Supporting port 25 with an additional PROXY protocol port (12525) will also require to
+    # share a postscreen cache between each running postscreen service via a `proxymap`:
+    postconf 'postscreen_cache_map = proxy:btree:$data_directory/postscreen_cache'
     ```
 
     ---
