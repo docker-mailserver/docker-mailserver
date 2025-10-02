@@ -99,7 +99,7 @@ function _create_dovecot_alias_dummy_accounts() {
       # Support checking multiple aliased addresses (split by `,` delimiter):
       # - The first local account matched will be associated to the alias
       # - Does not support resolving FQUN if it were also an alias
-      for FQUN in $(echo "${ALIASED}" | sed "s/,/ /g")
+      for FQUN in ${ALIASED//,/ }
       do
         if grep -q "${FQUN}" "${DATABASE_ACCOUNTS}"; then
           REAL_FQUN="${FQUN}"
