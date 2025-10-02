@@ -79,7 +79,7 @@ function _create_accounts() {
 # the Postfix `quota-status` policy service and remain at risk of backscatter.
 #
 # for more details on this method, see:
-# https://github.com/docker-mailserver/docker-mailserver/pull/2248#issuecomment-953313852 
+# https://github.com/docker-mailserver/docker-mailserver/pull/2248#issuecomment-953313852
 function _create_dovecot_alias_dummy_accounts() {
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
   # NOTE: `DATABASE_ACCOUNTS` should be in scope (provided from the expected caller: `_create_accounts()`)
