@@ -33,7 +33,7 @@ function teardown_file() { _default_teardown ; }
   assert_line --index 8 'first-name@localhost.localdomain'
   assert_line --index 9 'first.name@localhost.localdomain'
   _should_output_number_of_lines 10
-  
+
   refute_line --partial '@localdomain2.com'
 
   # Relevant log output from scripts/helpers/accounts.sh:_create_dovecot_alias_dummy_accounts():
