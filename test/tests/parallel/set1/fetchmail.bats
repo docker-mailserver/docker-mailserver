@@ -63,7 +63,7 @@ function teardown_file() {
 @test "(ENV FETCHMAIL_PARALLEL=1) should detect info line in fetchmail-x.rc" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
 
-  _should_not_have_in_config     'INFO'                      /etc/fetchmailrc.d/fetchmail-1.rc
+  _should_not_have_in_config      'INFO'                      /etc/fetchmailrc.d/fetchmail-1.rc
   _should_note_have_in_config     'INFO'                      /etc/fetchmailrc.d/fetchmail-2.rc
 }
 
