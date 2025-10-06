@@ -60,11 +60,11 @@ function teardown_file() {
   _should_not_have_in_config 'pop3.third-party.test. '   /etc/fetchmailrc.d/fetchmail-2.rc
 }
 
-@test "(ENV FETCHMAIL_PARALLEL=1) should detect info line in fetchmail-x.rc" {
+@test "(ENV FETCHMAIL_PARALLEL=1) should not have logs emitted into fetchmail-x.rc" {
   export CONTAINER_NAME=${CONTAINER2_NAME}
 
   _should_not_have_in_config      'INFO'                      /etc/fetchmailrc.d/fetchmail-1.rc
-  _should_note_have_in_config     'INFO'                      /etc/fetchmailrc.d/fetchmail-2.rc
+  _should_not_have_in_config      'INFO'                      /etc/fetchmailrc.d/fetchmail-2.rc
 }
 
 function _should_have_in_config() {
