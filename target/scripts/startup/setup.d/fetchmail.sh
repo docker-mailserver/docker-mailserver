@@ -77,8 +77,8 @@ function _setup_fetchmail_parallel() {
 
     local COUNTER=0
     for RC in /etc/fetchmailrc.d/fetchmail-*.rc; do
-    COUNTER=$(( COUNTER + 1 ))
-    cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
+      COUNTER=$(( COUNTER + 1 ))
+      cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
 [program:fetchmail-${COUNTER}]
 startsecs=0
 autostart=false
