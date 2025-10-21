@@ -1,5 +1,5 @@
 ---
-title: 'Advanced | Compression'
+title: 'Tutorials | Mailbox Compression'
 ---
 
 ## Overview
