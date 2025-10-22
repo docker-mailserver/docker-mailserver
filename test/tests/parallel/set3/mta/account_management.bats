@@ -27,19 +27,18 @@ function teardown_file() { _default_teardown ; }
   assert_line --index 3 'added@localhost.localdomain'
   assert_line --index 4 'pass@localhost.localdomain'
   assert_line --index 5 'alias1@localhost.localdomain'
-  # TODO: Probably not intentional?:
-  assert_line --index 6 '@localdomain2.com'
   # Dovecot "dummy accounts" for quota support, see `test/config/postfix-virtual.cf` for more context
-  assert_line --index 7 'prefixtest@localhost.localdomain'
-  assert_line --index 8 'test@localhost.localdomain'
-  assert_line --index 9 'first-name@localhost.localdomain'
-  assert_line --index 10 'first.name@localhost.localdomain'
-  _should_output_number_of_lines 11
+  assert_line --index 6 'prefixtest@localhost.localdomain'
+  assert_line --index 7 'test@localhost.localdomain'
+  assert_line --index 8 'first-name@localhost.localdomain'
+  assert_line --index 9 'first.name@localhost.localdomain'
+  _should_output_number_of_lines 10
+
+  refute_line --partial '@localdomain2.com'
 
   # Relevant log output from scripts/helpers/accounts.sh:_create_dovecot_alias_dummy_accounts():
   # [  DEBUG  ]  Adding alias 'alias1@localhost.localdomain' for user 'user1@localhost.localdomain' to Dovecot's userdb
   # [  DEBUG  ]  Alias 'alias2@localhost.localdomain' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb
-  # [  DEBUG  ]  Adding alias '@localdomain2.com' for user 'user1@localhost.localdomain' to Dovecot's userdb
 }
 
 # Dovecot "dummy accounts" for quota support, see `test/config/postfix-virtual.cf` for more context

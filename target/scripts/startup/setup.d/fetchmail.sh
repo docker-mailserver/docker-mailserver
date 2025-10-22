@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Docs - Config:
+# https://www.fetchmail.info/fetchmail-man.html#the-run-control-file
+# Docs - CLI:
+# https://www.fetchmail.info/fetchmail-man.html#general-operation
+# https://www.fetchmail.info/fetchmail-man.html#daemon-mode
+
 function _setup_fetchmail() {
   if [[ ${ENABLE_FETCHMAIL} -eq 1 ]]; then
     _log 'trace' 'Enabling and configuring Fetchmail'
@@ -9,6 +15,7 @@ function _setup_fetchmail() {
     CONFIGURATION='/tmp/docker-mailserver/fetchmail.cf'
     FETCHMAILRC='/etc/fetchmailrc'
 
+    # Create `/etc/fetchmailrc` with default global config, optionally appending user-provided config:
     if [[ -f ${CONFIGURATION} ]]; then
       cat /etc/fetchmailrc_general "${CONFIGURATION}" >"${FETCHMAILRC}"
     else
@@ -22,17 +29,18 @@ function _setup_fetchmail() {
   fi
 }
 
+# NOTE: This feature is only actually relevant for entries polling via IMAP (to support leveraging the "IMAP IDLE" extension):
+# - With either the `--idle` CLI or `idle` config option present
+# - With a constraint on one fetchmail instance per server polled (and only for a single mailbox folder to monitor from that poll entry)
+# - Reference: https://otremba.net/wiki/Fetchmail_(Debian)#Immediate_Download_via_IMAP_IDLE
 function _setup_fetchmail_parallel() {
   if [[ ${FETCHMAIL_PARALLEL} -eq 1 ]]; then
     _log 'trace' 'Enabling and configuring Fetchmail parallel'
     mkdir /etc/fetchmailrc.d/
 
-    # Split the content of /etc/fetchmailrc into
-    # smaller fetchmailrc files per server [poll] entries. Each
-    # separate fetchmailrc file is stored in /etc/fetchmailrc.d
-    #
-    # The sole purpose for this is to work around what is known
-    # as the Fetchmail IMAP idle issue.
+    # Extract the content of `/etc/fetchmailrc` into:
+    # - Individual `/etc/fetchmailrc.d/fetchmail-*.rc` files, one per server (`poll` entries)
+    # - Global config options temporarily to `/etc/fetchmailrc.d/defaults`, which is prepended to each `fetchmail-*.rc` file
     function _fetchmailrc_split() {
       local FETCHMAILRC='/etc/fetchmailrc'
       local FETCHMAILRCD='/etc/fetchmailrc.d'
@@ -50,22 +58,25 @@ function _setup_fetchmail_parallel() {
         fi
       fi
 
+      # Scan through the config:
+      # 1. Extract the global fetchmail config lines (before any poll entry is configured).
+      # 2. Once a poll entry line is found, create a new config with the global config and append the poll entry config.
+      # 3. Repeat step 2 when another poll entry is found, until reaching the end of `/etc/fetchmailrc`.
       local COUNTER=0 SERVER=0
       while read -r LINE; do
         if [[ ${LINE} =~ poll ]]; then
-          # If we read "poll" then we reached a new server definition
-          # We need to create a new file with fetchmail defaults from
-          # /etc/fetcmailrc
-          COUNTER=$(( COUNTER + 1 ))
+          # Signal that global config has been captured (only remaining poll entry configs needs to be parsed):
           SERVER=1
+
+          # Create a new fetchmail config for this poll entry:
+          COUNTER=$(( COUNTER + 1 ))
           cat "${DEFAULT_FILE}" >"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
           echo "${LINE}" >>"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
         elif [[ ${SERVER} -eq 0 ]]; then
-          # We have not yet found "poll". Let's assume we are still reading
-          # the default settings from /etc/fetchmailrc file
+          # Until the first poll entry is encountered, all lines are captured as global config:
           echo "${LINE}" >>"${DEFAULT_FILE}"
         else
-          # Just the server settings that need to be added to the specific rc.d file
+          # Otherwise until a new poll entry is encountered, all lines are captured for the current poll config:
           echo "${LINE}" >>"${FETCHMAILRCD}/fetchmail-${COUNTER}.rc"
         fi
       done < <(_get_valid_lines_from_file "${FETCHMAILRC}")
@@ -75,10 +86,12 @@ function _setup_fetchmail_parallel() {
 
     _fetchmailrc_split
 
+    # Create supervisord service files for each instance:
+    # `--idfile` is intended for supporting POP3 with UIDL cache (requires either `--uidl` for CLI, or `uidl` setting in config)
     local COUNTER=0
     for RC in /etc/fetchmailrc.d/fetchmail-*.rc; do
-    COUNTER=$(( COUNTER + 1 ))
-    cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
+      COUNTER=$(( COUNTER + 1 ))
+      cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
 [program:fetchmail-${COUNTER}]
 startsecs=0
 autostart=false
@@ -86,8 +99,9 @@ autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
 user=fetchmail
-command=/usr/bin/fetchmail -f ${RC} -v --nodetach --daemon %(ENV_FETCHMAIL_POLL)s -i /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
+command=/usr/bin/fetchmail --fetchmailrc ${RC} --verbose --nodetach --daemon %(ENV_FETCHMAIL_POLL)s --idfile /var/lib/fetchmail/.fetchmail-UIDL-cache --pidfile /var/run/fetchmail/%(program_name)s.pid
 EOF
+
       chmod 700 "${RC}"
       chown fetchmail:root "${RC}"
     done

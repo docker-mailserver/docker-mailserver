@@ -104,11 +104,9 @@ function _log() {
 
   MESSAGE="$(date --rfc-3339='seconds') ${!LOG_COLOR}${LOG_LEVEL_NAME}${RESET} $(basename "${0}"): ${2}"
 
-  if [[ ${1} =~ ^(warn|error)$ ]]; then
-    echo -e "${MESSAGE}" >&2
-  else
-    echo -e "${MESSAGE}"
-  fi
+  # All logs should go through to STDERR,
+  # STDOUT is only appropriate for expected program output
+  echo -e "${MESSAGE}" >&2
 }
 
 # Get the value of the environment variable LOG_LEVEL if

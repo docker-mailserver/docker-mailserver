@@ -36,16 +36,7 @@ function _create_accounts() {
       USER=$(echo "${LOGIN}" | cut -d @ -f1)
       DOMAIN=$(echo "${LOGIN}" | cut -d @ -f2)
 
-      # test if user has a defined quota
-      if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]; then
-        declare -a USER_QUOTA
-        IFS=':' read -r -a USER_QUOTA < <(grep "${USER}@${DOMAIN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
-
-        if [[ ${#USER_QUOTA[@]} -eq 2 ]]; then
-          USER_ATTRIBUTES="${USER_ATTRIBUTES:+${USER_ATTRIBUTES} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
-        fi
-      fi
-
+      USER_ATTRIBUTES="$(_add_attribute_dovecot_quota "${LOGIN}" "${USER_ATTRIBUTES}")"
       if [[ -z ${USER_ATTRIBUTES} ]]; then
         _log 'debug' "Creating user '${USER}' for domain '${DOMAIN}'"
       else
@@ -82,40 +73,52 @@ function _create_accounts() {
   fi
 }
 
-# Required when using Dovecot Quotas to avoid blacklisting risk from backscatter
-# Note: This is a workaround only suitable for basic aliases that map to single real addresses,
-# not multiple addresses (real accounts or additional aliases), those will not work with Postfix
-# `quota-status` policy service and remain at risk of backscatter.
+# Required when using Dovecot Quotas to avoid blacklisting risk from backscatter.
+# Note: This is a workaround only suitable for basic aliases that map to a single real address,
+# not multiple addresses (real accounts or additional aliases), those will not work with
+# the Postfix `quota-status` policy service and remain at risk of backscatter.
 #
-# see https://github.com/docker-mailserver/docker-mailserver/pull/2248#issuecomment-953313852
-# for more details on this method
+# for more details on this method, see:
+# https://github.com/docker-mailserver/docker-mailserver/pull/2248#issuecomment-953313852
 function _create_dovecot_alias_dummy_accounts() {
   local DATABASE_VIRTUAL='/tmp/docker-mailserver/postfix-virtual.cf'
+  # NOTE: `DATABASE_ACCOUNTS` should be in scope (provided from the expected caller: `_create_accounts()`)
 
+  # Add aliases associated to DMS mailbox accounts as dummy entries into Dovecot's userdb,
+  # These will share the same storage as a real account for the `quota-status` check to query.
   if [[ -f ${DATABASE_VIRTUAL} ]] && [[ ${ENABLE_QUOTAS} -eq 1 ]]; then
-    # adding aliases to Dovecot's userdb
-    # ${REAL_FQUN} is a user's fully-qualified username
-    local ALIAS REAL_FQUN DOVECOT_USERDB_LINE
-    while read -r ALIAS REAL_FQUN; do
-      # alias is assumed to not be a proper e-mail
-      # these aliases do not need to be added to Dovecot's userdb
-      [[ ! ${ALIAS} == *@* ]] && continue
+    local ALIAS ALIASED DOVECOT_USERDB_LINE
+    while read -r ALIAS ALIASED; do
+      # Skip any alias lacking `@` (aka local-part only) or is a catch-all domain (starts with `@`):
+      [[ ! ${ALIAS} =~ .+@.+ ]] && continue
 
-      # clear possibly already filled arrays
-      # do not remove the following line of code
-      unset REAL_ACC USER_QUOTA
-      declare -a REAL_ACC USER_QUOTA
+      # ${REAL_FQUN} is a user's fully-qualified username
+      unset REAL_FQUN
+      local REAL_FQUN REAL_USERNAME REAL_DOMAINNAME
 
-      local REAL_USERNAME REAL_DOMAINNAME
-      REAL_USERNAME=$(cut -d '@' -f 1 <<< "${REAL_FQUN}")
-      REAL_DOMAINNAME=$(cut -d '@' -f 2 <<< "${REAL_FQUN}")
+      # Support checking multiple aliased addresses (split by `,` delimiter):
+      # - The first local account matched will be associated to the alias
+      # - Does not support resolving FQUN if it were also an alias
+      for FQUN in ${ALIASED//,/ }
+      do
+        if grep -q "${FQUN}" "${DATABASE_ACCOUNTS}"; then
+          REAL_FQUN="${FQUN}"
+          REAL_USERNAME=$(cut -d '@' -f 1 <<< "${REAL_FQUN}")
+          REAL_DOMAINNAME=$(cut -d '@' -f 2 <<< "${REAL_FQUN}")
+          break
+        fi
+      done
 
-      if ! grep -q "${REAL_FQUN}" "${DATABASE_ACCOUNTS}"; then
+      if [[ -z ${REAL_FQUN} ]] || ! grep -q "${REAL_FQUN}" "${DATABASE_ACCOUNTS}"; then
         _log 'debug' "Alias '${ALIAS}' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb"
         continue
       fi
 
       _log 'debug' "Adding alias '${ALIAS}' for user '${REAL_FQUN}' to Dovecot's userdb"
+
+      # Clear possibly already filled arrays (do not remove the following line of code)
+      unset REAL_ACC USER_QUOTA
+      declare -a REAL_ACC USER_QUOTA
 
       # ${REAL_ACC[0]} => real account name (e-mail address) == ${REAL_FQUN}
       # ${REAL_ACC[1]} => password hash
@@ -126,13 +129,8 @@ function _create_dovecot_alias_dummy_accounts() {
         _dms_panic__misconfigured 'postfix-accounts.cf' 'alias configuration'
       fi
 
-      # test if user has a defined quota
-      if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]; then
-        IFS=':' read -r -a USER_QUOTA < <(grep "${REAL_FQUN}:" -i /tmp/docker-mailserver/dovecot-quotas.cf)
-        if [[ ${#USER_QUOTA[@]} -eq 2 ]]; then
-          REAL_ACC[2]="${REAL_ACC[2]:+${REAL_ACC[2]} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
-        fi
-      fi
+      # Update user attributes with custom quota if found for the `REAL_FQUN`:
+      REAL_ACC[2]="$(_add_attribute_dovecot_quota "${REAL_FQUN}" "${REAL_ACC[2]}")"
 
       DOVECOT_USERDB_LINE="${ALIAS}:${REAL_ACC[1]}:${DMS_VMAIL_UID}:${DMS_VMAIL_GID}::/var/mail/${REAL_DOMAINNAME}/${REAL_USERNAME}/home::${REAL_ACC[2]:-}"
       # Match a full line with `-xF` to avoid regex patterns introducing false positives matching `ALIAS`:
@@ -177,4 +175,20 @@ function _create_masters() {
       fi
     done < <(_get_valid_lines_from_file "${DATABASE_DOVECOT_MASTERS}")
   fi
+}
+
+function _add_attribute_dovecot_quota() {
+  local MAIL_ACCOUNT="${1}"
+  local USER_ATTRIBUTES="${2}"
+
+  if [[ -f /tmp/docker-mailserver/dovecot-quotas.cf ]]; then
+    declare -a USER_QUOTA
+    IFS=':' read -r -a USER_QUOTA < <(grep -i "${MAIL_ACCOUNT}:" /tmp/docker-mailserver/dovecot-quotas.cf)
+
+    if [[ ${#USER_QUOTA[@]} -eq 2 ]]; then
+      USER_ATTRIBUTES="${USER_ATTRIBUTES:+${USER_ATTRIBUTES} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+    fi
+  fi
+
+  echo "${USER_ATTRIBUTES}"
 }
