@@ -11,7 +11,7 @@ Compression allows all messages compressed or not to be READ, and/or compressed 
 
 Using `zstd` method seems to be the best and faster algorithm to date, according to a recent [mail_compress-benchmark](https://github.com/dovecot/documentation/edit/main/docs/core/plugins/mail_compress.md).
 
-While compression can be memory intensive for large messages, you can configure the plugin to limit the amount of memory consumed by the workers. Examples shown mention the the `vsz_limit` setting to limit to 1GB RAM for instance.
+While compression can be memory intensive for large messages, you can configure the plugin to limit the amount of memory consumed by the workers. Examples shown mention the `vsz_limit` setting to limit to 1GB RAM for instance.
 
 ## Setup
 
@@ -19,33 +19,32 @@ While compression can be memory intensive for large messages, you can configure 
 
 To configure  as a dovecot plugin, create a file at `docker-data/dms/config/dovecot/12-compress-2.3.conf` and place the following in it:
 
-    ```
-    mail_plugins = $mail_plugins zlib
+```
+mail_plugins = $mail_plugins zlib
 
-    # Enable WRITE compression on saving messages:
-    plugin {
-      # zlib_save = gz
-      # zlib_save_level = 1
-      zlib_save = zstd
-    }
+# Enable WRITE compression on saving messages:
+plugin {
+  # zlib_save = gz
+  # zlib_save_level = 1
+  zlib_save = zstd
+}
 
-    # Enable READ compression for IMAP:
-    # Enable Zlib for imap
-    protocol imap {
-      mail_plugins = $mail_plugins zlib
-    }
+# Enable READ compression for IMAP:
+# Enable Zlib for imap
+protocol imap {
+  mail_plugins = $mail_plugins zlib
+}
 
-    # Enable READ compression for POP3:
-    protocol pop3 {
-      mail_plugins = $mail_plugins zlib
-    }
+# Enable READ compression for POP3:
+protocol pop3 {
+  mail_plugins = $mail_plugins zlib
+}
 
-    # Increase memory allowed for imap as it costs more to read compressed files
-    service imap {
-      vsz_limit = 1GB
-    }
-
-    ```
+# Increase memory allowed for imap as it costs more to read compressed files
+service imap {
+  vsz_limit = 1GB
+}
+```
 
     Adjust the settings to tune for your desired memory limits and CPU usage.
 
@@ -63,53 +62,55 @@ To configure  as a dovecot plugin, create a file at `docker-data/dms/config/dove
 
 From Dovecot 2.4, the compression plugin name and setup have changed: [mail-compress](https://doc.dovecot.org/2.4.1/core/plugins/mail_compress.html). Create a file at `docker-data/dms/config/dovecot/12-compress.conf` and place the following in it:
 
-    ```
-    # Enable compression plugin globally for reading/writing:
-    mail_plugins {
-      mail_compress = yes
-    }
+```
+# Enable compression plugin globally for reading/writing:
+mail_plugins {
+  mail_compress = yes
+}
 
-    # Enable WRITE compression on saving messages:
-    mail_compress_write_method = zstd
+# Enable WRITE compression on saving messages:
+mail_compress_write_method = zstd
 
-    # Increase memory allowed for imap as it costs more to read compressed files
-    service imap {
-      vsz_limit = 1GB
-    }
+# Increase memory allowed for imap as it costs more to read compressed files
+service imap {
+  vsz_limit = 1GB
+}
+```
 
-    ```
+Adjust the settings to tune for your desired memory limits and CPU usage.
 
-    Adjust the settings to tune for your desired memory limits and CPU usage.
+The following compression levels are supported, and compression level are now controlled by one keyword per method:
 
-    The following compression levels are supported, and compression level are now controlled by one keyword per method:
-    
-    | mail_compress_write_method |        Dovecot 2.4+          |       Minimum      |   Default | Maximum |
-    |----------------------------|------------------------------|--------------------|-----------|-------- |
-    | `bz2`                      | compress_bz2_block_size_100k | 1                  | 9         | 9       |
-    | `gz`                       | compress_gz_level            | 0 (no compression) | 6         | 9       |
-    | `deflate`                  | compress_deflate_level       | 0 (no compression) | 6         | 9       |
-    | `lz4`                      | ?                            | 1                  | 1         | 9       |
-    | `zstd`                     | compress_zstd_level          | 1                  | 3         | 22      |
+| mail_compress_write_method |        Dovecot 2.4+          |       Minimum      |   Default | Maximum |
+|----------------------------|------------------------------|--------------------|-----------|-------- |
+| `bz2`                      | compress_bz2_block_size_100k | 1                  | 9         | 9       |
+| `gz`                       | compress_gz_level            | 0 (no compression) | 6         | 9       |
+| `deflate`                  | compress_deflate_level       | 0 (no compression) | 6         | 9       |
+| `lz4`                      | ?                            | 1                  | 1         | 9       |
+| `zstd`                     | compress_zstd_level          | 1                  | 3         | 22      |
 
 
 ### Include compression plugin in compose
 
 Update `compose.yaml` to load the dovecot plugin compression plugin file:
 
-    ```yaml
-      services:
-        mailserver:
-          ...
-          volumes:
-          ...
-            - ./docker-data/dms/config/dovecot/12-compress.conf:/etc/dovecot/conf.d/12-compress-2.4.conf:ro
-    ```
+```yaml
+  services:
+    mailserver:
+      ...
+      volumes:
+      ...
+        # for DMS 15-
+        - ./docker-data/dms/config/dovecot/12-compress-2.3.conf:/etc/dovecot/conf.d/12-compress-2.3.conf:ro
+        # for DMS 16+
+        - ./docker-data/dms/config/dovecot/12-compress-2.4.conf:/etc/dovecot/conf.d/12-compress-2.4.conf:ro
+```
 
 Finally, restart compose:
 
-    ```
-    docker compose up -d --force-recreate
-    ```
+```
+docker compose up -d --force-recreate
+```
 
 ### Verify your configuration
 
