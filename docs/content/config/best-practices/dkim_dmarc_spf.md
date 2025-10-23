@@ -48,6 +48,12 @@ DKIM requires a public/private key pair to enable **signing (_via private key_)*
 
     DMS does not provide any automation or support for key rotation, [nor is it likely to provide a notable security benefit][gh-discussion::dkim-key-rotation-expiry] to the typical small scale DMS deployment.
 
+    Here is a quick DKIM Rotation example with minimal downtime (due to restart of dms):
+    1. generate new keys with new selector: `dmss config dkim domain ${domain} selector new_selector [keytype ${keytype} keysize ${keysize}]`
+    2. create new TXT entries 'new_selector._domainkey' with the content of the generated `rspamd/dkim/*-public.dns.txt keys`
+    3. modify the selector name in `rspamd/override.d/dkim_signing.conf` and restart dms
+
+
 ### Generating Keys
 
 You'll need to repeat this process if you add any new domains.
@@ -161,24 +167,34 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         enabled = true;
 
+        # If false, messages from authenticated users are not selected for signing
         sign_authenticated = true;
+        # If false, messages from local networks are not selected for signing
         sign_local = true;
 
+        # Domain to use for ARC signing: can be "header" (MIME From), "envelope" (SMTP From), "recipient" (SMTP To), "auth" (SMTP username) or directly specified domain name
         use_domain = "header";
-        use_redis = false; # don't change unless Redis also provides the DKIM keys
+        # don't change unless Redis also provides the DKIM keys
+        use_redis = false;
+        # Whether to normalise domains to eSLD
         use_esld = true;
-        check_pubkey = true; # you want to use this in the beginning
+        # you want to use this in the beginning
+        check_pubkey = true;
 
+        # global DKIM-selector: this is critical and must match a TXT entry called selector._domainkey in ALL of your domains
         selector = "mail";
+        
         # The path location is searched for a DKIM key with these variables:
         # - `$domain` is sourced from the MIME mail message `From` header
         # - `$selector` is configured for `mail` (as a default fallback)
-        path = "/tmp/docker-mailserver/dkim/keys/$domain/$selector.private";
+        # Update the keytype=rsa and keysize=2048 to the values you use for your keys
+        #path = "/tmp/docker-mailserver/dkim/keys/$domain/$selector.private";  # eSLD
+        path = "/tmp/docker-mailserver/rspamd/dkim/rsa-2048-$selector-$domain.private.txt";
 
         # domain specific configurations can be provided below:
         domain {
             example.com {
-                path = "/tmp/docker-mailserver/rspamd/dkim/mail.private";
+                path = "/tmp/docker-mailserver/rspamd/dkim/rsa-2048-$selector-example.com.private.txt";
                 selector = "mail";
             }
         }
@@ -194,7 +210,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         domain {
             example.com {
-                path = /tmp/docker-mailserver/rspamd/example.com/ed25519.private";
+                path = /tmp/docker-mailserver/rspamd/dkim/example.com/ed25519.private";
                 selector = "dkim-ed25519";
             }
             example.org {
