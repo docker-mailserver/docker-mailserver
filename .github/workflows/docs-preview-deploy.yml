@@ -64,7 +64,7 @@ jobs:
       PREVIEW_SITE_PREFIX: pullrequest-${{ needs.pr-context.outputs.PR_NUMBER }}
     steps:
       - name: 'Retrieve and extract the built docs preview'
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: preview-build
           path: ${{ env.BUILD_DIR }}
