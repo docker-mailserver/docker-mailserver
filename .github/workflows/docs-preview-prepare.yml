@@ -67,7 +67,7 @@ jobs:
 
       # Archives directory `path` into a ZIP file:
       - name: 'Upload artifact for workflow transfer'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: preview-build
           path: ${{ env.BUILD_DIR }}
