@@ -321,6 +321,8 @@ The DMARC status may not be displayed instantly due to delays in DNS (caches). D
 
 ### Adding an SPF Record
 
+It is a best practice to have an SPF record for both your EHLO domain and your sender email address domain.
+
 To add a SPF record in your DNS, insert the following line in your DNS zone:
 
 ```txt
