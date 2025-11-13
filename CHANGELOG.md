@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Internal:**
   - `ENABLE_QUOTAS=1` - When an alias has multiple addresses, the first local mailbox address found will be used for the Dovecot dummy account workaround ([#4581](https://github.com/docker-mailserver/docker-mailserver/pull/4581))
+- **Tests:**
+  - `_get_container_ip` - Add compatibility with docker 29
 
 ### Removed
 
