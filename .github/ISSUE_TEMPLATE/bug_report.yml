@@ -15,6 +15,7 @@ body:
       options:
         - label: I tried searching for an existing issue and followed the [debugging docs](https://docker-mailserver.github.io/docker-mailserver/latest/config/debugging/) advice, but still need assistance.
           required: true
+        - label: I will disclose any AI assistance I have used with the information I provide in my report, so that I do not waste the time of humans trying to help me.
   - type: textarea
     id: what-happened
     attributes:
