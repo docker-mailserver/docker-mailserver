@@ -364,11 +364,12 @@ function _reload_postfix() {
 }
 
 # Get the IP of the container (${1}).
+# This uses the "bridge" network IPAddress and doesn't consider other docker networks.
 #
 # @param ${1} = container name [OPTIONAL]
 function _get_container_ip() {
   local TARGET_CONTAINER_NAME=$(__handle_container_name "${1:-}")
-  docker inspect --format '{{ .NetworkSettings.IPAddress }}' "${TARGET_CONTAINER_NAME}"
+  docker inspect --format '{{ .NetworkSettings.Networks.bridge.IPAddress }}' "${TARGET_CONTAINER_NAME}"
 }
 
 # Check if a container is running.
