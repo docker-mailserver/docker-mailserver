@@ -30,6 +30,17 @@ function _handle_postfix_regexp_config() {
   fi
 }
 
+function _handle_postfix_regexp_send_only_config() {
+  : >/etc/postfix/regexp-send-only
+
+  if [[ -f /tmp/docker-mailserver/postfix-regexp-send-only.cf ]]; then
+    _log 'trace' "Adding regexp-send-only alias file postfix-regexp-send-only.cf"
+
+    cp -f /tmp/docker-mailserver/postfix-regexp-send-only.cf /etc/postfix/regexp-send-only
+    # we specifically do NOT append this to virtual_alias_maps
+  fi
+}
+
 function _handle_postfix_aliases_config() {
   _log 'trace' 'Configuring root alias'
 
@@ -46,5 +57,6 @@ function _handle_postfix_aliases_config() {
 function _create_aliases() {
   _handle_postfix_virtual_config
   _handle_postfix_regexp_config
+  _handle_postfix_regexp_send_only_config
   _handle_postfix_aliases_config
 }
