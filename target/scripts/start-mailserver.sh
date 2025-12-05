@@ -48,7 +48,6 @@ function _register_functions() {
   if [[ ${SMTP_ONLY} -ne 1 ]]; then
     _register_setup_function '_setup_dovecot'
     _register_setup_function '_setup_dovecot_sieve'
-    _register_setup_function '_setup_dovecot_dhparam'
     _register_setup_function '_setup_dovecot_quota'
     _register_setup_function '_setup_spam_subject'
     _register_setup_function '_setup_spam_to_junk'
