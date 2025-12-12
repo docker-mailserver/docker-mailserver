@@ -303,7 +303,7 @@ There is a dedicated [section for setting up DKIM with Rspamd in our documentati
 
     domain {
         example.com {
-            path = "/tmp/docker-mailserver/rspamd/dkim/rsa-2048-mail-example.private.txt";
+            path = "/tmp/docker-mailserver/rspamd/dkim/rsa-2048-mail-example.com.private.txt";
             selector = "mail";
         }
     }
