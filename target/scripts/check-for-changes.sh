@@ -136,9 +136,10 @@ function _postfix_dovecot_changes() {
   fi
 
   # Regenerate system + virtual account aliases via `helpers/aliases.sh`:
-  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]] && _handle_postfix_virtual_config
-  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-regexp.cf  ]] && _handle_postfix_regexp_config
-  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-aliases.cf ]] && _handle_postfix_aliases_config
+  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf          ]] && _handle_postfix_virtual_config
+  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-regexp.cf           ]] && _handle_postfix_regexp_config
+  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-regexp-send-only.cf ]] && _handle_postfix_regexp_send_only_config
+  [[ ${CHANGED} =~ ${DMS_DIR}/postfix-aliases.cf          ]] && _handle_postfix_aliases_config
 
   # Legacy workaround handled here, only seems necessary for _create_accounts:
   # - `helpers/accounts.sh` logic creates folders/files with wrong ownership.
