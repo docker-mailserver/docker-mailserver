@@ -70,11 +70,12 @@ function _handle_changes() {
   fi
 
   _ssl_changes
-  # For account provisioner LDAP only SSL changes are relevant.
+  # TODO: Consider support relay host config change support for other provisioners
   if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]]; then
     _postfix_dovecot_changes
-    _rspamd_changes
   fi
+  
+  _rspamd_changes
 
   _log 'debug' 'Reloading services due to detected changes'
 

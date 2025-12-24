@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Internal:**
   - `ENABLE_QUOTAS=1` - When an alias has multiple addresses, the first local mailbox address found will be used for the Dovecot dummy account workaround ([#4581](https://github.com/docker-mailserver/docker-mailserver/pull/4581))
-  - The Change Detector now also runs with Account Provisioner LDAP to watch for changes in the SSL certificates. ([#4627](https://github.com/docker-mailserver/docker-mailserver/pull/4627))
+  - Change Detection service - Added support for responding to updated DMS config (_Rspamd and TLS certificates_) to `ACCOUNT_PROVISIONER=LDAP` ([#4627](https://github.com/docker-mailserver/docker-mailserver/pull/4627))
 - **Tests:**
   - Make the helper method `_get_container_ip()` compatible with Docker 29 ([#4606](https://github.com/docker-mailserver/docker-mailserver/pull/4606))
 
