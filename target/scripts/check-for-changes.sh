@@ -74,7 +74,7 @@ function _handle_changes() {
   if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]]; then
     _postfix_dovecot_changes
   fi
-  
+
   _rspamd_changes
 
   _log 'debug' 'Reloading services due to detected changes'
