@@ -269,6 +269,14 @@ function _wait_for_smtp_port_in_container_to_respond() {
   done
 }
 
+# Wait for RSPAMD port (11332) to become ready.
+#
+# @param ${1} = name of the container [OPTIONAL]
+function _wait_for_rspamd_port_in_container() {
+  local CONTAINER_NAME=$(__handle_container_name "${1:-}")
+  _wait_for_tcp_port_in_container 11332
+}
+
 # Checks whether a service is running inside a container (${1}).
 #
 # @param ${1} = service name

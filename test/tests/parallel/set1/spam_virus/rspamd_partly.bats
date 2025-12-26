@@ -33,6 +33,7 @@ function setup_file() {
 
   _wait_for_service rspamd-redis
   _wait_for_service rspamd
+  _wait_for_rspamd_port_in_container
   _wait_for_service amavis
   _wait_for_service postfix
   _wait_for_smtp_port_in_container
