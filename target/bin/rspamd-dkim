@@ -255,9 +255,6 @@ EOF
     # since it would have been copied already.
     cp "${DEFAULT_CONFIG_FILE}" "${RSPAMD_OVERRIDE_D}/dkim_signing.conf"
     chown _rspamd:_rspamd "${DEFAULT_CONFIG_FILE}" "${RSPAMD_OVERRIDE_D}/dkim_signing.conf"
-
-    _log 'debug' 'Restarting Rspamd as initial DKIM configuration was supplied'
-    supervisorctl restart rspamd
   fi
 }
 
