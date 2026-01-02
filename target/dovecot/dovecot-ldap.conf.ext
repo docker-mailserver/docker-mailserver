@@ -6,7 +6,7 @@ uris                = ldap://mail.example.com
 tls                 = no
 ldap_version        = 3
 pass_attrs          = uniqueIdentifier=user,userPassword=password
-pass_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+pass_filter         = (&(objectClass=PostfixBookMailAccount)(|(uniqueIdentifier=%u)(uniqueIdentifier=%n)(krbPrincipalName=%u)))
 user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
-user_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+user_filter         = (&(objectClass=PostfixBookMailAccount)(|(uniqueIdentifier=%u)(uniqueIdentifier=%n)(krbPrincipalName=%u)))
 auth_bind           = no
