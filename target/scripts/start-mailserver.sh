@@ -75,6 +75,7 @@ function _register_functions() {
 
   [[ ${ENABLE_OAUTH2} -eq 1 ]] && _register_setup_function '_setup_oauth2'
   [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && _register_setup_function '_setup_saslauthd'
+  [[ ${ENABLE_KERBEROS} -eq 1 ]] && __register_setup_function '_setup_kerberos'
 
   _register_setup_function '_setup_dovecot_inet_protocols'
 
