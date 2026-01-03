@@ -11,6 +11,9 @@ shopt -s globstar
 # ? >> Sourcing helpers & stacks
 # ------------------------------------------------------------
 
+# Ensure custom CA certificates are added
+update-ca-certificates
+
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 

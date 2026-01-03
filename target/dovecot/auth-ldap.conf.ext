@@ -6,6 +6,13 @@
 
 passdb {
   driver = ldap
+  args = /etc/dovecot/dovecot-ldap.conf.ext
+  mechanisms = gssapi
+  default_fields = nopassword=y
+}
+
+passdb {
+  driver = ldap
   mechanisms = plain login
 
   # Path for LDAP configuration file, see example-config/dovecot-ldap.conf.ext

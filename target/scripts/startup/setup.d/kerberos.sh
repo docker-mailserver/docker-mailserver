@@ -12,7 +12,7 @@ function _setup_kerberos() {
   # auth_default_realm = example.com
   
   sedfile -i -e '/\!include auth-kerberos\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
-  _replace_by_env_in_file 'KERBEROS_' '/etc/dovecot/auth-kerberos.inc'
+  _replace_by_env_in_file 'KERBEROS_' '/etc/dovecot/conf.d/auth-kerberos.inc'
 
   return 0
 }
