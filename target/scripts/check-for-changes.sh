@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# TODO: Adapt for compatibility with LDAP
-# Only the cert renewal change detection may be relevant for LDAP?
-
 # CHKSUM_FILE global is imported from this file:
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
@@ -63,7 +60,8 @@ function _handle_changes() {
   # Variable to identify any config updates dependent upon vhost changes.
   local VHOST_UPDATED=0
   # These two configs are the source for /etc/postfix/vhost (managed mail domains)
-  if [[ ${CHANGED} =~ ${DMS_DIR}/postfix-(accounts|virtual).cf ]]; then
+  if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]] \
+  && [[ ${CHANGED} =~ ${DMS_DIR}/postfix-(accounts|virtual).cf ]]; then
     _log 'trace' 'Regenerating vhosts (Postfix)'
     # Regenerate via `helpers/postfix.sh`:
     _create_postfix_vhost
@@ -72,7 +70,11 @@ function _handle_changes() {
   fi
 
   _ssl_changes
-  _postfix_dovecot_changes
+  # TODO: Consider support relay host config change support for other provisioners
+  if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]]; then
+    _postfix_dovecot_changes
+  fi
+
   _rspamd_changes
 
   _log 'debug' 'Reloading services due to detected changes'

@@ -24,6 +24,7 @@ function setup_file() {
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_service rspamd-redis
   _wait_for_service rspamd
+  _wait_for_rspamd_port_in_container
 }
 
 # We want each test to start with a clean state.
