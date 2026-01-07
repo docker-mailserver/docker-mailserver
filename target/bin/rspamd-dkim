@@ -273,8 +273,15 @@ function _transform_public_key_file_to_dns_record_contents() {
 
 function _final_steps() {
   # Request Rspamd to reload it's config immediately (instead of waiting on change detection):
-  pkill --signal SIGHUP $(pgrep --oldest rspamd)
-
+  local rspamd_pid
+  rspamd_pid=$(pgrep --oldest rspamd) || rspamd_pid=""
+  if [[ -z ${rspamd_pid} ]]; then
+    supervisorctl start rspamd
+  elif ! kill -s SIGHUP "${rspamd_pid}"; then
+    _log 'error' "Failed to send SIGHUP to Rspamd (PID: ${rspamd_pid})"
+  fi
+  # check status of rspamd after a possible reload (that could have killed rspamd in case of a breaking config)
+  supervisorctl status rspamd
   _log 'trace' 'Finished DKIM key creation'
 }
 
