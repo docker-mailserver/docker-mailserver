@@ -206,17 +206,7 @@ function _rspamd_changes() {
       _log 'trace' 'Rspamd - DKIM files updated'
     fi
 
-    local rspamd_pid
-    rspamd_pid=$(pgrep --oldest rspamd) || rspamd_pid=""
-    if [[ -z ${rspamd_pid} ]]; then
-      _log 'debug' 'Starting Rspamd after configuration change'
-      supervisorctl start rspamd
-    else
-      _log 'debug' 'Reloading Rspamd configuration'
-      if ! kill -s SIGHUP "${rspamd_pid}"; then
-        _log 'error' "Failed to send SIGHUP to Rspamd (PID: ${rspamd_pid})"
-      fi
-    fi
+    _reload_rspamd
   fi
 }
 
