@@ -188,3 +188,8 @@ function _env_var_expect_integer() {
   _log 'warn' "The value of '${ENV_VAR_NAME}' is not an integer ('${!ENV_VAR_NAME}'), but was expected to be"
   return 1
 }
+
+function _reload_rspamd() {
+  _log 'debug' 'Reloading Rspamd configuration via SIGHUP.'
+  supervisorctl signal SIGHUP rspamd
+}
