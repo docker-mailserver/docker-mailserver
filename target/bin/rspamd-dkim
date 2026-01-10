@@ -274,8 +274,6 @@ function _transform_public_key_file_to_dns_record_contents() {
 function _final_steps() {
   # Request Rspamd to reload it's config immediately (instead of waiting on change detection):
   _reload_rspamd
-  # check status of rspamd after a possible reload (that could have killed rspamd in case of a breaking config)
-  supervisorctl status rspamd
   _log 'trace' 'Finished DKIM key creation'
 }
 
