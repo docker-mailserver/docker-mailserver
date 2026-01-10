@@ -190,6 +190,6 @@ function _env_var_expect_integer() {
 }
 
 function _reload_rspamd() {
-  _log 'debug' 'Reloading Rspamd configuration via SIGHUP.'
+  _log 'debug' 'Reloading configuration for Rspamd via sending `SIGHUP`'
   supervisorctl signal SIGHUP rspamd
 }
