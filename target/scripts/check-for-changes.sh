@@ -206,8 +206,7 @@ function _rspamd_changes() {
       _log 'trace' 'Rspamd - DKIM files updated'
     fi
 
-    _log 'debug' 'Rspamd configuration has changed - restarting service'
-    supervisorctl restart rspamd
+    _reload_rspamd
   fi
 }
 

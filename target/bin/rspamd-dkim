@@ -255,9 +255,6 @@ EOF
     # since it would have been copied already.
     cp "${DEFAULT_CONFIG_FILE}" "${RSPAMD_OVERRIDE_D}/dkim_signing.conf"
     chown _rspamd:_rspamd "${DEFAULT_CONFIG_FILE}" "${RSPAMD_OVERRIDE_D}/dkim_signing.conf"
-
-    _log 'debug' 'Restarting Rspamd as initial DKIM configuration was supplied'
-    supervisorctl restart rspamd
   fi
 }
 
@@ -275,11 +272,8 @@ function _transform_public_key_file_to_dns_record_contents() {
 }
 
 function _final_steps() {
-  # We need to restart Rspamd so the changes take effect immediately.
-  if ! supervisorctl restart rspamd; then
-    _log 'warn' 'Could not restart Rspamd via Supervisord'
-  fi
-
+  # Request Rspamd to reload it's config immediately (instead of waiting on change detection):
+  _reload_rspamd
   _log 'trace' 'Finished DKIM key creation'
 }
 
