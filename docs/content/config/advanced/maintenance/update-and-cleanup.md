@@ -11,7 +11,7 @@ title: 'Maintenance | Update and Cleanup'
     ```yaml title="compose.yaml"
     services:
       watchtower:
-        image: nickfedor/watchtower:latest
+        image: ghcr.io/nickfedor/watchtower:latest
         # Automatic cleanup:
         environment:
           - WATCHTOWER_CLEANUP=true
