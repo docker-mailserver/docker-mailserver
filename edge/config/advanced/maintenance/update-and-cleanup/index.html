@@ -2432,37 +2432,46 @@
 
   <h1>Update and Cleanup</h1>
 
-<p><a href="https://hub.docker.com/r/containrrr/watchtower"><code>containrrr/watchtower</code></a> is a service that monitors Docker images for updates, automatically applying them to running containers.</p>
+<p><a href="https://github.com/nicholas-fedor/watchtower/pkgs/container/watchtower"><code>ghcr.io/nickfedor/watchtower</code></a> is a service that monitors Docker images for updates on the same tag used, automatically updating and restarting running containers. This is useful for images like DMS that support semver tags.</p>
 <div class="admonition example">
 <p class="admonition-title">Automatic image updates + cleanup</p>
 <p>Run a <code>watchtower</code> container with access to <code>docker.sock</code>, enabling the service to manage Docker:</p>
 <div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">watchtower</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">containrrr/watchtower:latest</span>
-<span class="w">    </span><span class="c1"># Automatic cleanup (removes older image pulls from wasting disk space):</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/nickfedor/watchtower:latest</span>
+<span class="w">    </span><span class="c1"># Automatic cleanup:</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WATCHTOWER_CLEANUP=true</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/docker.sock:/var/run/docker.sock</span>
 </code></pre></div>
+<p>The <code>watchtower</code> container can use the <a href="https://watchtower.nickfedor.com/v1.13.1/configuration/arguments/#cleanup_old_images"><code>WATCHTOWER_CLEANUP=true</code> ENV (CLI option: <code>--cleanup</code>)</a> to enable automatic cleanup (removal) of the previous image used for container it updates. Removal occurs after the container is restarted with the new image pulled.</p>
+<div class="admonition info">
+<p class="admonition-title"><code>containrrr/watchtower</code> is unmaintained</p>
+<p>The <a href="https://github.com/containrrr/watchtower">original project (<code>containrrr/watchtower</code>)</a> has not received maintenance over recent years and was <a href="https://github.com/containrrr/watchtower/discussions/2135">archived in Dec 2025</a>.</p>
+<p>A <a href="https://github.com/nicholas-fedor/watchtower">community fork (<code>nicholas-fedor/watchtower</code>)</a> has since established itself as a maintained successor.</p>
+</div>
 </div>
 <div class="admonition tip">
-<p class="admonition-title">The image tag used for a container is monitored for updates (eg: <code>:latest</code>, <code>:edge</code>, <code>:13</code>)</p>
+<p class="admonition-title">The image tag used for a container is monitored for updates (eg: <code>:latest</code>, <code>:edge</code>, <code>:16</code>)</p>
 <p>The automatic update support is <strong>only for updates to that specific image tag</strong>.</p>
+<hr />
+<p>The tag for an image is never modified by <code>watchtower</code>, instead <code>watchtower</code> monitors the image digest associated to that image tag (<em>which will change to a new image digest if a new image release reassigns the tag</em>), when the digest for the tag changes this triggers a pull of the new image.</p>
 <ul>
-<li>Your container will not update to a new major version tag (<em>unless using <code>:latest</code></em>).</li>
-<li>Omit the minor or patch portion of the semver tag to receive updates for the omitted portion (<em>eg: <code>13</code> will represent the latest minor + patch release of <code>v13</code></em>).</li>
+<li>Your container will not update to a new major release version (<em>unless using <code>:latest</code></em>).</li>
+<li>Omit the minor or patch portion of a semver tag to receive updates for the omitted portion (<em>eg: <code>:16</code> will represent the latest minor + patch release, whereas <code>:16.0</code> would only receive patch updates instead of minor releases like <code>16.1</code></em>).</li>
 </ul>
 </div>
 <div class="admonition tip">
 <p class="admonition-title">Updating only specific containers</p>
 <p>By default the <code>watchtower</code> service will check every 24 hours for new image updates to pull, based on currently running containers (<em><strong>not restricted</strong> to only those running within your <code>compose.yaml</code></em>).</p>
-<p>Images eligible for updates can configured with a <a href="https://docs.docker.com/compose/compose-file/05-services/#command">custom <code>command</code></a> that provides a list of container names, or via other supported options (eg: labels). This configuration is detailed in the <a href="https://containrrr.dev/watchtower/"><code>watchtower</code> docs</a>.</p>
+<p>Images eligible for updates can configured with a <a href="https://docs.docker.com/compose/compose-file/05-services/#command">custom <code>command</code></a> that provides a list of container names, alternatively via <a href="https://watchtower.nickfedor.com/v1.13.1/configuration/container-selection">container labels to monitor only specific containers</a> (<em>or instead exclude specific containers from monitoring</em>).</p>
 </div>
 <div class="admonition info">
 <p class="admonition-title">Manual cleanup</p>
-<p><code>watchtower</code> also supports running on-demand with <code>docker run</code> or <code>compose.yaml</code> via the <code>--run-once</code> option.</p>
-<p>You can alternatively invoke cleanup of Docker storage directly with:</p>
+<p><code>watchtower</code> supports running on-demand with <code>docker run</code> or <code>compose.yaml</code> via the <a href="https://watchtower.nickfedor.com/v1.13.1/configuration/arguments/#run_once"><code>WATCHTOWER_RUN_ONCE=true</code> ENV (CLI option: <code>--run-once</code>)</a>. You can either use this for manual or scheduled update + cleanup, instead of running as a background service.</p>
+<hr />
+<p>Without <code>watchtower</code> handling image cleanup, you can alternatively invoke cleanup of Docker storage directly with:</p>
 <ul>
 <li><a href="https://docs.docker.com/engine/reference/commandline/image_prune/"><code>docker image prune --all</code></a></li>
 <li><a href="https://docs.docker.com/engine/reference/commandline/system_prune/"><code>docker system prune --all</code></a> (<em>also removes unused containers, networks, build cache</em>).</li>
