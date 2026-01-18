@@ -23,6 +23,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Updated
 
+- **Documentation:**
+  - The maintenance page (covering `watchtower` guidance) was revised and migrated to direct users to the maintained community fork [`nicholas-fedor/watchtower`](https://github.com/nicholas-fedor/watchtower) ([#4641](https://github.com/docker-mailserver/docker-mailserver/pull/4641))
 - **Internal:**
   - Aligning with the change in upstream Debian, APT package repositories added by DMS have migrated the format from `.list` to `.sources` ([DEB822](https://repolib.readthedocs.io/en/latest/deb822-format.html)) ([#4556](https://github.com/docker-mailserver/docker-mailserver/pull/4556))
   - Third-party sourced CLI tools updated ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557)):
