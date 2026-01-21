@@ -30,6 +30,7 @@ ${ORANGE}OPTIONS${RESET}
         -f | --force  Overwrite existing files if there are any
         -v            Enable verbose logging (setting the log level to 'debug').
         -vv           Enable very verbose logging (setting the log level to 'trace').
+        -i            Import existing keys from opendkim into the Rspamd DKIM keys directory.
         help          Print the usage information.
 
     ${BLUE}Configuration adjustments${RESET}
@@ -133,6 +134,14 @@ function _parse_arguments() {
         continue
         ;;
 
+      ( '-i' )
+        # shellcheck disable=SC2034
+        IMPORT_OPENDKIM='true'
+        shift 1
+        _log 'debug' 'Enabled importing of existing OpenDKIM keys'
+        continue
+        ;;
+
       ( * )
         __usage
         _exit_with_error "Unknown option(s) '${1}' ${2:+"and '${2}'"}"
@@ -189,22 +198,54 @@ function _create_keys() {
 
   __create_rspamd_err_log
 
-  # shellcheck disable=SC2310
-  if __do_as_rspamd_user rspamadm \
-      dkim_keygen                 \
-      -s "${SELECTOR}"            \
-      -d "${DOMAIN}"              \
-      "${KEYTYPE_OPTIONS[@]}"     \
-      -k "${PRIVATE_KEY_FILE}"    \
-      >"${PUBLIC_KEY_FILE}"       \
-    && ! __filter_rspamd_err_log 'Permission denied' # we also need to check the log for error messages
-  then
-    _log 'info' 'Successfully created DKIM keys'
-    _log 'debug' "Public key written to '${PUBLIC_KEY_FILE}'"
-    _log 'debug' "Private key written to '${PRIVATE_KEY_FILE}'"
+  if [[ ! ${IMPORT_OPENDKIM} == 'true' ]]; then
+    # shellcheck disable=SC2310
+    if __do_as_rspamd_user rspamadm \
+        dkim_keygen                 \
+        -s "${SELECTOR}"            \
+        -d "${DOMAIN}"              \
+        "${KEYTYPE_OPTIONS[@]}"     \
+        -k "${PRIVATE_KEY_FILE}"    \
+        >"${PUBLIC_KEY_FILE}"       \
+      && ! __filter_rspamd_err_log 'Permission denied' # we also need to check the log for error messages
+    then
+      _log 'info' 'Successfully created DKIM keys'
+      _log 'debug' "Public key written to '${PUBLIC_KEY_FILE}'"
+      _log 'debug' "Private key written to '${PRIVATE_KEY_FILE}'"
+    else
+      __print_rspamd_err_log
+      _exit_with_error 'Creating keys failed'
+    fi
   else
-    __print_rspamd_err_log
-    _exit_with_error 'Creating keys failed'
+    OPENDKIM_BASE_DIR='/tmp/docker-mailserver/opendkim'
+    OPENDKIM_KEYS="${OPENDKIM_BASE_DIR}/keys/${DOMAIN}/${SELECTOR}"
+    # Check if the directory for the domain with keys exists
+    if [[ -f ${OPENDKIM_KEYS}.txt ]] && [[ -f ${OPENDKIM_KEYS}.private ]]; then
+      if [[ ${KEYTYPE} == 'rsa' ]]; then
+        local EXISTING_KEYSIZE
+        # Extract existing key size
+        EXISTING_KEYSIZE=$(openssl rsa -in "${OPENDKIM_KEYS}.private" -text -noout | awk -F'[()]' '/Private-Key/ {print $2+0; exit}')
+        if [[ ${EXISTING_KEYSIZE} -ne ${KEYSIZE} ]]; then
+          _exit_with_error "The existing OpenDKIM keysize ('${EXISTING_KEYSIZE}') does not match the provided keysize ('${KEYSIZE}')"
+        fi
+      else
+        _exit_with_error "The existing OpenDKIM keytype (rsa) does not match the provided keytype ('${KEYTYPE}'), only rsa is supported for importing"
+      fi
+
+      _log 'info' "Importing existing OpenDKIM keys for domain '${DOMAIN}' with selector '${SELECTOR}', and key size '${KEYSIZE}'"
+
+      # Copy existing public key
+      cp -f "${OPENDKIM_KEYS}.txt" "${PUBLIC_KEY_FILE}"
+      # Copy existing private key
+      cp -f "${OPENDKIM_KEYS}.private" "${PRIVATE_KEY_FILE}"
+      # Create DNS record content file
+      grep -o '".*"' "${PUBLIC_KEY_FILE}" | tr -d '"\n' > "${PUBLIC_KEY_DNS_FILE}"
+
+      chown _rspamd:_rspamd "${PUBLIC_KEY_FILE}" "${PRIVATE_KEY_FILE}"
+      _log 'info' 'Successfully imported existing OpenDKIM keys'
+    else
+      _exit_with_error "The OpenDKIM keys '${OPENDKIM_KEYS}.private' and '${OPENDKIM_KEYS}.txt' does not exist, cannot import keys"
+    fi
   fi
 }
 

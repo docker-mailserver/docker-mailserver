@@ -55,6 +55,10 @@ While you could configure Rspamd to only replace some of the legacy services, it
     9. [`MOVE_SPAM_TO_JUNK`][docs::spam-to-junk]
     10. [`MARK_SPAM_AS_READ`](../environment.md#mark_spam_as_read)
 
+!!! note "Attention"
+
+    When you set your system with a `opendkim` before you may want to import your existing keys. You can do this by adding `-i` option to the `setup config dkim` command.
+
 ## Overview of Rspamd support
 
 ### Mode of Operation
