@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Documentation:**
   - The maintenance page (covering `watchtower` guidance) was revised and migrated to direct users to the maintained community fork [`nicholas-fedor/watchtower`](https://github.com/nicholas-fedor/watchtower) ([#4641](https://github.com/docker-mailserver/docker-mailserver/pull/4641))
+  - Add note how to import existing `oprndkim` keys to the `rspamd`
 - **Internal:**
   - Aligning with the change in upstream Debian, APT package repositories added by DMS have migrated the format from `.list` to `.sources` ([DEB822](https://repolib.readthedocs.io/en/latest/deb822-format.html)) ([#4556](https://github.com/docker-mailserver/docker-mailserver/pull/4556))
   - Third-party sourced CLI tools updated ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557)):
@@ -35,6 +36,8 @@ All notable changes to this project will be documented in this file. The format 
   - Updated the FTS plugin Xapian from `1.9` to [`1.9.1`](https://github.com/grosjo/fts-xapian/releases/tag/1.9.1) which adds Dovecot 2.4 compatibility ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557))
 - **Postfix**
   - Replaced `disable_dns_lookups` with `smtp_dns_support_level` in Amavis configuration ([#4568](https://github.com/docker-mailserver/docker-mailserver/pull/4568))
+- **Rspamd**
+  - Add existing `opendkim` rsa keys import to the `rspamd` via option `-i` (#4643).
 
 ## [v15.1.0](https://github.com/docker-mailserver/docker-mailserver/compare/v15.1.0...HEAD)
 
