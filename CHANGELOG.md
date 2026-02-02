@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Updated
+
+- **Rspamd**
+  - Refactored the dkim key setup script, default config, and associated documentation to be more straightforward for basic use cases (but still easily modified for advanced use cases). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
+
 ## [v16.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v16.0.0)
 
 > [!note]
