@@ -232,7 +232,6 @@ enabled = true;
 
 sign_authenticated = true;
 sign_local = false;
-try_fallback = false;
 
 use_domain = "header";
 use_redis = false; # don't change unless Redis also provides the DKIM keys
@@ -241,7 +240,10 @@ allow_username_mismatch = true;
 
 check_pubkey = true; # you want to use this in the beginning
 
+try_fallback = true;
+selector_map = "/etc/rspamd/dkim_selectors.map";
 selector = "mail";
+
 # The path location is searched for a DKIM key with these variables:
 # - '\$domain' is sourced from the MIME mail message 'From' header
 # - '\$selector' is configured for 'mail' (as a default fallback)
