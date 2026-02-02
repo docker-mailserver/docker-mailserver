@@ -35,6 +35,8 @@ All notable changes to this project will be documented in this file. The format 
   - Updated the FTS plugin Xapian from `1.9` to [`1.9.1`](https://github.com/grosjo/fts-xapian/releases/tag/1.9.1) which adds Dovecot 2.4 compatibility ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557))
 - **Postfix**
   - Replaced `disable_dns_lookups` with `smtp_dns_support_level` in Amavis configuration ([#4568](https://github.com/docker-mailserver/docker-mailserver/pull/4568))
+- **Rspamd**
+  - Refactored the dkim key setup script, default config, and associated documentation to be more straightforward for basic use cases (but still easily modified for advanced use cases). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
 
 ## [v15.1.0](https://github.com/docker-mailserver/docker-mailserver/compare/v15.1.0...HEAD)
 
