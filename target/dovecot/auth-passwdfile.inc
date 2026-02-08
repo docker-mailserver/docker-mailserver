@@ -19,6 +19,6 @@ userdb passwd-file {
   fields {
     uid:default = docker
     gid:default = docker
-    home:default = /var/mail/%{user | domain}/%{user | username}/home/
+    home:default = /var/mail/%{user | domain}/%{user}/home/
   }
 }
