@@ -4,9 +4,7 @@ title: 'Security | Rspamd'
 
 ## About
 
-Rspamd is a ["fast, free and open-source spam filtering system"][rspamd-web]. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd.
-
-If you want to take a look at the default configuration files for Rspamd that DMS adds, navigate to [`target/rspamd/` inside the repository][dms-repo::default-rspamd-configuration]. Please consult the [section "The Default Configuration"](#the-default-configuration) section down below for a written overview.
+Rspamd is a ["fast, free and open-source spam filtering system"][rspamd-web]. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd. If you want to take a look at the default configuration files for Rspamd that DMS adds, navigate to [`target/rspamd/` inside the repository][dms-repo::default-rspamd-configuration].
 
 ### Enable Rspamd
 
