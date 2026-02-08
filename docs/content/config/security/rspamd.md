@@ -177,11 +177,17 @@ You can choose to enable ClamAV, and Rspamd will then use it to check for viruse
 
 The [RBL module][rspamd-docs::modules::rbl] is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body ([source][www::rbl-vs-dnsbl]).
 
-!!! danger "Rspamd and DNS Block Lists"
+??? warning "Rspamd & DNS Blocklists"
 
     When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.
 
-    If you want to use DNSBLs, **try to use your own DNS resolver** and make sure it is set up correctly, i.e. it should be a non-public & **recursive** resolver. Otherwise, you might not be able ([see this Spamhaus post][spamhaus::faq::dnsbl-usage]) to make use of the block lists.
+!!! danger "Properly Querying Blocklists"
+
+    If you want to use DNS Blocklists (DNSBLs) properly, **you have to use your own _non-public, recursive_ DNS resolver!**
+
+    Running your own recursive DNS resolver is feasible, but **you need to ensure that it is not available from the internet!** Hosting a public (i.e., available to the internet, also called "open") DNS resolver has serious security implications.
+
+    DNS blocklists will not answer properly if you use public DNS resolvers (like Cloudflare' `1.1.1.1` or Google's `8.8.8.8`) because they are rate-limited. Hence, the issue is not about caching, but about making a direct (recursive) request. Rspamd makes an efforet to handle rate-limiting properly, but you will not have any benefit from using DNS blocklists if you are not using a recursive resolver.
 
 ## Providing Custom Settings & Overriding Settings
 
