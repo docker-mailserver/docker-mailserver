@@ -266,19 +266,20 @@ If using our Helm chart is not viable for you, here is some guidance to start wi
                         privileged: false
                         capabilities:
                           add:
-                            # file permission capabilities
+                            # file permission
                             - CHOWN
                             - FOWNER
                             - MKNOD
                             - SETGID
                             - SETUID
                             - DAC_OVERRIDE
-                            # network capabilities
+                            # network
                             - NET_ADMIN  # needed for F2B
                             - NET_RAW    # needed for F2B
                             - NET_BIND_SERVICE
-                            # miscellaneous  capabilities
+                            # miscellaneous
                             - SYS_CHROOT
+                            - MAC_OVERRIDE
                             - KILL
                           drop: [ALL]
                         seccompProfile:
