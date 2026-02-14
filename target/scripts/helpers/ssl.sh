@@ -51,8 +51,8 @@ function _setup_ssl() {
 
     # Dovecot configuration
     sedfile -i -r \
-      -e "s|^(ssl_key =).*|\1 <${DOVECOT_KEY}|" \
-      -e "s|^(ssl_cert =).*|\1 <${DOVECOT_CERT}|" \
+      -e "s|^(ssl_server_key_file =).*|\1 <${DOVECOT_KEY}|" \
+      -e "s|^(ssl_server_cert_file =).*|\1 <${DOVECOT_CERT}|" \
       "${DOVECOT_CONFIG_SSL}"
   }
 
@@ -345,18 +345,21 @@ function _setup_ssl() {
         -e '/smtpd_tls_auth_only/s|yes|no|' \
         "${POSTFIX_CONFIG_MASTER}"
 
-      # Dovecot configuration:
-      # https://doc.dovecot.org/configuration_manual/dovecot_ssl_configuration/
-      # > The plaintext authentication is always allowed (and SSL not required) for connections from localhost, as they’re assumed to be secure anyway.
-      # > This applies to all connections where the local and the remote IP addresses are equal.
-      # > Also IP ranges specified by login_trusted_networks setting are assumed to be secure.
-      #
-      # no => insecure auth allowed, yes (default) => plaintext auth only allowed over a secure connection (insecure connection acceptable for non-plaintext auth)
-      local DISABLE_PLAINTEXT_AUTH='no'
-      # no => disabled, yes => optional (secure connections not required), required (default) => mandatory (only secure connections allowed)
-      local DOVECOT_SSL_ENABLED='no'
-      sed -i -r "s|^#?(disable_plaintext_auth =).*|\1 ${DISABLE_PLAINTEXT_AUTH}|" /etc/dovecot/conf.d/10-auth.conf
-      sed -i -r "s|^(ssl =).*|\1 ${DOVECOT_SSL_ENABLED}|" "${DOVECOT_CONFIG_SSL}"
+      # These two settings `auth_allow_cleartext` + `ssl` impact if TLS for connections is required,
+      # which can vary by auth mechanism used and context of the connecting client:
+      # - https://doc.dovecot.org/2.4.1/core/config/ssl.html#how-to-specify-when-ssl-tls-is-required
+      # - https://doc.dovecot.org/2.4.1/core/summaries/settings.html#auth_allow_cleartext
+      # - https://doc.dovecot.org/2.4.1/core/summaries/settings.html#ssl
+
+      # NOTE: Trusted clients (`secured` connections) almost always allow cleartext auth,
+      # with the exception of some when `ssl=required` as detailed in Dovecot docs:
+      # https://doc.dovecot.org/2.4.1/core/config/ssl.html#secured-connections
+
+      # Allow cleartext auth (mechanisms that don't protect secrets) without requiring an encrypted connection
+      sed -i -r "s|^#?(auth_allow_cleartext =).*|\1 yes|" /etc/dovecot/conf.d/10-auth.conf
+
+      # Disable TLS listeners on ports (`ssl=no`), unencrypted traffic only
+      sed -i -r "s|^(ssl =).*|\1 no|" "${DOVECOT_CONFIG_SSL}"
       ;;
 
     ( 'snakeoil' ) # This is a temporary workaround for testing only, using the insecure snakeoil cert.
