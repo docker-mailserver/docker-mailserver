@@ -162,18 +162,18 @@ function _preflight_checks() {
 
 function _create_keys() {
   if [[ ${KEYTYPE} == 'rsa' ]]; then
-    local BASE_FILE_NAME="${RSPAMD_DMS_DKIM_D}/${KEYTYPE}-${KEYSIZE}-${SELECTOR}-${DOMAIN}"
+    local BASE_FILE_NAME="${RSPAMD_DMS_DKIM_D}/${DOMAIN}-${SELECTOR}"
     KEYTYPE_OPTIONS=('-b' "${KEYSIZE}")
     _log 'info' "Creating DKIM keys of type '${KEYTYPE}' and length '${KEYSIZE}' with selector '${SELECTOR}' for domain '${DOMAIN}'"
   else
-    local BASE_FILE_NAME="${RSPAMD_DMS_DKIM_D}/${KEYTYPE}-${SELECTOR}-${DOMAIN}"
+    local BASE_FILE_NAME="${RSPAMD_DMS_DKIM_D}/${DOMAIN}-${SELECTOR}"
     KEYTYPE_OPTIONS=('-t' "${KEYTYPE}")
     _log 'info' "Creating DKIM keys of type '${KEYTYPE}' with selector '${SELECTOR}' for domain '${DOMAIN}'"
   fi
 
   PUBLIC_KEY_FILE="${BASE_FILE_NAME}.public.txt"
   PUBLIC_KEY_DNS_FILE="${BASE_FILE_NAME}.public.dns.txt"
-  PRIVATE_KEY_FILE="${BASE_FILE_NAME}.private.txt"
+  PRIVATE_KEY_FILE="${BASE_FILE_NAME}.private"
 
   if [[ -f ${PUBLIC_KEY_FILE} ]] || [[ -f ${PUBLIC_KEY_DNS_FILE} ]] || [[ -f ${PRIVATE_KEY_FILE} ]]; then
     if [[ ${FORCE} -eq 0 ]]; then
@@ -222,7 +222,7 @@ function _check_permissions() {
 function _setup_default_signing_conf() {
   local DEFAULT_CONFIG_FILE="${RSPAMD_DMS_OVERRIDE_D}/dkim_signing.conf"
   if [[ -f ${DEFAULT_CONFIG_FILE} ]]; then
-    _log 'info' "'${DEFAULT_CONFIG_FILE}' exists, not supplying a default ('--force' does not overwrite this file, manual adjustment required)"
+    _log 'info' "'${DEFAULT_CONFIG_FILE}' exists, not supplying a default ('--force' does not overwrite this file, manual adjustment may be required)"
   else
     _log 'info' "Supplying a default configuration (to '${DEFAULT_CONFIG_FILE}')"
     cat >"${DEFAULT_CONFIG_FILE}" << EOF
@@ -232,7 +232,6 @@ enabled = true;
 
 sign_authenticated = true;
 sign_local = false;
-try_fallback = false;
 
 use_domain = "header";
 use_redis = false; # don't change unless Redis also provides the DKIM keys
@@ -241,12 +240,22 @@ allow_username_mismatch = true;
 
 check_pubkey = true; # you want to use this in the beginning
 
-domain {
-    ${DOMAIN} {
-        path = "${PRIVATE_KEY_FILE}";
-        selector = "${SELECTOR}";
-    }
-}
+try_fallback = true;
+selector_map = "/etc/rspamd/dkim_selectors.map";
+selector = "mail";
+
+# The path location is searched for a DKIM key with these variables:
+# - '\$domain' is sourced from the MIME mail message 'From' header
+# - '\$selector' is configured for 'mail' (as a default fallback)
+path = "/tmp/docker-mailserver/rspamd/dkim/\$domain-\$selector.private";
+
+# domain specific configurations can be provided below:
+#domain {
+#    example.com {
+#        path = "...";
+#        selector = "...";
+#    }
+#}
 
 EOF
 
