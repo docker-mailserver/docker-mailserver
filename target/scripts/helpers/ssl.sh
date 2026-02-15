@@ -315,7 +315,8 @@ function _setup_ssl() {
         [[ ! -f ${SS_CA_CERT} ]] && MISSING_FILES+=("${SS_CA_CERT}")
 
         # Concatenate each element and delimit with ` + `:
-        local ERROR_CONTEXT=$(printf "'%s' + " "${MISSING_FILES[@]}" | sed 's/ + $//')
+        local ERROR_CONTEXT
+        ERROR_CONTEXT=$(printf "'%s' + " "${MISSING_FILES[@]}" | sed 's/ + $//')
         _dms_panic__no_file "${ERROR_CONTEXT}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
