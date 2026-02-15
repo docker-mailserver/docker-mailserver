@@ -314,13 +314,9 @@ function _setup_ssl() {
         [[ ! -f ${SS_CERT} ]]    && MISSING_FILES+=("${SS_CERT}")
         [[ ! -f ${SS_CA_CERT} ]] && MISSING_FILES+=("${SS_CA_CERT}")
 
-        local ERROR_MESSAGE="One or more required files are missing. Please ensure all of the following files exist:"$'\n'
-        ERROR_MESSAGE+="  - ${SS_KEY}"$'\n'
-        ERROR_MESSAGE+="  - ${SS_CERT}"$'\n'
-        ERROR_MESSAGE+="  - ${SS_CA_CERT}"$'\n'
-        ERROR_MESSAGE+="Missing: ${MISSING_FILES[*]}"
-
-        _dms_panic__general "${ERROR_MESSAGE}" "${SCOPE_SSL_TYPE}"
+        # Concatenate each element and delimit with ` + `:
+        local ERROR_CONTEXT=$(printf "'%s' + " "${MISSING_FILES[@]}" | sed 's/ + $//')
+        _dms_panic__no_file "${ERROR_CONTEXT}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
