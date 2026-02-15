@@ -181,11 +181,11 @@ The [RBL module][rspamd-docs::modules::rbl] is enabled by default. As a conseque
 
 !!! danger "Properly Querying Blocklists"
 
-    If you want to use DNS Blocklists (DNSBLs) properly, **you have to use your own _non-public, recursive_ DNS resolver!**
+    To use DNS Blocklists (DNSBLs) properly, DMS must use a **private and recursive** DNS resolver.
 
-    Running your own recursive DNS resolver is feasible, but **you need to ensure that it is not available from the internet!** Hosting a public (i.e., available to the internet, also called "open") DNS resolver has serious security implications.
+    DNSBL services are rate-limited, thus if your DNS queries are forwarded through a public resolver (_like Cloudflare's `1.1.1.1` or Google's `8.8.8.8`_) caching the DNSBL service responses received from a public DNS resolver will not be reliable when public load has triggered a rate limit.
 
-    DNS blocklists will not answer properly if you use public DNS resolvers (like Cloudflare' `1.1.1.1` or Google's `8.8.8.8`) because they are rate-limited. Hence, the issue is not about caching, but about making a direct (recursive) request. Rspamd makes an efforet to handle rate-limiting properly, but you will not have any benefit from using DNS blocklists if you are not using a recursive resolver.
+    Instead of relying on forwarding DNS queries, they must be resolved recursively (directly) via running your own private recursive DNS service.
 
 ## Providing Custom Settings & Overriding Settings
 
