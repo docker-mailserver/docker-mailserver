@@ -1279,7 +1279,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists" class="md-nav__link">
+  <a href="#rspamd-module-rbl" class="md-nav__link">
     <span class="md-ellipsis">
       RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)
     </span>
@@ -2759,7 +2759,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists" class="md-nav__link">
+  <a href="#rspamd-module-rbl" class="md-nav__link">
     <span class="md-ellipsis">
       RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)
     </span>
@@ -2878,8 +2878,7 @@
   <h1>Rspamd</h1>
 
 <h2 id="about"><a class="toclink" href="#about">About</a></h2>
-<p>Rspamd is a <a href="https://rspamd.com/">"fast, free and open-source spam filtering system"</a>. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd.</p>
-<p>If you want to take a look at the default configuration files for Rspamd that DMS adds, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd"><code>target/rspamd/</code> inside the repository</a>. Please consult the <a href="#the-default-configuration">section "The Default Configuration"</a> section down below for a written overview.</p>
+<p>Rspamd is a <a href="https://rspamd.com/">"fast, free and open-source spam filtering system"</a>. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd. If you want to take a look at the default configuration files for Rspamd that DMS adds, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd"><code>target/rspamd/</code> inside the repository</a>.</p>
 <h3 id="enable-rspamd"><a class="toclink" href="#enable-rspamd">Enable Rspamd</a></h3>
 <p>Rspamd is presently opt-in for DMS, but intended to become the default anti-spam service in a future release.</p>
 <p>DMS offers two anti-spam solutions:</p>
@@ -2982,7 +2981,7 @@
 <p><strong>Related:</strong> A minimal Rspamd <code>compose.yaml</code> <a href="https://github.com/orgs/docker-mailserver/discussions/4269#discussioncomment-11329588">example with a reverse-proxy for web access</a>.</p>
 </details>
 <h3 id="dns"><a class="toclink" href="#dns">DNS</a></h3>
-<p>DMS does not supply custom values for DNS servers (to Rspamd). If you need to use custom DNS servers, which could be required when using <a href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists">DNS-based deny/allowlists</a>, you need to adjust <a href="https://rspamd.com/doc/configuration/options.html"><code>options.inc</code></a> yourself. Make sure to also read our <a href="../../../faq/#what-about-dns-servers">FAQ page on DNS servers</a>.</p>
+<p>DMS does not supply custom values for DNS servers (to Rspamd). If you need to use custom DNS servers, which could be required when using <a href="#rspamd-module-rbl">DNS-based deny/allowlists</a>, you need to adjust <a href="https://rspamd.com/doc/configuration/options.html"><code>options.inc</code></a> yourself. Make sure to also read our <a href="../../../faq/#what-about-dns-servers">FAQ page on DNS servers</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Rspamd heavily relies on a properly working DNS server that it can use to resolve DNS queries. If your DNS server is misconfigured, you will encounter issues when Rspamd queries DNS to assess if mail is spam. Legitimate mail is then unintentionally marked as spam or worse, rejected entirely.</p>
@@ -2993,6 +2992,57 @@
 <p>While we do not provide values for custom DNS servers by default, we set <code>soft_reject_on_timeout = true;</code> by default. This setting will cause a soft reject if a task (presumably a DNS request) timeout takes place.</p>
 <p>This setting is enabled to not allow spam to proceed just because DNS requests did not succeed. It could deny legitimate e-mails to pass though too in case your DNS setup is incorrect or not functioning properly.</p>
 </div>
+<details class="example">
+<summary>Setup a recursive DNS resolver for DMS to use</summary>
+<p>This example is specifically focused on how to run a local DNS service capable of recursive resolution to <a href="#rspamd-module-rbl">properly support DNSBL services</a> such as <a href="https://www.spamhaus.org/faqs/dnsbl-usage/#what-is-a-dnsbl">SpamHaus</a>.</p>
+<hr />
+<p>Configure your DMS container (<code>mailserver</code>) to forward DNS queries through to the added <code>dns-recursor</code> container via adding the <code>dns</code> service setting as shown below.</p>
+<p>This <code>dns</code> setting requires an explicit IP address. The <a href="https://docs.docker.com/reference/compose-file/networks/#the-default-network">implicit <code>default</code> network</a> is explicitly configured with a subnet, so that a specific IP address can then be assigned to the <code>dns-recursor</code> container.</p>
+<p>In this example PowerDNS Recursor was chosen for the <code>dns-recursor</code> service, however you can use any DNS server that's capable of functioning as a recursive resolver (<em>eg: Bind 9, Knot, Technitium, Unbound</em>).</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Append these settings to your real `compose.yaml`</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">dns</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10.10.10.10&quot;</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dns-recursor</span>
+
+<span class="w">  </span><span class="nt">dns-recursor</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># NOTE: `-master:latest` is the equivalent of DMS `:edge`,</span>
+<span class="w">    </span><span class="c1"># PowerDNS stable releases have a naming convention like: `powerdns/pdns-recursor-53:5.3.5`</span>
+<span class="w">    </span><span class="c1"># To track the latest stable release, follow their changelog:</span>
+<span class="w">    </span><span class="c1"># https://doc.powerdns.com/recursor/changelog/index.html</span>
+<span class="w">    </span><span class="c1"># https://github.com/PowerDNS/pdns/blob/master/Docker-README.md</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">powerdns/pdns-recursor-master:latest</span>
+<span class="w">    </span><span class="c1"># Uncomment `command` to enable logging:</span>
+<span class="w">    </span><span class="c1"># https://doc.powerdns.com/recursor/settings.html#quiet</span>
+<span class="w">    </span><span class="c1">#command: &#39;--quiet=no&#39;</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
+<span class="w">    </span><span class="nt">stop_grace_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0s</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">ipv4_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.10.10.10</span>
+
+<span class="nt">networks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Advised if your container host can be reached via IPv6:</span>
+<span class="w">    </span><span class="nt">enable_ipv6</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">ipam</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span>
+<span class="w">      </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">subnet</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;10.10.10.0/24&quot;</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Docker Compose includes embedded DNS</p>
+<p>Docker Compose with user-defined networks (default) first route DNS queries internally to resolve IPs to containers, or perform rDNS on container IPs.</p>
+<p>If there is no match by the embedded DNS service (<em><code>127.0.0.11:53</code>, only reachable within the container</em>), the DNS query will be forwarded to the configured <code>dns</code> service.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Ensure IPv6 support if your container host routes IPv6</p>
+<p><code>enable_ipv6: true</code> will <a href="../../advanced/ipv6/#what-can-go-wrong">prevent a security risk</a> for published ports that are reachable via IPv6 connections to the container host. This concern isn't specific to the <code>dns-recursor</code> service itself, but rather the standard DMS container when publishing ports to it's internal network and the default <code>0.0.0.0</code> binding (all interfaces).</p>
+<p>If your host does not have an IPv6 enabled interface or you have <code>"userland-proxy": false</code> configured in <code>/etc/docker/daemon.json</code>, this is additional setting is not required.</p>
+</div>
+</details>
 <h3 id="logs"><a class="toclink" href="#logs">Logs</a></h3>
 <p>You can find the Rspamd logs at <code>/var/log/mail/rspamd.log</code>, and the corresponding logs for <a href="#persistence-with-redis">Redis</a>, if it is enabled, at <code>/var/log/supervisor/rspamd-redis.log</code>. We recommend inspecting these logs (with <code>docker exec -it &lt;CONTAINER NAME&gt; less /var/log/mail/rspamd.log</code>) in case Rspamd does not work as expected.</p>
 <h3 id="modules"><a class="toclink" href="#modules">Modules</a></h3>
@@ -3001,12 +3051,17 @@
 <p>DMS disables certain modules (<code>clickhouse</code>, <code>elastic</code>, <code>neural</code>, <code>reputation</code>, <code>spamassassin</code>, <code>url_redirector</code>, <code>metric_exporter</code>) by default. We believe these are not required in a standard setup, and they would otherwise needlessly use system resources.</p>
 <h4 id="anti-virus-clamav"><a class="toclink" href="#anti-virus-clamav">Anti-Virus (ClamAV)</a></h4>
 <p>You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable <code>ENABLE_CLAMAV=1</code>.</p>
-<h4 id="rbls-real-time-blacklists-dnsbls-dns-based-blacklists"><a class="toclink" href="#rbls-real-time-blacklists-dnsbls-dns-based-blacklists">RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)</a></h4>
+<h4 id="rspamd-module-rbl"><a class="toclink" href="#rspamd-module-rbl">RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)</a></h4>
 <p>The <a href="https://rspamd.com/doc/modules/rbl.html">RBL module</a> is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body (<a href="https://forum.eset.com/topic/25277-dnsbl-vs-rbl-mail-security/#comment-119818">source</a>).</p>
+<details class="warning">
+<summary>Rspamd &amp; DNS Blocklists</summary>
+<p>When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a <a href="https://www.spamhaus.org/faqs/dnsbl-usage/#what-is-a-dnsbl">variety of issues involved when using DNSBLs</a>. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.</p>
+</details>
 <div class="admonition danger">
-<p class="admonition-title">Rspamd and DNS Block Lists</p>
-<p>When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.</p>
-<p>If you want to use DNSBLs, <strong>try to use your own DNS resolver</strong> and make sure it is set up correctly, i.e. it should be a non-public &amp; <strong>recursive</strong> resolver. Otherwise, you might not be able (<a href="https://www.spamhaus.org/faq/section/DNSBL%20Usage#365">see this Spamhaus post</a>) to make use of the block lists.</p>
+<p class="admonition-title">Properly querying DNS Blocklists</p>
+<p>To use DNS Blocklists (DNSBLs) properly, DMS must use a <strong>private and recursive</strong> DNS resolver.</p>
+<p>DNSBL services are rate-limited, thus if your DNS queries are forwarded through a public resolver (<em>like Cloudflare's <code>1.1.1.1</code> or Google's <code>8.8.8.8</code></em>) caching the DNSBL service responses received from a public DNS resolver will not be reliable when public load has triggered a rate limit.</p>
+<p>Instead of relying on forwarding DNS queries, they must be resolved recursively (directly) via running your own private recursive DNS service (<em>See the <a href="#dns">DNS section</a> for an example of how to do this</em>).</p>
 </div>
 <h2 id="providing-custom-settings-overriding-settings"><a class="toclink" href="#providing-custom-settings-overriding-settings">Providing Custom Settings &amp; Overriding Settings</a></h2>
 <div class="admonition info">
