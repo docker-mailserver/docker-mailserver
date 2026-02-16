@@ -309,7 +309,15 @@ function _setup_ssl() {
 
         _log 'trace' "SSL configured with 'self-signed' certificates"
       else
-        _dms_panic__no_file "${SS_KEY} or ${SS_CERT} or ${SS_CA_CERT}" "${SCOPE_SSL_TYPE}"
+        local MISSING_FILES=()
+        [[ ! -f ${SS_KEY} ]]     && MISSING_FILES+=("${SS_KEY}")
+        [[ ! -f ${SS_CERT} ]]    && MISSING_FILES+=("${SS_CERT}")
+        [[ ! -f ${SS_CA_CERT} ]] && MISSING_FILES+=("${SS_CA_CERT}")
+
+        # Concatenate each element and delimit with ` + `:
+        local ERROR_CONTEXT
+        ERROR_CONTEXT=$(printf "'%s' + " "${MISSING_FILES[@]}" | sed 's/ + $//')
+        _dms_panic__no_file "${ERROR_CONTEXT}" "${SCOPE_SSL_TYPE}"
       fi
       ;;
 
