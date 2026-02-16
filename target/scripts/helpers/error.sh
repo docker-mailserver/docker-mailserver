@@ -35,7 +35,7 @@ function dms_panic() {
       ;;
 
     ( 'no-file' ) # PANIC_INFO == <invalid filepath>
-      SHUTDOWN_MESSAGE="File ${PANIC_INFO} does not exist!"
+      SHUTDOWN_MESSAGE="Missing expected file(s): ${PANIC_INFO}"
       ;;
 
     ( 'misconfigured' ) # PANIC_INFO == <something possibly misconfigured, eg an ENV var>
