@@ -155,7 +155,7 @@ DMS does not supply custom values for DNS servers (to Rspamd). If you need to us
 
     This setting is enabled to not allow spam to proceed just because DNS requests did not succeed. It could deny legitimate e-mails to pass though too in case your DNS setup is incorrect or not functioning properly.
 
-???+ example "Setup a recursive DNS resolver for DMS to use"
+??? example "Setup a recursive DNS resolver for DMS to use"
 
     This example is specifically focused on how to run a local DNS service capable of recursive resolution to [properly support DNSBL services](#rspamd-module-rbl) such as [SpamHaus][spamhaus::faq::what-is-a-dnsbl].
 
