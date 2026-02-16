@@ -141,7 +141,7 @@ To use the web interface you will need to configure a password, [otherwise you w
 
 ### DNS
 
-DMS does not supply custom values for DNS servers (to Rspamd). If you need to use custom DNS servers, which could be required when using [DNS-based deny/allowlists](#rbls-real-time-blacklists-dnsbls-dns-based-blacklists), you need to adjust [`options.inc`][rspamd-docs::config::global] yourself. Make sure to also read our [FAQ page on DNS servers][docs::faq::dns-servers].
+DMS does not supply custom values for DNS servers (to Rspamd). If you need to use custom DNS servers, which could be required when using [DNS-based deny/allowlists](#rspamd-module-rbl), you need to adjust [`options.inc`][rspamd-docs::config::global] yourself. Make sure to also read our [FAQ page on DNS servers][docs::faq::dns-servers].
 
 !!! warning
 
@@ -154,6 +154,65 @@ DMS does not supply custom values for DNS servers (to Rspamd). If you need to us
     While we do not provide values for custom DNS servers by default, we set `soft_reject_on_timeout = true;` by default. This setting will cause a soft reject if a task (presumably a DNS request) timeout takes place.
 
     This setting is enabled to not allow spam to proceed just because DNS requests did not succeed. It could deny legitimate e-mails to pass though too in case your DNS setup is incorrect or not functioning properly.
+
+???+ example "Setup a recursive DNS resolver for DMS to use"
+
+    This example is specifically focused on how to run a local DNS service capable of recursive resolution to [properly support DNSBL services](#rspamd-module-rbl) such as [SpamHaus][spamhaus::faq::what-is-a-dnsbl].
+
+    ---
+
+    Configure your DMS container (`mailserver`) to forward DNS queries through to the added `dns-recursor` container via adding the `dns` service setting as shown below.
+
+    This `dns` setting requires an explicit IP address. The [implicit `default` network][docker-docs::compose::default-network] is explicitly configured with a subnet, so that a specific IP address can then be assigned to the `dns-recursor` container.
+
+    In this example PowerDNS Recursor was chosen for the `dns-recursor` service, however you can use any DNS server that's capable of functioning as a recursive resolver (_eg: Bind 9, Knot, Technitium, Unbound_).
+
+    ```yaml title="compose.yaml"
+    services:
+      # Append these settings to your real `compose.yaml`
+      mailserver:
+        dns:
+          - "10.10.10.10"
+        depends_on:
+          - dns-recursor
+
+      dns-recursor:
+        # NOTE: `-master:latest` is the equivalent of DMS `:edge`,
+        # PowerDNS stable releases have a naming convention like: `powerdns/pdns-recursor-53:5.3.5`
+        # To track the latest stable release, follow their changelog:
+        # https://doc.powerdns.com/recursor/changelog/index.html
+        # https://github.com/PowerDNS/pdns/blob/master/Docker-README.md
+        image: powerdns/pdns-recursor-master:latest
+        # Uncomment `command` to enable logging:
+        # https://doc.powerdns.com/recursor/settings.html#quiet
+        #command: '--quiet=no'
+        restart: always
+        stop_grace_period: 0s
+        networks:
+          default:
+            ipv4_address: 10.10.10.10
+
+    networks:
+      default:
+        # Advised if your container host can be reached via IPv6:
+        enable_ipv6: true
+        ipam:
+          driver: default
+          config:
+            - subnet: "10.10.10.0/24"
+    ```
+
+    !!! info "Docker Compose includes embedded DNS"
+
+        Docker Compose with user-defined networks (default) first route DNS queries internally to resolve IPs to containers, or perform rDNS on container IPs.
+
+        If there is no match by the embedded DNS service (_`127.0.0.11:53`, only reachable within the container_), the DNS query will be forwarded to the configured `dns` service.
+
+    !!! warning "Ensure IPv6 support if your container host routes IPv6"
+
+        `enable_ipv6: true` will [prevent a security risk][docs::ipv6::security-risks] for published ports that are reachable via IPv6 connections to the container host. This concern isn't specific to the `dns-recursor` service itself, but rather the standard DMS container when publishing ports to it's internal network and the default `0.0.0.0` binding (all interfaces).
+
+        If your host does not have an IPv6 enabled interface or you have `"userland-proxy": false` configured in `/etc/docker/daemon.json`, this is additional setting is not required.
 
 ### Logs
 
@@ -171,21 +230,21 @@ DMS disables certain modules (`clickhouse`, `elastic`, `neural`, `reputation`, `
 
 You can choose to enable ClamAV, and Rspamd will then use it to check for viruses. Just set the environment variable `ENABLE_CLAMAV=1`.
 
-#### RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists)
+#### RBLs (Real-time Blacklists) / DNSBLs (DNS-based Blacklists) { #rspamd-module-rbl }
 
 The [RBL module][rspamd-docs::modules::rbl] is enabled by default. As a consequence, Rspamd will perform DNS lookups to various blacklists. Whether an RBL or a DNSBL is queried depends on where the domain name was obtained: RBL servers are queried with IP addresses extracted from message headers, DNSBL server are queried with domains and IP addresses extracted from the message body ([source][www::rbl-vs-dnsbl]).
 
 ??? warning "Rspamd & DNS Blocklists"
 
-    When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a variety of issues involved when using DNSBLs. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.
+    When the RBL module is enabled, Rspamd will do a variety of DNS requests to (amongst other things) DNSBLs. There are a [variety of issues involved when using DNSBLs][spamhaus::faq::what-is-a-dnsbl]. Rspamd will try to mitigate some of them by properly evaluating all return codes. This evaluation is a best effort though, so if the DNSBL operators change or add return codes, it may take a while for Rspamd to adjust as well.
 
-!!! danger "Properly Querying Blocklists"
+!!! danger "Properly querying DNS Blocklists"
 
     To use DNS Blocklists (DNSBLs) properly, DMS must use a **private and recursive** DNS resolver.
 
     DNSBL services are rate-limited, thus if your DNS queries are forwarded through a public resolver (_like Cloudflare's `1.1.1.1` or Google's `8.8.8.8`_) caching the DNSBL service responses received from a public DNS resolver will not be reliable when public load has triggered a rate limit.
 
-    Instead of relying on forwarding DNS queries, they must be resolved recursively (directly) via running your own private recursive DNS service.
+    Instead of relying on forwarding DNS queries, they must be resolved recursively (directly) via running your own private recursive DNS service (_See the [DNS section](#dns) for an example of how to do this_).
 
 ## Providing Custom Settings & Overriding Settings
 
@@ -355,7 +414,8 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [abusix-web]: https://abusix.com/
 [abusix-web::register]: https://app.abusix.com/
 [abusix-docs::rspamd-integration]: https://abusix.com/docs/rspamd/
-[spamhaus::faq::dnsbl-usage]: https://www.spamhaus.org/faq/section/DNSBL%20Usage#365
+[spamhaus::faq::what-is-a-dnsbl]: https://www.spamhaus.org/faqs/dnsbl-usage/#what-is-a-dnsbl
+[docker-docs::compose::default-network]: https://docs.docker.com/reference/compose-file/networks/#the-default-network
 
 [dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd/local.d/actions.conf
 [dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd
@@ -366,8 +426,7 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [docs::spam-to-junk]: ../environment.md#move_spam_to_junk
 [docs::dkim-dmarc-spf]: ../best-practices/dkim_dmarc_spf.md
 [docs::dkim-with-rspamd]: ../best-practices/dkim_dmarc_spf.md#dkim
-
+[docs::ipv6::security-risks]: ../advanced/ipv6.md#what-can-go-wrong
 [docs::dms-volumes-config]: ../advanced/optional-config.md#volumes-config
 [docs::dms-volumes-state]: ../advanced/optional-config.md#volumes-state
-
 [docs::faq::dns-servers]: ../../faq.md#what-about-dns-servers
