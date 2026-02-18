@@ -49,9 +49,6 @@ EOF
   __postfix__log 'trace' 'Setting up Postfix vhost'
   _create_postfix_vhost
 
-  __postfix__log 'trace' 'Setting up DH Parameters'
-  _setup_dhparam 'Postfix' '/etc/postfix/dhparams.pem'
-
   __postfix__log 'trace' "Configuring message size limit to '${POSTFIX_MESSAGE_SIZE_LIMIT}'"
   postconf "message_size_limit = ${POSTFIX_MESSAGE_SIZE_LIMIT}"
 
