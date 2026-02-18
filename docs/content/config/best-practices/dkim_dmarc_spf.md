@@ -106,6 +106,8 @@ You should have:
     # ENABLE_RSPAMD=1 + ENABLE_OPENDKIM=0:
     setup config dkim domain example.com
     setup config dkim domain another-example.com
+    # If you need to import OPENDKIM rsa keys to RSPAMD:
+    setup config dkim domain example.com -i
     ```
 
     !!! info "OpenDKIM with `ACCOUNT_PROVISIONER=FILE`"
@@ -139,6 +141,14 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
         - Create a key with `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` for each domain DMS should sign outgoing mail for.
         - Provide a custom `dkim_signing.conf` (for which an example is shown below), as the default config only supports one domain.
+
+    ??? info "Importing existing opendkim keys"
+
+        If you have opendkim setup up and running, you can import existing `rsa` keys to `rspamd`, you need to run script with option `-i`:
+
+        ```sh
+        docker exec -it <CONTAINER NAME> setup config dkim domain example.com -i 
+        ```
 
     !!! info "About the Helper Script"
 
