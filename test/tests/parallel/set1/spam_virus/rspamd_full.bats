@@ -140,7 +140,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'S (no action)'
 
   _print_mail_log_for_msgid 'rspamd-test-email-pass'
-  assert_output --partial "stored mail into mailbox 'INBOX'"
+  assert_output --partial 'saved mail to INBOX'
 
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
 }
@@ -154,7 +154,7 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial '5.7.1 Gtube pattern'
 
   _print_mail_log_for_msgid 'dms-test-email-spam'
-  refute_output --partial "stored mail into mailbox 'INBOX'"
+  refute_output --partial 'saved mail to INBOX'
   assert_failure
 
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
@@ -169,7 +169,7 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial '5.7.1 ClamAV FOUND VIRUS "Eicar-Signature"'
 
   _print_mail_log_for_msgid 'dms-test-email-spam'
-  refute_output --partial "stored mail into mailbox 'INBOX'"
+  refute_output --partial 'saved mail to INBOX'
   assert_failure
 
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
@@ -259,7 +259,7 @@ function teardown_file() { _default_teardown ; }
   _service_log_should_contain_string 'rspamd' 'rewrite subject "Gtube pattern"'
 
   _print_mail_log_for_msgid 'rspamd-test-email-rewrite_subject'
-  assert_output --partial "stored mail into mailbox 'INBOX'"
+  assert_output --partial 'saved mail to INBOX'
 
   # check that the inbox contains the subject-rewritten e-mail
   _run_in_container_bash "grep --fixed-strings 'Subject: *** SPAM ***' /var/mail/localhost.localdomain/user1/new/*"
@@ -284,7 +284,7 @@ function teardown_file() { _default_teardown ; }
     _file_exists_in_container "/usr/lib/dovecot/sieve-pipe/${FILE}"
   done
 
-  _run_in_container grep 'mail_plugins.*imap_sieve' /etc/dovecot/conf.d/20-imap.conf
+  _run_in_container grep -F 'imap_sieve = yes' /etc/dovecot/conf.d/20-imap.conf
   assert_success
   local SIEVE_CONFIG_FILE='/etc/dovecot/conf.d/90-sieve.conf'
   _run_in_container grep 'sieve_plugins.*sieve_imapsieve' "${SIEVE_CONFIG_FILE}"

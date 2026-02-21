@@ -6,7 +6,7 @@
 # -o pipefail :: exit on error in pipes
 set -eE -u -o pipefail
 
-VERSION_CODENAME='bookworm'
+VERSION_CODENAME='trixie'
 
 # shellcheck source=../helpers/log.sh
 source /usr/local/bin/helpers/log.sh
@@ -28,12 +28,17 @@ function _pre_installation_steps() {
   local EARLY_PACKAGES=(
     # Avoid logging unnecessary warnings:
     apt-utils
+    # we need this early for the creation of accounts like 'clamav'
+    adduser
     # Required for adding third-party repos (/etc/apt/sources.list.d) as alternative package sources (eg: Dovecot CE and Rspamd):
     apt-transport-https ca-certificates curl gnupg
     # Avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953):
     systemd-standalone-sysusers
   )
   apt-get "${QUIET}" install --no-install-recommends "${EARLY_PACKAGES[@]}" 2>/dev/null
+
+  chmod +x /usr/local/bin/sedfile
+  adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
 }
 
 # Install third-party commands to /usr/local/bin
@@ -91,7 +96,7 @@ function _install_packages() {
   local CODECS_PACKAGES=(
     altermime arj bzip2
     cabextract cpio file
-    gzip lhasa liblz4-tool
+    gzip lhasa lz4
     lrzip lzop nomarch
     p7zip-full pax rpm2cpio
     unrar-free unzip xz-utils
@@ -154,7 +159,7 @@ function _install_dovecot() {
   # NOTE: AMD64 / x86_64 is the only supported arch from the Dovecot CE repo (thus noDMS built for ARM64 / aarch64)
   # Repo: https://repo.dovecot.org/ce-2.4-latest/debian/bookworm/dists/bookworm/main/
   # Docs: https://repo.dovecot.org/#debian
-  if [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]] && [[ "$(uname --machine)" == "x86_64" ]]; then
+  if [[ ${DOVECOT_COMMUNITY_REPO:-0} -eq 1 ]] && [[ $(uname --machine) == x86_64 ]]; then
     # WARNING: Repo only provides Debian Bookworm package support for Dovecot CE 2.4+.
     # As Debian Bookworm only packages Dovecot 2.3.x, building DMS with this alternative package repo may not yet be compatible with DMS:
     # - 2.3.19: https://salsa.debian.org/debian/dovecot/-/tree/stable/bookworm
@@ -187,14 +192,14 @@ EOF
 }
 
 function _install_rspamd() {
-  # NOTE: DMS only supports the rspamd package via using the third-party repo maintained by Rspamd (AMD64 + ARM64):
-  # Repo: https://rspamd.com/apt-stable/dists/bookworm/main/
+  # NOTE DMS only supports the rspamd package via using the
+  #      third-party repo maintained by Rspamd (AMD64 + ARM64)
+  # Repo: https://rspamd.com/apt-stable/dists/trixie/main/
   # Docs: https://rspamd.com/downloads.html#debian-and-ubuntu-linux
-  # NOTE: Debian 12 provides Rspamd 3.4 (too old) and Rspamd discourages it's use
 
   _log 'trace' 'Adding third-party package repository (Rspamd)'
   curl -fsSL https://rspamd.com/apt-stable/gpg.key \
-    | gpg --dearmor >/usr/share/keyrings/upstream-rspamd.gpg
+    | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
   cat >/etc/apt/sources.list.d/upstream-rspamd.sources <<EOF
 Types: deb
 URIs: https://rspamd.com/apt-stable/
@@ -203,8 +208,8 @@ Components: main
 Signed-By: /usr/share/keyrings/upstream-rspamd.gpg
 EOF
 
-  # Refresh package index:
-  apt-get "${QUIET}" update
+  # # Refresh package index:
+  # apt-get "${QUIET}" update
 
   _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" install rspamd redis-server
