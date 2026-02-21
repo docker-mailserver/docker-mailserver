@@ -257,8 +257,8 @@ function _setup_ssl() {
           # If the Dovecot settings for alt cert has been enabled (doesn't start with `#`),
           # but required ENV var is missing, reset to disabled state:
           sed -i -r \
-            -e 's|^(ssl_alt_key =).*|#\1 </path/to/alternative/key.pem|' \
-            -e 's|^(ssl_alt_cert =).*|#\1 </path/to/alternative/cert.pem|' \
+            -e 's|^(ssl_alt_key =).*|#\1 /path/to/alternative/key.pem|' \
+            -e 's|^(ssl_alt_cert =).*|#\1 /path/to/alternative/cert.pem|' \
             "${DOVECOT_CONFIG_SSL}"
         fi
 

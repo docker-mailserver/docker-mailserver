@@ -251,11 +251,8 @@ function _setup_spam_subject() {
   else
     _log 'debug' "Spam subject is set - the prefix '${SPAM_SUBJECT}' will be added to spam e-mails"
 
-    _log 'trace' "Enabling '+editheader' Sieve extension"
-    # check whether sieve_global_extensions is disabled (and enabled it if so)
-    sed -i -E 's|#(sieve_global_extensions.*)|\1|' /etc/dovecot/conf.d/90-sieve.conf
-    # then append the extension
-    sedfile -i -E 's|(sieve_global_extensions.*)|\1 +editheader|' /etc/dovecot/conf.d/90-sieve.conf
+    _log 'trace' "Enabling Sieve extension 'editheader'"
+    sedfile -i -E 's|^( *editheader =).*|\1 yes|g' /etc/dovecot/conf.d/90-sieve.conf
 
     _log 'trace' "Adding global (before) Sieve script for subject rewrite"
     # This directory contains Sieve scripts that are executed before user-defined Sieve
@@ -297,6 +294,8 @@ EOF
 function _setup_spam_to_junk() {
   if [[ ${MOVE_SPAM_TO_JUNK} -eq 1 ]]; then
     _log 'debug' 'Spam emails will be moved to the Junk folder'
+
+
     mkdir -p /usr/lib/dovecot/sieve-global/after/
     cat >/usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve << EOF
 require ["fileinto","special-use"];

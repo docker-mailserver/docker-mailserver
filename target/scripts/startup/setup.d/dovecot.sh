@@ -144,25 +144,16 @@ function _setup_dovecot_quota() {
 
   # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
   if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]; then
-    # disable dovecot quota in docevot confs
     if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]; then
-      mv /etc/dovecot/conf.d/90-quota.conf /etc/dovecot/conf.d/90-quota.conf.disab
-      sedfile -i \
-        "s|mail_plugins = \$mail_plugins quota|mail_plugins = \$mail_plugins|g" \
-        /etc/dovecot/conf.d/10-mail.conf
-      sedfile -i \
-        "s|mail_plugins = \$mail_plugins imap_quota|mail_plugins = \$mail_plugins|g" \
-        /etc/dovecot/conf.d/20-imap.conf
+      mv /etc/dovecot/conf.d/90-quota.conf          /etc/dovecot/conf.d/90-quota.conf.disab
+      sedfile -i -E 's|^( *quota =).*|\1 no|g'      /etc/dovecot/conf.d/10-mail.conf
+      sedfile -i -E 's|^( *imap_quota =).*|\1 no|g' /etc/dovecot/conf.d/20-imap.conf
     fi
   else
     if [[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]; then
-      mv /etc/dovecot/conf.d/90-quota.conf.disab /etc/dovecot/conf.d/90-quota.conf
-      sedfile -i \
-        "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins quota|g" \
-        /etc/dovecot/conf.d/10-mail.conf
-      sedfile -i \
-        "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins imap_quota|g" \
-        /etc/dovecot/conf.d/20-imap.conf
+      mv /etc/dovecot/conf.d/90-quota.conf.disab     /etc/dovecot/conf.d/90-quota.conf
+      sedfile -i -E 's|^( *quota =).*|\1 yes|g'      /etc/dovecot/conf.d/10-mail.conf
+      sedfile -i -E 's|^( *imap_quota =).*|\1 yes|g' /etc/dovecot/conf.d/20-imap.conf
     fi
 
     local MESSAGE_SIZE_LIMIT_MB=$((POSTFIX_MESSAGE_SIZE_LIMIT / 1000000))
