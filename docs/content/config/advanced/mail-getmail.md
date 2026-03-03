@@ -106,7 +106,6 @@ It is possible to utilize the `getmail-gmail-xoauth-tokens` helper to provide au
 
 [getmail-website]: https://www.getmail6.org
 [getmail-docs]: https://getmail6.org/configuration.html
-
 [getmail-docs-xoauth-12]: https://github.com/getmail6/getmail6/blob/master/docs/getmailrc-examples#L286
 [getmail-docs-xoauth-13]: https://github.com/getmail6/getmail6/blob/master/docs/getmailrc-examples#L351
 
