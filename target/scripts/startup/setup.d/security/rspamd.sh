@@ -223,20 +223,26 @@ function __rspamd__setup_learning() {
     readonly SIEVE_PIPE_BIN_DIR
     ln -s "$(type -f -P rspamc)" "${SIEVE_PIPE_BIN_DIR}/rspamc"
 
-    sedfile -i -E 's|(mail_plugins =.*)|\1 imap_sieve|' /etc/dovecot/conf.d/20-imap.conf
-    sedfile -i -E '/^}/d' /etc/dovecot/conf.d/90-sieve.conf
+    sedfile -i -E 's|^( *imap_sieve =).*|\1 yes|g' /etc/dovecot/conf.d/20-imap.conf
     cat >>/etc/dovecot/conf.d/90-sieve.conf << EOF
 
-  # From anywhere to Junk
-  imapsieve_mailbox1_name = Junk
-  imapsieve_mailbox1_causes = COPY APPEND
-  imapsieve_mailbox1_before = file:${SIEVE_PIPE_BIN_DIR}/learn-spam.sieve
+mailbox Junk {
+  sieve_script learn_spam {
+    cause = append copy
+    driver = file
+    name = Learn Spam
+    path = ${SIEVE_PIPE_BIN_DIR}/learn-spam.sieve
+    type = before
+  }
+}
 
-  # From Junk to Inbox
-  imapsieve_mailbox2_name = INBOX
-  imapsieve_mailbox2_from = Junk
-  imapsieve_mailbox2_causes = COPY APPEND
-  imapsieve_mailbox2_before = file:${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve
+imapsieve_from Junk {
+  sieve_script learn_ham {
+    cause = append copy
+    name = Learn Ham
+    path = ${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve
+    type = before
+  }
 }
 EOF
 
