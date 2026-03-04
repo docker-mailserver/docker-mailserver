@@ -2,16 +2,41 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
 BATS_TEST_NAME_PREFIX='[Getmail] '
-CONTAINER_NAME='dms-test_getmail'
+CONTAINER1_NAME='dms-test_getmail'
+CONTAINER2_NAME='dms-test_getmail_parallel'
+CONTAINER3_NAME='dms-test_getmail_parallel_specific'
 
 function setup_file() {
+  export CONTAINER_NAME
 
+  CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(--env 'ENABLE_GETMAIL=1')
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  CONTAINER_NAME=${CONTAINER2_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_GETMAIL=1
+    --env GETMAIL_PARALLEL=1
+    --env LOG_LEVEL=debug
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  CONTAINER_NAME=${CONTAINER3_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_GETMAIL=1
+    --env GETMAIL_PARALLEL=1
+    --env GETMAIL_IDLE='user3.cf,user4.cf'
+    --env LOG_LEVEL=debug
+  )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
-function teardown_file() { _default_teardown ; }
+function teardown_file() {
+    docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}"
+}
 
 #? The file used in the following tests is placed in test/config/getmail/user3.cf
 
@@ -77,4 +102,53 @@ function teardown_file() { _default_teardown ; }
   assert_line '    to_oldmail_on_each_mail : False'
   assert_line '    use_netrc : False'
   assert_line '    verbose : 0'
+}
+
+@test "(ENV GETMAIL_PARALLEL=1, GETMAIL_IDLE=auto) should create seperate services and start idle on all IMAP configs" {
+  export CONTAINER_NAME=${CONTAINER2_NAME}
+
+  _wait_for_service getmail-1
+  _wait_for_service getmail-2
+  _wait_for_service getmail-3
+  _wait_for_service getmail-4
+
+  _service_log_should_contain_string "mail" "getmail-1"
+  _service_log_should_contain_string "mail" "getmail-2"
+  _service_log_should_contain_string "mail" "getmail-3"
+  _service_log_should_contain_string "mail" "getmail-4"
+
+  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user3.cf"
+  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user4.cf"
+  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user5.cf"
+  _service_log_should_not_contain_string "mail" "Enabling IMAP IDLE for user6.cf"
+
+  _service_log_should_not_contain_string "mail" "Processing user3.cf"
+  _service_log_should_not_contain_string "mail" "Processing user4.cf"
+  _service_log_should_not_contain_string "mail" "Processing user5.cf"
+  _service_log_should_contain_string "mail" "Processing user6.cf"
+}
+
+@test "(ENV GETMAIL_PARALLEL=1, GETMAIL_IDLE=user3.cf,user4.cf) should create seperate services and only start idle on 2 configs" {
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+
+  _wait_for_service getmail-1
+  _wait_for_service getmail-2
+  _wait_for_service getmail-3
+  _wait_for_service getmail-4
+
+  _service_log_should_contain_string "mail" "getmail-1"
+  _service_log_should_contain_string "mail" "getmail-2"
+  _service_log_should_contain_string "mail" "getmail-3"
+  _service_log_should_contain_string "mail" "getmail-4"
+
+  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user3.cf"
+  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user4.cf"
+  _service_log_should_not_contain_string "mail" "Enabling IMAP IDLE for user5.cf"
+  _service_log_should_not_contain_string "mail" "Enabling IMAP IDLE for user6.cf"
+
+  _service_log_should_not_contain_string "mail" "Processing user3.cf"
+  _service_log_should_not_contain_string "mail" "Processing user4.cf"
+  _service_log_should_contain_string "mail" "Processing user5.cf"
+  _service_log_should_contain_string "mail" "Processing user6.cf"
+
 }
