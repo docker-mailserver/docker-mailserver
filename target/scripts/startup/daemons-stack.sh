@@ -68,7 +68,7 @@ function _start_daemon_fetchmail() {
 function _start_daemon_getmail() {
   if [[ ${GETMAIL_PARALLEL} -eq 1 ]]; then
     local COUNTER=0
-    for _ in /etc/getmailrc.d/*.cf; do
+    for _ in /etc/getmailrc.d/*; do
       COUNTER=$(( COUNTER + 1 ))
       _default_start_daemon "getmail-${COUNTER}"
     done
