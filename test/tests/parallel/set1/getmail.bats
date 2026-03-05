@@ -18,7 +18,6 @@ function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_GETMAIL=1
     --env GETMAIL_PARALLEL=1
-    --env LOG_LEVEL=debug
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
@@ -27,8 +26,7 @@ function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_GETMAIL=1
     --env GETMAIL_PARALLEL=1
-    --env GETMAIL_IDLE='user3.cf,user4.cf'
-    --env LOG_LEVEL=debug
+    --env GETMAIL_IDLE='user3,user4'
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
