@@ -247,10 +247,12 @@ The most noteworthy change of this release is the update of the container's base
 
 - **Documentation:**
   - A guide for configuring a public server to relay inbound and outbound mail from DMS on a private server ([#3973](https://github.com/docker-mailserver/docker-mailserver/pull/3973))
+  - Added information on how to configure send-only aliases ([#4044](https://github.com/docker-mailserver/docker-mailserver/pull/4044))
 - **Environment Variables:**
   - `LOGROTATE_COUNT` defines the number of files kept by logrotate ([#3907](https://github.com/docker-mailserver/docker-mailserver/pull/3907))
     - The fail2ban log file is now also taken into account by `LOGROTATE_COUNT` and `LOGROTATE_INTERVAL` ([#3915](https://github.com/docker-mailserver/docker-mailserver/pull/3915), [#3919](https://github.com/docker-mailserver/docker-mailserver/pull/3919))
-
+- **Postfix:**
+  - `smtpd_sender_login_maps` allows configuration with sender-only aliases out of the box using `postfix-regexp-send-only.cf` ([#4044](https://github.com/docker-mailserver/docker-mailserver/pull/4044))
 - **Internal:**
   - Regular container restarts are now better supported. Setup scripts that ran previously will now be skipped ([#3929](https://github.com/docker-mailserver/docker-mailserver/pull/3929))
 
