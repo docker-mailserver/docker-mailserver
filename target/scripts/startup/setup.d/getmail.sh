@@ -48,7 +48,7 @@ autostart=false
 autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
 stderr_logfile=/var/log/supervisor/%(program_name)s.log
-command=/bin/bash -l -c /usr/local/bin/getmail-service.sh ${GETMAIL_RC}
+command=/bin/bash -l -c '/usr/local/bin/getmail-service.sh ${GETMAIL_RC}'
 environment=SERVICE_NAME="getmail-${COUNTER}"
 EOF
 

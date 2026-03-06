@@ -110,23 +110,32 @@ function teardown_file() {
   _wait_for_service getmail-3
   _wait_for_service getmail-4
 
-  _service_log_should_contain_string "mail" "getmail-1"
-  _service_log_should_contain_string "mail" "getmail-2"
-  _service_log_should_contain_string "mail" "getmail-3"
-  _service_log_should_contain_string "mail" "getmail-4"
+  sleep 900
 
-  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user3.cf"
-  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user4.cf"
-  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user5.cf"
-  _service_log_should_not_contain_string "mail" "Enabling IMAP IDLE for user6.cf"
+  _service_log_should_contain_string "getmail-1" "Enabling IMAP IDLE for /etc/getmailrc.d/user3"
+  _service_log_should_contain_string "getmail-2" "Enabling IMAP IDLE for /etc/getmailrc.d/user4"
+  _service_log_should_contain_string "getmail-3" "Enabling IMAP IDLE for /etc/getmailrc.d/user5"
+  _service_log_should_not_contain_string "getmail-4" "Enabling IMAP IDLE for /etc/getmailrc.d/user6"
+  _service_log_should_contain_string "getmail-4" "IMAP IDLE not enabled for /etc/getmailrc.d/user6"
 
-  _service_log_should_not_contain_string "mail" "Processing user3.cf"
-  _service_log_should_not_contain_string "mail" "Processing user4.cf"
-  _service_log_should_not_contain_string "mail" "Processing user5.cf"
-  _service_log_should_contain_string "mail" "Processing user6.cf"
+  _service_log_should_not_contain_string "getmail-1" "user4"
+  _service_log_should_not_contain_string "getmail-1" "user5"
+  _service_log_should_not_contain_string "getmail-1" "user6"
+
+  _service_log_should_not_contain_string "getmail-2" "user3"
+  _service_log_should_not_contain_string "getmail-2" "user5"
+  _service_log_should_not_contain_string "getmail-2" "user6"
+
+  _service_log_should_not_contain_string "getmail-3" "user3"
+  _service_log_should_not_contain_string "getmail-3" "user4"
+  _service_log_should_not_contain_string "getmail-3" "user6"
+
+  _service_log_should_not_contain_string "getmail-4" "user3"
+  _service_log_should_not_contain_string "getmail-4" "user4"
+  _service_log_should_not_contain_string "getmail-4" "user5"
 }
 
-@test "(ENV GETMAIL_PARALLEL=1, GETMAIL_IDLE=user3.cf,user4.cf) should create seperate services and only start idle on 2 configs" {
+@test "(ENV GETMAIL_PARALLEL=1, GETMAIL_IDLE=user3,user4) should create seperate services and only start idle on 2 configs" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
   _wait_for_service getmail-1
@@ -134,19 +143,26 @@ function teardown_file() {
   _wait_for_service getmail-3
   _wait_for_service getmail-4
 
-  _service_log_should_contain_string "mail" "getmail-1"
-  _service_log_should_contain_string "mail" "getmail-2"
-  _service_log_should_contain_string "mail" "getmail-3"
-  _service_log_should_contain_string "mail" "getmail-4"
+  _service_log_should_contain_string "getmail-1" "Enabling IMAP IDLE for /etc/getmailrc.d/user3"
+  _service_log_should_contain_string "getmail-2" "Enabling IMAP IDLE for /etc/getmailrc.d/user4"
+  _service_log_should_not_contain_string "getmail-3" "Enabling IMAP IDLE for /etc/getmailrc.d/user5"
+  _service_log_should_not_contain_string "getmail-4" "Enabling IMAP IDLE for /etc/getmailrc.d/user6"
+  _service_log_should_contain_string "getmail-3" "IMAP IDLE not enabled for /etc/getmailrc.d/user5"
+  _service_log_should_contain_string "getmail-4" "IMAP IDLE not enabled for /etc/getmailrc.d/user6"
 
-  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user3.cf"
-  _service_log_should_contain_string "mail" "Enabling IMAP IDLE for user4.cf"
-  _service_log_should_not_contain_string "mail" "Enabling IMAP IDLE for user5.cf"
-  _service_log_should_not_contain_string "mail" "Enabling IMAP IDLE for user6.cf"
+  _service_log_should_not_contain_string "getmail-1" "user4"
+  _service_log_should_not_contain_string "getmail-1" "user5"
+  _service_log_should_not_contain_string "getmail-1" "user6"
 
-  _service_log_should_not_contain_string "mail" "Processing user3.cf"
-  _service_log_should_not_contain_string "mail" "Processing user4.cf"
-  _service_log_should_contain_string "mail" "Processing user5.cf"
-  _service_log_should_contain_string "mail" "Processing user6.cf"
+  _service_log_should_not_contain_string "getmail-2" "user3"
+  _service_log_should_not_contain_string "getmail-2" "user5"
+  _service_log_should_not_contain_string "getmail-2" "user6"
 
+  _service_log_should_not_contain_string "getmail-3" "user3"
+  _service_log_should_not_contain_string "getmail-3" "user4"
+  _service_log_should_not_contain_string "getmail-3" "user6"
+
+  _service_log_should_not_contain_string "getmail-4" "user3"
+  _service_log_should_not_contain_string "getmail-4" "user4"
+  _service_log_should_not_contain_string "getmail-4" "user5"
 }
