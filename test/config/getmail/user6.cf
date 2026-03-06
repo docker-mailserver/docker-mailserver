@@ -1,0 +1,11 @@
+[retriever]
+type = SimplePOP3SSLRetriever
+server =  pop3.remote-service.test
+username = user6
+password=secret
+
+[destination]
+type = MDA_external
+path = /usr/lib/dovecot/deliver
+allow_root_commands = true
+arguments =("-d","user6@example.test")
