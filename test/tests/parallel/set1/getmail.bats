@@ -26,7 +26,7 @@ function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_GETMAIL=1
     --env GETMAIL_PARALLEL=1
-    --env GETMAIL_IDLE='user3,user4'
+    --env GETMAIL_IDLE='user3,user4:MYINBOX'
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
@@ -110,11 +110,9 @@ function teardown_file() {
   _wait_for_service getmail-3
   _wait_for_service getmail-4
 
-  sleep 900
-
-  _service_log_should_contain_string "getmail-1" "Enabling IMAP IDLE for /etc/getmailrc.d/user3"
-  _service_log_should_contain_string "getmail-2" "Enabling IMAP IDLE for /etc/getmailrc.d/user4"
-  _service_log_should_contain_string "getmail-3" "Enabling IMAP IDLE for /etc/getmailrc.d/user5"
+  _service_log_should_contain_string "getmail-1" "Enabling IMAP IDLE for /etc/getmailrc.d/user3 for mailbox INBOX"
+  _service_log_should_contain_string "getmail-2" "Enabling IMAP IDLE for /etc/getmailrc.d/user4 for mailbox INBOX"
+  _service_log_should_contain_string "getmail-3" "Enabling IMAP IDLE for /etc/getmailrc.d/user5 for mailbox INBOX"
   _service_log_should_not_contain_string "getmail-4" "Enabling IMAP IDLE for /etc/getmailrc.d/user6"
   _service_log_should_contain_string "getmail-4" "IMAP IDLE not enabled for /etc/getmailrc.d/user6"
 
@@ -143,8 +141,8 @@ function teardown_file() {
   _wait_for_service getmail-3
   _wait_for_service getmail-4
 
-  _service_log_should_contain_string "getmail-1" "Enabling IMAP IDLE for /etc/getmailrc.d/user3"
-  _service_log_should_contain_string "getmail-2" "Enabling IMAP IDLE for /etc/getmailrc.d/user4"
+  _service_log_should_contain_string "getmail-1" "Enabling IMAP IDLE for /etc/getmailrc.d/user3 for mailbox INBOX"
+  _service_log_should_contain_string "getmail-2" "Enabling IMAP IDLE for /etc/getmailrc.d/user4 for mailbox MYINBOX"
   _service_log_should_not_contain_string "getmail-3" "Enabling IMAP IDLE for /etc/getmailrc.d/user5"
   _service_log_should_not_contain_string "getmail-4" "Enabling IMAP IDLE for /etc/getmailrc.d/user6"
   _service_log_should_contain_string "getmail-3" "IMAP IDLE not enabled for /etc/getmailrc.d/user5"
