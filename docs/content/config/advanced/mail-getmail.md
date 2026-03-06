@@ -104,6 +104,7 @@ environment:
 
 IDLE is a IMAP feature describe in RFC 2177 that allows a client to indicate to the server that it is ready to accept notifications in real time.
 This allows email users to receive near instant delivery of a new email.
+By default to folder "INBOX" is watched, this can be changed by specifying the FOLDER with a colon ':' eg: GETMAIL_IDLE=account1:MY_FOLDER
 
 ```yaml
 environment:
