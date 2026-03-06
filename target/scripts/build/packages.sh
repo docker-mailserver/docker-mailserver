@@ -144,7 +144,7 @@ function _install_dovecot() {
   local DOVECOT_PACKAGES=(
     dovecot-core dovecot-imapd
     dovecot-ldap dovecot-lmtpd dovecot-managesieved
-    dovecot-pop3d dovecot-sieve
+    dovecot-pop3d dovecot-sieve dovecot-gssapi
   )
 
   # Additional Dovecot packages for supporting the DMS community (docs-only guide contributions).
