@@ -781,6 +781,17 @@ Enable or disable `getmail`.
 
 - **5** => `getmail` The number of minutes for the interval. Min: 1; Default: 5.
 
+##### GETMAIL_PARALLEL
+
+Create a service for each getmail configuration so they can all run independently.
+
+- **0** => Disabled
+- 1 => Enabled
+
+##### GETMAIL_IDLE
+
+- **auto** => `getmail` Specify which getmail configs should be started with the --idle flag. If auto is set, it will be enable for ever IMAP config Default: auto.
+- => e.g. LDAP_SEARCH_BASE=account1,account2
 
 #### OAUTH2
 
