@@ -133,7 +133,7 @@ function teardown_file() {
   _service_log_should_not_contain_string "getmail-4" "user5"
 }
 
-@test "(ENV GETMAIL_PARALLEL=1, GETMAIL_IDLE=user3,user4) should create seperate services and only start idle on 2 configs" {
+@test "(ENV GETMAIL_PARALLEL=1, GETMAIL_IDLE=user3,user4:MYINBOX) should create seperate services and only start idle on 2 configs" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
   _wait_for_service getmail-1
