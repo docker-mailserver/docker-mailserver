@@ -116,7 +116,10 @@ function getmail_specific() {
   fi
 
   GETMAIL_OPTS=()
+  # If the getmailrc file contains IMAP configuration and the GETMAIL_IDLE variable is set to "auto" or contains the specific getmailrc file, enable IMAP IDLE for this getmailrc file.
   if grep -q 'IMAP' "${RC_FILE}" && [[ ${GETMAIL_IDLE} == "auto" || ${GETMAIL_IDLE} == *$(basename "${RC_FILE}")* ]]; then
+
+    # Read the GETMAIL_IDLE as array to support specifying the FOLDER for the IDLE command (e.g. 'account1:MYINBOX').
     IFS=',' read -ra GETMAIL_IDLE_MAP <<< "${GETMAIL_IDLE}"
     for IDLE_ELEMENT in "${GETMAIL_IDLE_MAP[@]}"; do
       if [[ ${GETMAIL_IDLE} == "auto" || ${IDLE_ELEMENT} == *$(basename "${RC_FILE}")* ]]; then
@@ -128,7 +131,7 @@ function getmail_specific() {
         fi
 
         _log 'debug' "Enabling IMAP IDLE for ${RC_FILE} for mailbox ${IDLE_MAP}"
-        GETMAIL_OPTS+=("--idle ${IDLE_MAP}")
+        GETMAIL_OPTS+=("--idle=${IDLE_MAP}")
         break
       fi
     done
