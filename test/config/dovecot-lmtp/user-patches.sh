@@ -26,7 +26,7 @@ EOF
 
 # service lmtp {
 #   inet_listener lmtp {
-#     address = 127.0.0.1
+#     listen = 127.0.0.1
 #     port = 24
 #   }
 # }

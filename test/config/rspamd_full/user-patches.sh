@@ -12,5 +12,4 @@ echo 'gtube_patterns = "all"' >>/etc/rspamd/local.d/options.inc
 # Sieve scripts are executed so Rspamd is trained when using
 # `RSPAMD_LEARN=1`.
 echo 'mail_debug = yes' >>/etc/dovecot/dovecot.conf
-sed -i -E '/^}/d' /etc/dovecot/conf.d/90-sieve.conf
-echo -e '\n  sieve_trace_debug = yes\n}' >>/etc/dovecot/conf.d/90-sieve.conf
+echo 'sieve_trace_debug = yes' >>/etc/dovecot/conf.d/90-sieve.conf
