@@ -906,15 +906,172 @@ if [ "$certcheck_2weeks" = "Certificate will not expire" ]; then
 fi
 ```
 
-## Custom DH Parameters
+## DMS - TLS (technical details)
 
-By default DMS uses [`ffdhe4096`][ffdhe4096-src] from [IETF RFC 7919][ietf::rfc::ffdhe]. These are standardized pre-defined DH groups and the only available DH groups for TLS 1.3. It is [discouraged to generate your own DH parameters][dh-avoid-selfgenerated] as it is often less secure.
+### Cipher suite support by `TLS_LEVEL`
 
-Despite this, if you must use non-standard DH parameters or you would like to swap `ffdhe4096` for a different group (eg `ffdhe2048`); Add your own PEM encoded DH params file via a volume to `/tmp/docker-mailserver/dhparams.pem`. This will replace DH params for both Dovecot and Postfix services during container startup.
+Both Postfix and Dovecot are configured with the following cipher lists depending on the [`TLS_LEVEL` ENV][docs-env::tls-level], which only affects the authenticated ports (_**SMTP:** 587 + 465 / **POP3:** 110 + 995 / **IMAP:** 143 + 993_):
+
+```sh
+# TLS_LEVEL=modern
+ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+
+# TLS_LEVEL=intermediate
+ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256
+```
+
+For clarity, the permitted [cipher suites][wikipedia::cipher-suites] are comprised of the components:
+
+- **Key-Exchange:** ECDHE + DHE
+- **Authentication:** RSA + ECDSA (_depending on the key type of your TLS certificate(s)_)
+- **Encryption:** AES-GCM + CHACHA20-POLY1305 + AES-CBC
+
+The default `TLS_LEVEL=modern` includes: `DHE-RSA-AES128-GCM-SHA256` + `DHE-RSA-AES256-GCM-SHA384`
+
+`TLS_LEVEL=intermediate` includes 6 additional cipher suites that leverage the AES-CBC encryption cipher. While the AES-CBC cipher in TLS 1.2 should be generally considered secure, it is [not AEAD][tls::cbc-not-aead] (_hence their exclusion from `TLS_LEVEL=modern`_).
+
+These are the additional cipher suites supported via `TLS_LEVEL=intermediate`, they use the `ECDHE` / `DHE` key-exchange algorithms (_which provide [perfect forward secrecy][tls::pfs]_):
+
+- **ECDHE:**
+    - **ECDSA:** `ECDHE-ECDSA-AES128-SHA256` + `ECDHE-ECDSA-AES256-SHA384`
+    - **RSA:** `ECDHE-RSA-AES128-SHA256` + `ECDHE-RSA-AES256-SHA384`
+- **DHE:**
+    - **RSA:** `DHE-RSA-AES128-SHA256` + `DHE-RSA-AES256-SHA256`
+
+??? info "Cipher suite negotiation is via server preference"
+
+    The client sends a list of cipher suites it can support negotiating, and the server will compare that with it's own to decide which one to use. Choosing the first compatible cipher suite from the two lists can be configured to prefer the server or the clients cipher list.
+
+    ---
+
+    DMS defaults to server preference when negotiating TLS 1.2 (or lower when configured):
+
+    - **Postfix:** `tls_preempt_cipherlist = yes`
+    - **Dovecot:** `ssl_server_prefer_ciphers = server` (_Prior to DMS v16, the equialent setting for Dovecot 2.3 was `ssl_prefer_server_ciphers = yes`_)
+
+    Server preference prioritizes cipher suites by these factors:
+
+    - Key-Exchange: ECDHE before an equivalent DHE cipher suite.
+    - Cipher: AEAD ciphers sorted by those most commonly supported, with their lower security level variant first (_128-bit symmetric security is incredibly secure already_). Any non-AEAD cipher suites would be appended to the list with the same sorting rules.
+
+    ---
+
+    Client preference should be ok to enable with the cipher lists configured by DMS.
+
+    - `TLS_LEVEL=modern` only offers cipher suites that use AEAD ciphers.
+    - `TLS_LEVEL=intermediate` additionally includes AES-CBC ciphers (non-AEAD) that are known to be secure (_but have historically had related cipher suites with a variety of vulnerabilities_).
+    - Port 25 has an even broader cipher list configured than `TLS_LEVEL=intermediate`, but have likewise been filtered to cipher suites that should be safe. As this port for public ingress is expected to not enforce TLS, there is less value controlling the cipherlist.
+
+    The main benefit from client preference is that the client can choose which cipher suite is most optimal / efficient for it to use (_Most commonly this would be for devices that would prefer a `CHACHA20-POLY1305` or `CCM` cipher_).
+
+    ---
+
+    Client preference should be ok to enable with the cipher lists configured by DMS.
+
+    - `TLS_LEVEL=modern` only offers cipher suites that use AEAD ciphers.
+    - `TLS_LEVEL=intermediate` additionally includes AES-CBC ciphers that are known to be secure, but have historically had a variety of vulnerabilities.
+    - Port 25 has an even broader cipher list configured than `TLS_LEVEL=intermediate`, but likewise should be fairly secure to permit client preference.
+
+    The main benefit from client preference is that the client can choose which cipher suite is most optimal / efficient for it to use (_Most commonly this would be for devices that would prefer a `CHACHA20-POLY1305` or `CCM` cipher_).
+
+### Using custom DH parameters
+
+It is possible to configure the DH parameters for TLS 1.2 and below.
+
+- By default DMS uses [`ffdhe4096`][ffdhe4096-src] from [IETF RFC 7919][ietf::rfc::ffdhe] (_Standardized pre-defined DH groups and the only available DH groups for use in TLS 1.3_).
+- It is however [discouraged to generate your own DH parameters][dh-avoid-selfgenerated] as it is often less secure. Instead you should prefer to use one of the standard parameter groups from RFC 7919 (eg: `ffdhe2048`).
+
+??? example "Custom DH params with `compose.yaml`"
+
+    1. Add your own PEM encoded DH parameters file via a volume into the DMS container at any path you prefer (eg: `/tmp/docker-mailserver/dh-params.pem`).
+    2. Update one or both service configs via our config override support ([Dovecot][docs::dms-override-config::dovecot], [Postfix][docs::dms-override-config::postfix]).
+
+    This example uses the Docker Compose `configs` feature, but you could also use standard `volumes` with separate files if you prefer.
+
+    ```yaml
+    services:
+      mailserver:
+        image: mailserver/docker-mailserver:latest
+        configs:
+          # During the first run of the DMS container instance, these overrides will update the internal `/etc/postfix/main.cf` and copy to `/etc/dovecot/local.cf`:
+          - source: postfix-overrides
+            target: /tmp/docker-mailserver/postfix-main.cf
+          - source: dovecot-overrides
+            target: /tmp/docker-mailserver/dovecot.cf
+          - source: dh-params-2048
+            target: /tmp/docker-mailserver/dh-params.pem
+
+    configs:
+      # NOTE: Postfix plans to remove support in future for setting custom DH parameters.
+      postfix-overrides:
+        content: |
+          smtpd_tls_dh1024_param_file = /tmp/docker-mailserver/dh-params.pem
+
+      # NOTE: The setting `ssl_server_dh_file` is for Dovecot 2.4 (DMS v16), it previously named `ssl_dh`.
+      dovecot-overrides:
+        content: |
+          ssl_server_dh_file = </tmp/docker-mailserver/dh-params.pem
+
+      # This would be your PEM encoded DH parameters file:
+      # https://datatracker.ietf.org/doc/html/rfc7919#appendix-A.1
+      # https://github.com/internetstandards/dhe_groups/blob/main/ffdhe2048.pem
+      dh-params-2048:
+        content: |-
+          -----BEGIN DH PARAMETERS-----
+          MIIBCAKCAQEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
+          +8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
+          87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
+          YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
+          7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
+          ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
+          -----END DH PARAMETERS-----
+    ```
+
+    ??? tip "When using Docker Compose `configs` - YAML syntax importance of using `content: |-`"
+        
+        The `dh-params-2048` content above has YAML syntax of `|-` instead of `|`, this is not required but avoids adding a newline to the file content.
+
+        Thus avoiding an extra newline appended to the file content is important if you care to verify integrity:
+
+        ```console
+        $ curl -fsSL https://ssl-config.mozilla.org/ffdhe2048.txt | sha512sum | awk '{print $1}'
+        a29b3c9cd89f6126c2647084fc613b024c18cc03f4eac7c24ad942b175b659b0fa9c14e6bc43a7d76a46cbd47c81e30d8c020e08881035c78c55ec30437dce25
+
+        $ sha512sum /tmp/docker-mailserver/dh-params.pem | awk '{print $1}'
+        a29b3c9cd89f6126c2647084fc613b024c18cc03f4eac7c24ad942b175b659b0fa9c14e6bc43a7d76a46cbd47c81e30d8c020e08881035c78c55ec30437dce25
+        ```
+
+### Removing DH parameters or DHE cipher suite support
+
+This shouldn't be necessary, but it is possible via [our `user-patches.sh` feature][docs::dms-override-config::user-patches] with this command:
+
+```bash
+# Replace the matched line with the output of `doveconf ssl_cipher_list` + append `:!kDHE` to the end (excludes cipher suites using the DHE key-exchange):
+sed -i -r "s|^ssl_cipher_list.*|$(doveconf ssl_cipher_list):\!kDHE|" /etc/dovecot/conf.d/10-ssl.conf
+```
+
+??? abstract "Technical Details - Opt-out of DH parameters does not prevent offering DHE cipher suites"
+
+    The defaults for configured DH parameters are:
+
+    - **Postfix:** `smtpd_tls_dh1024_param_file` is not set since DMS v16
+       - [Since Postfix 3.7 + OpenSSL 3.0][tls-dh-postfix-3p7] (from DMS v14 onwards), Postfix will continue to support negotiating DHE cipher suites for TLS 1.2 (or below) by sourcing RFC 7919 FFDHE parameters from OpenSSL.
+       - Prior to Postfix 3.7 if this setting were unset, Postfix would fallback to a 2048-bit FFDHE parameter file it shipped with internally.
+    - **Dovecot:** `ssl_server_dh_file = /etc/dms/dh-params-4096.pem` (_located in `/etc/dovecot/conf.d/10-ssl.conf`_)
+
+    Dovecot does not have a fallback like Postfix implements. If you unset `ssl_server_dh_file`, DHE cipher suites will be mistakenly offered to clients for negotiation (_if the Dovecot servers cipher list (`ssl_cipher_list`) configures any_).
+    
+    This misconfiguration [prevents affected clients from connecting over TLS][tls::dovecot-dhe-fail] and affects the accuracy of findings reported by tools like `testssl.sh`, as the connection failure does not provide adequate context to detect the issue properly.
+
+    To avoid this mishap with Dovecot configuration, ensure that the `ssl_cipher_list` setting value excludes DHE cipher suites by appending `!kDHE` (_as shown in the earlier example with `user-patches.sh` or a [manual config override][docs::dms-override-config::dovecot]_).
 
 [docs-env::ssl-type]: ../environment.md#ssl_type
-[docs::dms-volumes-config]: ../advanced/optional-config.md#volumes-config
+[docs-env::tls-level]: ../environment.md#tls_level
 [docs-faq-baredomain]: ../../faq.md#can-i-use-a-nakedbare-domain-ie-no-hostname
+[docs::dms-volumes-config]: ../advanced/optional-config.md#volumes-config
+[docs::dms-override-config::dovecot]: ../advanced/override-defaults/dovecot.md
+[docs::dms-override-config::postfix]: ../advanced/override-defaults/postfix.md
+[docs::dms-override-config::user-patches]: ../advanced/override-defaults/user-patches.md
 
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml
 [github-file::tls-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/3b8059f2daca80d967635e04d8d81e9abb755a4d/test/test-files/ssl/example.test/README.md
@@ -923,9 +1080,15 @@ Despite this, if you must use non-standard DH parameters or you would like to sw
 [traefik::github]: https://github.com/containous/traefik
 [ietf::rfc::acme]: https://datatracker.ietf.org/doc/html/rfc8555
 
+[tls::cipher-suites]: https://en.wikipedia.org/wiki/Cipher_suite#Supported_algorithms
+[tls::cbc-not-aead]: https://crypto.stackexchange.com/questions/52566/why-was-aes-cbc-removed-in-tls-1-3/52584#52584
+[tls::pfs]: https://en.wikipedia.org/wiki/Forward_secrecy
+[tls::dovecot-dhe-fail]: https://github.com/testssl/testssl.sh/issues/2883#issuecomment-3273014938
+
 [ietf::rfc::ffdhe]: https://datatracker.ietf.org/doc/html/rfc7919
 [ffdhe4096-src]: https://github.com/internetstandards/dhe_groups
 [dh-avoid-selfgenerated]: https://crypto.stackexchange.com/questions/29926/what-diffie-hellman-parameters-should-i-use
+[tls-dh-postfix-3p7]: https://www.postfix.org/postconf.5.html#smtpd_tls_dh1024_param_file
 
 [certificate-transparency]: https://certificate.transparency.dev/
 [ct-search]: https://crt.sh/
