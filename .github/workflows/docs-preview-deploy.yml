@@ -139,7 +139,7 @@ jobs:
           # production-deploy: false
 
       - name: 'Comment on PR with preview link'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           number: ${{ env.PR_NUMBER }}
           header: preview-comment
