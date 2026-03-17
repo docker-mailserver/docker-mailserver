@@ -100,6 +100,18 @@ environment:
   - GETMAIL_POLL=1
 ```
 
+### IMAP IDLE support
+
+IDLE is a IMAP feature describe in RFC 2177 that allows a client to indicate to the server that it is ready to accept notifications in real time.
+This allows email users to receive near instant delivery of a new email.
+By default to folder "INBOX" is watched, this can be changed by specifying the FOLDER with a colon ':' eg: GETMAIL_IDLE=account1:MY_FOLDER
+
+```yaml
+environment:
+  - GETMAIL_PARALLEL=1
+  - GETMAIL_IDLE=auto
+```
+
 ### XOAUTH2 Authentication
 
 It is possible to utilize the `getmail-gmail-xoauth-tokens` helper to provide authentication using `xoauth2` for [gmail (example 12)][getmail-docs-xoauth-12] or [Microsoft Office 365 (example 13)][getmail-docs-xoauth-13]
