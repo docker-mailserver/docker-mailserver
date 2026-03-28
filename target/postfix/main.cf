@@ -1,5 +1,9 @@
 # See /usr/share/postfix/main.cf.dist for a commented, more complete version
 
+# REF: https://www.postfix.org/COMPATIBILITY_README.html
+#      https://www.postfix.org/postconf.5.html#compatibility_level
+compatibility_level = 3.10
+
 smtpd_banner = $myhostname ESMTP
 biff = no
 append_dot_mydomain = no
@@ -45,7 +49,6 @@ smtp_tls_protocols = !SSLv2,!SSLv3,!TLSv1,!TLSv1.1
 smtpd_tls_mandatory_ciphers = high
 smtpd_tls_mandatory_protocols = !SSLv2,!SSLv3,!TLSv1,!TLSv1.1
 smtpd_tls_exclude_ciphers = aNULL, SEED, CAMELLIA, RSA+AES, SHA1
-smtpd_tls_dh1024_param_file = /etc/postfix/dhparams.pem
 smtpd_tls_CApath = /etc/ssl/certs
 smtp_tls_CApath = /etc/ssl/certs
 
@@ -117,9 +120,3 @@ header_checks = pcre:/etc/postfix/maps/header_checks.pcre
 
 # Remove unwanted headers that reveal our privacy
 smtp_header_checks = pcre:/etc/postfix/maps/sender_header_filter.pcre
-
-# The default compatibility_level is 0 - which retains legacy settings defaults:
-# http://www.postfix.org/COMPATIBILITY_README.html
-# If backwards-compatibility log messages appear, fix them by explicitly adding
-# the legacy or new default value (alternatively raise the compatibility_level)
-compatibility_level = 3.6
