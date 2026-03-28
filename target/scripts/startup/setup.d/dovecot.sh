@@ -61,9 +61,11 @@ function _setup_dovecot() {
 
     ( 'sdbox' | 'mdbox' )
       _log 'trace' "Dovecot ${DOVECOT_MAILBOX_FORMAT} format configured"
-      sedfile -i -E "s|^(mail_home =).*|\1 /var/mail/%d/%n|" /etc/dovecot/conf.d/10-mail.conf
       sedfile -i -E \
-        "s|^(mail_location =).*|\1 ${DOVECOT_MAILBOX_FORMAT}:/var/mail/%d/%n|" \
+        's|^(mail_home =).*|\1 /var/mail/%{user | domain}/%{user | username}|' \
+        /etc/dovecot/conf.d/10-mail.conf
+      sedfile -i -E \
+        "s|^(mail_driver =).*|\1 ${DOVECOT_MAILBOX_FORMAT}|" \
         /etc/dovecot/conf.d/10-mail.conf
 
       _log 'trace' 'Enabling cron job for dbox purge'
@@ -126,12 +128,26 @@ function _setup_dovecot_sieve() {
       /tmp/docker-mailserver/before.dovecot.sieve \
       /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
     sievec /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
+    cat >>/etc/dovecot/conf.d/90-sieve.conf <<"EOF"
+
+sieve_script global_before {
+    type = before
+    path = /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
+}
+EOF
   fi
   if [[ -f /tmp/docker-mailserver/after.dovecot.sieve ]]; then
     cp \
       /tmp/docker-mailserver/after.dovecot.sieve \
       /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
     sievec /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
+    cat >>/etc/dovecot/conf.d/90-sieve.conf <<"EOF"
+
+sieve_script global_after {
+    type = after
+    path = /usr/lib/dovecot/sieve-global/before/50-after.dovecot.sieve
+}
+EOF
   fi
 
   chown dovecot:root -R /usr/lib/dovecot/sieve-*
@@ -144,36 +160,27 @@ function _setup_dovecot_quota() {
 
   # Dovecot quota is disabled when using LDAP or SMTP_ONLY or when explicitly disabled.
   if [[ ${ACCOUNT_PROVISIONER} != 'FILE' ]] || [[ ${SMTP_ONLY} -eq 1 ]] || [[ ${ENABLE_QUOTAS} -eq 0 ]]; then
-    # disable dovecot quota in docevot confs
     if [[ -f /etc/dovecot/conf.d/90-quota.conf ]]; then
-      mv /etc/dovecot/conf.d/90-quota.conf /etc/dovecot/conf.d/90-quota.conf.disab
-      sedfile -i \
-        "s|mail_plugins = \$mail_plugins quota|mail_plugins = \$mail_plugins|g" \
-        /etc/dovecot/conf.d/10-mail.conf
-      sedfile -i \
-        "s|mail_plugins = \$mail_plugins imap_quota|mail_plugins = \$mail_plugins|g" \
-        /etc/dovecot/conf.d/20-imap.conf
+      mv /etc/dovecot/conf.d/90-quota.conf          /etc/dovecot/conf.d/90-quota.conf.disab
+      sedfile -i -E 's|^( *quota =).*|\1 no|g'      /etc/dovecot/conf.d/10-mail.conf
+      sedfile -i -E 's|^( *imap_quota =).*|\1 no|g' /etc/dovecot/conf.d/20-imap.conf
     fi
   else
     if [[ -f /etc/dovecot/conf.d/90-quota.conf.disab ]]; then
-      mv /etc/dovecot/conf.d/90-quota.conf.disab /etc/dovecot/conf.d/90-quota.conf
-      sedfile -i \
-        "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins quota|g" \
-        /etc/dovecot/conf.d/10-mail.conf
-      sedfile -i \
-        "s|mail_plugins = \$mail_plugins|mail_plugins = \$mail_plugins imap_quota|g" \
-        /etc/dovecot/conf.d/20-imap.conf
+      mv /etc/dovecot/conf.d/90-quota.conf.disab     /etc/dovecot/conf.d/90-quota.conf
+      sedfile -i -E 's|^( *quota =).*|\1 yes|g'      /etc/dovecot/conf.d/10-mail.conf
+      sedfile -i -E 's|^( *imap_quota =).*|\1 yes|g' /etc/dovecot/conf.d/20-imap.conf
     fi
 
     local MESSAGE_SIZE_LIMIT_MB=$((POSTFIX_MESSAGE_SIZE_LIMIT / 1000000))
     local MAILBOX_LIMIT_MB=$((POSTFIX_MAILBOX_SIZE_LIMIT / 1000000))
 
     sedfile -i \
-      "s|quota_max_mail_size =.*|quota_max_mail_size = ${MESSAGE_SIZE_LIMIT_MB}$([[ ${MESSAGE_SIZE_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
+      "s|quota_mail_size =.*|quota_mail_size = ${MESSAGE_SIZE_LIMIT_MB}$([[ ${MESSAGE_SIZE_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
       /etc/dovecot/conf.d/90-quota.conf
 
     sedfile -i \
-      "s|quota_rule = \*:storage=.*|quota_rule = *:storage=${MAILBOX_LIMIT_MB}$([[ ${MAILBOX_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
+      "s|quota_storage_size = .*|quota_storage_size = ${MAILBOX_LIMIT_MB}$([[ ${MAILBOX_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
       /etc/dovecot/conf.d/90-quota.conf
 
     if [[ -d /tmp/docker-mailserver ]] && [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]; then
