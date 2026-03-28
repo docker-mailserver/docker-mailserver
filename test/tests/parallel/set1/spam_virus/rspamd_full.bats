@@ -283,7 +283,7 @@ function teardown_file() { _default_teardown ; }
     _file_exists_in_container "/usr/lib/dovecot/sieve-pipe/${FILE}"
   done
 
-  _run_in_container grep 'mail_plugins.*imap_sieve' /etc/dovecot/conf.d/20-imap.conf
+  _run_in_container grep -F 'imap_sieve = yes' /etc/dovecot/conf.d/20-imap.conf
   assert_success
   local SIEVE_CONFIG_FILE='/etc/dovecot/conf.d/90-sieve.conf'
   _run_in_container grep 'sieve_plugins.*sieve_imapsieve' "${SIEVE_CONFIG_FILE}"
