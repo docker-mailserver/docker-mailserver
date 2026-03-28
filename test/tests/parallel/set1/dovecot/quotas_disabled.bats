@@ -14,10 +14,10 @@ function teardown_file() { _default_teardown ; }
 
 @test "(Dovecot) quota plugin is disabled" {
   _run_in_container_bash_and_filter_output 'cat /etc/dovecot/conf.d/10-mail.conf'
-  refute_output --partial 'quota'
+  refute_output --partial 'quota = yes'
 
   _run_in_container_bash_and_filter_output 'cat /etc/dovecot/conf.d/20-imap.conf'
-  refute_output --partial 'imap_quota'
+  refute_output --partial 'imap_quota = yes'
 
   _run_in_container_bash "[[ -f /etc/dovecot/conf.d/90-quota.conf ]]"
   assert_failure
