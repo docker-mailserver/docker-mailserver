@@ -13,11 +13,11 @@ function setup_file() {
 function teardown_file() { _default_teardown ; }
 
 @test "setting the time with TZ works correctly" {
-  _run_in_container cat /etc/timezone
+  _run_in_container realpath -eL /etc/localtime
   assert_success
-  assert_output 'Asia/Jakarta'
+  assert_output /usr/share/zoneinfo/Asia/Jakarta
 
-  _run_in_container date '+%Z'
+  _run_in_container date +%Z
   assert_success
-  assert_output 'WIB'
+  assert_output WIB
 }
