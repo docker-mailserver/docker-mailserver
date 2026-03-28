@@ -428,7 +428,6 @@ The purpose of this setting is to opt-out of starting an internal Redis instance
 
     ```
     servers = "redis.example.test:6379";
-    expand_keys = true;
     ```
 
 [rspamd-redis-config]: https://rspamd.com/doc/configuration/redis.html
