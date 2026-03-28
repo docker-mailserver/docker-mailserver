@@ -92,7 +92,6 @@ function teardown_file() { _default_teardown ; }
 @test 'Rspamd Redis configuration is correct' {
   _run_in_container rspamadm configdump redis
   assert_success
-  assert_line 'expand_keys = true;'
   assert_line 'servers = "127.0.0.1:6379";'
 
   _run_in_container rspamadm configdump history_redis

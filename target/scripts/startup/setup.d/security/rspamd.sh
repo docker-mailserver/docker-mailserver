@@ -125,7 +125,6 @@ function __rspamd__setup_redis() {
 # documentation: https://rspamd.com/doc/configuration/redis.html
 
 servers = "127.0.0.1:6379";
-expand_keys = true;
 
 EOF
 
