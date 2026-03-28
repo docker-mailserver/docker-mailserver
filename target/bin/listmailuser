@@ -55,8 +55,8 @@ function _quota_show_for() {
   [[ ${ENABLE_QUOTAS} -ne 1 ]] && return 0
 
   local QUOTA_INFO
-  # Matches a line where the 3rd column is `type='STORAGE'` - returning the next three column values:
-  IFS=' ' read -r -a QUOTA_INFO <<< "$(doveadm quota get -u "${MAIL_ACCOUNT}" | tail +2 | awk '{ if ($3 == "STORAGE") { print $4" "$5" "$6 } }')"
+  # Matches a line where the 2nd column is `STORAGE` - returning the next three column values
+  IFS=' ' read -r -a QUOTA_INFO <<< "$(doveadm quota get -u "${MAIL_ACCOUNT}" | tail +2 | awk '{ if ($2 == "STORAGE") { print $3" "$4" "$5 } }')"
 
   local CURRENT_SIZE SIZE_LIMIT PERCENT_USED
   # Format the extracted quota storage columns:

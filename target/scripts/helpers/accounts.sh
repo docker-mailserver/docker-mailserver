@@ -186,7 +186,7 @@ function _add_attribute_dovecot_quota() {
     IFS=':' read -r -a USER_QUOTA < <(grep -i "${MAIL_ACCOUNT}:" /tmp/docker-mailserver/dovecot-quotas.cf)
 
     if [[ ${#USER_QUOTA[@]} -eq 2 ]]; then
-      USER_ATTRIBUTES="${USER_ATTRIBUTES:+${USER_ATTRIBUTES} }userdb_quota_rule=*:bytes=${USER_QUOTA[1]}"
+      USER_ATTRIBUTES="${USER_ATTRIBUTES:+${USER_ATTRIBUTES} }userdb_quota_storage_size=${USER_QUOTA[1]}"
     fi
   fi
 
