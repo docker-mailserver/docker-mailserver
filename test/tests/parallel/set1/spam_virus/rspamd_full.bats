@@ -46,21 +46,22 @@ function setup_file() {
   _wait_for_smtp_port_in_container
 
   # We will send 5 emails:
-  #   1. The first ones should pass just fine
+  #   1. The first one should pass just fine
   _send_email_with_msgid 'rspamd-test-email-pass'
+  #   2. The second ones should pass as well
   _send_email_with_msgid 'rspamd-test-email-pass-gtube' \
     --body 'AJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
-  #   2. The second one should be rejected (Rspamd-specific GTUBE pattern for rejection)
+  #   3. The third one should be rejected (Rspamd-specific GTUBE pattern for rejection)
   _send_spam --expect-rejection
-  #   3. The third one should be rejected due to a virus (ClamAV EICAR pattern)
+  #   4. The fourth one should be rejected due to a virus (ClamAV EICAR pattern)
   # shellcheck disable=SC2016
   _send_email_with_msgid 'rspamd-test-email-virus' --expect-rejection \
     --body 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
-  #   4. The fourth one will receive an added header (Rspamd-specific GTUBE pattern for adding a spam header)
+  #   5. The fifth one will receive an added header (Rspamd-specific GTUBE pattern for adding a spam header)
   #      ref: https://rspamd.com/doc/other/gtube_patterns.html
   _send_email_with_msgid 'rspamd-test-email-header' \
     --body "YJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
-  #   5. The fifth one will have its subject rewritten, but now spam header is applied.
+  #   6. The sixth one will have its subject rewritten, but no spam header is applied.
   _send_email_with_msgid 'rspamd-test-email-rewrite_subject' \
     --body "ZJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X"
 
@@ -141,6 +142,8 @@ function teardown_file() { _default_teardown ; }
   _print_mail_log_for_msgid 'rspamd-test-email-pass'
   assert_output --partial "stored mail into mailbox 'INBOX'"
 
+  # The e-mail that received the additional header must be moved by Sieve,
+  # and hence, we count three e-mails instead of four
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
 }
 
@@ -153,10 +156,8 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial '5.7.1 Gtube pattern'
 
   _print_mail_log_for_msgid 'dms-test-email-spam'
-  refute_output --partial "stored mail into mailbox 'INBOX'"
+  refute_output --partial 'saved mail to INBOX'
   assert_failure
-
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
 }
 
 @test 'detects and rejects virus' {
@@ -168,10 +169,8 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial '5.7.1 ClamAV FOUND VIRUS "Eicar-Signature"'
 
   _print_mail_log_for_msgid 'dms-test-email-spam'
-  refute_output --partial "stored mail into mailbox 'INBOX'"
+  refute_output --partial 'saved mail to INBOX'
   assert_failure
-
-  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new/ 3
 }
 
 @test 'custom commands work correctly' {
@@ -240,8 +239,8 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'MOVE_SPAM_TO_JUNK works for Rspamd' {
-  _file_exists_in_container /usr/lib/dovecot/sieve-global/after/spam_to_junk.sieve
-  _file_exists_in_container /usr/lib/dovecot/sieve-global/after/spam_to_junk.svbin
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/after/70-spam_to_junk.sieve
+  _file_exists_in_container /usr/lib/dovecot/sieve-global/after/70-spam_to_junk.svbin
 
   _service_log_should_contain_string 'rspamd' 'S (add header)'
   _service_log_should_contain_string 'rspamd' 'add header "Gtube pattern"'
@@ -286,37 +285,35 @@ function teardown_file() { _default_teardown ; }
   _run_in_container grep -F 'imap_sieve = yes' /etc/dovecot/conf.d/20-imap.conf
   assert_success
   local SIEVE_CONFIG_FILE='/etc/dovecot/conf.d/90-sieve.conf'
-  _run_in_container grep 'sieve_plugins.*sieve_imapsieve' "${SIEVE_CONFIG_FILE}"
+  _run_in_container grep 'sieve_imapsieve = yes' "${SIEVE_CONFIG_FILE}"
   assert_success
   _run_in_container grep -F 'sieve_pipe_bin_dir = /usr/lib/dovecot/sieve-pipe' "${SIEVE_CONFIG_FILE}"
   assert_success
 
   local LEARN_SPAM_LINES=(
-    'imapsieve: mailbox Junk: MOVE event'
-    "sieve: file storage: script: Opened script \`learn-spam'"
-    'sieve: file storage: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-spam.sieve'
-    "sieve: Executing script from \`/usr/lib/dovecot/sieve-pipe/learn-spam.svbin'"
-    "Finished running script \`/usr/lib/dovecot/sieve-pipe/learn-spam.svbin'"
+    'Mailbox Junk: imapsieve: MOVE event'
+    "Mailbox Junk: imapsieve: storage learn_spam: file: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-spam.sieve"
+    "Executing script from '/usr/lib/dovecot/sieve-pipe/learn-spam.svbin'"
+    "Finished running script '/usr/lib/dovecot/sieve-pipe/learn-spam.svbin' (status=ok"
     'sieve: action pipe: running program: rspamc'
-    "pipe action: piped message to program \`rspamc'"
+    "pipe action: piped message to program 'rspamc'"
     "left message in mailbox 'Junk'"
   )
 
   local LEARN_HAM_LINES=(
-    "sieve: file storage: script: Opened script \`learn-ham'"
-    'sieve: file storage: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-ham.sieve'
-    "sieve: Executing script from \`/usr/lib/dovecot/sieve-pipe/learn-ham.svbin'"
-    "Finished running script \`/usr/lib/dovecot/sieve-pipe/learn-ham.svbin'"
+    "Mailbox INBOX: imapsieve: storage learn_ham: file: script 'learn-ham': Opened from 'learn_ham'"
+    "sieve: Executing script from '/usr/lib/dovecot/sieve-pipe/learn-ham.svbin"
+    "Finished running script '/usr/lib/dovecot/sieve-pipe/learn-ham.svbin' (status=ok"
     "left message in mailbox 'INBOX'"
   )
 
   # Move an email to the "Junk" folder from "INBOX"; the first email we
   # sent should pass fine, hence we can now move it.
-  _nc_wrapper 'nc/rspamd_imap_move_to_junk.txt' '0.0.0.0 143'
+  _nc_file 'nc/rspamd_imap_move_to_junk.txt' 127.0.0.1 143
   sleep 1 # wait for the transaction to finish
 
-  _service_log_should_contain_string 'mail' 'imapsieve: Matched static mailbox rule [1]'
-  _service_log_should_not_contain_string 'mail' 'imapsieve: Matched static mailbox rule [2]'
+  _service_log_should_contain_string 'mail' 'imapsieve: storage learn_spam: file: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-spam.sieve'
+  _service_log_should_not_contain_string 'mail' 'imapsieve: storage learn_ham'
 
   _show_complete_mail_log
   for LINE in "${LEARN_SPAM_LINES[@]}"; do
@@ -326,10 +323,10 @@ function teardown_file() { _default_teardown ; }
   # Move an email to the "INBOX" folder from "Junk"; there should be two mails
   # in the "Junk" folder, since the second email we sent during setup should
   # have landed in the Junk folder already.
-  _nc_wrapper 'nc/rspamd_imap_move_to_inbox.txt' '0.0.0.0 143'
+  _nc_file 'nc/rspamd_imap_move_to_inbox.txt' 127.0.0.1 143
   sleep 1 # wait for the transaction to finish
 
-  _service_log_should_contain_string 'mail' 'imapsieve: Matched static mailbox rule [2]'
+  _service_log_should_contain_string 'mail' 'imapsieve: storage learn_ham: file: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-ham.sieve'
 
   _show_complete_mail_log
   for LINE in "${LEARN_HAM_LINES[@]}"; do
