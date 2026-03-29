@@ -64,8 +64,9 @@ function teardown_file() {
   assert_line --partial "Getting secret 'ENABLE_POP3' from '${FILEPATH_VALID}'"
 
   # Verify ENABLE_POP3 was enabled (disabled by default), by checking this file path is valid:
-  _run_in_container [ -f /etc/dovecot/protocols.d/pop3d.protocol ]
+  _run_in_container doveconf protocols
   assert_success
+  assert_line --partial 'pop3'
 }
 
 @test "Non-empty ENV have precedence over their __FILE variant" {
