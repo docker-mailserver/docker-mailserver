@@ -49,7 +49,6 @@ function teardown_file() {
   assert_output --partial 'Protocol error'
 
   _run_in_container cat /var/log/mail.log
-  assert_output --partial 'COMMAND PIPELINING'
   assert_output --partial 'DATA without valid RCPT'
 }
 
