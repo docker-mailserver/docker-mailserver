@@ -418,12 +418,39 @@ function _should_have_content_in_directory() {
 # @param ${1} = the file that is given to `nc`
 # @param ${1} = custom parameters for `nc` [OPTIONAL] (default: 0.0.0.0 25)
 function _nc_wrapper() {
+  [[ -v CONTAINER_NAME ]] || return 1
+
   local FILE=${1:?Must provide name of template file}
   local NC_PARAMETERS=${2:-0.0.0.0 25}
 
+  # Since Postfix 3.10, stricter SMTP protocol compliance is enforced
+  # (specifically around command pipelining). Without the additional
+  # `sleep`, we would see issues like
+  #
+  # postfix/submissions/smtpd[...]: improper command pipelining after CONNECT
+  #
+  # The solution here is **fragile**, but since `swaks` does not implement
+  # everything that we need for our tests (yet), we are forced to keep this
+  # workaround.. If you do not like this solution, please provide a better
+  # alternative.
+  #
+  # Having the `sleep` in front of the `echo` is also important for SMTP
+  # protocol synchronization. If you write the `sleep` after the `echo`,
+  # you would see
+  #
+  # 554 5.5.0 Error: SMTP protocol synchronization
+  _run_in_container_bash "while read -r LINE; do sleep 0.5s; echo \"\${LINE}\"; done < /tmp/docker-mailserver-test/${FILE} | nc ${NC_PARAMETERS}"
+}
+
+# Like _nc_wrapper, but without additional "buffering" after each line;
+# this function sends the given file via `nc` as a whole immediately.
+function _nc_file() {
   [[ -v CONTAINER_NAME ]] || return 1
 
-  _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${FILE}"
+  local FILE=${1:?Must provide name of template file}
+  shift 1
+
+  _run_in_container_bash "nc ${*} < /tmp/docker-mailserver-test/${FILE}"
 }
 
 # A simple wrapper for a test that checks whether a file exists.
