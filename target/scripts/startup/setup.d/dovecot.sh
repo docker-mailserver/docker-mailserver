@@ -3,13 +3,12 @@
 function _setup_dovecot() {
   _log 'debug' 'Setting up Dovecot'
 
-  # Protocol support
-  sedfile -i -e 's|include_try /usr/share/dovecot/protocols.d|include_try /etc/dovecot/protocols.d|g' /etc/dovecot/dovecot.conf
-  cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
-  # Disable these protocols by default, they can be enabled later via ENV (ENABLE_POP3, ENABLE_IMAP, ENABLE_MANAGESIEVE)
-  mv /etc/dovecot/protocols.d/pop3d.protocol /etc/dovecot/protocols.d/pop3d.protocol.disab
-  mv /etc/dovecot/protocols.d/imapd.protocol /etc/dovecot/protocols.d/imapd.protocol.disab
-  mv /etc/dovecot/protocols.d/managesieved.protocol /etc/dovecot/protocols.d/managesieved.protocol.disab
+  sedfile -i -E 's|^#(protocols =).*|\1 lmtp|' /etc/dovecot/dovecot.conf
+
+  # When deleting a line, we have to use `/` instead of `|`
+  sedfile -i -E \
+    '/^\!include_try \/usr\/share\/dovecot\/protocols.d\/\*.protocol/d' \
+    /etc/dovecot/dovecot.conf
 
   # NOTE: While Postfix will deliver to Dovecot via LMTP (Previously LDA until DMS v2),
   # LDA may be used via other services like Getmail being configured to use /usr/lib/dovecot/deliver
@@ -86,14 +85,14 @@ function _setup_dovecot() {
 
   if [[ ${ENABLE_POP3} -eq 1 ]]; then
     _log 'debug' 'Enabling POP3 services'
-    mv /etc/dovecot/protocols.d/pop3d.protocol.disab /etc/dovecot/protocols.d/pop3d.protocol
-    sedfile -i -e 's|#port = 995|port = 995|g' /etc/dovecot/conf.d/10-master.conf
+    sedfile -i -E 's|^(protocols =.*)|\1 pop3|' /etc/dovecot/dovecot.conf
+    sedfile -i -e 's|#port = 995|port = 995|g'  /etc/dovecot/conf.d/10-master.conf
   fi
 
   if [[ ${ENABLE_IMAP} -eq 1 ]]; then
     _log 'debug' 'Enabling IMAP services'
-    mv /etc/dovecot/protocols.d/imapd.protocol.disab /etc/dovecot/protocols.d/imapd.protocol
-    sedfile -i -e 's|#port = 993|port = 993|g' /etc/dovecot/conf.d/10-master.conf
+    sedfile -i -E 's|^(protocols =.*)|\1 imap|' /etc/dovecot/dovecot.conf
+    sedfile -i -e 's|#port = 993|port = 993|g'  /etc/dovecot/conf.d/10-master.conf
   fi
 
   [[ -f /tmp/docker-mailserver/dovecot.cf ]] && cp /tmp/docker-mailserver/dovecot.cf /etc/dovecot/local.conf
@@ -109,11 +108,11 @@ function _setup_dovecot_sieve() {
   mkdir -p /usr/lib/dovecot/sieve-{filter,global,pipe}
   mkdir -p /usr/lib/dovecot/sieve-global/{before,after}
 
-  # enable Managesieve service by setting the symlink
-  # to the configuration file Dovecot will actually find
   if [[ ${ENABLE_MANAGESIEVE} -eq 1 ]]; then
     _log 'trace' 'Sieve management enabled'
-    mv /etc/dovecot/protocols.d/managesieved.protocol.disab /etc/dovecot/protocols.d/managesieved.protocol
+  else
+    # make sure the default configuration does not enable managesieve
+    sedfile -i -E 's|( *sieve =).*|\1 no|' /etc/dovecot/conf.d/20-managesieve.conf
   fi
 
   if [[ -d /tmp/docker-mailserver/sieve-filter ]]; then
