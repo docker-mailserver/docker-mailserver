@@ -59,15 +59,6 @@ function teardown_file() {
 }
 
 @test "should authenticate with XOAUTH2" {
-  # curl 7.80.0 (Nov 2021) broke XOAUTH2 support (DMS v14 release with Debian 12 packages curl 7.88.1)
-  # https://github.com/docker-mailserver/docker-mailserver/pull/3403#issuecomment-1907100624
-  #
-  # Fixed in curl 8.6.0 (Jan 31 2024):
-  # - https://github.com/curl/curl/issues/10259
-  # - https://github.com/curl/curl/commit/7b2d98dfadf209108aa7772ee21ae42e3dab219f (referenced in release changelog by commit title)
-  # - https://github.com/curl/curl/releases/tag/curl-8_6_0
-  skip 'unable to test XOAUTH2 mechanism due to bug in curl versions 7.80.0 --> 8.5.0'
-
   __should_login_successfully_with 'XOAUTH2'
 }
 
@@ -117,7 +108,7 @@ function __dovecot_logs_should_verify_success() {
   # Inspect the relevant Dovecot logs to catch failure / success:
   _service_log_should_contain_string 'mail' 'dovecot:'
   refute_output --partial 'oauth2 failed: Introspection failed'
-  assert_output --partial "dovecot: imap-login: Login: user=<${USER_ACCOUNT}>, method=${AUTH_METHOD}"
+  assert_output --partial "dovecot: imap-login: Logged in: user=<${USER_ACCOUNT}>, method=${AUTH_METHOD}"
 
   # If another PassDB is enabled, it should not have been attempted with the XOAUTH2 / OAUTHBEARER mechanisms:
   # dovecot: auth: passwd-file(${USER_ACCOUNT},127.0.0.1): Password mismatch (SHA1 of given password: d390c1) - trying the next passdb
