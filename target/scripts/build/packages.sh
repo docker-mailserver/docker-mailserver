@@ -66,9 +66,11 @@ function _install_utils() {
   chmod +x /usr/local/bin/jaq
 
   _log 'trace' 'Installing step'
-  local STEP_RELEASE='0.28.7'
-  curl -sSfL "https://github.com/smallstep/cli/releases/download/v${STEP_RELEASE}/step_linux_${STEP_RELEASE}_${ARCH_B}.tar.gz" \
-    | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=2 "step_${STEP_RELEASE}/bin/step"
+  local STEP_CLI_VERSION='0.30.2'
+  curl -sSfL -o /tmp/step-cli.deb \
+    "https://github.com/smallstep/cli/releases/download/v${STEP_CLI_VERSION}/step-cli_${ARCH_B}.deb"
+  dpkg -i /tmp/step-cli.deb
+  rm /tmp/step-cli.deb
 
   _log 'trace' 'Installing swaks'
   # `perl-doc` is required for `swaks --help` to work:
