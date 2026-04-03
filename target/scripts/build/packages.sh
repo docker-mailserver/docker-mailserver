@@ -77,7 +77,8 @@ function _install_utils() {
   apt-get "${QUIET}" install --no-install-recommends perl-doc
   local SWAKS_VERSION='20240103.0'
   local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
-  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" \
+  curl -sSfL \
+    "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" \
     | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=1 "${SWAKS_RELEASE}/swaks"
 }
 
