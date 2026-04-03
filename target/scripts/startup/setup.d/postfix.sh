@@ -20,8 +20,9 @@ function _setup_postfix_early() {
   fi
 
   __postfix__log 'trace' "Configuring SASLauthd"
-  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && [[ ! -f /etc/postfix/sasl/smtpd.conf ]]; then
-    cat >/etc/postfix/sasl/smtpd.conf << EOF
+  if [[ ${ENABLE_SASLAUTHD} -eq 1 ]] && [[ ! -f /etc/sasl2/smtpd.conf ]]; then
+    mkdir -p /etc/sasl2
+    cat >/etc/sasl2/smtpd.conf << EOF
 pwcheck_method: saslauthd
 mech_list: plain login
 EOF
