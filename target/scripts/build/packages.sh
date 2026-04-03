@@ -60,8 +60,9 @@ function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
 
   _log 'trace' 'Installing jaq'
-  local JAQ_TAG='v2.3.0'
-  curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-$(uname -m)-unknown-linux-gnu" -o /usr/local/bin/jaq
+  local JAQ_VERSION='v3.0.0'
+  curl -sSfL -o /usr/local/bin/jaq \
+    "https://github.com/01mf02/jaq/releases/download/${JAQ_VERSION}/jaq-${ARCH_A}-unknown-linux-gnu"
   chmod +x /usr/local/bin/jaq
 
   _log 'trace' 'Installing step'
