@@ -35,10 +35,10 @@ function _setup_ldap() {
 
   declare -A DOVECOT_LDAP_MAPPING
 
-  DOVECOT_LDAP_MAPPING['DOVECOT_BASE']="${DOVECOT_BASE:="${LDAP_SEARCH_BASE}"}"
-  DOVECOT_LDAP_MAPPING['DOVECOT_DN']="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
-  DOVECOT_LDAP_MAPPING['DOVECOT_DNPASS']="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
-  DOVECOT_LDAP_MAPPING['DOVECOT_URIS']="${DOVECOT_URIS:="${LDAP_SERVER_HOST}"}"
+  DOVECOT_LDAP_MAPPING['DOVECOT_LDAP_URIS']="${DOVECOT_URIS:="${LDAP_SERVER_HOST}"}"
+  DOVECOT_LDAP_MAPPING['DOVECOT_LDAP_BASE']="${DOVECOT_BASE:="${LDAP_SEARCH_BASE}"}"
+  DOVECOT_LDAP_MAPPING['DOVECOT_LDAP_AUTH_DN']="${DOVECOT_DN:="${LDAP_BIND_DN}"}"
+  DOVECOT_LDAP_MAPPING['DOVECOT_LDAP_AUTH_DN_PASSWORD']="${DOVECOT_DNPASS:="${LDAP_BIND_PW}"}"
 
   # Default DOVECOT_PASS_FILTER to the same value as DOVECOT_USER_FILTER
   DOVECOT_LDAP_MAPPING['DOVECOT_PASS_FILTER']="${DOVECOT_PASS_FILTER:="${DOVECOT_USER_FILTER}"}"
@@ -47,7 +47,11 @@ function _setup_ldap() {
     export "${VAR}=${DOVECOT_LDAP_MAPPING[${VAR}]}"
   done
 
-  _replace_by_env_in_file 'DOVECOT_' '/etc/dovecot/dovecot-ldap.conf.ext'
+  _replace_by_env_in_file 'DOVECOT_' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  sed -i -E \
+    -e 's|user_filter|  filter|' \
+    -e 's|pass_filter|  filter|' \
+    /etc/dovecot/conf.d/auth-ldap.conf.ext
 
   _log 'trace' 'Enabling Dovecot LDAP authentication'
 

@@ -4,18 +4,36 @@
 # This prevents unnecessary auth failure logs triggering Fail2Ban when
 # additional passdb are enabled (OAuth2).
 
-passdb {
-  driver = ldap
-  mechanisms = plain login
+# Replaced by ldap.sh
+ldap_uris             = REPLACED
+ldap_base             = REPLACED
+ldap_auth_dn          = REPLACED
+ldap_auth_dn_password = REPLACED
 
-  # Path for LDAP configuration file, see example-config/dovecot-ldap.conf.ext
-  args = /etc/dovecot/dovecot-ldap.conf.ext
+passdb ldap {
+  driver = ldap
+user_filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+
+  fields {
+default_pass_scheme = SSHA
+tls                 = no
+ldap_version        = 3
+pass_attrs          = uniqueIdentifier=user,userPassword=password
+user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
+auth_bind           = no
+  }
 }
 
-userdb {
+userdb ldap {
   driver = ldap
-  args = /etc/dovecot/dovecot-ldap.conf.ext
+pass_filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
 
-  # Default fields can be used to specify defaults that LDAP may override
-  #default_fields = home=/home/virtual/%u
+  fields {
+default_pass_scheme = SSHA
+tls                 = no
+ldap_version        = 3
+pass_attrs          = uniqueIdentifier=user,userPassword=password
+user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
+auth_bind           = no
+  }
 }

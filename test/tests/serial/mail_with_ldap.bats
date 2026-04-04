@@ -81,14 +81,14 @@ function setup_file() {
   # As the `userID` is not a mail address, we ensure any domain-part is ignored, as a login name is not
   # required to match the mail accounts actual `mail` attribute (nor the local-part), they are distinct.
   # TODO: Docs should better cover this difference, as it does confuse some users of DMS (and past contributors to our tests..).
-  local SASLAUTHD_QUERY='(&(userID=%U)(mailEnabled=TRUE))'
+  local SASLAUTHD_QUERY='(&(userID=%{user | username})(mailEnabled=TRUE))'
 
   # Dovecot is configured to lookup a user account by their login name (`userID` in this case, but it could be any attribute like `mail`).
-  # Dovecot syntax token `%n` is the local-part of the full email address supplied as the login name. There must be a unique match on `userID` (which there will be as each account is configured via LDIF to use it in their DN)
+  # Dovecot syntax token `%{user | username}` is the local-part of the full email address supplied as the login name. There must be a unique match on `userID` (which there will be as each account is configured via LDIF to use it in their DN)
   # NOTE: We already have a constraint on the LDAP tree to search (`LDAP_SEARCH_BASE`), if all objects in that subtree use `PostfixBookMailAccount` class then there is no benefit in the extra constraint.
-  # TODO: For tests, that additional constraint is meaningless. We can detail it in our docs instead and just use `userID=%n`.
-  local DOVECOT_QUERY_PASS='(&(userID=%n)(objectClass=PostfixBookMailAccount))'
-  local DOVECOT_QUERY_USER='(&(userID=%n)(objectClass=PostfixBookMailAccount))'
+  # TODO: For tests, that additional constraint is meaningless. We can detail it in our docs instead and just use `userID=%{user | username}`.
+  local DOVECOT_QUERY_PASS='(&(userID=%{user | username})(objectClass=PostfixBookMailAccount))'
+  local DOVECOT_QUERY_USER='(&(userID=%{user | username})(objectClass=PostfixBookMailAccount))'
 
   local ENV_LDAP_CONFIG=(
     --env ACCOUNT_PROVISIONER=LDAP
@@ -168,8 +168,8 @@ function setup_file() {
 
 
   # Set default implicit container fallback for helpers:
-  export CONTAINER_NAME=${CONTAINER1_NAME}
 }
+  export CONTAINER_NAME=${CONTAINER1_NAME}
 
 function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
