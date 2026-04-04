@@ -60,21 +60,25 @@ function _install_utils() {
   _log 'debug' 'Installing utils sourced from Github'
 
   _log 'trace' 'Installing jaq'
-  local JAQ_TAG='v2.3.0'
-  curl -sSfL "https://github.com/01mf02/jaq/releases/download/${JAQ_TAG}/jaq-$(uname -m)-unknown-linux-gnu" -o /usr/local/bin/jaq
+  local JAQ_VERSION='v3.0.0'
+  curl -sSfL -o /usr/local/bin/jaq \
+    "https://github.com/01mf02/jaq/releases/download/${JAQ_VERSION}/jaq-${ARCH_A}-unknown-linux-gnu"
   chmod +x /usr/local/bin/jaq
 
   _log 'trace' 'Installing step'
-  local STEP_RELEASE='0.28.7'
-  curl -sSfL "https://github.com/smallstep/cli/releases/download/v${STEP_RELEASE}/step_linux_${STEP_RELEASE}_${ARCH_B}.tar.gz" \
-    | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=2 "step_${STEP_RELEASE}/bin/step"
+  local STEP_CLI_VERSION='0.30.2'
+  curl -sSfL -o /tmp/step-cli.deb \
+    "https://github.com/smallstep/cli/releases/download/v${STEP_CLI_VERSION}/step-cli_${ARCH_B}.deb"
+  dpkg -i /tmp/step-cli.deb
+  rm /tmp/step-cli.deb
 
   _log 'trace' 'Installing swaks'
   # `perl-doc` is required for `swaks --help` to work:
   apt-get "${QUIET}" install --no-install-recommends perl-doc
   local SWAKS_VERSION='20240103.0'
   local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
-  curl -sSfL "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" \
+  curl -sSfL \
+    "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" \
     | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=1 "${SWAKS_RELEASE}/swaks"
 }
 
