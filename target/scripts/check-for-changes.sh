@@ -144,7 +144,7 @@ function _postfix_dovecot_changes() {
 
   # Legacy workaround handled here, only seems necessary for _create_accounts:
   # - `helpers/accounts.sh` logic creates folders/files with wrong ownership.
-  _chown_var_mail_if_necessary
+  _chown_var_mail
 }
 
 function _ssl_changes() {
