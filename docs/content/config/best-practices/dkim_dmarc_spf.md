@@ -122,7 +122,7 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
 
     !!! info "Restart required"
 
-        After restarting DMS, outgoing mail will now be signed with your new DKIM key(s) :tada:
+        After restarting DMS (`docker compose up --force-recreate`), outgoing mail will now be signed with your new DKIM key(s) :tada:
 
 === "Rspamd"
 
