@@ -40,6 +40,11 @@ ARG LOG_LEVEL
 ARG DEBIAN_FRONTEND
 
 COPY target/scripts/build/compile.sh /build/
+# When absolutely necessary DMS carries support to compile `.deb` packages of software:
+# - `dovecot-fts-xapian` for compatibility with the Dovecot CE `dovecot-core` package:
+#   https://github.com/docker-mailserver/docker-mailserver/pull/3373
+FROM stage-base AS stage-compile
+COPY target/scripts/build/compile.sh /build/
 RUN /bin/bash /build/compile.sh
 
 #
@@ -81,9 +86,9 @@ EOF
 # -----------------------------------------------
 
 # install fts_xapian plugin
-
-COPY --from=stage-compile dovecot-fts-xapian_*.deb /
-RUN dpkg -i /dovecot-fts-xapian_*.deb && rm /dovecot-fts-xapian_*.deb
+# Install compiled `dovecot-fts-xapian` package:
+RUN --mount=type=bind,from=stage-compile,target=/mnt/stage-compile/ \
+  dpkg -i /mnt/stage-compile/dovecot-fts-xapian_*.deb
 
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled

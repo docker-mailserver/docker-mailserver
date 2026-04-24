@@ -20,14 +20,14 @@ function _install_build_deps() {
 function _build_package() {
   local XAPIAN_DEBIAN_VERSION='1.9.1-1~bpo12+1'
   local XAPIAN_VERSION="${XAPIAN_DEBIAN_VERSION%-*}"
-  curl -fsSL "http://deb.debian.org/debian/pool/main/d/dovecot-fts-xapian/dovecot-fts-xapian_${XAPIAN_VERSION}.orig.tar.gz" \
+  curl -fsSL "https://deb.debian.org/debian/pool/main/d/dovecot-fts-xapian/dovecot-fts-xapian_${XAPIAN_VERSION}.orig.tar.gz" \
     | tar -xz
   cd "fts-xapian-${XAPIAN_VERSION}"
 
   # Prepare for building DEB source package:
   # Add required package metadata:
   # https://www.debian.org/doc/manuals/maint-guide/dreq.en.html#control
-  curl -fsSL "http://deb.debian.org/debian/pool/main/d/dovecot-fts-xapian/dovecot-fts-xapian_${XAPIAN_DEBIAN_VERSION}.debian.tar.xz" | tar -xJ
+  curl -fsSL "https://deb.debian.org/debian/pool/main/d/dovecot-fts-xapian/dovecot-fts-xapian_${XAPIAN_DEBIAN_VERSION}.debian.tar.xz" | tar -xJ
 
   # Build arch specific binary package via debuild:
   # https://manpages.debian.org/bookworm/devscripts/debuild.1.en.html
