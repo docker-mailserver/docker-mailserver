@@ -39,7 +39,6 @@ FROM stage-base AS stage-compile
 ARG LOG_LEVEL
 ARG DEBIAN_FRONTEND
 
-COPY target/scripts/build/compile.sh /build/
 # When absolutely necessary DMS carries support to compile `.deb` packages of software:
 # - `dovecot-fts-xapian` for compatibility with the Dovecot CE `dovecot-core` package:
 #   https://github.com/docker-mailserver/docker-mailserver/pull/3373
