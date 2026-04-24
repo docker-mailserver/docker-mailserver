@@ -34,11 +34,6 @@ RUN /bin/bash /build/packages.sh && rm -r /build
 # --- Compile deb packages ----------------------
 # -----------------------------------------------
 
-FROM stage-base AS stage-compile
-
-ARG LOG_LEVEL
-ARG DEBIAN_FRONTEND
-
 # When absolutely necessary DMS carries support to compile `.deb` packages of software:
 # - `dovecot-fts-xapian` for compatibility with the Dovecot CE `dovecot-core` package:
 #   https://github.com/docker-mailserver/docker-mailserver/pull/3373
@@ -51,12 +46,7 @@ RUN /bin/bash /build/compile.sh
 #
 
 FROM stage-base AS stage-main
-
-ARG DEBIAN_FRONTEND
-ARG LOG_LEVEL
-
 SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
-
 
 # -----------------------------------------------
 # --- ClamAV & FeshClam -------------------------
@@ -84,7 +74,6 @@ EOF
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
 
-# install fts_xapian plugin
 # Install compiled `dovecot-fts-xapian` package:
 RUN --mount=type=bind,from=stage-compile,target=/mnt/stage-compile/ \
   dpkg -i /mnt/stage-compile/dovecot-fts-xapian_*.deb
