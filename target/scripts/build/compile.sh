@@ -25,11 +25,6 @@ function _build_package() {
   cd "fts-xapian-${XAPIAN_VERSION}"
 
   # Prepare for building DEB source package:
-  # https://manpages.debian.org/bookworm/dh-make/dh_make.1.en.html
-  # License LGPL 2.1: https://github.com/grosjo/fts-xapian/issues/174#issuecomment-2422404568
-  USER=root dh_make --packagename "dovecot-fts-xapian-${XAPIAN_VERSION}" --single --native --copyright lgpl2 -y
-  # Remove generated example files:
-  rm debian/*.ex
   # Add required package metadata:
   # https://www.debian.org/doc/manuals/maint-guide/dreq.en.html#control
   curl -fsSL "http://deb.debian.org/debian/pool/main/d/dovecot-fts-xapian/dovecot-fts-xapian_${XAPIAN_DEBIAN_VERSION}.debian.tar.xz" | tar -xJ
