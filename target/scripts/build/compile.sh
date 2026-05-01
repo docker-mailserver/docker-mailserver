@@ -18,26 +18,16 @@ function _install_build_deps() {
 }
 
 function _build_package() {
-  local XAPIAN_VERSION='1.9.1'
-  curl -fsSL "https://github.com/grosjo/fts-xapian/releases/download/${XAPIAN_VERSION}/dovecot-fts-xapian-${XAPIAN_VERSION}.tar.gz" \
+  local XAPIAN_DEBIAN_VERSION='1.9.1-1~bpo12+1'
+  local XAPIAN_VERSION="${XAPIAN_DEBIAN_VERSION%-*}"
+  curl -fsSL "https://deb.debian.org/debian/pool/main/d/dovecot-fts-xapian/dovecot-fts-xapian_${XAPIAN_VERSION}.orig.tar.gz" \
     | tar -xz
   cd "fts-xapian-${XAPIAN_VERSION}"
 
   # Prepare for building DEB source package:
-  # https://manpages.debian.org/bookworm/dh-make/dh_make.1.en.html
-  # License LGPL 2.1: https://github.com/grosjo/fts-xapian/issues/174#issuecomment-2422404568
-  USER=root dh_make --packagename "dovecot-fts-xapian-${XAPIAN_VERSION}" --single --native --copyright lgpl2 -y
-  # Remove generated example files:
-  rm debian/*.ex
   # Add required package metadata:
   # https://www.debian.org/doc/manuals/maint-guide/dreq.en.html#control
-  curl -fsSL https://raw.githubusercontent.com/grosjo/fts-xapian/refs/tags/1.7.16/PACKAGES/DEB/control > debian/control
-  # Replace version number:
-  sed -i -E "s|(dovecot-fts-xapian)-[1-9\.-]+|\1-${XAPIAN_VERSION}|g" debian/control
-  # Required to proceed with debuild:
-  # https://www.debian.org/doc/manuals/maint-guide/dother.en.html#compat
-  # (13 is the default debhelper version from the original `dh_make` generated `debian/control`):
-  echo '13' > debian/compat
+  curl -fsSL "https://deb.debian.org/debian/pool/main/d/dovecot-fts-xapian/dovecot-fts-xapian_${XAPIAN_DEBIAN_VERSION}.debian.tar.xz" | tar -xJ
 
   # Build arch specific binary package via debuild:
   # https://manpages.debian.org/bookworm/devscripts/debuild.1.en.html
