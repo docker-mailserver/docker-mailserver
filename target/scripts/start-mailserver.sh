@@ -11,6 +11,9 @@ shopt -s globstar
 # ? >> Sourcing helpers & stacks
 # ------------------------------------------------------------
 
+# Ensure custom CA certificates are added
+update-ca-certificates
+
 # shellcheck source=./helpers/index.sh
 source /usr/local/bin/helpers/index.sh
 
@@ -62,6 +65,7 @@ function _register_functions() {
 
     ( 'LDAP' )
       _register_setup_function '_setup_ldap'
+      [[ ${ENABLE_KERBEROS} -eq 1 ]] && _register_setup_function '_setup_kerberos'
       ;;
 
     ( 'OIDC' )
