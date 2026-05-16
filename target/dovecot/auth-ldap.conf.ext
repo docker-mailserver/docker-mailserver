@@ -4,18 +4,42 @@
 # This prevents unnecessary auth failure logs triggering Fail2Ban when
 # additional passdb are enabled (OAuth2).
 
-passdb {
-  driver = ldap
-  mechanisms = plain login
+# Values for these settings are replaced during container init from ENV values (via `scripts/startup/setup.d/ldap.sh`):
+ldap_uris             = REPLACED
+ldap_base             = REPLACED
+ldap_auth_dn          = REPLACED
+ldap_auth_dn_password = REPLACED
 
-  # Path for LDAP configuration file, see example-config/dovecot-ldap.conf.ext
-  args = /etc/dovecot/dovecot-ldap.conf.ext
+# TODO: Add breaking change after migration to Dovecot 2.4 is completed.
+# The `filter` setting for both passdb + userdb config below should be changed (`uniqueIdentifier` => `userID`) to:
+# (&(objectClass=PostfixBookMailAccount)(userID=%{user | username}))
+#
+# NOTE: Additionally requires changes:
+# - Test `mail_with_ldap.bats`: This change removes the need for the modification of the filter(s) via ENV.
+# - Docs: Update on pages related to LDAP config with content related to the changed filter value.
+
+passdb ldap {
+  driver = ldap
+
+  fields {
+    default_pass_scheme = SSHA
+    user = %{ldap:uniqueIdentifier}
+    password = %{ldap:userPassword}
+  }
 }
 
-userdb {
+userdb ldap {
   driver = ldap
-  args = /etc/dovecot/dovecot-ldap.conf.ext
 
-  # Default fields can be used to specify defaults that LDAP may override
-  #default_fields = home=/home/virtual/%u
+  fields {
+    uid = %{ldap:mailUidNumber}
+    gid = %{ldap:mailGidNumber}
+    home = %{ldap:mailHomeDirectory}
+    mail_path = %{ldap:mailStorageDirectory}
+  }
 }
+
+# Set the `filter` field of the above passdb + userdb `ldap` blocks
+# This long-form namespaced form for the settings are easier for DMS scripts (ldap.sh) to target for replacement support:
+passdb_ldap_filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))
+userdb_ldap_filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))
