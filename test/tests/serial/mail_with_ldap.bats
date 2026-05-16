@@ -81,7 +81,7 @@ function setup_file() {
   # As the `userID` is not a mail address, we ensure any domain-part is ignored, as a login name is not
   # required to match the mail accounts actual `mail` attribute (nor the local-part), they are distinct.
   # TODO: Docs should better cover this difference, as it does confuse some users of DMS (and past contributors to our tests..).
-  local SASLAUTHD_QUERY='(&(userID=%{user | username})(mailEnabled=TRUE))'
+  local SASLAUTHD_QUERY='(&(userID=%U)(mailEnabled=TRUE))'
 
   # Dovecot is configured to lookup a user account by their login name (`userID` in this case, but it could be any attribute like `mail`).
   # Dovecot syntax token `%{user | username}` is the local-part of the full email address supplied as the login name. There must be a unique match on `userID` (which there will be as each account is configured via LDIF to use it in their DN)
@@ -168,8 +168,8 @@ function setup_file() {
 
 
   # Set default implicit container fallback for helpers:
-}
   export CONTAINER_NAME=${CONTAINER1_NAME}
+}
 
 function teardown_file() {
   docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
@@ -264,14 +264,13 @@ function teardown() {
 
 @test "dovecot: ldap config overwrites success" {
   local LDAP_SETTINGS_DOVECOT=(
-    "uris = ldap://${FQDN_LDAP}"
-    'tls = no'
-    'base = ou=users,dc=example,dc=test'
-    'dn = cn=admin,dc=example,dc=test'
+    "ldap_uris = ldap://${FQDN_LDAP}" # ldap://ldap.example.test
+    'ldap_base = ou=users,dc=example,dc=test'
+    'ldap_auth_dn = cn=admin,dc=example,dc=test'
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_DOVECOT[@]}"; do
-    _run_in_container grep "${LDAP_SETTING%=*}" /etc/dovecot/dovecot-ldap.conf.ext
+    _run_in_container grep "${LDAP_SETTING%=*}" /etc/dovecot/conf.d/auth-ldap.conf.ext
     assert_output "${LDAP_SETTING}"
     assert_success
   done
