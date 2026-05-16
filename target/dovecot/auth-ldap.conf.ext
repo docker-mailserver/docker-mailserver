@@ -10,30 +10,31 @@ ldap_base             = REPLACED
 ldap_auth_dn          = REPLACED
 ldap_auth_dn_password = REPLACED
 
+# TODO: Add breaking change after migration to Dovecot 2.4 is completed.
+# The `filter` for both passdb + userdb should be changed (`uniqueIdentifier` => `userID`):
+# (&(objectClass=PostfixBookMailAccount)(userID=%{user | username}))
+# This change will also remove the need for the modification via ENV in `mail_with_ldap.bats`
+# Additionally requires documentation update on pages related to LDAP config.
+
 passdb ldap {
   driver = ldap
-user_filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+  filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))
 
   fields {
-default_pass_scheme = SSHA
-tls                 = no
-ldap_version        = 3
-pass_attrs          = uniqueIdentifier=user,userPassword=password
-user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
-auth_bind           = no
+    default_pass_scheme = SSHA
+    user = %{ldap:uniqueIdentifier}
+    password = %{ldap:userPassword}
   }
 }
 
 userdb ldap {
   driver = ldap
-pass_filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+  filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))
 
   fields {
-default_pass_scheme = SSHA
-tls                 = no
-ldap_version        = 3
-pass_attrs          = uniqueIdentifier=user,userPassword=password
-user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
-auth_bind           = no
+    uid = %{ldap:mailUidNumber}
+    gid = %{ldap:mailGidNumber}
+    home = %{ldap:mailHomeDirectory}
+    mail_path = %{ldap:mailStorageDirectory}
   }
 }
