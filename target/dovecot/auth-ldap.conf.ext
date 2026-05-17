@@ -5,10 +5,10 @@
 # additional passdb are enabled (OAuth2).
 
 # Values for these settings are replaced during container init from ENV values (via `scripts/startup/setup.d/ldap.sh`):
-ldap_uris             = REPLACED
-ldap_base             = REPLACED
-ldap_auth_dn          = REPLACED
-ldap_auth_dn_password = REPLACED
+ldap_uris             = ldap://mail.example.com
+ldap_base             = ou=people,dc=example,dc=com
+ldap_auth_dn          = cn=admin,dc=example,dc=com
+ldap_auth_dn_password = secret
 
 # TODO: Add breaking change after migration to Dovecot 2.4 is completed.
 # The `filter` setting for both passdb + userdb config below should be changed (`uniqueIdentifier` => `userID`) to:

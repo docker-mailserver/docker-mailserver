@@ -23,7 +23,7 @@ function setup_file() {
   # Setup local openldap service:
   # TODO: Migrate away from `bitnamilegacy/openldap`: https://github.com/docker-mailserver/docker-mailserver/issues/4582
   docker run --rm -d --name "${CONTAINER2_NAME}" \
-    --env LDAP_ADMIN_PASSWORD=admin \
+    --env LDAP_ADMIN_PASSWORD=secret \
     --env LDAP_ROOT='dc=example,dc=test' \
     --env LDAP_PORT_NUMBER=389 \
     --env LDAP_SKIP_DEFAULT_TREE=yes \
