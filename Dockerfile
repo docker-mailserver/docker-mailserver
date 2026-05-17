@@ -19,7 +19,7 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # --- Install Basic Software --------------------
 # -----------------------------------------------
 
-COPY target/bin/sedfile /usr/local/bin/sedfile
+COPY --chmod=+x target/bin/sedfile /usr/local/bin/sedfile
 COPY target/scripts/build/packages.sh /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
@@ -63,6 +63,7 @@ RUN <<EOF
   # `COPY --link --chown=200` has a bug when built by the buildx docker-container driver.
   # Restore ownership of parent dirs (Bug: https://github.com/moby/buildkit/issues/3912)
   chown root:root /var /var/lib
+
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam
   chmod 644 /etc/clamav/freshclam.conf
   sedfile -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf
@@ -100,7 +101,6 @@ COPY target/dovecot/auth-oauth2.conf.ext /etc/dovecot/conf.d
 # --- LDAP & SpamAssassin's Cron ----------------
 # -----------------------------------------------
 
-COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
 COPY target/dovecot/auth-ldap.conf.ext /etc/dovecot/conf.d
 COPY \
   target/postfix/ldap-users.cf \
