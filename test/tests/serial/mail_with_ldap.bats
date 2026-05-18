@@ -249,7 +249,7 @@ function teardown() {
 
 # dovecot
 @test "dovecot: ldap imap connection and authentication works" {
-  _nc_wrapper 'auth/imap-ldap-auth.txt' '-w 1 0.0.0.0 143'
+  _send_raw_transaction 'auth/imap-ldap-auth.txt' '-w 1 0.0.0.0 143'
   assert_success
 }
 

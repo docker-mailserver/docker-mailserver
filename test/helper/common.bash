@@ -412,45 +412,49 @@ function _should_have_content_in_directory() {
   assert_success
 }
 
-# A simple wrapper for netcat (`nc`). This is useful when sending
-# "raw" e-mails or doing IMAP-related work.
+# A simple wrapper for netcat (`nc`).
+# Useful to perform a low-level automation of a "raw" protocol transaction.
 #
 # @param ${1} = the file that is given to `nc`
-# @param ${1} = custom parameters for `nc` [OPTIONAL] (default: 0.0.0.0 25)
-function _nc_wrapper() {
+# @param ${2} = custom parameters for `nc` [OPTIONAL] (default: `0.0.0.0 25`)
+function _send_raw_transaction() {
+  [[ -v CONTAINER_NAME ]] || return 1
+
+  local FILE=${1:?Must provide name of template file}
+  local NC_PARAMETERS=${2:-0.0.0.0 25}
+  #shift 1
+  #local NC_PARAMETERS=${*:-0.0.0.0 25}
+
+  _run_in_container_bash "nc ${NC_PARAMETERS} < /tmp/docker-mailserver-test/${FILE}"
+}
+
+# Workaround:
+# Since Postfix 3.9, strict SMTP protocol synchronization is enforced via:
+# https://www.postfix.org/postconf.5.html#smtpd_forbid_unauth_pipelining
+# - Compliant SMTP clients must wait their turn to speak (the server speaks first),
+#   otherwise an error is returned: `554 5.5.0 Error: SMTP protocol synchronization`
+# - Errors would also be logged, such as:
+#   `postfix/submissions/smtpd[...]: improper command pipelining after CONNECT`
+#
+# Our test suite relies upon `swaks` (which respects turn order) for SMTP deliveries to Postfix,
+# however `swaks` lacks support for DSN `NOTIFY` in the `RCPT TO` command.
+#
+# As a workaround `awk`` + `nc` is used to imitate an SMTP client by piping through a raw SMTP transaction,
+# To respect the stricter protocol requirements each SMTP command (line begins with uppercase word)
+# is followed by a minor delay before the next command line(s) are sent through `nc` to Postfix.
+
+# A wrapper for netcat (`nc`).
+# Like {@link _send_raw_transaction} but avoids piping commands all at once to better respect the SMTP protocol.
+#
+# @param ${1} = the file that is given to `nc`
+# @param ${2} = custom parameters for `nc` [OPTIONAL] (default: 0.0.0.0 25)
+function _send_raw_transaction_smtp() {
   [[ -v CONTAINER_NAME ]] || return 1
 
   local FILE=${1:?Must provide name of template file}
   local NC_PARAMETERS=${2:-0.0.0.0 25}
 
-  # Since Postfix 3.10, stricter SMTP protocol compliance is enforced
-  # (specifically around command pipelining). Without the additional
-  # `sleep`, we would see issues like
-  #
-  # postfix/submissions/smtpd[...]: improper command pipelining after CONNECT
-  #
-  # The solution here is **fragile**, but since `swaks` does not implement
-  # everything that we need for our tests (yet), we are forced to keep this
-  # workaround.. If you do not like this solution, please provide a better
-  # alternative.
-  #
-  # Having the `sleep` in front of the `echo` is also important for SMTP
-  # protocol synchronization. If you write the `sleep` after the `echo`,
-  # you would see
-  #
-  # 554 5.5.0 Error: SMTP protocol synchronization
-  _run_in_container_bash "while read -r LINE; do sleep 0.5s; echo \"\${LINE}\"; done < /tmp/docker-mailserver-test/${FILE} | nc ${NC_PARAMETERS}"
-}
-
-# Like _nc_wrapper, but without additional "buffering" after each line;
-# this function sends the given file via `nc` as a whole immediately.
-function _nc_file() {
-  [[ -v CONTAINER_NAME ]] || return 1
-
-  local FILE=${1:?Must provide name of template file}
-  shift 1
-
-  _run_in_container_bash "nc ${*} < /tmp/docker-mailserver-test/${FILE}"
+  _run_in_container_bash "(sleep 0.1; awk '{ print } /^[A-Z]+/ { system(\"sleep 0.1\") }' /tmp/docker-mailserver-test/${FILE}) | nc ${NC_PARAMETERS}"
 }
 
 # A simple wrapper for a test that checks whether a file exists.

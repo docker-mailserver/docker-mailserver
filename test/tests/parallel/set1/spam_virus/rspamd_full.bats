@@ -309,7 +309,7 @@ function teardown_file() { _default_teardown ; }
 
   # Move an email to the "Junk" folder from "INBOX"; the first email we
   # sent should pass fine, hence we can now move it.
-  _nc_file 'nc/rspamd_imap_move_to_junk.txt' 127.0.0.1 143
+  _send_raw_transaction 'nc/rspamd_imap_move_to_junk.txt' '127.0.0.1 143'
   sleep 1 # wait for the transaction to finish
 
   _service_log_should_contain_string 'mail' 'imapsieve: storage learn_spam: file: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-spam.sieve'
@@ -323,7 +323,7 @@ function teardown_file() { _default_teardown ; }
   # Move an email to the "INBOX" folder from "Junk"; there should be two mails
   # in the "Junk" folder, since the second email we sent during setup should
   # have landed in the Junk folder already.
-  _nc_file 'nc/rspamd_imap_move_to_inbox.txt' 127.0.0.1 143
+  _send_raw_transaction 'nc/rspamd_imap_move_to_inbox.txt' '127.0.0.1 143'
   sleep 1 # wait for the transaction to finish
 
   _service_log_should_contain_string 'mail' 'imapsieve: storage learn_ham: file: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-ham.sieve'
