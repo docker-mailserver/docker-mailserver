@@ -100,7 +100,7 @@ function setup_file() {
     --env LDAP_START_TLS=no
     # Credentials needed for read access to LDAP_SEARCH_BASE:
     --env LDAP_BIND_DN='cn=admin,dc=example,dc=test'
-    --env LDAP_BIND_PW='admin'
+    --env LDAP_BIND_PW='secret'
 
     # Postfix SASL auth provider (SASLAuthd instead of default Dovecot provider):
     --env ENABLE_SASLAUTHD=1
