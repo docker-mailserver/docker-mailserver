@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Health check for docker-mailserver.
+# Verifies that all supervisor-managed services that should be running are in
+# the `RUNNING` state. Returns exit code `0` if all are healthy, otherwise `1`.
+
+readonly DMS_SETTINGS='/etc/dms-settings'
+
+# The settings file is written near the end of container startup.
+# Until it exists the container is still initializing.
+if [[ ! -f ${DMS_SETTINGS} ]]; then
+  exit 1
+fi
+
+# shellcheck source=/dev/null
+source "${DMS_SETTINGS}"
+
+# When FETCHMAIL_PARALLEL or GETMAIL_PARALLEL is enabled, numbered service
+# instances (e.g. fetchmail-1, fetchmail-2) are registered with supervisor
+# at runtime. Resolve a service name to the actual instance name(s).
+SERVICE_LIST=$(supervisorctl status | awk '{print $1}')
+
+function _get_services_for() {
+  local SERVICE_NAME=${1:?Service name required}
+  local IS_PARALLEL="${2:-0}"
+
+  if [[ ${IS_PARALLEL} -eq 1 ]]; then
+    grep -E "^${SERVICE_NAME}-[0-9]+$" <<< "${SERVICE_LIST}"
+  else
+    echo "${SERVICE_NAME}"
+  fi
+}
+
+# --- Build expected service list ---
+
+# Core services that are always expected to be running:
+declare -a SERVICES=(
+  'cron'
+  'rsyslog'
+  'postfix'
+  'changedetector'
+)
+
+# Conditional services based on enabled features:
+[[ ${SMTP_ONLY}           -ne 1 ]] && SERVICES+=('dovecot')
+[[ ${ENABLE_OPENDKIM}     -eq 1 ]] && SERVICES+=('opendkim')
+[[ ${ENABLE_OPENDMARC}    -eq 1 ]] && SERVICES+=('opendmarc')
+[[ ${ENABLE_AMAVIS}       -eq 1 ]] && SERVICES+=('amavis')
+[[ ${ENABLE_CLAMAV}       -eq 1 ]] && SERVICES+=('clamav')
+[[ ${ENABLE_FAIL2BAN}     -eq 1 ]] && SERVICES+=('fail2ban')
+[[ ${ENABLE_POSTGREY}     -eq 1 ]] && SERVICES+=('postgrey')
+[[ ${ENABLE_SRS}          -eq 1 ]] && SERVICES+=('postsrsd')
+[[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && SERVICES+=('rspamd-redis')
+[[ ${ENABLE_RSPAMD}       -eq 1 ]] && SERVICES+=('rspamd')
+[[ ${ENABLE_MTA_STS}      -eq 1 ]] && SERVICES+=('mta-sts-daemon')
+[[ ${ENABLE_SASLAUTHD}    -eq 1 ]] && SERVICES+=("saslauthd_${SASLAUTHD_MECHANISMS}")
+
+[[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && SERVICES+=(
+  $(_get_services_for 'fetchmail' "${FETCHMAIL_PARALLEL}")
+)
+[[ ${ENABLE_GETMAIL}      -eq 1 ]] && SERVICES+=(
+  $(_get_services_for 'getmail' "${GETMAIL_PARALLEL:-0}")
+)
+
+# --- Verify all expected services are RUNNING ---
+
+# `supervisorctl status` reports RUNNING for STARTING/BACKOFF states too.
+# Extract the actual state of each service and verify they all reduce to
+# a single unique value: RUNNING.
+test 'RUNNING' = "$(supervisorctl status "${SERVICES[@]}" | awk '{print $2}' | sort -u)"

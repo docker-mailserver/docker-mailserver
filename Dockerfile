@@ -296,6 +296,10 @@ ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by Postgrey"
 ENV SASLAUTHD_MECH_OPTIONS=""
 
+# NOTE: This is not part of the OCI image spec (limited compatibility at runtime)
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD dms-healthcheck
+
 # Add metadata to image:
 LABEL org.opencontainers.image.title="docker-mailserver"
 LABEL org.opencontainers.image.vendor="The Docker Mailserver Organization"
