@@ -53,9 +53,12 @@ declare -a SERVICES=(
 [[ ${ENABLE_MTA_STS}      -eq 1 ]] && SERVICES+=('mta-sts-daemon')
 [[ ${ENABLE_SASLAUTHD}    -eq 1 ]] && SERVICES+=("saslauthd_${SASLAUTHD_MECHANISMS}")
 
+# shellcheck disable=SC2207
 [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && SERVICES+=(
   $(_get_services_for 'fetchmail' "${FETCHMAIL_PARALLEL}")
 )
+
+# shellcheck disable=SC2207
 [[ ${ENABLE_GETMAIL}      -eq 1 ]] && SERVICES+=(
   $(_get_services_for 'getmail' "${GETMAIL_PARALLEL}")
 )
