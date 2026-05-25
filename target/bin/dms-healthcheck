@@ -12,11 +12,11 @@ readonly DMS_SETTINGS='/etc/dms-settings'
 # shellcheck source=/dev/null
 source "${DMS_SETTINGS}"
 
-# When FETCHMAIL_PARALLEL or GETMAIL_PARALLEL is enabled, numbered service
-# instances (e.g. fetchmail-1, fetchmail-2) are registered with supervisor
-# at runtime. Resolve a service name to the actual instance name(s).
 SERVICE_LIST=$(supervisorctl status | awk '{print $1}')
 
+# Support for `IMAP IDLE` (via ENV `FETCHMAIL_PARALLEL` / `GETMAIL_PARALLEL`):
+# This feature requires multiple instances of a service managed by supervisord.
+# Filter the service list for a numbered suffix of the service name.
 function _get_services_for() {
   local SERVICE_NAME=${1:?Service name required}
   local IS_PARALLEL="${2:-0}"
