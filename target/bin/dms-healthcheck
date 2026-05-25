@@ -57,7 +57,7 @@ declare -a SERVICES=(
   $(_get_services_for 'getmail' "${GETMAIL_PARALLEL}")
 )
 
-# `supervisorctl status` reports RUNNING for STARTING/BACKOFF states too.
-# Extract the actual state of each service and verify they all reduce to
-# a single unique value: RUNNING.
+# Ensure all enabled services report a 'RUNNING' status.
+# - We cannot rely upon the exit status of `supervisorctl status` (due to `STARTING`/`BACKOFF`).
+# - Returns an exit status of `0` only when the 2nd column reduces to `RUNNING`.
 test 'RUNNING' = "$(supervisorctl status "${SERVICES[@]}" | awk '{print $2}' | sort -u)"
