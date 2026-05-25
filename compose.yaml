@@ -24,6 +24,7 @@ services:
     # Uncomment if using `ENABLE_FAIL2BAN=1`:
     # cap_add:
     #   - NET_ADMIN
-    healthcheck:
-      # Note that the docker image contains a HEALTHCHECK directive in the Dockerfile; the below is in case your runtime does not support it.
-      test: ["CMD", "dms-healthcheck"]
+    # NOTE: The container image configures a `HEALTHCHECK` internally.
+    # Docker Compose should default to using `dms-healthcheck`.
+    # healthcheck:
+    #   test: "ss --listening --ipv4 --tcp | grep --silent ':smtp' || exit 1"
