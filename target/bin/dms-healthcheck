@@ -3,13 +3,12 @@
 # Verifies that all supervisor-managed services that should be running are in
 # the `RUNNING` state. Returns exit code `0` if all are healthy, otherwise `1`.
 
-# NOTE: There is an improvement opportunity, if identified in the future, to verify
-# service ports are also listening and operational. An example of this might look like:
-# `ss --listening --ipv4 --tcp | grep --silent ':smtp' || exit 1` or similar.
+# TODO: If beneficial, the script could additionally verify service ports have
+# listeners bound (`ss --listening --ipv4 --tcp | grep --silent ':smtp' || exit 1`)
 
 readonly DMS_SETTINGS='/etc/dms-settings'
 
-# Required to proceed (ensures awareness default enabled services):
+# Required to proceed (ensures awareness of default enabled services):
 [[ ! -f ${DMS_SETTINGS} ]] && exit 1
 
 # shellcheck source=/dev/null
