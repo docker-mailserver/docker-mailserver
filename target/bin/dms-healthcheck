@@ -28,8 +28,6 @@ function _get_services_for() {
   fi
 }
 
-# --- Build expected service list ---
-
 # Core services that are always expected to be running:
 declare -a SERVICES=(
   'cron'
