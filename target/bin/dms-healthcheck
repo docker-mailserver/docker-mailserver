@@ -57,8 +57,6 @@ declare -a SERVICES=(
   $(_get_services_for 'getmail' "${GETMAIL_PARALLEL}")
 )
 
-# --- Verify all expected services are RUNNING ---
-
 # `supervisorctl status` reports RUNNING for STARTING/BACKOFF states too.
 # Extract the actual state of each service and verify they all reduce to
 # a single unique value: RUNNING.
