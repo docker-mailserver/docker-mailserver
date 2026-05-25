@@ -59,7 +59,7 @@ declare -a SERVICES=(
   $(_get_services_for 'fetchmail' "${FETCHMAIL_PARALLEL}")
 )
 [[ ${ENABLE_GETMAIL}      -eq 1 ]] && SERVICES+=(
-  $(_get_services_for 'getmail' "${GETMAIL_PARALLEL:-0}")
+  $(_get_services_for 'getmail' "${GETMAIL_PARALLEL}")
 )
 
 # --- Verify all expected services are RUNNING ---
