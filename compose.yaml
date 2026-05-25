@@ -25,6 +25,5 @@ services:
     # cap_add:
     #   - NET_ADMIN
     healthcheck:
-      test: "ss --listening --ipv4 --tcp | grep --silent ':smtp' || exit 1"
-      timeout: 3s
-      retries: 0
+      # Note that the docker image contains a HEALTHCHECK directive in the Dockerfile; the below is in case your runtime does not support it.
+      test: ["CMD", "dms-healthcheck"]

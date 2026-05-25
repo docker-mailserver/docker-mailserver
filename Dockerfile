@@ -296,7 +296,8 @@ ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by Postgrey"
 ENV SASLAUTHD_MECH_OPTIONS=""
 
-# NOTE: This is not part of the OCI image spec (limited compatibility at runtime)
+# NOTE: HEALTHCHECK is not part of the OCI image spec and should not be relied on.
+# Ensure it is either supported by your runtime or use this as an example for your deployment scenario (e.g., kubernetes livenessProbe etc)
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD dms-healthcheck
 
