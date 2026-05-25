@@ -6,11 +6,8 @@
 
 readonly DMS_SETTINGS='/etc/dms-settings'
 
-# The settings file is written near the end of container startup.
-# Until it exists the container is still initializing.
-if [[ ! -f ${DMS_SETTINGS} ]]; then
-  exit 1
-fi
+# Required to proceed (ensures awareness default enabled services):
+[[ ! -f ${DMS_SETTINGS} ]] && exit 1
 
 # shellcheck source=/dev/null
 source "${DMS_SETTINGS}"
