@@ -17,6 +17,8 @@ All notable changes to this project will be documented in this file. The format 
   - The `Dockerfile` has changed the source of `dovecot-fts-xapian` package from the [upstream Github repo source](https://github.com/grosjo/fts-xapian) (_which is presently unaccessible_) to instead use the [Debian package source files](https://deb.debian.org/debian/pool/main/d/dovecot-fts-xapian/) (#4700)
 - **Tests:**
   - Make the helper method `_get_container_ip()` compatible with Docker 29 ([#4606](https://github.com/docker-mailserver/docker-mailserver/pull/4606))
+- **Pflogsumm:**
+  - Fix wrong daily reporting when mail log retention is greater than one year ([#4709](https://github.com/docker-mailserver/docker-mailserver/pull/4709))
 
 ### Removed
 
