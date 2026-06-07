@@ -133,96 +133,15 @@ DKIM is currently supported by either OpenDKIM or Rspamd:
     1. [Verifying DKIM signatures from inbound mail][rspamd-docs-dkim-checks] is enabled by default.
     2. [Signing outbound mail with your DKIM key][rspamd-docs-dkim-signing] needs additional setup (key + dns + config).
 
-    ??? warning "Using Multiple Domains"
-
-        If you have multiple domains, you need to:
-
-        - Create a key with `docker exec -it <CONTAINER NAME> setup config dkim domain <DOMAIN>` for each domain DMS should sign outgoing mail for.
-        - Provide a custom `dkim_signing.conf` (for which an example is shown below), as the default config only supports one domain.
-
-    !!! info "About the Helper Script"
-
-        The script will persist the keys in `/tmp/docker-mailserver/rspamd/dkim/`. Hence, if you are already using the default volume mounts, the keys are persisted in a volume. The script also restarts Rspamd directly, so changes take effect without restarting DMS.
-
-        The script provides you with log messages along the way of creating keys. In case you want to read the complete log, use `-v` (verbose) or `-vv` (very verbose).
-
-        ---
-
-        In case you have not already provided a default DKIM signing configuration, the script will create one and write it to `/tmp/docker-mailserver/rspamd/override.d/dkim_signing.conf`. If this file already exists, it will not be overwritten.
-
-        An example of what a default configuration file for DKIM signing looks like can be found by expanding the example below.
-
-    ??? example "DKIM Signing Module Configuration Examples"
-
-        A simple configuration could look like this:
-
-        ```cf
-        # documentation: https://rspamd.com/doc/modules/dkim_signing.html
-
-        enabled = true;
-
-        sign_authenticated = true;
-        sign_local = true;
-
-        use_domain = "header";
-        use_redis = false; # don't change unless Redis also provides the DKIM keys
-        use_esld = true;
-        check_pubkey = true; # you want to use this in the beginning
-
-        selector = "mail";
-        # The path location is searched for a DKIM key with these variables:
-        # - `$domain` is sourced from the MIME mail message `From` header
-        # - `$selector` is configured for `mail` (as a default fallback)
-        path = "/tmp/docker-mailserver/dkim/keys/$domain/$selector.private";
-
-        # domain specific configurations can be provided below:
-        domain {
-            example.com {
-                path = "/tmp/docker-mailserver/rspamd/dkim/mail.private";
-                selector = "mail";
-            }
-        }
-        ```
-
-        As shown next:
-
-        - You can add more domains into the `domain { ... }` section (in the following example: `example.com` and `example.org`).
-        - A domain can also be configured with multiple selectors and keys within a `selectors [ ... ]` array (in the following example, this is done for `example.org`).
-
-        ```cf
-        # ...
-
-        domain {
-            example.com {
-                path = /tmp/docker-mailserver/rspamd/example.com/ed25519.private";
-                selector = "dkim-ed25519";
-            }
-            example.org {
-                selectors [
-                    {
-                        path = "/tmp/docker-mailserver/rspamd/dkim/example.org/rsa.private";
-                        selector = "dkim-rsa";
-                    },
-                    {
-                        path = "/tmp/docker-mailserver/rspamd/dkim/example.org/ed25519.private";
-                        selector = "dkim-ed25519";
-                    }
-                ]
-            }
-        }
-        ```
+    After running `setup config dkim`, the key files for your primary domain will be located in `/tmp/docker-mailserver/rspamd/dkim/` and a basic signing configuration will be created in `tmp/docker-mailserver/rspamd/override.d/dkim_signing.conf`. You can modify this configuration manually if you have advanced needs.
+    
+    If you have multiple domains, run `setup config dkim domain <DOMAIN>` for each one to created additional keys. Alternatively, you can place your existing keys in `/tmp/docker-mailserver/rspamd/dkim/` following the existing naming convention. If you are migrating from OpenDKIM, you can move your keys from `/tmp/docker-mailserver/opendkim/keys/` and adjust their filenames.
 
     ??? warning "Support for DKIM Keys using ED25519"
 
         This modern elliptic curve is supported by Rspamd, but support by third-parties for [verifying Ed25519 DKIM signatures is unreliable][dkim-ed25519-support].
 
-        If you sign your mail with this key type, you should include RSA as a fallback, like shown in the above example.
-
-    ??? tip "Let Rspamd Check Your Keys"
-
-        When `check_pubkey = true;` is set, Rspamd will query the DNS record for each DKIM selector, verifying each public key matches the private key configured.
-
-        If there is a mismatch, a warning will be emitted to the Rspamd log `/var/log/mail/rspamd.log`.
+        If you sign your mail with this key type, you should include RSA as a fallback.
 
 ### DNS Record { #dkim-dns }
 
