@@ -298,8 +298,7 @@ ENV SASLAUTHD_MECH_OPTIONS=""
 
 # NOTE: HEALTHCHECK is not part of the OCI image spec and should not be relied on.
 # Ensure it is either supported by your runtime or use this as an example for your deployment scenario (e.g., kubernetes livenessProbe etc)
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-  CMD dms-healthcheck
+HEALTHCHECK --start-period=30s CMD dms-healthcheck
 
 # Add metadata to image:
 LABEL org.opencontainers.image.title="docker-mailserver"
