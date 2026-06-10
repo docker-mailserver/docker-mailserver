@@ -34,7 +34,6 @@ function _start_daemon_clamav         { _default_start_daemon 'clamav'         ;
 function _start_daemon_cron           { _default_start_daemon 'cron'           ; }
 function _start_daemon_dovecot        { _default_start_daemon 'dovecot'        ; }
 function _start_daemon_fail2ban       { _default_start_daemon 'fail2ban'       ; }
-function _start_daemon_getmail        { _default_start_daemon 'getmail'        ; }
 function _start_daemon_opendkim       { _default_start_daemon 'opendkim'       ; }
 function _start_daemon_opendmarc      { _default_start_daemon 'opendmarc'      ; }
 function _start_daemon_postgrey       { _default_start_daemon 'postgrey'       ; }
@@ -63,5 +62,17 @@ function _start_daemon_fetchmail() {
     done
   else
     _default_start_daemon 'fetchmail'
+  fi
+}
+
+function _start_daemon_getmail() {
+  if [[ ${GETMAIL_PARALLEL} -eq 1 ]]; then
+    local COUNTER=0
+    for _ in /etc/getmailrc.d/*; do
+      COUNTER=$(( COUNTER + 1 ))
+      _default_start_daemon "getmail-${COUNTER}"
+    done
+  else
+    _default_start_daemon 'getmail'
   fi
 }
