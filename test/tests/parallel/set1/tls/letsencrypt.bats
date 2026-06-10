@@ -173,9 +173,8 @@ function _should_have_valid_config() {
   local LE_CERT_PATH="/etc/letsencrypt/live/${EXPECTED_FQDN}/${3}"
 
   _has_matching_line 'postconf' "smtpd_tls_chain_files = ${LE_KEY_PATH} ${LE_CERT_PATH}"
-  _has_matching_line 'doveconf' "ssl_cert = <${LE_CERT_PATH}"
-  # `-P` is required to prevent redacting secrets
-  _has_matching_line 'doveconf -P' "ssl_key = <${LE_KEY_PATH}"
+  _has_matching_line 'doveconf ssl_server' "  cert_file = ${LE_CERT_PATH}"
+  _has_matching_line 'doveconf ssl_server' "  key_file = ${LE_KEY_PATH}"
 }
 
 # CMD ${1} run in container with output checked to match value of ${2}:

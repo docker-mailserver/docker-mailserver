@@ -791,7 +791,7 @@ Add this to `docker-data/dms/config/dovecot.cf`:
 
 ```cf
 ssl = yes
-disable_plaintext_auth=no
+auth_allow_cleartext = yes
 ```
 
 These options in conjunction mean:
