@@ -24,7 +24,7 @@ services:
     # Uncomment if using `ENABLE_FAIL2BAN=1`:
     # cap_add:
     #   - NET_ADMIN
-    healthcheck:
-      test: "ss --listening --ipv4 --tcp | grep --silent ':smtp' || exit 1"
-      timeout: 3s
-      retries: 0
+    # NOTE: The container image configures a `HEALTHCHECK` internally.
+    # Docker Compose should default to using `dms-healthcheck`.
+    # healthcheck:
+    #   test: "ss --listening --ipv4 --tcp | grep --silent ':smtp' || exit 1"

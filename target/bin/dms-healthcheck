@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Verifies that all supervisor-managed services that should be running are in
+# the `RUNNING` state. Returns exit code `0` if all are healthy, otherwise `1`.
+
+# TODO: The script could also verify that service ports have listeners bound (if justified).
+# Implementation approach was discussed with two examples for checking port 25 here:
+# https://github.com/docker-mailserver/docker-mailserver/pull/4706#discussion_r3344258001
+
+readonly DMS_SETTINGS='/etc/dms-settings'
+
+# Required to proceed (ensures awareness of default enabled services):
+[[ ! -f ${DMS_SETTINGS} ]] && exit 1
+
+# shellcheck source=/dev/null
+source "${DMS_SETTINGS}"
+
+SERVICE_LIST=$(supervisorctl status | awk '{print $1}')
+
+# Support for `IMAP IDLE` (via ENV `FETCHMAIL_PARALLEL` / `GETMAIL_PARALLEL`):
+# This feature requires multiple instances of a service managed by supervisord.
+# Filter the service list for a numbered suffix of the service name.
+function _get_services_for() {
+  local SERVICE_NAME=${1:?Service name required}
+  local IS_PARALLEL="${2:-0}"
+
+  if [[ ${IS_PARALLEL} -eq 1 ]]; then
+    grep -E "^${SERVICE_NAME}-[0-9]+$" <<< "${SERVICE_LIST}"
+  else
+    echo "${SERVICE_NAME}"
+  fi
+}
+
+# Core services that are always expected to be running:
+declare -a SERVICES=(
+  'cron'
+  'rsyslog'
+  'postfix'
+  'changedetector'
+)
+
+# Conditional services based on enabled features:
+[[ ${SMTP_ONLY}           -ne 1 ]] && SERVICES+=('dovecot')
+[[ ${ENABLE_OPENDKIM}     -eq 1 ]] && SERVICES+=('opendkim')
+[[ ${ENABLE_OPENDMARC}    -eq 1 ]] && SERVICES+=('opendmarc')
+[[ ${ENABLE_AMAVIS}       -eq 1 ]] && SERVICES+=('amavis')
+[[ ${ENABLE_CLAMAV}       -eq 1 ]] && SERVICES+=('clamav')
+[[ ${ENABLE_FAIL2BAN}     -eq 1 ]] && SERVICES+=('fail2ban')
+[[ ${ENABLE_POSTGREY}     -eq 1 ]] && SERVICES+=('postgrey')
+[[ ${ENABLE_SRS}          -eq 1 ]] && SERVICES+=('postsrsd')
+[[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && SERVICES+=('rspamd-redis')
+[[ ${ENABLE_RSPAMD}       -eq 1 ]] && SERVICES+=('rspamd')
+[[ ${ENABLE_MTA_STS}      -eq 1 ]] && SERVICES+=('mta-sts-daemon')
+[[ ${ENABLE_SASLAUTHD}    -eq 1 ]] && SERVICES+=("saslauthd_${SASLAUTHD_MECHANISMS}")
+
+# shellcheck disable=SC2207
+[[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && SERVICES+=(
+  $(_get_services_for 'fetchmail' "${FETCHMAIL_PARALLEL}")
+)
+
+# shellcheck disable=SC2207
+[[ ${ENABLE_GETMAIL}      -eq 1 ]] && SERVICES+=(
+  $(_get_services_for 'getmail' "${GETMAIL_PARALLEL}")
+)
+
+# Ensure all enabled services report a 'RUNNING' status.
+# - We cannot rely upon the exit status of `supervisorctl status` (due to `STARTING`/`BACKOFF`).
+# - Returns an exit status of `0` only when the 2nd column reduces to `RUNNING`.
+test 'RUNNING' = "$(supervisorctl status "${SERVICES[@]}" | awk '{print $2}' | sort -u)"

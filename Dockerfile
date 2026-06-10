@@ -296,6 +296,10 @@ ENV POSTGREY_MAX_AGE=35
 ENV POSTGREY_TEXT="Delayed by Postgrey"
 ENV SASLAUTHD_MECH_OPTIONS=""
 
+# NOTE: HEALTHCHECK is not part of the OCI image spec and should not be relied on.
+# Ensure it is either supported by your runtime or use this as an example for your deployment scenario (e.g., kubernetes livenessProbe etc)
+HEALTHCHECK --start-period=30s CMD dms-healthcheck
+
 # Add metadata to image:
 LABEL org.opencontainers.image.title="docker-mailserver"
 LABEL org.opencontainers.image.vendor="The Docker Mailserver Organization"
