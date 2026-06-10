@@ -20,6 +20,8 @@ All notable changes to this project will be documented in this file. The format 
     - Runtimes like k8s or podman must configure a healthcheck explicitly. The DMS Helm chart (`docker-mailserver-helm`) will be [updated to use `dms-healthcheck`](https://github.com/docker-mailserver/docker-mailserver-helm/pull/135).
 - **Tests:**
   - Make the helper method `_get_container_ip()` compatible with Docker 29 ([#4606](https://github.com/docker-mailserver/docker-mailserver/pull/4606))
+- **Pflogsumm:**
+  - Fix wrong daily reporting when mail log retention is greater than one year ([#4709](https://github.com/docker-mailserver/docker-mailserver/pull/4709))
 
 ### Removed
 
