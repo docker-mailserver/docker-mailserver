@@ -1,4 +1,4 @@
-From: Not_My_Business <user2@localhost.localdomain>
+From: User 1 <user1@localhost.localdomain>
 To: Existing Local User <user1@localhost.localdomain>
 Date: Sat, 22 May 2010 07:43:25 -0400
 Subject: Test Message
