@@ -2691,7 +2691,7 @@
 <li><strong>before.dovecot.sieve:</strong> Global Sieve filter file, applied prior to the <code>${login}.dovecot.sieve</code> filter. (Docs: <a href="../mail-sieve/">Sieve</a>)</li>
 <li><strong>after.dovecot.sieve</strong>: Global Sieve filter file, applied after the <code>${login}.dovecot.sieve</code> filter. (Docs: <a href="../mail-sieve/">Sieve</a>)</li>
 <li><strong>postfix-main.cf:</strong> Every line will be added to the postfix main configuration. (Docs: <a href="../override-defaults/postfix/">Override Postfix Defaults</a>)</li>
-<li><strong>postfix-master.cf:</strong> Every line will be added to the postfix master configuration. (Docs: <a href="../override-defaults/postfix/">Override Postfix Defaults</a>)</li>
+<li><strong>postfix-master.cf:</strong> Every line will be passed through <code>postconf -P</code>, it is <strong>not</strong> appended as a whole. (Docs: <a href="../override-defaults/postfix/">Override Postfix Defaults</a>)</li>
 <li><strong>postfix-accounts.cf:</strong> User accounts file. Modify via the <a href="../../setup.sh/"><code>setup.sh email</code></a> script.</li>
 <li><strong>postfix-send-access.cf:</strong> List of users denied sending. Modify via <a href="../../setup.sh/"><code>setup.sh email restrict</code></a>.</li>
 <li><strong>postfix-receive-access.cf:</strong> List of users denied receiving. Modify via <a href="../../setup.sh/"><code>setup.sh email restrict</code></a>.</li>
