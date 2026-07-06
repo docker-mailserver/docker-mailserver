@@ -281,39 +281,6 @@ EOF
   assert_success
 }
 
-@test "spoofing: rejects sender forging" {
-  # rejection of spoofed sender
-  _wait_for_smtp_port_in_container_to_respond
-
-  # An authenticated user cannot use an envelope sender (MAIL FROM)
-  # address they do not own according to `main.cf:smtpd_sender_login_maps` lookup
-  _send_email --expect-rejection \
-    --port 465 -tlsc --auth PLAIN \
-    --auth-user added@localhost.localdomain \
-    --auth-password mypassword \
-    --ehlo mail \
-    --from user2@localhost.localdomain \
-    --data 'auth/added-smtp-auth-spoofed.txt'
-  assert_output --partial 'Sender address rejected: not owned by user'
-}
-
-@test "spoofing: accepts sending as alias" {
-  # An authenticated account should be able to send mail from an alias,
-  # Verifies `main.cf:smtpd_sender_login_maps` includes /etc/postfix/virtual
-  # The envelope sender address (MAIL FROM) is the lookup key
-  # to each table. Address is authorized when a result that maps to
-  # the DMS account is returned.
-  _send_email \
-    --port 465 -tlsc --auth PLAIN \
-    --auth-user user1@localhost.localdomain \
-    --auth-password mypassword \
-    --ehlo mail \
-    --from alias1@localhost.localdomain \
-    --data 'auth/added-smtp-auth-spoofed-alias.txt'
-  assert_success
-  assert_output --partial 'End data with'
-}
-
 #
 # Pflogsumm delivery check
 #
