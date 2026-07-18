@@ -21,7 +21,7 @@ All notable changes to this project will be documented in this file. The format 
 - **Tests:**
   - Make the helper method `_get_container_ip()` compatible with Docker 29 ([#4606](https://github.com/docker-mailserver/docker-mailserver/pull/4606))
 - **Pflogsumm:**
-  - Fix wrong daily reporting when mail log retention is greater than one year ([#4709](https://github.com/docker-mailserver/docker-mailserver/pull/4709))
+  - Fix wrong daily reporting when mail log retention is greater than one year ([#4709](https://github.com/docker-mailserver/docker-mailserver/pull/4709), [#4722](https://github.com/docker-mailserver/docker-mailserver/pull/4722))
 
 ### Removed
 
