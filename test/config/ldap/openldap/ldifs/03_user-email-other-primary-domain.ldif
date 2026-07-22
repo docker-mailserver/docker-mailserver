@@ -14,7 +14,7 @@ mail: some.other.user@localhost.otherdomain
 mailAlias: postmaster@localhost.otherdomain
 mailGroupMember: employees@localhost.otherdomain
 mailHomeDirectory: /var/mail/localhost.localdomain/some.other.user/
-mailStorageDirectory: maildir:/var/mail/localhost.localdomain/some.other.user/
+mailStorageDirectory: /var/mail/localhost.localdomain/some.other.user/
 # postfix-book.schema generic options:
 mailEnabled: TRUE
 mailUidNumber: 5000

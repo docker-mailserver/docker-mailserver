@@ -59,21 +59,21 @@ function teardown_file() { _default_teardown ; }
   assert_success
   assert_output "smtpd_tls_chain_files = ${PRIMARY_KEY} ${PRIMARY_CERT} ${FALLBACK_KEY} ${FALLBACK_CERT}"
 
-  _run_in_container grep '^ssl_key =' "${DOVECOT_CONFIG_SSL}"
+  _run_in_container grep '^ssl_server_key_file =' "${DOVECOT_CONFIG_SSL}"
   assert_success
-  assert_output "ssl_key = <${PRIMARY_KEY}"
+  assert_output "ssl_server_key_file = ${PRIMARY_KEY}"
 
-  _run_in_container grep '^ssl_cert =' "${DOVECOT_CONFIG_SSL}"
+  _run_in_container grep '^ssl_server_cert_file =' "${DOVECOT_CONFIG_SSL}"
   assert_success
-  assert_output "ssl_cert = <${PRIMARY_CERT}"
+  assert_output "ssl_server_cert_file = ${PRIMARY_CERT}"
 
-  _run_in_container grep '^ssl_alt_key =' "${DOVECOT_CONFIG_SSL}"
+  _run_in_container grep '^ssl_server_alt_key_file =' "${DOVECOT_CONFIG_SSL}"
   assert_success
-  assert_output "ssl_alt_key = <${FALLBACK_KEY}"
+  assert_output "ssl_server_alt_key_file = ${FALLBACK_KEY}"
 
-  _run_in_container grep '^ssl_alt_cert =' "${DOVECOT_CONFIG_SSL}"
+  _run_in_container grep '^ssl_server_alt_cert_file =' "${DOVECOT_CONFIG_SSL}"
   assert_success
-  assert_output "ssl_alt_cert = <${FALLBACK_CERT}"
+  assert_output "ssl_server_alt_cert_file = ${FALLBACK_CERT}"
 }
 
 @test "manual configuration copied files correctly " {
