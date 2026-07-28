@@ -75,6 +75,10 @@ class Settings(BaseSettings):
     def postfix_master_cf(self) -> Path:
         return self.dms_config_dir / "postfix-master.cf"
 
+    @property
+    def dovecot_cf(self) -> Path:
+        return self.dms_config_dir / "dovecot.cf"
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -10,6 +10,7 @@ from app.core.exceptions import cli_command_error_handler
 from app.core.security import get_api_key
 from app.routers import (
     aliases,
+    dovecot_overrides,
     fail2ban,
     logs,
     mailboxes,
@@ -51,6 +52,7 @@ app.include_router(logs.router, prefix="/api")
 app.include_router(fail2ban.router, prefix="/api")
 app.include_router(relay.router, prefix="/api")
 app.include_router(postfix_overrides.router, prefix="/api")
+app.include_router(dovecot_overrides.router, prefix="/api")
 
 
 @app.get("/api/health", tags=["health"])
