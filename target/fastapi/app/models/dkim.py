@@ -16,8 +16,13 @@ class DkimKeyGenerate(BaseModel):
             "Rspamd only accepts a single domain. Defaults to DMS' FQDN domain, plus mail "
             "account domains when using the file-based account provisioner."
         ),
+        examples=["example.com", "example.com,example.net"],
     )
-    selector: str | None = Field(default=None, description="DKIM selector. Default: 'mail'.")
+    selector: str | None = Field(
+        default=None,
+        description="DKIM selector. Default: 'mail'.",
+        examples=["mail"],
+    )
     keysize: DkimKeySize | None = Field(
         default=None, description="RSA key size in bits. Default: 2048."
     )
