@@ -22,13 +22,18 @@ router = APIRouter(prefix="/rspamd", tags=["rspamd"], dependencies=[Depends(requ
 
 @router.get("/custom-commands")
 def get_custom_commands(settings: SettingsDep) -> RspamdCustomCommandsRead:
-    content = rspamd_service.read_custom_commands(settings.rspamd_custom_commands_cf)
-    return RspamdCustomCommandsRead(content=content)
+    try:
+        commands = rspamd_service.read_custom_commands(settings.rspamd_custom_commands_cf)
+    except ValueError as error:
+        # The file may have been hand-edited (it's also usable as a DMS Config volume file)
+        # into something that no longer matches the typed directive schema.
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(error)) from error
+    return RspamdCustomCommandsRead(commands=commands)
 
 
 @router.put("/custom-commands", status_code=status.HTTP_204_NO_CONTENT)
 def set_custom_commands(payload: RspamdCustomCommandsWrite, settings: SettingsDep) -> None:
-    rspamd_service.write_custom_commands(settings.rspamd_custom_commands_cf, payload.content)
+    rspamd_service.write_custom_commands(settings.rspamd_custom_commands_cf, payload.commands)
 
 
 @router.delete("/custom-commands", status_code=status.HTTP_204_NO_CONTENT)

@@ -1,7 +1,8 @@
 """Read/write access to the Rspamd config-override files consumed at container startup.
 
-- `rspamd/custom-commands.conf` : directive lines (`set-option-for-module`, `add-line`, ...)
-  parsed and applied to `/etc/rspamd/override.d/` as the final Rspamd configuration step.
+- `rspamd/custom-commands.conf` : directive lines (`set-option-for-module`, `add-line`, ...),
+  represented as typed `RspamdCustomCommand`s (see `app.models.rspamd`) and applied to
+  `/etc/rspamd/override.d/` as the final Rspamd configuration step.
 - `rspamd/override.d/`          : arbitrary UCL config files copied wholesale to
   `/etc/rspamd/override.d/` before `custom-commands.conf` is applied.
 
@@ -12,18 +13,23 @@ are implemented here rather than delegated to a bash script.
 
 from pathlib import Path
 
-from app.models.rspamd import RspamdOverrideFile
+from app.models.rspamd import (
+    RspamdCustomCommand,
+    RspamdOverrideFile,
+    parse_custom_commands,
+    serialize_custom_commands,
+)
 
 
-def read_custom_commands(path: Path) -> str:
+def read_custom_commands(path: Path) -> list[RspamdCustomCommand]:
     if not path.is_file():
-        return ""
-    return path.read_text(encoding="utf-8")
+        return []
+    return parse_custom_commands(path.read_text(encoding="utf-8"))
 
 
-def write_custom_commands(path: Path, content: str) -> None:
+def write_custom_commands(path: Path, commands: list[RspamdCustomCommand]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
+    path.write_text(serialize_custom_commands(commands), encoding="utf-8")
 
 
 def delete_custom_commands(path: Path) -> None:
