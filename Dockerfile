@@ -53,7 +53,15 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
 WORKDIR /opt/mailserver-api
 COPY target/fastapi/pyproject.toml target/fastapi/uv.lock /opt/mailserver-api/
-RUN uv sync --locked --python-preference only-system
+# `API_DEBUG=1` also pulls in the `dev` group (currently just `debugpy`), used by
+# `[program:fastapi-api]` (target/supervisor/conf.d/dms-services.conf) to wrap the API
+# with a debugpy listener. Left out of `--locked` production builds by default.
+ARG API_DEBUG=0
+RUN if [ "${API_DEBUG}" = "1" ]; then \
+      uv sync --locked --python-preference only-system; \
+    else \
+      uv sync --locked --python-preference only-system --no-dev; \
+    fi
 
 #
 # main stage provides all packages, config, and adds scripts
@@ -305,7 +313,8 @@ ARG VCS_REVISION=unknown
 
 WORKDIR /
 # 8080: REST API (ENABLE_API=1), only listens when enabled
-EXPOSE 25 587 143 465 993 110 995 4190 8080
+# 5678: debugpy for the REST API (ENABLE_API=1 and API_DEBUG=1 at both build and run time)
+EXPOSE 25 587 143 465 993 110 995 4190 8080 5678
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
@@ -315,6 +324,7 @@ CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 # These ENV are also configured with the same defaults at:
 # https://github.com/docker-mailserver/docker-mailserver/blob/672e9cf19a3bb1da309e8cea6ee728e58f905366/target/scripts/helpers/variables.sh
 ENV API_PORT=8080
+ENV API_DEBUG=0
 ENV FETCHMAIL_POLL=300
 ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
 ENV POSTGREY_DELAY=300

@@ -8,6 +8,11 @@ dependencies = [
   "pydantic-settings>=2.6.0",
 ]
 
+[dependency-groups]
+# Only pulled into the image when built with `--build-arg API_DEBUG=1`; the default
+# build passes `--no-dev` to `uv sync` so production images never carry this.
+dev = ["debugpy>=1.8.11"]
+
 [tool.fastapi]
 entrypoint = "app.main:app"
 
