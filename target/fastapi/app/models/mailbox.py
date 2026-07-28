@@ -4,7 +4,7 @@ from app.models.common import MAIL_ACCOUNT_PATTERN
 
 
 class MailboxCreate(BaseModel):
-    email: str = Field(pattern=MAIL_ACCOUNT_PATTERN)
+    email: str = Field(pattern=MAIL_ACCOUNT_PATTERN, examples=["user@example.com"])
     password: str = Field(min_length=1)
 
 
