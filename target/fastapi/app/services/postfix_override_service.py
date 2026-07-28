@@ -80,7 +80,9 @@ def _remove_line(path: Path, key: str) -> None:
         return
 
     pattern = re.compile(rf"^{re.escape(key)}\s*=")
-    lines = [line for line in path.read_text(encoding="utf-8").splitlines() if not pattern.match(line)]
+    lines = [
+        line for line in path.read_text(encoding="utf-8").splitlines() if not pattern.match(line)
+    ]
     path.write_text("\n".join(lines) + "\n" if lines else "", encoding="utf-8")
 
 
