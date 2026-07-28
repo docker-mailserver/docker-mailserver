@@ -87,6 +87,10 @@ class Settings(BaseSettings):
     def dovecot_sieve_after(self) -> Path:
         return self.dms_config_dir / "after.dovecot.sieve"
 
+    @property
+    def spamassassin_rules_cf(self) -> Path:
+        return self.dms_config_dir / "spamassassin-rules.cf"
+
 
 @lru_cache
 def get_settings() -> Settings:

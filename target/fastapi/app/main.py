@@ -19,6 +19,7 @@ from app.routers import (
     quotas,
     relay,
     sieve_filters,
+    spamassassin,
     supervisor,
 )
 
@@ -56,6 +57,7 @@ app.include_router(relay.router, prefix="/api")
 app.include_router(postfix_overrides.router, prefix="/api")
 app.include_router(dovecot_overrides.router, prefix="/api")
 app.include_router(sieve_filters.router, prefix="/api")
+app.include_router(spamassassin.router, prefix="/api")
 app.include_router(supervisor.router, prefix="/api")
 
 
