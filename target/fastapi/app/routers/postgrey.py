@@ -4,7 +4,13 @@ from fastapi import APIRouter, Depends, status
 
 from app.core.config import Settings, get_settings
 from app.core.security import require_api_key
-from app.models.postgrey import PostgreyWhitelistName, PostgreyWhitelistRead, PostgreyWhitelistWrite
+from app.models.postgrey import (
+    PostgreyWhitelistEntries,
+    PostgreyWhitelistEntryCreate,
+    PostgreyWhitelistName,
+    PostgreyWhitelistRead,
+    PostgreyWhitelistWrite,
+)
 from app.services import postgrey_service
 
 SettingsDep = Annotated[Settings, Depends(get_settings)]
@@ -31,3 +37,24 @@ def set_whitelist(
 @router.delete("/whitelist/{name}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_whitelist(name: PostgreyWhitelistName, settings: SettingsDep) -> None:
     postgrey_service.delete_whitelist(settings, name)
+
+
+@router.get("/whitelist/{name}/entries")
+def list_whitelist_entries(
+    name: PostgreyWhitelistName, settings: SettingsDep
+) -> PostgreyWhitelistEntries:
+    return PostgreyWhitelistEntries(
+        name=name, entries=postgrey_service.list_whitelist_entries(settings, name)
+    )
+
+
+@router.post("/whitelist/{name}/entries", status_code=status.HTTP_201_CREATED)
+def add_whitelist_entry(
+    name: PostgreyWhitelistName, payload: PostgreyWhitelistEntryCreate, settings: SettingsDep
+) -> None:
+    postgrey_service.add_whitelist_entry(settings, name, payload.entry)
+
+
+@router.delete("/whitelist/{name}/entries/{entry}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_whitelist_entry(name: PostgreyWhitelistName, entry: str, settings: SettingsDep) -> None:
+    postgrey_service.delete_whitelist_entry(settings, name, entry)

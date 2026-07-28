@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # `clients` -> `whitelist_clients.local` (hosts/domains skipping greylisting), `recipients` ->
 # `whitelist_recipients` (recipient addresses skipping greylisting). See
@@ -15,3 +15,12 @@ class PostgreyWhitelistRead(BaseModel):
 
 class PostgreyWhitelistWrite(BaseModel):
     content: str
+
+
+class PostgreyWhitelistEntries(BaseModel):
+    name: PostgreyWhitelistName
+    entries: list[str]
+
+
+class PostgreyWhitelistEntryCreate(BaseModel):
+    entry: str = Field(min_length=1, examples=["example.tld", "user@example.tld"])
