@@ -355,9 +355,11 @@ Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 - **0** => Disabled
 - 1 => Enabled
 
-Enables a REST API (FastAPI) for managing mailboxes, aliases, quotas and Dovecot master users, served on [`API_PORT`](#api_port) with all endpoints under the `/api` path. Requests must authenticate with the [`X-API-Key`](#api_key) header.
+Enables a REST API (FastAPI) for managing mailboxes, aliases, quotas, Dovecot master users and reading log files, served on [`API_PORT`](#api_port) with all endpoints under the `/api` path. Requests must authenticate with the [`X-API-Key`](#api_key) header.
 
 Endpoints delegate to the same CLI tools as `setup email add`, `setup alias add`, etc. The mailbox, quota and Dovecot master-user endpoints require `ACCOUNT_PROVISIONER=FILE` (the default) to have any effect, same as `setup email list`; alias management works with any provisioner.
+
+`GET /api/logs` lists the files under `/var/log/mail/` (`mail.log`, `clamav.log`, `fail2ban.log`, ...) and `GET /api/logs/{name}` returns their trailing lines (`lines` query parameter, defaults to 200).
 
 ##### API_PORT
 
@@ -381,6 +383,13 @@ Path to a file (eg: a mounted Docker/Kubernetes secret) containing the API key, 
 - 1 => Enabled
 
 Serves interactive API docs (Swagger UI) at `/api/docs` when `ENABLE_API=1`.
+
+##### API_DEBUG
+
+- **0** => Disabled
+- 1 => Enabled
+
+Wraps the API process with a [`debugpy`](https://github.com/microsoft/debugpy) listener on port `5678` and pauses startup until a debugger attaches. Only takes effect when `ENABLE_API=1` **and** the image was built with `--build-arg API_DEBUG=1` (the default build omits the `debugpy` dependency entirely). Intended for local development only, not for production images.
 
 ##### MOVE_SPAM_TO_JUNK
 
