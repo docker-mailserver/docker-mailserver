@@ -16,6 +16,7 @@ from app.routers import (
     mailboxes,
     master_users,
     postfix_overrides,
+    postgrey,
     quotas,
     relay,
     sieve_filters,
@@ -58,6 +59,7 @@ app.include_router(postfix_overrides.router, prefix="/api")
 app.include_router(dovecot_overrides.router, prefix="/api")
 app.include_router(sieve_filters.router, prefix="/api")
 app.include_router(spamassassin.router, prefix="/api")
+app.include_router(postgrey.router, prefix="/api")
 app.include_router(supervisor.router, prefix="/api")
 
 

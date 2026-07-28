@@ -91,6 +91,14 @@ class Settings(BaseSettings):
     def spamassassin_rules_cf(self) -> Path:
         return self.dms_config_dir / "spamassassin-rules.cf"
 
+    @property
+    def postgrey_whitelist_clients(self) -> Path:
+        return self.dms_config_dir / "whitelist_clients.local"
+
+    @property
+    def postgrey_whitelist_recipients(self) -> Path:
+        return self.dms_config_dir / "whitelist_recipients"
+
 
 @lru_cache
 def get_settings() -> Settings:
