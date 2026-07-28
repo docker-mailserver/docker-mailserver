@@ -350,6 +350,38 @@ Note: More details at <http://www.postfix.org/postconf.5.html#inet_protocols>
 
 Note: More information at <https://dovecot.org/doc/dovecot-example.conf>
 
+##### ENABLE_API
+
+- **0** => Disabled
+- 1 => Enabled
+
+Enables a REST API (FastAPI) for managing mailboxes, aliases, quotas and Dovecot master users, served on [`API_PORT`](#api_port) with all endpoints under the `/api` path. Requests must authenticate with the [`X-API-Key`](#api_key) header.
+
+Endpoints delegate to the same CLI tools as `setup email add`, `setup alias add`, etc. The mailbox, quota and Dovecot master-user endpoints require `ACCOUNT_PROVISIONER=FILE` (the default) to have any effect, same as `setup email list`; alias management works with any provisioner.
+
+##### API_PORT
+
+The port the API listens on when `ENABLE_API=1`.
+
+Default: `8080`
+
+##### API_KEY
+
+Static API key clients must send via the `X-API-Key` header.
+
+Required (either this or [`API_KEY_FILE`](#api_key_file)): the API refuses to start without one, there is no auto-generated fallback.
+
+##### API_KEY_FILE
+
+Path to a file (eg: a mounted Docker/Kubernetes secret) containing the API key, as an alternative to setting [`API_KEY`](#api_key) directly. Ignored if `API_KEY` is set.
+
+##### API_SWAGGER_ENABLED
+
+- **0** => Disabled
+- 1 => Enabled
+
+Serves interactive API docs (Swagger UI) at `/api/docs` when `ENABLE_API=1`.
+
 ##### MOVE_SPAM_TO_JUNK
 
 - 0 => Spam messages will be delivered to the inbox.

@@ -29,6 +29,7 @@ function _default_start_daemon() {
 }
 
 function _start_daemon_amavis         { _default_start_daemon 'amavis'         ; }
+function _start_daemon_api            { _default_start_daemon 'fastapi-api'    ; }
 function _start_daemon_changedetector { _default_start_daemon 'changedetector' ; }
 function _start_daemon_clamav         { _default_start_daemon 'clamav'         ; }
 function _start_daemon_cron           { _default_start_daemon 'cron'           ; }

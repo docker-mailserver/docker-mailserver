@@ -157,6 +157,7 @@ function _register_functions() {
   [[ ${ENABLE_CLAMAV}           -eq 1 ]] &&	_register_start_daemon '_start_daemon_clamav'
   [[ ${ENABLE_AMAVIS}           -eq 1 ]] && _register_start_daemon '_start_daemon_amavis'
   [[ ${ENABLE_GETMAIL}          -eq 1 ]] && _register_start_daemon '_start_daemon_getmail'
+  [[ ${ENABLE_API}              -eq 1 ]] && _register_start_daemon '_start_daemon_api'
   _register_start_daemon '_start_daemon_changedetector'
 }
 

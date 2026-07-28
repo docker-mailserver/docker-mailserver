@@ -94,6 +94,7 @@ function __environment_variables_general_setup() {
   _log 'trace' 'Setting service-enabling environment variables'
 
   VARS[ENABLE_AMAVIS]="${ENABLE_AMAVIS:=1}"
+  VARS[ENABLE_API]="${ENABLE_API:=0}"
   VARS[ENABLE_CLAMAV]="${ENABLE_CLAMAV:=0}"
   VARS[ENABLE_DNSBL]="${ENABLE_DNSBL:=0}"
   VARS[ENABLE_FAIL2BAN]="${ENABLE_FAIL2BAN:=0}"
@@ -115,6 +116,9 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_SPAMASSASSIN_KAM]="${ENABLE_SPAMASSASSIN_KAM:=0}"
   VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
   VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
+
+  VARS[API_PORT]="${API_PORT:=8080}"
+  VARS[API_SWAGGER_ENABLED]="${API_SWAGGER_ENABLED:=0}"
 
   _log 'trace' 'Setting IP, DNS and SSL environment variables'
 
