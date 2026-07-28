@@ -103,6 +103,14 @@ class Settings(BaseSettings):
     def amavis_cf(self) -> Path:
         return self.dms_config_dir / "amavis.cf"
 
+    @property
+    def rspamd_custom_commands_cf(self) -> Path:
+        return self.dms_config_dir / "rspamd" / "custom-commands.conf"
+
+    @property
+    def rspamd_override_d(self) -> Path:
+        return self.dms_config_dir / "rspamd" / "override.d"
+
 
 @lru_cache
 def get_settings() -> Settings:

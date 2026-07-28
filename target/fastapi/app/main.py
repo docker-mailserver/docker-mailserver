@@ -20,6 +20,7 @@ from app.routers import (
     postgrey,
     quotas,
     relay,
+    rspamd,
     sieve_filters,
     spamassassin,
     supervisor,
@@ -62,6 +63,7 @@ app.include_router(sieve_filters.router, prefix="/api")
 app.include_router(spamassassin.router, prefix="/api")
 app.include_router(postgrey.router, prefix="/api")
 app.include_router(amavis.router, prefix="/api")
+app.include_router(rspamd.router, prefix="/api")
 app.include_router(supervisor.router, prefix="/api")
 
 
