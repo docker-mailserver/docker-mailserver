@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.security import require_api_key
 from app.models.dkim import DkimKeyGenerate, DkimKeyGenerateResult
@@ -17,4 +17,9 @@ router = APIRouter(prefix="/dkim", tags=["dkim"], dependencies=[Depends(require_
     ),
 )
 def generate_keys(payload: DkimKeyGenerate) -> DkimKeyGenerateResult:
-    return DkimKeyGenerateResult(output=dkim_service.generate_keys(payload))
+    try:
+        output = dkim_service.generate_keys(payload)
+    except ValueError as error:
+        # e.g. keytype='ed25519' requested while OpenDKIM (RSA-only) is the active backend.
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, str(error)) from error
+    return DkimKeyGenerateResult(output=output)
