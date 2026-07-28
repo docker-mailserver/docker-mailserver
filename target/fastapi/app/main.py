@@ -13,6 +13,7 @@ from app.routers import (
     amavis,
     dkim,
     dovecot_overrides,
+    environment,
     fail2ban,
     logs,
     mail_queue,
@@ -71,6 +72,7 @@ app.include_router(rspamd.router, prefix="/api")
 app.include_router(dkim.router, prefix="/api")
 app.include_router(supervisor.router, prefix="/api")
 app.include_router(mail_queue.router, prefix="/api")
+app.include_router(environment.router, prefix="/api")
 
 
 @app.get("/api/health", tags=["health"])

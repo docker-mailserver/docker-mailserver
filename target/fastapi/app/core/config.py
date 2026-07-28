@@ -16,6 +16,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 DMS_CONFIG_DIR = Path("/tmp/docker-mailserver")
 DMS_LOGS_DIR = Path("/var/log/mail")
 BIN_DIR = Path("/usr/local/bin")
+DMS_SETTINGS_FILE = Path("/etc/dms-settings")
 
 
 class Settings(BaseSettings):
@@ -29,6 +30,7 @@ class Settings(BaseSettings):
     dms_config_dir: Path = DMS_CONFIG_DIR
     dms_logs_dir: Path = DMS_LOGS_DIR
     bin_dir: Path = BIN_DIR
+    dms_settings_file: Path = DMS_SETTINGS_FILE
     _dms_version: str = PrivateAttr(default="Unknown")
 
     @property
