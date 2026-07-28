@@ -99,6 +99,10 @@ class Settings(BaseSettings):
     def postgrey_whitelist_recipients(self) -> Path:
         return self.dms_config_dir / "whitelist_recipients"
 
+    @property
+    def amavis_cf(self) -> Path:
+        return self.dms_config_dir / "amavis.cf"
+
 
 @lru_cache
 def get_settings() -> Settings:

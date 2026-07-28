@@ -10,6 +10,7 @@ from app.core.exceptions import cli_command_error_handler
 from app.core.security import get_api_key
 from app.routers import (
     aliases,
+    amavis,
     dovecot_overrides,
     fail2ban,
     logs,
@@ -60,6 +61,7 @@ app.include_router(dovecot_overrides.router, prefix="/api")
 app.include_router(sieve_filters.router, prefix="/api")
 app.include_router(spamassassin.router, prefix="/api")
 app.include_router(postgrey.router, prefix="/api")
+app.include_router(amavis.router, prefix="/api")
 app.include_router(supervisor.router, prefix="/api")
 
 
