@@ -13,6 +13,7 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DMS_CONFIG_DIR = Path("/tmp/docker-mailserver")
+DMS_LOGS_DIR = Path("/var/log/mail")
 BIN_DIR = Path("/usr/local/bin")
 
 
@@ -25,6 +26,7 @@ class Settings(BaseSettings):
     ACCOUNT_PROVISIONER: str = "FILE"
 
     dms_config_dir: Path = DMS_CONFIG_DIR
+    dms_logs_dir: Path = DMS_LOGS_DIR
     bin_dir: Path = BIN_DIR
 
     @property
