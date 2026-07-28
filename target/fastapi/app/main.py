@@ -18,6 +18,8 @@ from app.routers import (
     postfix_overrides,
     quotas,
     relay,
+    sieve_filters,
+    supervisor,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -53,6 +55,8 @@ app.include_router(fail2ban.router, prefix="/api")
 app.include_router(relay.router, prefix="/api")
 app.include_router(postfix_overrides.router, prefix="/api")
 app.include_router(dovecot_overrides.router, prefix="/api")
+app.include_router(sieve_filters.router, prefix="/api")
+app.include_router(supervisor.router, prefix="/api")
 
 
 @app.get("/api/health", tags=["health"])

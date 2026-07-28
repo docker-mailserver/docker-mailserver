@@ -79,6 +79,14 @@ class Settings(BaseSettings):
     def dovecot_cf(self) -> Path:
         return self.dms_config_dir / "dovecot.cf"
 
+    @property
+    def dovecot_sieve_before(self) -> Path:
+        return self.dms_config_dir / "before.dovecot.sieve"
+
+    @property
+    def dovecot_sieve_after(self) -> Path:
+        return self.dms_config_dir / "after.dovecot.sieve"
+
 
 @lru_cache
 def get_settings() -> Settings:
