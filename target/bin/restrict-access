@@ -48,9 +48,11 @@ case "${COMMAND}" in
     ;;
 
   ( 'del' )
-    if ! sed -i "/^$(_escape "${USER}").*/d" "${DATABASE}" 2>/dev/null; then
-      _exit_with_error "User '${USER}' not found"
+    if [[ ! -f ${DATABASE} ]] || ! grep -q -F "${USER}" "${DATABASE}"; then
+      _exit_with_error "User '${USER}' does not exist in the ${DIRECTION} restrictions"
     fi
+
+    sed -i "/^$(_escape "${USER}").*/d" "${DATABASE}"
     ;;
 
   ( 'list' )
