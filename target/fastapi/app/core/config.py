@@ -10,7 +10,7 @@ constants rather than `Settings` fields:
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, PrivateAttr, SettingsConfigDict
 
 DMS_CONFIG_DIR = Path("/tmp/docker-mailserver")
 DMS_LOGS_DIR = Path("/var/log/mail")
@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     dms_config_dir: Path = DMS_CONFIG_DIR
     dms_logs_dir: Path = DMS_LOGS_DIR
     bin_dir: Path = BIN_DIR
+    dms_version: str = PrivateAttr(default="Unknown")
 
     @property
     def database_accounts(self) -> Path:

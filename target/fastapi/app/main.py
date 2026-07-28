@@ -42,4 +42,4 @@ app.include_router(master_users.router, prefix="/api")
 
 @app.get("/api/health", tags=["health"])
 def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "ok", "version": settings.dms_version}
