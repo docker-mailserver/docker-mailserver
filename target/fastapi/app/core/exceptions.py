@@ -4,7 +4,12 @@ from fastapi.responses import JSONResponse
 from app.core.cli import CliCommandError
 
 _NOT_FOUND_MARKERS = ("does not exist",)
-_CONFLICT_MARKERS = ("already exists", "already an alias", "already defined as an alias")
+_CONFLICT_MARKERS = (
+    "already exists",
+    "already an alias",
+    "already defined as an alias",
+    "already denied",
+)
 
 
 def _status_code_for(message: str) -> int:
