@@ -3,9 +3,12 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, HTTPException, status
+from fastapi.security import APIKeyHeader
 
 from app.core.config import get_settings
+
+_api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 @lru_cache
@@ -29,7 +32,7 @@ def get_api_key() -> str:
     raise RuntimeError("No API key configured: set API_KEY or API_KEY_FILE")
 
 
-def require_api_key(x_api_key: Annotated[str | None, Header()] = None) -> None:
+def require_api_key(x_api_key: Annotated[str | None, Depends(_api_key_header)] = None) -> None:
     if x_api_key is None or not secrets.compare_digest(x_api_key, get_api_key()):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
