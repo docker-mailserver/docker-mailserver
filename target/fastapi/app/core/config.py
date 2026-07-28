@@ -51,6 +51,30 @@ class Settings(BaseSettings):
     def database_dovecot_masters(self) -> Path:
         return self.dms_config_dir / "dovecot-masters.cf"
 
+    @property
+    def fail2ban_jail_config(self) -> Path:
+        return self.dms_config_dir / "fail2ban-jail.cf"
+
+    @property
+    def fail2ban_config(self) -> Path:
+        return self.dms_config_dir / "fail2ban-fail2ban.cf"
+
+    @property
+    def database_relaymap(self) -> Path:
+        return self.dms_config_dir / "postfix-relaymap.cf"
+
+    @property
+    def database_sasl_password(self) -> Path:
+        return self.dms_config_dir / "postfix-sasl-password.cf"
+
+    @property
+    def postfix_main_cf(self) -> Path:
+        return self.dms_config_dir / "postfix-main.cf"
+
+    @property
+    def postfix_master_cf(self) -> Path:
+        return self.dms_config_dir / "postfix-master.cf"
+
 
 @lru_cache
 def get_settings() -> Settings:

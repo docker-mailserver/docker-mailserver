@@ -54,6 +54,8 @@ ${RED}[${ORANGE}SUB${RED}]${ORANGE}COMMANDS${RESET}
         setup relay ${CYAN}add-auth${RESET} <DOMAIN> <USERNAME> [<PASSWORD>]
         setup relay ${CYAN}add-domain${RESET} <DOMAIN> <HOST> [<PORT>]
         setup relay ${CYAN}exclude-domain${RESET} <DOMAIN>
+        setup relay ${CYAN}del-auth${RESET} <DOMAIN>
+        setup relay ${CYAN}del-domain${RESET} <DOMAIN>
 
     ${LBLUE}COMMAND${RESET} fail2ban ${RED}:=${RESET}
         setup fail2ban ${RESET}
@@ -142,6 +144,8 @@ function _main() {
         ( add-domain     ) shift 2 ; addrelayhost "${@}" ;;
         ( add-auth       ) shift 2 ; addsaslpassword "${@}" ;;
         ( exclude-domain ) shift 2 ; excluderelaydomain "${@}" ;;
+        ( del-domain     ) shift 2 ; delrelayhost "${@}" ;;
+        ( del-auth       ) shift 2 ; delsaslpassword "${@}" ;;
         ( *              ) _invalid_command "${@}" ;;
       esac
       ;;
