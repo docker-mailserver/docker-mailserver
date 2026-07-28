@@ -1,0 +1,18 @@
+[project]
+name = "mailserver-api"
+version = "1.0.0"
+description = "REST API for managing docker-mailserver mailboxes, aliases, quotas and Dovecot master users"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi[standard]>=0.139.0",
+  "pydantic-settings>=2.6.0",
+]
+
+[tool.fastapi]
+entrypoint = "app.main:app"
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
