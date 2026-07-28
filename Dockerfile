@@ -41,6 +41,20 @@ FROM stage-base AS stage-compile
 COPY target/scripts/build/compile.sh /build/
 RUN /bin/bash /build/compile.sh
 
+# -----------------------------------------------
+# --- FastAPI mailbox management API -------------
+# -----------------------------------------------
+
+# Builds the `uv`-managed venv for the optional REST API (ENABLE_API=1) in its own stage,
+# so that application code changes (target/fastapi/app) don't invalidate the dependency
+# installation layer. `python3` is already installed as part of `stage-base` (packages.sh).
+FROM stage-base AS stage-fastapi
+SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
+WORKDIR /opt/mailserver-api
+COPY target/fastapi/pyproject.toml target/fastapi/uv.lock /opt/mailserver-api/
+RUN uv sync --locked --python-preference only-system
+
 #
 # main stage provides all packages, config, and adds scripts
 #
@@ -243,6 +257,16 @@ COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
 COPY target/logwatch/ignore.conf /etc/logwatch/conf/ignore.conf
 
 # -----------------------------------------------
+# --- FastAPI mailbox management API -------------
+# -----------------------------------------------
+
+# Runs as root (like most DMS services, eg postfix/dovecot): the CLI tools it wraps
+# (`addmailuser`, ...) write to root-owned files under `/tmp/docker-mailserver`, the same
+# as when invoked via `docker exec <container> setup email add ...`.
+COPY --from=stage-fastapi /opt/mailserver-api /opt/mailserver-api
+COPY target/fastapi/app /opt/mailserver-api/app
+
+# -----------------------------------------------
 # --- Supervisord & Start -----------------------
 # -----------------------------------------------
 
@@ -280,7 +304,8 @@ ARG DMS_RELEASE=edge
 ARG VCS_REVISION=unknown
 
 WORKDIR /
-EXPOSE 25 587 143 465 993 110 995 4190
+# 8080: REST API (ENABLE_API=1), only listens when enabled
+EXPOSE 25 587 143 465 993 110 995 4190 8080
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
@@ -289,6 +314,7 @@ CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 # https://github.com/docker-mailserver/docker-mailserver/pull/676
 # These ENV are also configured with the same defaults at:
 # https://github.com/docker-mailserver/docker-mailserver/blob/672e9cf19a3bb1da309e8cea6ee728e58f905366/target/scripts/helpers/variables.sh
+ENV API_PORT=8080
 ENV FETCHMAIL_POLL=300
 ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
 ENV POSTGREY_DELAY=300
