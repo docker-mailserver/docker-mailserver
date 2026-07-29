@@ -12,12 +12,12 @@ SettingsDep = Annotated[Settings, Depends(get_settings)]
 router = APIRouter(prefix="/logs", tags=["logs"], dependencies=[Depends(require_api_key)])
 
 
-@router.get("")
+@router.get("", description="Lists the available DMS log files.")
 def list_logs(settings: SettingsDep) -> list[LogFile]:
     return log_service.list_logs(settings)
 
 
-@router.get("/{name}")
+@router.get("/{name}", description="Reads the trailing lines of a given log file.")
 def read_log(
     name: str,
     settings: SettingsDep,

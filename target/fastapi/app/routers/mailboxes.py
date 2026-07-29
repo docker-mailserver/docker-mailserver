@@ -16,24 +16,30 @@ router = APIRouter(
 )
 
 
-@router.get("")
+@router.get("", description="Lists all configured mailboxes.")
 def list_mailboxes(settings: SettingsDep) -> list[MailboxRead]:
     return mailbox_service.list_mailboxes(settings)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "", status_code=status.HTTP_201_CREATED, description="Creates a new mailbox with a password."
+)
 def create_mailbox(payload: MailboxCreate) -> MailboxRead:
     mailbox_service.create_mailbox(payload.email, payload.password)
     return MailboxRead(email=payload.email)
 
 
-@router.put("/{email}")
+@router.put("/{email}", description="Updates the password of an existing mailbox.")
 def update_mailbox(email: str, payload: MailboxUpdate) -> MailboxRead:
     mailbox_service.update_mailbox(email, payload.password)
     return MailboxRead(email=email)
 
 
-@router.delete("/{email}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{email}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Deletes a mailbox, optionally also deleting its stored mail data.",
+)
 def delete_mailbox(
     email: str,
     delete_data: Annotated[

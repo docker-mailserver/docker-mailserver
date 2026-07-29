@@ -10,6 +10,7 @@ router = APIRouter(prefix="/dkim", tags=["dkim"], dependencies=[Depends(require_
 @router.post(
     "/keys",
     status_code=status.HTTP_201_CREATED,
+    summary="Generate DKIM keys",
     description=(
         "Generates DKIM keys (OpenDKIM, or Rspamd if enabled without OpenDKIM). "
         "OpenDKIM-managed keys are only applied to /etc/opendkim on container startup, "

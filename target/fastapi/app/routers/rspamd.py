@@ -20,7 +20,10 @@ NamePath = Annotated[str, Path(pattern=FILENAME_PATTERN)]
 router = APIRouter(prefix="/rspamd", tags=["rspamd"], dependencies=[Depends(require_api_key)])
 
 
-@router.get("/custom-commands")
+@router.get(
+    "/custom-commands",
+    description="Reads the custom Rspamd directives configured through the DMS custom-commands file.",
+)
 def get_custom_commands(settings: SettingsDep) -> RspamdCustomCommandsRead:
     try:
         commands = rspamd_service.read_custom_commands(settings.rspamd_custom_commands_cf)
@@ -31,22 +34,33 @@ def get_custom_commands(settings: SettingsDep) -> RspamdCustomCommandsRead:
     return RspamdCustomCommandsRead(commands=commands)
 
 
-@router.put("/custom-commands", status_code=status.HTTP_204_NO_CONTENT)
+@router.put(
+    "/custom-commands",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Overwrites the custom Rspamd directives with the given list of commands.",
+)
 def set_custom_commands(payload: RspamdCustomCommandsWrite, settings: SettingsDep) -> None:
     rspamd_service.write_custom_commands(settings.rspamd_custom_commands_cf, payload.commands)
 
 
-@router.delete("/custom-commands", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/custom-commands",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Deletes the custom Rspamd directives file.",
+)
 def delete_custom_commands(settings: SettingsDep) -> None:
     rspamd_service.delete_custom_commands(settings.rspamd_custom_commands_cf)
 
 
-@router.get("/override.d")
+@router.get("/override.d", description="Lists the files present in Rspamd's override.d directory.")
 def list_override_files(settings: SettingsDep) -> list[RspamdOverrideFile]:
     return rspamd_service.list_override_files(settings.rspamd_override_d)
 
 
-@router.get("/override.d/{name}")
+@router.get(
+    "/override.d/{name}",
+    description="Reads the raw content of a file in Rspamd's override.d directory.",
+)
 def get_override_file(name: NamePath, settings: SettingsDep) -> RspamdOverrideFileRead:
     path = rspamd_service.resolve_override_path(settings.rspamd_override_d, name)
     if path is None:
@@ -55,14 +69,22 @@ def get_override_file(name: NamePath, settings: SettingsDep) -> RspamdOverrideFi
     return RspamdOverrideFileRead(name=name, content=rspamd_service.read_override_file(path))
 
 
-@router.put("/override.d/{name}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put(
+    "/override.d/{name}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Creates or overwrites a file in Rspamd's override.d directory.",
+)
 def set_override_file(
     name: NamePath, payload: RspamdOverrideFileWrite, settings: SettingsDep
 ) -> None:
     rspamd_service.write_override_file(settings.rspamd_override_d, name, payload.content)
 
 
-@router.delete("/override.d/{name}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/override.d/{name}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Deletes a file from Rspamd's override.d directory.",
+)
 def delete_override_file(name: NamePath, settings: SettingsDep) -> None:
     path = rspamd_service.resolve_override_path(settings.rspamd_override_d, name)
     if path is not None:

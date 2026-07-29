@@ -16,7 +16,10 @@ router = APIRouter(
 )
 
 
-@router.get("")
+@router.get(
+    "",
+    description="Reads the DMS environment variables currently configured for the container.",
+)
 def get_environment(settings: SettingsDep) -> EnvironmentRead:
     variables = environment_service.read_variables(settings.dms_settings_file)
     return EnvironmentRead(variables=variables)

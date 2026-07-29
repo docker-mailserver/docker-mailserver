@@ -25,29 +25,44 @@ router = APIRouter(
 )
 
 
-@router.get("/main")
+@router.get("/main", description="Lists all overridden parameters in postfix's main.cf.")
 def list_main_overrides(settings: SettingsDep) -> list[PostfixMainOverrideRead]:
     return postfix_override_service.list_main_overrides(settings.postfix_main_cf)
 
 
-@router.put("/main/{parameter}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put(
+    "/main/{parameter}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Sets (or overwrites) the value of a parameter override in postfix's main.cf.",
+)
 def set_main_override(
     parameter: ParameterPath, payload: PostfixOverrideValue, settings: SettingsDep
 ) -> None:
     postfix_override_service.set_main_override(settings.postfix_main_cf, parameter, payload.value)
 
 
-@router.delete("/main/{parameter}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/main/{parameter}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Removes a parameter override from postfix's main.cf.",
+)
 def delete_main_override(parameter: ParameterPath, settings: SettingsDep) -> None:
     postfix_override_service.delete_main_override(settings.postfix_main_cf, parameter)
 
 
-@router.get("/master")
+@router.get("/master", description="Lists all overridden parameters in postfix's master.cf.")
 def list_master_overrides(settings: SettingsDep) -> list[PostfixMasterOverrideRead]:
     return postfix_override_service.list_master_overrides(settings.postfix_master_cf)
 
 
-@router.put("/master/{service}/{type}/{parameter}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put(
+    "/master/{service}/{type}/{parameter}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description=(
+        "Sets (or overwrites) the value of a parameter override for a given service/type "
+        "entry in postfix's master.cf."
+    ),
+)
 def set_master_override(
     service: ServicePath,
     type_: TypePath,
@@ -60,7 +75,13 @@ def set_master_override(
     )
 
 
-@router.delete("/master/{service}/{type}/{parameter}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/master/{service}/{type}/{parameter}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description=(
+        "Removes a parameter override for a given service/type entry in postfix's master.cf."
+    ),
+)
 def delete_master_override(
     service: ServicePath, type_: TypePath, parameter: ParameterPath, settings: SettingsDep
 ) -> None:

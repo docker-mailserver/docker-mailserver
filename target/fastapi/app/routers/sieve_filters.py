@@ -16,31 +16,53 @@ router = APIRouter(
 )
 
 
-@router.get("/before")
+@router.get(
+    "/before",
+    description="Reads the raw content of the global Sieve filter applied before user filters.",
+)
 def get_before_filter(settings: SettingsDep) -> SieveFilterRead:
     return SieveFilterRead(content=sieve_filter_service.read_filter(settings.dovecot_sieve_before))
 
 
-@router.put("/before", status_code=status.HTTP_204_NO_CONTENT)
+@router.put(
+    "/before",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Overwrites the global Sieve filter applied before user filters.",
+)
 def set_before_filter(payload: SieveFilterWrite, settings: SettingsDep) -> None:
     sieve_filter_service.write_filter(settings.dovecot_sieve_before, payload.content)
 
 
-@router.delete("/before", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/before",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Deletes the global Sieve filter applied before user filters.",
+)
 def delete_before_filter(settings: SettingsDep) -> None:
     sieve_filter_service.delete_filter(settings.dovecot_sieve_before)
 
 
-@router.get("/after")
+@router.get(
+    "/after",
+    description="Reads the raw content of the global Sieve filter applied after user filters.",
+)
 def get_after_filter(settings: SettingsDep) -> SieveFilterRead:
     return SieveFilterRead(content=sieve_filter_service.read_filter(settings.dovecot_sieve_after))
 
 
-@router.put("/after", status_code=status.HTTP_204_NO_CONTENT)
+@router.put(
+    "/after",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Overwrites the global Sieve filter applied after user filters.",
+)
 def set_after_filter(payload: SieveFilterWrite, settings: SettingsDep) -> None:
     sieve_filter_service.write_filter(settings.dovecot_sieve_after, payload.content)
 
 
-@router.delete("/after", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/after",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Deletes the global Sieve filter applied after user filters.",
+)
 def delete_after_filter(settings: SettingsDep) -> None:
     sieve_filter_service.delete_filter(settings.dovecot_sieve_after)

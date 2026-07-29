@@ -17,22 +17,28 @@ def _require_known_service(status_: ServiceStatus | None, name: str) -> ServiceS
     return status_
 
 
-@router.get("")
+@router.get("", description="Lists all services managed by supervisord and their current status.")
 def list_services() -> list[ServiceStatus]:
     return supervisor_service.list_services()
 
 
-@router.get("/{name}")
+@router.get("/{name}", description="Reads the current status of a single supervisord service.")
 def read_service(name: str) -> ServiceStatus:
     return _require_known_service(supervisor_service.get_service(name), name)
 
 
-@router.post("/{name}/start")
+@router.post("/{name}/start", description="Starts a stopped supervisord service.")
 def start_service(name: str) -> ServiceStatus:
     return _require_known_service(supervisor_service.start_service(name), name)
 
 
-@router.post("/{name}/stop")
+@router.post(
+    "/{name}/stop",
+    description=(
+        "Stops a running supervisord service. The API's own service cannot be stopped "
+        "through this endpoint."
+    ),
+)
 def stop_service(name: str) -> ServiceStatus:
     if name == _SELF_PROGRAM_NAME:
         raise HTTPException(
@@ -41,7 +47,13 @@ def stop_service(name: str) -> ServiceStatus:
     return _require_known_service(supervisor_service.stop_service(name), name)
 
 
-@router.post("/{name}/restart")
+@router.post(
+    "/{name}/restart",
+    description=(
+        "Restarts a supervisord service. The API's own service cannot be restarted "
+        "through this endpoint."
+    ),
+)
 def restart_service(name: str) -> ServiceStatus:
     if name == _SELF_PROGRAM_NAME:
         raise HTTPException(

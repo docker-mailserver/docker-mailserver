@@ -16,23 +16,31 @@ router = APIRouter(
 )
 
 
-@router.get("")
+@router.get("", description="Lists all configured Dovecot master users.")
 def list_master_users(settings: SettingsDep) -> list[MasterUserRead]:
     return master_user_service.list_master_users(settings)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    status_code=status.HTTP_201_CREATED,
+    description="Creates a new Dovecot master user with a password.",
+)
 def create_master_user(payload: MasterUserCreate) -> MasterUserRead:
     master_user_service.create_master_user(payload.username, payload.password)
     return MasterUserRead(username=payload.username)
 
 
-@router.put("/{username}")
+@router.put("/{username}", description="Updates the password of an existing master user.")
 def update_master_user(username: str, payload: MasterUserUpdate) -> MasterUserRead:
     master_user_service.update_master_user(username, payload.password)
     return MasterUserRead(username=username)
 
 
-@router.delete("/{username}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{username}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Deletes a master user.",
+)
 def delete_master_user(username: str) -> None:
     master_user_service.delete_master_user(username)
