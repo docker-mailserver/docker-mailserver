@@ -325,6 +325,7 @@ CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 # https://github.com/docker-mailserver/docker-mailserver/blob/672e9cf19a3bb1da309e8cea6ee728e58f905366/target/scripts/helpers/variables.sh
 ENV API_PORT=8080
 ENV API_DEBUG=0
+ENV API_TLS=auto
 ENV FETCHMAIL_POLL=300
 ENV POSTGREY_AUTO_WHITELIST_CLIENTS=5
 ENV POSTGREY_DELAY=300

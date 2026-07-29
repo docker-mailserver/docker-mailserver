@@ -391,6 +391,14 @@ Serves interactive API docs (Swagger UI) at `/api/docs` when `ENABLE_API=1`.
 
 Wraps the API process with a [`debugpy`](https://github.com/microsoft/debugpy) listener on port `5678` and pauses startup until a debugger attaches. Only takes effect when `ENABLE_API=1` **and** the image was built with `--build-arg API_DEBUG=1` (the default build omits the `debugpy` dependency entirely). Intended for local development only, not for production images.
 
+##### API_TLS
+
+- **auto** => Serve HTTPS when [`SSL_TYPE`](#ssl_type) resolved a certificate (including via Traefik's `acme.json`), plain HTTP otherwise.
+- 1 => Always serve HTTPS. Startup fails if no certificate was resolved.
+- 0 => Always serve plain HTTP, even if a certificate was resolved. Use this if TLS is already terminated in front of the API (eg. by a reverse proxy).
+
+Only takes effect when `ENABLE_API=1`. Reuses the same certificate `SSL_TYPE` set up for Postfix/Dovecot; there is no separate certificate configuration for the API.
+
 ##### MOVE_SPAM_TO_JUNK
 
 - 0 => Spam messages will be delivered to the inbox.

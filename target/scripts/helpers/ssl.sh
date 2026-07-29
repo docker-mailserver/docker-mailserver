@@ -54,6 +54,12 @@ function _setup_ssl() {
       -e "s|^(ssl_key =).*|\1 <${DOVECOT_KEY}|" \
       -e "s|^(ssl_cert =).*|\1 <${DOVECOT_CERT}|" \
       "${DOVECOT_CONFIG_SSL}"
+
+    # Expose the resolved certificate under a fixed path/name, regardless of which
+    # `SSL_TYPE` produced it, so the REST API (ENABLE_API=1) can optionally serve
+    # over TLS with it too. See `_setup_api_tls`.
+    ln -sf "${DOVECOT_KEY}" "${DMS_TLS_PATH}/api-key.pem"
+    ln -sf "${DOVECOT_CERT}" "${DMS_TLS_PATH}/api-cert.pem"
   }
 
   # Enables supporting two certificate types such as ECDSA with an RSA fallback
@@ -379,6 +385,29 @@ function _setup_ssl() {
   esac
 }
 
+# Decides (via `API_TLS`) whether the REST API (ENABLE_API=1) is allowed to serve over TLS
+# using the certificate `_setup_ssl` resolved (symlinked to `/etc/dms/tls/api-{key,cert}.pem`).
+# The actual decision at process start is made by the `fastapi-api` supervisor program, based
+# on `API_TLS` and whether that symlinked certificate exists; this only validates the ENV and
+# fails startup early if `API_TLS=1` was requested but no certificate could be resolved.
+function _setup_api_tls() {
+  local DMS_TLS_PATH='/etc/dms/tls'
+
+  case "${API_TLS}" in
+    ( 'auto' | '0' ) ;;
+
+    ( '1' )
+      if [[ ! -f ${DMS_TLS_PATH}/api-key.pem ]] || [[ ! -f ${DMS_TLS_PATH}/api-cert.pem ]]; then
+        _dms_panic__no_file "${DMS_TLS_PATH}/api-key.pem or ${DMS_TLS_PATH}/api-cert.pem (no certificate was resolved, check 'SSL_TYPE')" "API_TLS=1"
+      fi
+      ;;
+
+    ( * )
+      _dms_panic__invalid_value 'API_TLS'
+      ;;
+
+  esac
+}
 
 # Identify a valid letsencrypt FQDN folder to use.
 function _find_letsencrypt_domain() {

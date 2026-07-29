@@ -86,6 +86,7 @@ function _register_functions() {
   _register_setup_function '_setup_rspamd'
 
   _register_setup_function '_setup_ssl'
+  [[ ${ENABLE_API} -eq 1 ]] && _register_setup_function '_setup_api_tls'
   _register_setup_function '_setup_docker_permit'
   _register_setup_function '_setup_mailname'
 

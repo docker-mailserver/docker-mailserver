@@ -117,8 +117,11 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_SRS]="${ENABLE_SRS:=0}"
   VARS[ENABLE_UPDATE_CHECK]="${ENABLE_UPDATE_CHECK:=1}"
 
+  _log 'trace' 'Setting API environment variables'
+
   VARS[API_PORT]="${API_PORT:=8080}"
   VARS[API_SWAGGER_ENABLED]="${API_SWAGGER_ENABLED:=0}"
+  VARS[API_TLS]="${API_TLS:=auto}"
 
   _log 'trace' 'Setting IP, DNS and SSL environment variables'
 
