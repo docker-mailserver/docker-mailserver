@@ -5,7 +5,7 @@ dnpass              = admin
 uris                = ldap://mail.example.com
 tls                 = no
 ldap_version        = 3
-pass_attrs          = uniqueIdentifier=user,userPassword=password
+pass_attrs          = uniqueIdentifier=user,userPassword=password,krbPrincipalName=k5principals
 pass_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
 user_attrs          = mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
 user_filter         = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
