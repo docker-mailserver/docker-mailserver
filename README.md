@@ -45,7 +45,7 @@ A production-ready fullstack but simple containerized mail server (SMTP, IMAP, L
 - [SpamAssassin](http://spamassassin.apache.org/) supporting custom rules
 - [ClamAV](https://www.clamav.net/) with automatic updates
 - [OpenDKIM](http://www.opendkim.org) & [OpenDMARC](https://github.com/trusteddomainproject/OpenDMARC)
-- [Fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page)
+- [Fail2ban](https://www.fail2ban.org/)
 - [Fetchmail](http://www.fetchmail.info/fetchmail-man.html)
 - [Getmail6](https://getmail6.org/documentation.html)
 - [Postscreen](http://www.postfix.org/POSTSCREEN_README.html)
