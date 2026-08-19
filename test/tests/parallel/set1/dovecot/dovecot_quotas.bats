@@ -205,11 +205,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
-# ! Current problem: 2026-02-15T15:10:04.938804+00:00 mail dovecot: lmtp(quotauser@otherdomain.tld)<1751><50XRNczhkWnXBgAAUi6ngw>: Error: quota-count: quota_warning warn-80: execute unix:/run/dovecot/quota-warning: net_connect_unix(/run/dovecot/quota-warning) failed: Permission denied (euid=5000(docker) egid=5000(docker) missing +r perm: /run/dovecot/quota-warning, dir owned by 0:0 mode=0755)
-# TODO needs adjustments in target/dovecot/90-quota.conf
 @test 'should receive a warning mail from Dovecot when quota is exceeded' {
-  skip 'disabled as it does not work currently (quota settings need adjustments)'
-
   # Prepare
   _add_mail_account_then_wait_until_ready 'quotauser@otherdomain.tld'
 

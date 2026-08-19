@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Report a quota usage warning to an user
+# Report a quota usage warning to a user.
+# Dovecot invokes this as: <percent-or-below> %{user}
 
 PERCENT="${1}"
 USER="${2}"
-DOMAIN="${3}"
+DOMAIN="${USER#*@}"
 
-cat << EOF | /usr/lib/dovecot/dovecot-lda -d "${USER}" -o "plugin/quota=maildir:User quota:noenforcing"
+cat << EOF | /usr/lib/dovecot/dovecot-lda -d "${USER}" -o quota_enforce=no
 From: postmaster@${DOMAIN}
 Subject: quota warning
 
