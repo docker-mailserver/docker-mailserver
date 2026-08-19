@@ -6,6 +6,30 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+> [!note]
+>
+> This release updates the base image from Debian 12 to Debian 13 (Dovecot 2.3 → 2.4). Review custom Dovecot and LDAP config before upgrading.
+
+### Updated
+
+- **Base Image**
+  - the base image has been updated from Debian 12 to Debian 13 ([#4536](https://github.com/docker-mailserver/docker-mailserver/pull/4536))
+- **Documentation:**
+  - The maintenance page (covering `watchtower` guidance) was revised and migrated to direct users to the maintained community fork [`nicholas-fedor/watchtower`](https://github.com/nicholas-fedor/watchtower) ([#4641](https://github.com/docker-mailserver/docker-mailserver/pull/4641))
+  - Clarified summary of `postfix-master.cf` file ([#4727](https://github.com/docker-mailserver/docker-mailserver/pull/4727))
+- **Internal:**
+  - Aligning with the change in upstream Debian, APT package repositories added by DMS have migrated the format from `.list` to `.sources` ([DEB822](https://repolib.readthedocs.io/en/latest/deb822-format.html)) ([#4556](https://github.com/docker-mailserver/docker-mailserver/pull/4556))
+  - Third-party sourced CLI tools updated ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557)):
+    - `jaq` from `2.1.0` to [`2.3.0`](https://github.com/01mf02/jaq/releases/tag/v2.3.0)
+    - `step` CLI from `0.28.2` to [`0.28.7`](https://github.com/smallstep/cli/releases/tag/v0.28.7))
+  - DMS logs now all output to STDERR (formerly only warning/error logs) (#[4586](https://github.com/docker-mailserver/docker-mailserver/pull/4586))
+- **Dovecot**
+  - Upgraded from 2.3 to 2.4. Custom `dovecot.cf` using 2.3 syntax will not load ([#4536](https://github.com/docker-mailserver/docker-mailserver/pull/4536))
+  - LDAP: `mailStorageDirectory` is now a filesystem path only (drop the `maildir:` prefix); Dovecot maps it to `mail_path` instead of `mail`
+  - Updated the FTS plugin Xapian from `1.9` to [`1.9.1`](https://github.com/grosjo/fts-xapian/releases/tag/1.9.1) which adds Dovecot 2.4 compatibility ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557))
+- **Postfix**
+  - Replaced `disable_dns_lookups` with `smtp_dns_support_level` in Amavis configuration ([#4568](https://github.com/docker-mailserver/docker-mailserver/pull/4568))
+
 ### Fixed
 
 - **Rspamd:**
@@ -27,22 +51,6 @@ All notable changes to this project will be documented in this file. The format 
 
 - **SpamAssassin:**
   - Removed Pyzor + Razor due to maintenance concerns. From observations it is unlikely to have any notable regression ([#4548](https://github.com/docker-mailserver/docker-mailserver/pull/4548))
-
-### Updated
-
-- **Documentation:**
-  - The maintenance page (covering `watchtower` guidance) was revised and migrated to direct users to the maintained community fork [`nicholas-fedor/watchtower`](https://github.com/nicholas-fedor/watchtower) ([#4641](https://github.com/docker-mailserver/docker-mailserver/pull/4641))
-  - Clarified summary of `postfix-master.cf` file ([#4727](https://github.com/docker-mailserver/docker-mailserver/pull/4727))
-- **Internal:**
-  - Aligning with the change in upstream Debian, APT package repositories added by DMS have migrated the format from `.list` to `.sources` ([DEB822](https://repolib.readthedocs.io/en/latest/deb822-format.html)) ([#4556](https://github.com/docker-mailserver/docker-mailserver/pull/4556))
-  - Third-party sourced CLI tools updated ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557)):
-    - `jaq` from `2.1.0` to [`2.3.0`](https://github.com/01mf02/jaq/releases/tag/v2.3.0)
-    - `step` CLI from `0.28.2` to [`0.28.7`](https://github.com/smallstep/cli/releases/tag/v0.28.7))
-  - DMS logs now all output to STDERR (formerly only warning/error logs) (#[4586](https://github.com/docker-mailserver/docker-mailserver/pull/4586))
-- **Dovecot**
-  - Updated the FTS plugin Xapian from `1.9` to [`1.9.1`](https://github.com/grosjo/fts-xapian/releases/tag/1.9.1) which adds Dovecot 2.4 compatibility ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557))
-- **Postfix**
-  - Replaced `disable_dns_lookups` with `smtp_dns_support_level` in Amavis configuration ([#4568](https://github.com/docker-mailserver/docker-mailserver/pull/4568))
 
 ## [v15.1.0](https://github.com/docker-mailserver/docker-mailserver/compare/v15.1.0...HEAD)
 
