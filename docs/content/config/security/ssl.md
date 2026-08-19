@@ -134,7 +134,6 @@ Certbot provisions certificates to `/etc/letsencrypt`. Add a volume to store the
     ```
 
     This process can also be [automated via _cron_ or _systemd timers_][certbot::automated-renewal].
-    
     - [Example with a systemd timer][certbot::automated-renewal::example-systemd-timer]
 
 !!! note "Using a different ACME CA"
@@ -1020,7 +1019,6 @@ To restore DHE for Dovecot, or to pin Postfix to a specific group, provide a PEM
     ```
 
     ??? tip "When using Docker Compose `configs` - YAML syntax importance of using `content: |-`"
-        
         The `dh-params-2048` content above has YAML syntax of `|-` instead of `|`, this is not required but avoids adding a newline to the file content.
 
         Thus avoiding an extra newline appended to the file content is important if you care to verify integrity:
@@ -1047,12 +1045,11 @@ sed -i -r "s|^ssl_cipher_list.*|ssl_cipher_list = $(doveconf -h ssl_cipher_list)
     The defaults for DH parameters since DMS v16 are:
 
     - **Postfix:** `smtpd_tls_dh1024_param_file` is not set
-       - [Since Postfix 3.7 + OpenSSL 3.0][tls-dh-postfix-3p7] (from DMS v14 onwards), Postfix will continue to support negotiating DHE cipher suites for TLS 1.2 (or below) by sourcing RFC 7919 FFDHE parameters from OpenSSL.
-       - Prior to Postfix 3.7 if this setting were unset, Postfix would fallback to a 2048-bit FFDHE parameter file it shipped with internally.
+        - [Since Postfix 3.7 + OpenSSL 3.0][tls-dh-postfix-3p7] (from DMS v14 onwards), Postfix will continue to support negotiating DHE cipher suites for TLS 1.2 (or below) by sourcing RFC 7919 FFDHE parameters from OpenSSL.
+        - Prior to Postfix 3.7 if this setting were unset, Postfix would fallback to a 2048-bit FFDHE parameter file it shipped with internally.
     - **Dovecot:** `ssl_server_dh_file` is not set (_Dovecot has no OpenSSL FFDHE fallback_)
 
     When `ssl_server_dh_file` is unset, DHE cipher suites will still be offered to clients for negotiation if the Dovecot cipher list (`ssl_cipher_list`) includes any.
-    
     This misconfiguration [prevents affected clients from connecting over TLS][tls::dovecot-dhe-fail] and affects the accuracy of findings reported by tools like `testssl.sh`, as the connection failure does not provide adequate context to detect the issue properly.
 
     To avoid this mishap with Dovecot configuration, ensure that the `ssl_cipher_list` setting value excludes DHE cipher suites by appending `!kDHE` (_as shown in the earlier example with `user-patches.sh` or a [manual config override][docs::dms-override-config::dovecot]_).
