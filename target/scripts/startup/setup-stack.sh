@@ -90,7 +90,7 @@ function _setup_directory_and_file_permissions() {
   touch /dev/shm/supervisor.sock
 
   _log 'debug' 'Checking /var/mail permissions'
-  if ! _chown_var_mail_if_necessary; then
+  if ! _chown_var_mail; then
     _dms_panic__general 'Failed to fix /var/mail permissions'
   fi
 
