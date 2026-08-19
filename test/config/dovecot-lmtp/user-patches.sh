@@ -9,7 +9,7 @@ echo "[user-patches.sh] Changing Dovecot LMTP service listener from a unix socke
 cat >/etc/dovecot/conf.d/lmtp-master.inc << EOF
 service lmtp {
   inet_listener lmtp {
-    address = 127.0.0.1
+    listen = 127.0.0.1
     port = 24
   }
 }
@@ -26,7 +26,7 @@ EOF
 
 # service lmtp {
 #   inet_listener lmtp {
-#     address = 127.0.0.1
+#     listen = 127.0.0.1
 #     port = 24
 #   }
 # }

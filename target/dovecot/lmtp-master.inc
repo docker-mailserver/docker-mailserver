@@ -7,7 +7,7 @@ service lmtp {
   # Create inet listener only if you can't use the above UNIX socket
   # and avoid making LMTP visible for the entire internet
   #inet_listener lmtp {
-  #  address = 127.0.0.1
+  #  listen = 127.0.0.1
   #  port = 24
   #}
 }

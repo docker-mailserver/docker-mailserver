@@ -1,14 +1,26 @@
-# Allow clients to use these additional mechanisms:
-auth_mechanisms = $auth_mechanisms oauthbearer xoauth2
-
-# Dovecot docs consider the oauth2 driver as a "success/failure" type PassDB:
-# https://doc.dovecot.org/configuration_manual/authentication/password_databases_passdb/#success-failure-database
-# Which implies it cannot be configured for the non-plaintext SASL mechanisms listed here:
-# https://doc.dovecot.org/configuration_manual/authentication/authentication_mechanisms/#dovecot-supports-the-following-non-plaintext-mechanisms
+# The OAuth2 driver is a so-called "Success/Failure Database".
+# These databases simply verify if the given password is correct
+# for the user. Dovecot doesn't get the correct password from the
+# database, it only gets a success or a failure reply. This means
+# that these databases can't be used with non-cleartext
+# authentication mechanisms.
+#
+# This implies it cannot be configured for the non-plaintext SASL
+# mechanisms listed here: https://doc.dovecot.org/2.4.3/developers/design/auth_process.html#password-databases
+#
+# TODO check if still valid
 # However that is not the case, these mechanisms are still valid to prevent trying other incompatible mechanisms (like `plain`).
+#
+# REF https://doc.dovecot.org/2.4.3/core/config/auth/passdb.html#success-failure-database
+#     https://doc.dovecot.org/2.4.3/core/config/auth/databases/oauth2.html#open-authentication-v2-0-database-oauth2
 
-passdb {
-    driver = oauth2
-    mechanisms = xoauth2 oauthbearer
-    args = /etc/dovecot/dovecot-oauth2.conf.ext
+auth_mechanisms {
+  oauthbearer = yes
+  xoauth2 = yes
+}
+
+oauth2 {
+    introspection_url =
+    introspection_mode = auth
+    username_attribute = email
 }

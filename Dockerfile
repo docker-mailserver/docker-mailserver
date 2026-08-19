@@ -7,7 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG DOVECOT_COMMUNITY_REPO=0
 ARG LOG_LEVEL=trace
 
-FROM docker.io/debian:12-slim AS stage-base
+FROM docker.io/debian:13-slim AS stage-base
 
 ARG DEBIAN_FRONTEND
 ARG DOVECOT_COMMUNITY_REPO
@@ -19,12 +19,7 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # --- Install Basic Software --------------------
 # -----------------------------------------------
 
-COPY target/bin/sedfile /usr/local/bin/sedfile
-RUN <<EOF
-  chmod +x /usr/local/bin/sedfile
-  adduser --quiet --system --group --disabled-password --home /var/lib/clamav --no-create-home --uid 200 clamav
-EOF
-
+COPY --chmod=+x target/bin/sedfile /usr/local/bin/sedfile
 COPY target/scripts/build/packages.sh /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
@@ -62,6 +57,7 @@ RUN <<EOF
   # `COPY --link --chown=200` has a bug when built by the buildx docker-container driver.
   # Restore ownership of parent dirs (Bug: https://github.com/moby/buildkit/issues/3912)
   chown root:root /var /var/lib
+
   echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam
   chmod 644 /etc/clamav/freshclam.conf
   sedfile -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf
@@ -92,14 +88,12 @@ COPY target/rspamd/local.d/ /etc/rspamd/local.d/
 # --- OAUTH2 ------------------------------------
 # -----------------------------------------------
 
-COPY target/dovecot/dovecot-oauth2.conf.ext /etc/dovecot
 COPY target/dovecot/auth-oauth2.conf.ext /etc/dovecot/conf.d
 
 # -----------------------------------------------
 # --- LDAP & SpamAssassin's Cron ----------------
 # -----------------------------------------------
 
-COPY target/dovecot/dovecot-ldap.conf.ext /etc/dovecot
 COPY target/dovecot/auth-ldap.conf.ext /etc/dovecot/conf.d
 COPY \
   target/postfix/ldap-users.cf \
@@ -186,7 +180,7 @@ COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
 
 # DH parameters for DHE cipher suites, ffdhe4096 is the official standard 4096-bit DH params now part of TLS 1.3
 # This file is for TLS <1.3 handshakes that rely on DHE cipher suites
-# Handled at build to avoid failures by doveadm validating ssl_dh filepath in 10-ssl.auth (eg generate-accounts)
+# Handled at build to avoid failures by doveadm validating ssl_server_dh_file filepath in 10-ssl.auth (eg generate-accounts)
 COPY target/shared/ffdhe4096.pem /etc/postfix/dhparams.pem
 COPY target/shared/ffdhe4096.pem /etc/dovecot/dh.pem
 

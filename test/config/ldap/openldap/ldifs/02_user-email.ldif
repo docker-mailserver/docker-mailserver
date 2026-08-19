@@ -13,7 +13,7 @@ mail: some.user@localhost.localdomain
 mailAlias: postmaster@localhost.localdomain
 mailGroupMember: employees@localhost.localdomain
 mailHomeDirectory: /var/mail/localhost.localdomain/some.user/
-mailStorageDirectory: maildir:/var/mail/localhost.localdomain/some.user/
+mailStorageDirectory: /var/mail/localhost.localdomain/some.user/
 # postfix-book.schema generic options:
 mailEnabled: TRUE
 mailUidNumber: 5000
