@@ -110,6 +110,7 @@ function _setup_dovecot_sieve() {
 
   if [[ ${ENABLE_MANAGESIEVE} -eq 1 ]]; then
     _log 'trace' 'Sieve management enabled'
+    sedfile -i -E 's|^(protocols =.*)|\1 sieve|' /etc/dovecot/dovecot.conf
   else
     # make sure the default configuration does not enable managesieve
     sedfile -i -E 's|( *sieve =).*|\1 no|' /etc/dovecot/conf.d/20-managesieve.conf
