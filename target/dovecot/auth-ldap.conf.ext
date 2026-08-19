@@ -9,6 +9,7 @@ ldap_uris             = ldap://mail.example.com
 ldap_base             = ou=people,dc=example,dc=com
 ldap_auth_dn          = cn=admin,dc=example,dc=com
 ldap_auth_dn_password = secret
+ldap_starttls         = no
 
 # TODO: Add breaking change after migration to Dovecot 2.4 is completed.
 # The `filter` setting for both passdb + userdb config below should be changed (`uniqueIdentifier` => `userID`) to:

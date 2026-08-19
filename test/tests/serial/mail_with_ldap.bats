@@ -267,6 +267,7 @@ function teardown() {
     "ldap_uris = ldap://${FQDN_LDAP}" # ldap://ldap.example.test
     'ldap_base = ou=users,dc=example,dc=test'
     'ldap_auth_dn = cn=admin,dc=example,dc=test'
+    'ldap_starttls = no'
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_DOVECOT[@]}"; do
