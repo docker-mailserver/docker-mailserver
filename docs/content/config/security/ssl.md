@@ -920,7 +920,7 @@ ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM
 ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256
 ```
 
-For clarity, the permitted [cipher suites][wikipedia::cipher-suites] are comprised of the components:
+For clarity, the permitted [cipher suites][tls::cipher-suites] are comprised of the components:
 
 - **Key-Exchange:** ECDHE + DHE
 - **Authentication:** RSA + ECDSA (_depending on the key type of your TLS certificate(s)_)
@@ -947,7 +947,7 @@ These are the additional cipher suites supported via `TLS_LEVEL=intermediate`, t
     DMS defaults to server preference when negotiating TLS 1.2 (or lower when configured):
 
     - **Postfix:** `tls_preempt_cipherlist = yes`
-    - **Dovecot:** `ssl_server_prefer_ciphers = server` (_Prior to DMS v16, the equialent setting for Dovecot 2.3 was `ssl_prefer_server_ciphers = yes`_)
+    - **Dovecot:** `ssl_server_prefer_ciphers = server` (_Prior to DMS v16, the equivalent setting for Dovecot 2.3 was `ssl_prefer_server_ciphers = yes`_)
 
     Server preference prioritizes cipher suites by these factors:
 
@@ -961,16 +961,6 @@ These are the additional cipher suites supported via `TLS_LEVEL=intermediate`, t
     - `TLS_LEVEL=modern` only offers cipher suites that use AEAD ciphers.
     - `TLS_LEVEL=intermediate` additionally includes AES-CBC ciphers (non-AEAD) that are known to be secure (_but have historically had related cipher suites with a variety of vulnerabilities_).
     - Port 25 has an even broader cipher list configured than `TLS_LEVEL=intermediate`, but have likewise been filtered to cipher suites that should be safe. As this port for public ingress is expected to not enforce TLS, there is less value controlling the cipherlist.
-
-    The main benefit from client preference is that the client can choose which cipher suite is most optimal / efficient for it to use (_Most commonly this would be for devices that would prefer a `CHACHA20-POLY1305` or `CCM` cipher_).
-
-    ---
-
-    Client preference should be ok to enable with the cipher lists configured by DMS.
-
-    - `TLS_LEVEL=modern` only offers cipher suites that use AEAD ciphers.
-    - `TLS_LEVEL=intermediate` additionally includes AES-CBC ciphers that are known to be secure, but have historically had a variety of vulnerabilities.
-    - Port 25 has an even broader cipher list configured than `TLS_LEVEL=intermediate`, but likewise should be fairly secure to permit client preference.
 
     The main benefit from client preference is that the client can choose which cipher suite is most optimal / efficient for it to use (_Most commonly this would be for devices that would prefer a `CHACHA20-POLY1305` or `CCM` cipher_).
 
