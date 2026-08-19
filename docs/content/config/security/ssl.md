@@ -1048,8 +1048,8 @@ To restore DHE for Dovecot, or to pin Postfix to a specific group, provide a PEM
 DMS already leaves DH parameter files unset. Dovecot still lists DHE cipher suites in `ssl_cipher_list`; exclude them via [our `user-patches.sh` feature][docs::dms-override-config::user-patches] with this command:
 
 ```bash
-# Replace the matched line with the output of `doveconf ssl_cipher_list` + append `:!kDHE` to the end (excludes cipher suites using the DHE key-exchange):
-sed -i -r "s|^ssl_cipher_list.*|$(doveconf ssl_cipher_list):\!kDHE|" /etc/dovecot/conf.d/10-ssl.conf
+# Append `:!kDHE` so Dovecot will not offer DHE cipher suites:
+sed -i -r "s|^ssl_cipher_list.*|ssl_cipher_list = $(doveconf -h ssl_cipher_list):\!kDHE|" /etc/dovecot/conf.d/10-ssl.conf
 ```
 
 ??? abstract "Technical Details - Opt-out of DH parameters does not prevent offering DHE cipher suites"
