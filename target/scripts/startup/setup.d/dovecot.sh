@@ -144,7 +144,7 @@ EOF
 
 sieve_script global_after {
     type = after
-    path = /usr/lib/dovecot/sieve-global/before/50-after.dovecot.sieve
+    path = /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
 }
 EOF
   fi
