@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file. The format 
   - DMS logs now all output to STDERR (formerly only warning/error logs) (#[4586](https://github.com/docker-mailserver/docker-mailserver/pull/4586))
 - **Dovecot**
   - Upgraded from 2.3 to 2.4. Custom `dovecot.cf` using 2.3 syntax will not load ([#4536](https://github.com/docker-mailserver/docker-mailserver/pull/4536))
+  - Quota grace remains 10% of each mailbox. Dovecot 2.4 `quota_storage_grace` is a size (not a percentage), so per-user quotas now set it explicitly
   - LDAP: `mailStorageDirectory` is now a filesystem path only (drop the `maildir:` prefix); Dovecot maps it to `mail_path` instead of `mail`
   - Updated the FTS plugin Xapian from `1.9` to [`1.9.1`](https://github.com/grosjo/fts-xapian/releases/tag/1.9.1) which adds Dovecot 2.4 compatibility ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557))
 - **Postfix**

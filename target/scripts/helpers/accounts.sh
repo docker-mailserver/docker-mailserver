@@ -187,6 +187,10 @@ function _add_attribute_dovecot_quota() {
 
     if [[ ${#USER_QUOTA[@]} -eq 2 ]]; then
       USER_ATTRIBUTES="${USER_ATTRIBUTES:+${USER_ATTRIBUTES} }userdb_quota_storage_size=${USER_QUOTA[1]}"
+      # Dovecot 2.4 quota_storage_grace is a size, not a percentage. Keep the 2.3 10% of this mailbox.
+      if [[ ${USER_QUOTA[1]} =~ ^([1-9][0-9]*)([BkMGT])$ ]]; then
+        USER_ATTRIBUTES+=" userdb_quota_storage_grace=$(( BASH_REMATCH[1] / 10 ))${BASH_REMATCH[2]}"
+      fi
     fi
   fi
 
