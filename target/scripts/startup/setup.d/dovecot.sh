@@ -36,20 +36,26 @@ function _setup_dovecot() {
   # Initial config files committed to DMS in April 2016:
   # TODO: Consider housekeeping on config to only represent relevant changes/support by scripts
   # https://github.com/docker-mailserver/docker-mailserver/commit/ee0d0853dd672488238eecb0ec2d26719ff45d7d
-  #
-  # TODO: `mail_plugins` appending `sieve` should probably be done for both `15-lda.conf` and `20-lmtp.conf`
-  # Presently DMS replaces the `20-lmtp.conf` from `dovecot-lmtpd` package with our own modified copy from 2016.
-  # The DMS variant only makes this one change to that file, thus we could adjust it as we do below for `15-lda.conf`
-  # Reference: https://github.com/docker-mailserver/docker-mailserver/pull/4350#issuecomment-2646736328
 
-  # shellcheck disable=SC2016
   sedfile -i -r \
-    -e 's|^(\s*)#?(mail_plugins =).*|\1\2 $mail_plugins sieve|' \
     -e 's|^#?(lda_mailbox_autocreate =).*|\1 yes|' \
     -e 's|^#?(lda_mailbox_autosubscribe =).*|\1 yes|' \
     -e "s|^#?(postmaster_address =).*|\1 ${POSTMASTER_ADDRESS}|" \
     -e "s|^#?(hostname =).*|\1 ${HOSTNAME}|" \
     /etc/dovecot/conf.d/15-lda.conf
+
+  # Debian's `15-lda.conf` is not replaced by DMS (unlike `20-lmtp.conf`).
+  # Enable Sieve for LDA (`dovecot-lda` / Getmail `deliver`) using Dovecot 2.4 syntax:
+  if ! grep -q -E '^[[:space:]]*sieve = yes' /etc/dovecot/conf.d/15-lda.conf; then
+    cat >>/etc/dovecot/conf.d/15-lda.conf <<'EOF'
+
+protocol lda {
+  mail_plugins {
+    sieve = yes
+  }
+}
+EOF
+  fi
 
   if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf; then
     printf '\n%s\n' 'stats_writer_socket_path=' >>/etc/dovecot/dovecot.conf
