@@ -3495,7 +3495,7 @@ curl<span class="w"> </span>--resolve<span class="w"> </span>mail.example.com:44
 </div>
 <p>Add this to <code>docker-data/dms/config/dovecot.cf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">ssl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
-<span class="na">disable_plaintext_auth</span><span class="o">=</span><span class="s">no</span>
+<span class="na">auth_allow_cleartext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
 </code></pre></div>
 <p>These options in conjunction mean:</p>
 <ul>
