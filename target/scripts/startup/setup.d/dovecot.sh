@@ -130,7 +130,7 @@ function _setup_dovecot_sieve() {
     sievec /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
     cat >>/etc/dovecot/conf.d/90-sieve.conf <<"EOF"
 
-sieve_script global_before {
+sieve_script user_before {
     type = before
     path = /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
 }

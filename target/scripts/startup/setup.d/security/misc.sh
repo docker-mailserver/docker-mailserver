@@ -290,7 +290,7 @@ EOF
 
     cat >>/etc/dovecot/conf.d/90-sieve.conf <<EOF
 
-sieve_script global_before {
+sieve_script spam_subject {
     type = before
     path = ${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}.sieve
 }
