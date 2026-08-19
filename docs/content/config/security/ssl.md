@@ -976,10 +976,12 @@ These are the additional cipher suites supported via `TLS_LEVEL=intermediate`, t
 
 ### Using custom DH parameters
 
-It is possible to configure the DH parameters for TLS 1.2 and below.
+DMS does not ship a DH parameters file. TLS 1.3 uses the RFC 7919 FFDHE groups built into the protocol. For TLS 1.2 DHE:
 
-- By default DMS uses [`ffdhe4096`][ffdhe4096-src] from [IETF RFC 7919][ietf::rfc::ffdhe] (_Standardized pre-defined DH groups and the only available DH groups for use in TLS 1.3_).
-- It is however [discouraged to generate your own DH parameters][dh-avoid-selfgenerated] as it is often less secure. Instead you should prefer to use one of the standard parameter groups from RFC 7919 (eg: `ffdhe2048`).
+- **Postfix:** `smtpd_tls_dh1024_param_file` is unset. [Since Postfix 3.7 + OpenSSL 3.0][tls-dh-postfix-3p7], Postfix still negotiates DHE cipher suites by sourcing RFC 7919 FFDHE parameters from OpenSSL.
+- **Dovecot:** `ssl_server_dh_file` is unset. Dovecot has no equivalent fallback.
+
+To restore DHE for Dovecot, or to pin Postfix to a specific group, provide a PEM encoded file from [IETF RFC 7919][ietf::rfc::ffdhe] (eg [`ffdhe4096`][ffdhe4096-src] or `ffdhe2048`). It is [discouraged to generate your own DH parameters][dh-avoid-selfgenerated].
 
 ??? example "Custom DH params with `compose.yaml`"
 
@@ -1043,7 +1045,7 @@ It is possible to configure the DH parameters for TLS 1.2 and below.
 
 ### Removing DH parameters or DHE cipher suite support
 
-This shouldn't be necessary, but it is possible via [our `user-patches.sh` feature][docs::dms-override-config::user-patches] with this command:
+DMS already leaves DH parameter files unset. Dovecot still lists DHE cipher suites in `ssl_cipher_list`; exclude them via [our `user-patches.sh` feature][docs::dms-override-config::user-patches] with this command:
 
 ```bash
 # Replace the matched line with the output of `doveconf ssl_cipher_list` + append `:!kDHE` to the end (excludes cipher suites using the DHE key-exchange):
@@ -1052,14 +1054,14 @@ sed -i -r "s|^ssl_cipher_list.*|$(doveconf ssl_cipher_list):\!kDHE|" /etc/doveco
 
 ??? abstract "Technical Details - Opt-out of DH parameters does not prevent offering DHE cipher suites"
 
-    The defaults for configured DH parameters are:
+    The defaults for DH parameters since DMS v16 are:
 
-    - **Postfix:** `smtpd_tls_dh1024_param_file` is not set since DMS v16
+    - **Postfix:** `smtpd_tls_dh1024_param_file` is not set
        - [Since Postfix 3.7 + OpenSSL 3.0][tls-dh-postfix-3p7] (from DMS v14 onwards), Postfix will continue to support negotiating DHE cipher suites for TLS 1.2 (or below) by sourcing RFC 7919 FFDHE parameters from OpenSSL.
        - Prior to Postfix 3.7 if this setting were unset, Postfix would fallback to a 2048-bit FFDHE parameter file it shipped with internally.
-    - **Dovecot:** `ssl_server_dh_file = /etc/dms/dh-params-4096.pem` (_located in `/etc/dovecot/conf.d/10-ssl.conf`_)
+    - **Dovecot:** `ssl_server_dh_file` is not set (_Dovecot has no OpenSSL FFDHE fallback_)
 
-    Dovecot does not have a fallback like Postfix implements. If you unset `ssl_server_dh_file`, DHE cipher suites will be mistakenly offered to clients for negotiation (_if the Dovecot servers cipher list (`ssl_cipher_list`) configures any_).
+    When `ssl_server_dh_file` is unset, DHE cipher suites will still be offered to clients for negotiation if the Dovecot cipher list (`ssl_cipher_list`) includes any.
     
     This misconfiguration [prevents affected clients from connecting over TLS][tls::dovecot-dhe-fail] and affects the accuracy of findings reported by tools like `testssl.sh`, as the connection failure does not provide adequate context to detect the issue properly.
 
