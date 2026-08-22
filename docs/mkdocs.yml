@@ -181,6 +181,7 @@ nav:
   - 'Examples':
     - 'Tutorials':
       - 'Basic Installation': examples/tutorials/basic-installation.md
+      - 'Mailbox Compression': examples/tutorials/mailbox-compression.md
       - 'Mailserver behind Proxy': examples/tutorials/mailserver-behind-proxy.md
       - 'Crowdsec': examples/tutorials/crowdsec.md
       - 'Building your own Docker image': examples/tutorials/docker-build.md
