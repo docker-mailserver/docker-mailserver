@@ -8,6 +8,7 @@ function setup_file() {
   _init_with_defaults
   local CUSTOM_SETUP_ARGUMENTS=(--env PERMIT_DOCKER=host)
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+  _wait_for_service dovecot
   _wait_for_smtp_port_in_container
 }
 
@@ -15,6 +16,7 @@ function teardown_file() { _default_teardown ; }
 
 @test 'normal delivery works' {
   _send_email
+  _wait_for_empty_mail_queue_in_container
   _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/new 1
 }
 

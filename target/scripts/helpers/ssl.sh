@@ -1,22 +1,5 @@
 #!/bin/bash
 
-function _setup_dhparam() {
-  local DH_SERVICE=$1
-  local DH_DEST=$2
-  local DH_CUSTOM='/tmp/docker-mailserver/dhparams.pem'
-
-  _log 'debug' "Setting up ${DH_SERVICE} dhparam"
-
-  if [[ -f ${DH_CUSTOM} ]]; then # use custom supplied dh params (assumes they're probably insecure)
-    _log 'trace' "${DH_SERVICE} will use custom provided DH parameters"
-    _log 'warn' "Using self-generated dhparams is considered insecure - unless you know what you are doing, please remove '${DH_CUSTOM}'"
-
-    cp -f "${DH_CUSTOM}" "${DH_DEST}"
-  else # use official standardized dh params (provided via Dockerfile)
-    _log 'trace' "${DH_SERVICE} will use official standardized DH parameters (ffdhe4096)."
-  fi
-}
-
 function _setup_ssl() {
   _log 'debug' 'Setting up SSL'
 
@@ -133,7 +116,7 @@ function _setup_ssl() {
   # TLS strength/level configuration
   case "${TLS_LEVEL}" in
     ( "modern" )
-      local TLS_MODERN_SUITE='ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384'
+      local TLS_MODERN_SUITE='ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305'
       local TLS_MODERN_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
       local TLS_MODERN_MIN='TLSv1.2'
 
@@ -143,7 +126,7 @@ function _setup_ssl() {
       ;;
 
     ( "intermediate" )
-      local TLS_INTERMEDIATE_SUITE='ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256'
+      local TLS_INTERMEDIATE_SUITE='ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384'
       local TLS_INTERMEDIATE_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
       local TLS_INTERMEDIATE_MIN='TLSv1.2'
 
