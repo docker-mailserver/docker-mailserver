@@ -59,21 +59,24 @@ function _install_utils() {
       ;;
   esac
 
-  # TIP: `*.tar.gz` releases tend to forget to reset UID/GID ownership when archiving.
-  # When extracting with `tar` as `root` the archived UID/GID is kept, unless using `--no-same-owner`.
-  # Likewise when the binary is in a nested location the full archived path
-  # must be provided + `--strip-components` to extract the file to the target directory.
-  # Doing this avoids the need for (`mv` + `rm`) or (`--to-stdout` + `chmod +x`)
-  _log 'debug' 'Installing utils sourced from Github'
+  # NOTE: `*.tar.gz` releases tend to forget to reset UID/GID
+  #       ownership when archiving. When extracting with `tar`
+  #       as `root` the archived UID/GID is kept, unless using
+  #       `--no-same-owner`. Likewise when the binary is in a
+  #       nested location the full archived path must be
+  #       provided + `--strip-components` to extract the file
+  #       to the target directory. Doing this avoids the need
+  #       for (`mv` + `rm`) or (`--to-stdout` + `chmod +x`)
+  _log 'debug' 'Installing utilities from Github'
 
   _log 'trace' 'Installing jaq'
-  local JAQ_VERSION='v3.0.0'
+  local JAQ_VERSION='v3.1.1'
   curl -sSfL -o /usr/local/bin/jaq \
     "https://github.com/01mf02/jaq/releases/download/${JAQ_VERSION}/jaq-${ARCH_A}-unknown-linux-gnu"
   chmod +x /usr/local/bin/jaq
 
   _log 'trace' 'Installing step'
-  local STEP_CLI_VERSION='0.30.2'
+  local STEP_CLI_VERSION='0.30.6'
   curl -sSfL -o /tmp/step-cli.deb \
     "https://github.com/smallstep/cli/releases/download/v${STEP_CLI_VERSION}/step-cli_${ARCH_B}.deb"
   dpkg -i /tmp/step-cli.deb
@@ -270,7 +273,8 @@ function _post_installation_steps() {
   rm -rf /var/lib/apt/lists/*
 
   # Irrelevant config for DMS:
-  # Creating a separate syslog socket was necessary as Debian configured Postfix to run via chroot jail (DMS avoids that intentionally).
+  # Creating a separate syslog socket was necessary as Debian configured
+  # Postfix to run via chroot jail (DMS avoids that intentionally).
   rm /etc/rsyslog.d/postfix.conf
 }
 
