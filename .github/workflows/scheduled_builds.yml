@@ -11,23 +11,24 @@ permissions:
   security-events: write
 
 jobs:
-  build-images:
-    name: 'Build Images'
-    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_build.yml@master
+  build-image-amd64:
+    name: 'Build AMD64 Image'
+    uses: ./.github/workflows/generic_build.yml
+
+  build-image-arm64:
+    name: 'Build ARM64 Image'
+    uses: ./.github/workflows/generic_build.yml
     with:
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/arm64
+      runner: ubuntu-24.04-arm
 
   scan-image:
     name: 'Scan Image for Vulnerabilities'
-    needs: build-images
-    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_vulnerability-scan.yml@master
-    with:
-      cache-key: ${{ needs.build-images.outputs.build-cache-key }}
+    needs: build-image-amd64
+    uses: ./.github/workflows/generic_vulnerability-scan.yml
 
   publish-images:
     name: 'Publish Images'
-    needs: build-images
-    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_publish.yml@master
-    with:
-      cache-key: ${{ needs.build-images.outputs.build-cache-key }}
+    needs: [build-image-amd64, build-image-arm64]
+    uses: ./.github/workflows/generic_publish.yml
     secrets: inherit

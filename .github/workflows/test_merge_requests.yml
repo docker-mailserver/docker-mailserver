@@ -11,28 +11,30 @@ on:
       - Dockerfile
       - Makefile
       - setup.sh
+      - .github/workflows/generic_build.yml
+      - .github/workflows/generic_test.yml
+      - .github/workflows/test_merge_requests.yml
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-image-amd64:
     name: "Build AMD64 Image"
-    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_build.yml@master
+    uses: ./.github/workflows/generic_build.yml
 
   run-tests:
     name: "Test AMD64 Image"
     needs: build-image-amd64
-    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_test.yml@master
-    with:
-      cache-key: ${{ needs.build-image-amd64.outputs.build-cache-key }}
+    uses: ./.github/workflows/generic_test.yml
 
   job-build-arm:
     name: "Build ARM64 Image"
-    # Dependency ensures the cache-key is only created for AMD64 builds.
-    # ARM64 will not be able to use this cache, building from scratch each time.
-    # Expect about 2 minutes extra build time until adopting `type=gha` with scopes for cache.
-    needs: build-image-amd64
-    uses: docker-mailserver/docker-mailserver/.github/workflows/generic_build.yml@master
+    uses: ./.github/workflows/generic_build.yml
     with:
       platforms: linux/arm64
+      runner: ubuntu-24.04-arm
