@@ -2,10 +2,6 @@ name: 'Publish the DMS Container Image'
 
 on:
   workflow_call:
-    inputs:
-      cache-key:
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -42,17 +38,6 @@ jobs:
       - name: 'Set up Docker Buildx'
         uses: docker/setup-buildx-action@v4.3.0
 
-      # Try get the cached build layers from a prior `generic_build.yml` job.
-      # NOTE: Until adopting `type=gha` scoped cache exporter (in `docker/build-push-action`),
-      # only AMD64 image is expected to be cached, ARM images will build from scratch.
-      - name: 'Retrieve image build from build cache'
-        uses: actions/cache@v6
-        with:
-          path: /tmp/.buildx-cache
-          key: cache-buildx-${{ inputs.cache-key }}
-          restore-keys: |
-            cache-buildx-
-
       - name: 'Login to DockerHub'
         uses: docker/login-action@v4
         with:
@@ -76,6 +61,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.prep.outputs.tags }}
-          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-from: |
+            type=gha,scope=linux-amd64
+            type=gha,scope=linux-arm64
           # Disable provenance attestation: https://docs.docker.com/build/attestations/slsa-provenance/
           provenance: false
