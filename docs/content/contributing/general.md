@@ -19,7 +19,7 @@ Alternatively you can make the changes locally. For that you'll need to have Doc
 
 ```sh
 # From the root directory of the git clone:
-docker run --rm -it -p 8000:8000 -v "./docs:/docs" squidfunk/mkdocs-material
+docker run --rm -it -p 8000:8000 -v "./docs:/docs" docker.io/squidfunk/mkdocs-material:9.7
 ```
 
 This serves the documentation on your local machine on port `8000`. Each change will be hot-reloaded onto the page you view, just edit, save and look at the result.
