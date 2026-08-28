@@ -216,8 +216,10 @@ EOF
 }
 
 function _install_fail2ban() {
-  local FAIL2BAN_VERSION=1.1.0
-  local FAIL2BAN_DEB_URL="https://github.com/fail2ban/fail2ban/releases/download/${FAIL2BAN_VERSION}/fail2ban_${FAIL2BAN_VERSION}-1.upstream1_all.deb"
+  local FAIL2BAN_VERSION=1.1.1
+  # upstream1 was withdrawn (wrong install paths); use upstream2:
+  # https://github.com/fail2ban/fail2ban/issues/4222
+  local FAIL2BAN_DEB_URL="https://github.com/fail2ban/fail2ban/releases/download/${FAIL2BAN_VERSION}/fail2ban_${FAIL2BAN_VERSION}-1.upstream2_all.deb"
   local FAIL2BAN_DEB_ASC_URL="${FAIL2BAN_DEB_URL}.asc"
   local FAIL2BAN_GPG_FINGERPRINT='8738 559E 26F6 71DF 9E2C  6D9E 683B F1BE BD0A 882C'
   local FAIL2BAN_GPG_PUBLIC_KEY_ID='0x683BF1BEBD0A882C'
@@ -246,12 +248,6 @@ function _install_fail2ban() {
 
   dpkg -i fail2ban.deb 2>&1
   rm fail2ban.deb fail2ban.deb.asc
-
-  _log 'debug' 'Patching Fail2ban to enable network bans'
-  # Enable network bans:
-  # https://github.com/docker-mailserver/docker-mailserver/issues/2669
-  # https://github.com/fail2ban/fail2ban/issues/3125
-  sedfile -i -r 's/^_nft_add_set = .+/_nft_add_set = <nftables> add set <table_family> <table> <addr_set> \\{ type <addr_type>\\; flags interval\\; \\}/' /etc/fail2ban/action.d/nftables.conf
 }
 
 function _post_installation_steps() {

@@ -30,6 +30,8 @@ All notable changes to this project will be documented in this file. The format 
   - Updated the FTS plugin Xapian from `1.9` to [`1.9.1`](https://github.com/grosjo/fts-xapian/releases/tag/1.9.1) which adds Dovecot 2.4 compatibility ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557))
 - **Postfix**
   - Replaced `disable_dns_lookups` with `smtp_dns_support_level` in Amavis configuration ([#4568](https://github.com/docker-mailserver/docker-mailserver/pull/4568))
+- **Fail2Ban**
+  - Fail2Ban (`1.1.0` => [`1.1.1`](https://github.com/fail2ban/fail2ban/releases/tag/1.1.1)). The Postfix and Dovecot jails are pinned to the file backend because Debian paths now default to the systemd journal.
 
 ### Fixed
 
