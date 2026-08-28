@@ -20,6 +20,11 @@ ignoreip = 127.0.0.1/8
 # nftables-allports:  block IP on all ports
 banaction = nftables-allports
 
+# Debian paths in Fail2Ban 1.1.1+ default these jails to the systemd journal,
+# but DMS logs Postfix and Dovecot to files via rsyslog.
+postfix_backend = auto
+dovecot_backend = auto
+
 [dovecot]
 enabled = true
 
