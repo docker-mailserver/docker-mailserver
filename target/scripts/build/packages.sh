@@ -161,13 +161,15 @@ function _install_dovecot() {
     dovecot-managesieved
     dovecot-ldap
     dovecot-flatcurve
+
+    # Additional Dovecot packages for supporting the DMS community (docs-only guide contributions)
+    dovecot-auth-lua
   )
 
-  # Additional Dovecot packages for supporting the DMS community (docs-only guide contributions).
-  DOVECOT_PACKAGES+=(dovecot-auth-lua)
-
-  # (Opt-in via ENV) Change repo source for dovecot packages to a third-party repo maintained by Dovecot.
-  # NOTE: Arch restriction required because AMD64 / x86_64 is the only arch supported from the Dovecot CE repo.
+  # NOTE: (Opt-in via ENV) Change repo source for dovecot packages
+  #       to a third-party repo maintained by Dovecot.
+  # NOTE: Arch restriction required because AMD64 / x86_64 is the
+  #       only arch supported from the Dovecot CE repo.
   # Repo: https://repo.dovecot.org/ce-2.4-latest/debian/trixie/dists/trixie/main/
   # Docs: https://repo.dovecot.org/#debian
   if [[ ${DOVECOT_COMMUNITY_REPO:-0} -eq 1 ]] && [[ $(uname --machine) == 'x86_64' ]]; then
@@ -182,7 +184,6 @@ Components: main
 Signed-By: /usr/share/keyrings/upstream-dovecot.gpg
 EOF
 
-    # Refresh package index:
     apt-get "${QUIET}" update
 
     # This repo instead provides `dovecot-auth-lua` as a transitional package to `dovecot-lua`,
@@ -191,10 +192,11 @@ EOF
   fi
 
   _log 'debug' 'Installing Dovecot'
-  apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
+  # NOTE libxapian30 is a runtime dependency for fts_xapian (built via `compile.sh`)
+  apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}" libxapian30
 
-  # Runtime dependency for fts_xapian (built via `compile.sh`):
-  apt-get "${QUIET}" install --no-install-recommends libxapian30
+  # We remove the enabled-by-default Flatcurve configuration to disable FTS by default
+  rm /etc/dovecot/conf.d/90-fts-flatcurve.conf
 }
 
 function _install_rspamd() {
