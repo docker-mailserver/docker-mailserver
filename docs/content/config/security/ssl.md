@@ -913,29 +913,24 @@ Both Postfix and Dovecot are configured with the following cipher lists dependin
 
 ```sh
 # TLS_LEVEL=modern
-ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305
 
 # TLS_LEVEL=intermediate
-ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256
+ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384
 ```
 
 For clarity, the permitted [cipher suites][tls::cipher-suites] are comprised of the components:
 
-- **Key-Exchange:** ECDHE + DHE
+- **Key-Exchange:** ECDHE (_port 25 still offers DHE for opportunistic TLS with legacy MTAs_)
 - **Authentication:** RSA + ECDSA (_depending on the key type of your TLS certificate(s)_)
 - **Encryption:** AES-GCM + CHACHA20-POLY1305 + AES-CBC
 
-The default `TLS_LEVEL=modern` includes: `DHE-RSA-AES128-GCM-SHA256` + `DHE-RSA-AES256-GCM-SHA384`
+`TLS_LEVEL=intermediate` includes 4 additional cipher suites that leverage the AES-CBC encryption cipher. While the AES-CBC cipher in TLS 1.2 should be generally considered secure, it is [not AEAD][tls::cbc-not-aead] (_hence their exclusion from `TLS_LEVEL=modern`_).
 
-`TLS_LEVEL=intermediate` includes 6 additional cipher suites that leverage the AES-CBC encryption cipher. While the AES-CBC cipher in TLS 1.2 should be generally considered secure, it is [not AEAD][tls::cbc-not-aead] (_hence their exclusion from `TLS_LEVEL=modern`_).
+These are the additional cipher suites supported via `TLS_LEVEL=intermediate`, they use the `ECDHE` key-exchange algorithm (_which provides [perfect forward secrecy][tls::pfs]_):
 
-These are the additional cipher suites supported via `TLS_LEVEL=intermediate`, they use the `ECDHE` / `DHE` key-exchange algorithms (_which provide [perfect forward secrecy][tls::pfs]_):
-
-- **ECDHE:**
-    - **ECDSA:** `ECDHE-ECDSA-AES128-SHA256` + `ECDHE-ECDSA-AES256-SHA384`
-    - **RSA:** `ECDHE-RSA-AES128-SHA256` + `ECDHE-RSA-AES256-SHA384`
-- **DHE:**
-    - **RSA:** `DHE-RSA-AES128-SHA256` + `DHE-RSA-AES256-SHA256`
+- **ECDSA:** `ECDHE-ECDSA-AES128-SHA256` + `ECDHE-ECDSA-AES256-SHA384`
+- **RSA:** `ECDHE-RSA-AES128-SHA256` + `ECDHE-RSA-AES256-SHA384`
 
 ??? info "Cipher suite negotiation is via server preference"
 
@@ -950,7 +945,6 @@ These are the additional cipher suites supported via `TLS_LEVEL=intermediate`, t
 
     Server preference prioritizes cipher suites by these factors:
 
-    - Key-Exchange: ECDHE before an equivalent DHE cipher suite.
     - Cipher: AEAD ciphers sorted by those most commonly supported, with their lower security level variant first (_128-bit symmetric security is incredibly secure already_). Any non-AEAD cipher suites would be appended to the list with the same sorting rules.
 
     ---
@@ -967,10 +961,10 @@ These are the additional cipher suites supported via `TLS_LEVEL=intermediate`, t
 
 DMS does not ship a DH parameters file. TLS 1.3 uses the RFC 7919 FFDHE groups built into the protocol. For TLS 1.2 DHE:
 
-- **Postfix:** `smtpd_tls_dh1024_param_file` is unset. [Since Postfix 3.7 + OpenSSL 3.0][tls-dh-postfix-3p7], Postfix still negotiates DHE cipher suites by sourcing RFC 7919 FFDHE parameters from OpenSSL.
+- **Postfix:** `smtpd_tls_dh1024_param_file` is unset. [Since Postfix 3.7 + OpenSSL 3.0][tls-dh-postfix-3p7], Postfix still negotiates DHE cipher suites on port 25 by sourcing RFC 7919 FFDHE parameters from OpenSSL. The authenticated ports (`TLS_LEVEL`) no longer list DHE cipher suites, so this fallback does not apply there.
 - **Dovecot:** `ssl_server_dh_file` is unset. Dovecot has no equivalent fallback.
 
-To restore DHE for Dovecot, or to pin Postfix to a specific group, provide a PEM encoded file from [IETF RFC 7919][ietf::rfc::ffdhe] (eg [`ffdhe4096`][ffdhe4096-src] or `ffdhe2048`). It is [discouraged to generate your own DH parameters][dh-avoid-selfgenerated].
+To restore DHE on the authenticated ports, re-add the DHE cipher suites to the `TLS_LEVEL` cipher lists (_Postfix `tls_high_cipherlist` and Dovecot `ssl_cipher_list`_) and, for Dovecot, also set a DH parameters file. To pin Postfix (including port 25) to a specific group, provide a PEM encoded file from [IETF RFC 7919][ietf::rfc::ffdhe] (eg [`ffdhe4096`][ffdhe4096-src] or `ffdhe2048`). It is [discouraged to generate your own DH parameters][dh-avoid-selfgenerated].
 
 ??? example "Custom DH params with `compose.yaml`"
 
@@ -1031,14 +1025,9 @@ To restore DHE for Dovecot, or to pin Postfix to a specific group, provide a PEM
         a29b3c9cd89f6126c2647084fc613b024c18cc03f4eac7c24ad942b175b659b0fa9c14e6bc43a7d76a46cbd47c81e30d8c020e08881035c78c55ec30437dce25
         ```
 
-### Removing DH parameters or DHE cipher suite support
+### DHE cipher suite support without DH parameters
 
-DMS already leaves DH parameter files unset. Dovecot still lists DHE cipher suites in `ssl_cipher_list`; exclude them via [our `user-patches.sh` feature][docs::dms-override-config::user-patches] with this command:
-
-```bash
-# Append `:!kDHE` so Dovecot will not offer DHE cipher suites:
-sed -i -r "s|^ssl_cipher_list.*|ssl_cipher_list = $(doveconf -h ssl_cipher_list):\!kDHE|" /etc/dovecot/conf.d/10-ssl.conf
-```
+DMS leaves DH parameter files unset. Authenticated ports no longer list DHE cipher suites. Port 25 still offers them via Postfix's OpenSSL FFDHE fallback.
 
 ??? abstract "Technical Details - Opt-out of DH parameters does not prevent offering DHE cipher suites"
 
@@ -1052,7 +1041,7 @@ sed -i -r "s|^ssl_cipher_list.*|ssl_cipher_list = $(doveconf -h ssl_cipher_list)
     When `ssl_server_dh_file` is unset, DHE cipher suites will still be offered to clients for negotiation if the Dovecot cipher list (`ssl_cipher_list`) includes any.
     This misconfiguration [prevents affected clients from connecting over TLS][tls::dovecot-dhe-fail] and affects the accuracy of findings reported by tools like `testssl.sh`, as the connection failure does not provide adequate context to detect the issue properly.
 
-    To avoid this mishap with Dovecot configuration, ensure that the `ssl_cipher_list` setting value excludes DHE cipher suites by appending `!kDHE` (_as shown in the earlier example with `user-patches.sh` or a [manual config override][docs::dms-override-config::dovecot]_).
+    To avoid this mishap with Dovecot configuration, ensure that the `ssl_cipher_list` setting value excludes DHE cipher suites (_the DMS `TLS_LEVEL` lists do this by omitting them; if you re-add DHE suites, also set `ssl_server_dh_file`_).
 
 [docs-env::ssl-type]: ../environment.md#ssl_type
 [docs-env::tls-level]: ../environment.md#tls_level
@@ -1060,7 +1049,6 @@ sed -i -r "s|^ssl_cipher_list.*|ssl_cipher_list = $(doveconf -h ssl_cipher_list)
 [docs::dms-volumes-config]: ../advanced/optional-config.md#volumes-config
 [docs::dms-override-config::dovecot]: ../advanced/override-defaults/dovecot.md
 [docs::dms-override-config::postfix]: ../advanced/override-defaults/postfix.md
-[docs::dms-override-config::user-patches]: ../advanced/override-defaults/user-patches.md
 
 [github-file-compose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml
 [github-file::tls-readme]: https://github.com/docker-mailserver/docker-mailserver/blob/3b8059f2daca80d967635e04d8d81e9abb755a4d/test/test-files/ssl/example.test/README.md

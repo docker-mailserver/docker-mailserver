@@ -51,7 +51,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Removed
 
 - **TLS:**
-  - Removed the bundled RFC 7919 `ffdhe4096` DH parameters and the `/tmp/docker-mailserver/dhparams.pem` override. Postfix `smtpd_tls_dh1024_param_file` and Dovecot `ssl_server_dh_file` are unset; a `dhparams.pem` file is ignored without a warning. [Restore DHE via config overrides](https://docker-mailserver.github.io/docker-mailserver/v16.0/config/security/ssl/#using-custom-dh-parameters) ([#4562](https://github.com/docker-mailserver/docker-mailserver/pull/4562), [#4538](https://github.com/docker-mailserver/docker-mailserver/issues/4538))
+  - Removed the bundled RFC 7919 `ffdhe4096` DH parameters and the `/tmp/docker-mailserver/dhparams.pem` override. Postfix `smtpd_tls_dh1024_param_file` and Dovecot `ssl_server_dh_file` are unset; a `dhparams.pem` file is ignored without a warning. DHE cipher suites are no longer offered on the authenticated ports (587/465, 143/993, 110/995) for Postfix or Dovecot; port 25 is unchanged. [Restore DHE via config overrides](https://docker-mailserver.github.io/docker-mailserver/v16.0/config/security/ssl/#using-custom-dh-parameters) ([#4562](https://github.com/docker-mailserver/docker-mailserver/pull/4562), [#4538](https://github.com/docker-mailserver/docker-mailserver/issues/4538))
 - **SpamAssassin:**
   - Removed Pyzor + Razor due to maintenance concerns. From observations it is unlikely to have any notable regression ([#4548](https://github.com/docker-mailserver/docker-mailserver/pull/4548))
 
