@@ -59,6 +59,12 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
+@test "should authenticate a login with uppercase letters" {
+  _run_in_container doveadm auth test 'USER1@localhost.localdomain' mypassword
+  assert_success
+  assert_output --partial 'auth succeeded'
+}
+
 @test "should have created maildir for 'user2@otherdomain.tld'" {
   _run_in_container_bash '[[ -d /var/mail/otherdomain.tld/user2 ]]'
   assert_success
