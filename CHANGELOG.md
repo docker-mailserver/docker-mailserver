@@ -36,6 +36,9 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **Dovecot:**
+  - The passwd-file `home:default` fallback now uses `%{user | username}` (local-part) so it matches `mail_home` / `mail_path` ([#4744](https://github.com/docker-mailserver/docker-mailserver/issues/4744))
+  - `auth_username_format` in the passwd-file and master passdbs now uses Dovecot's documented default `%{user | lower}` ([#4744](https://github.com/docker-mailserver/docker-mailserver/issues/4744))
 - **Rspamd:**
   - Configuration changes now trigger a service reload instead of a restart ([#4632](https://github.com/docker-mailserver/docker-mailserver/pull/4632))
   - `expand_keys = true` has been removed from the Redis configuration ([#4689](https://github.com/docker-mailserver/docker-mailserver/pull/4689))
