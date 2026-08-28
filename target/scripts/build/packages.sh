@@ -59,21 +59,24 @@ function _install_utils() {
       ;;
   esac
 
-  # TIP: `*.tar.gz` releases tend to forget to reset UID/GID ownership when archiving.
-  # When extracting with `tar` as `root` the archived UID/GID is kept, unless using `--no-same-owner`.
-  # Likewise when the binary is in a nested location the full archived path
-  # must be provided + `--strip-components` to extract the file to the target directory.
-  # Doing this avoids the need for (`mv` + `rm`) or (`--to-stdout` + `chmod +x`)
-  _log 'debug' 'Installing utils sourced from Github'
+  # NOTE: `*.tar.gz` releases tend to forget to reset UID/GID
+  #       ownership when archiving. When extracting with `tar`
+  #       as `root` the archived UID/GID is kept, unless using
+  #       `--no-same-owner`. Likewise when the binary is in a
+  #       nested location the full archived path must be
+  #       provided + `--strip-components` to extract the file
+  #       to the target directory. Doing this avoids the need
+  #       for (`mv` + `rm`) or (`--to-stdout` + `chmod +x`)
+  _log 'debug' 'Installing utilities from Github'
 
   _log 'trace' 'Installing jaq'
-  local JAQ_VERSION='v3.0.0'
+  local JAQ_VERSION='v3.1.1'
   curl -sSfL -o /usr/local/bin/jaq \
     "https://github.com/01mf02/jaq/releases/download/${JAQ_VERSION}/jaq-${ARCH_A}-unknown-linux-gnu"
   chmod +x /usr/local/bin/jaq
 
   _log 'trace' 'Installing step'
-  local STEP_CLI_VERSION='0.30.2'
+  local STEP_CLI_VERSION='0.30.6'
   curl -sSfL -o /tmp/step-cli.deb \
     "https://github.com/smallstep/cli/releases/download/v${STEP_CLI_VERSION}/step-cli_${ARCH_B}.deb"
   dpkg -i /tmp/step-cli.deb
@@ -161,13 +164,15 @@ function _install_dovecot() {
     dovecot-managesieved
     dovecot-ldap
     dovecot-flatcurve
+
+    # Additional Dovecot packages for supporting the DMS community (docs-only guide contributions)
+    dovecot-auth-lua
   )
 
-  # Additional Dovecot packages for supporting the DMS community (docs-only guide contributions).
-  DOVECOT_PACKAGES+=(dovecot-auth-lua)
-
-  # (Opt-in via ENV) Change repo source for dovecot packages to a third-party repo maintained by Dovecot.
-  # NOTE: Arch restriction required because AMD64 / x86_64 is the only arch supported from the Dovecot CE repo.
+  # NOTE: (Opt-in via ENV) Change repo source for dovecot packages
+  #       to a third-party repo maintained by Dovecot.
+  # NOTE: Arch restriction required because AMD64 / x86_64 is the
+  #       only arch supported from the Dovecot CE repo.
   # Repo: https://repo.dovecot.org/ce-2.4-latest/debian/trixie/dists/trixie/main/
   # Docs: https://repo.dovecot.org/#debian
   if [[ ${DOVECOT_COMMUNITY_REPO:-0} -eq 1 ]] && [[ $(uname --machine) == 'x86_64' ]]; then
@@ -182,7 +187,6 @@ Components: main
 Signed-By: /usr/share/keyrings/upstream-dovecot.gpg
 EOF
 
-    # Refresh package index:
     apt-get "${QUIET}" update
 
     # This repo instead provides `dovecot-auth-lua` as a transitional package to `dovecot-lua`,
@@ -191,10 +195,11 @@ EOF
   fi
 
   _log 'debug' 'Installing Dovecot'
-  apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
+  # NOTE libxapian30 is a runtime dependency for fts_xapian (built via `compile.sh`)
+  apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}" libxapian30
 
-  # Runtime dependency for fts_xapian (built via `compile.sh`):
-  apt-get "${QUIET}" install --no-install-recommends libxapian30
+  # We remove the enabled-by-default Flatcurve configuration to disable FTS by default
+  rm /etc/dovecot/conf.d/90-fts-flatcurve.conf
 }
 
 function _install_rspamd() {
@@ -268,7 +273,8 @@ function _post_installation_steps() {
   rm -rf /var/lib/apt/lists/*
 
   # Irrelevant config for DMS:
-  # Creating a separate syslog socket was necessary as Debian configured Postfix to run via chroot jail (DMS avoids that intentionally).
+  # Creating a separate syslog socket was necessary as Debian configured
+  # Postfix to run via chroot jail (DMS avoids that intentionally).
   rm /etc/rsyslog.d/postfix.conf
 }
 

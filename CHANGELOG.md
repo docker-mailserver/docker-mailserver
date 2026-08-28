@@ -21,8 +21,8 @@ All notable changes to this project will be documented in this file. The format 
 - **Internal:**
   - Aligning with the change in upstream Debian, APT package repositories added by DMS have migrated the format from `.list` to `.sources` ([DEB822](https://repolib.readthedocs.io/en/latest/deb822-format.html)) ([#4556](https://github.com/docker-mailserver/docker-mailserver/pull/4556))
   - Third-party sourced CLI tools updated ([#4557](https://github.com/docker-mailserver/docker-mailserver/pull/4557)):
-    - `jaq` from `2.1.0` to [`2.3.0`](https://github.com/01mf02/jaq/releases/tag/v2.3.0)
-    - `step` CLI from `0.28.2` to [`0.28.7`](https://github.com/smallstep/cli/releases/tag/v0.28.7))
+    - `jaq` from `2.1.0` to [`3.1.1`](https://github.com/01mf02/jaq/releases/tag/v3.1.1)
+    - `step` CLI from `0.28.2` to [`0.30.6`](https://github.com/smallstep/cli/releases/tag/v0.30.6))
   - DMS logs now all output to STDERR (formerly only warning/error logs) (#[4586](https://github.com/docker-mailserver/docker-mailserver/pull/4586))
 - **Dovecot**
   - Upgraded from 2.3 to 2.4. Custom `dovecot.cf` using 2.3 syntax will not load ([#4536](https://github.com/docker-mailserver/docker-mailserver/pull/4536))
