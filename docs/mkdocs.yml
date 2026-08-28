@@ -186,6 +186,7 @@ nav:
       - 'Building your own Docker image': examples/tutorials/docker-build.md
       - 'Blog Posts': examples/tutorials/blog-posts.md
       - 'Dovecot FTS with Apache Solr': examples/tutorials/dovecot-solr.md
+      - 'Dovecot FTS with Flatcurve': examples/tutorials/dovecot-flatcurve.md
     - 'Use Cases':
       - 'Forward-Only Mail-Server with LDAP': examples/use-cases/forward-only-mailserver-with-ldap-authentication.md
       - 'Customize IMAP Folders': examples/use-cases/imap-folders.md
