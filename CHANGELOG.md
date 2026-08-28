@@ -42,6 +42,8 @@ All notable changes to this project will be documented in this file. The format 
 - **Rspamd:**
   - Configuration changes now trigger a service reload instead of a restart ([#4632](https://github.com/docker-mailserver/docker-mailserver/pull/4632))
   - `expand_keys = true` has been removed from the Redis configuration ([#4689](https://github.com/docker-mailserver/docker-mailserver/pull/4689))
+- **OpenDKIM:**
+  - The `OmitHeaders` setting no longer ends with a stray `<Paste>` string. The final entry parsed as a header named `DKIM-Signature<Paste>`, so `DKIM-Signature` was never actually omitted ([#4750](https://github.com/docker-mailserver/docker-mailserver/issues/4750))
 - **Internal:**
   - `ENABLE_QUOTAS=1` - When an alias has multiple addresses, the first local mailbox address found will be used for the Dovecot dummy account workaround ([#4581](https://github.com/docker-mailserver/docker-mailserver/pull/4581))
   - Change Detection service - Added support for responding to updated DMS config (_Rspamd and TLS certificates_) to `ACCOUNT_PROVISIONER=LDAP` ([#4627](https://github.com/docker-mailserver/docker-mailserver/pull/4627))
