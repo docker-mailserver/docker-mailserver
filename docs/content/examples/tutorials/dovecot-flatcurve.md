@@ -84,7 +84,7 @@ fts flatcurve {
   # Match any part of a word (e.g. `mail` matches
   #`mailserver`) at the cost of a much larger index.
   # The default `no` only matches from the start of a word.
-  substring_search = no
+  substring_search = yes
 
   # Further optional tuning (commit_limit,`min_term_size,
   # optimize_limit, rotate_count, rotate_time) is documented
