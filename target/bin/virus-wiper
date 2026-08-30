@@ -1,8 +1,0 @@
-#!/bin/bash
-
-set -e
-
-# shellcheck source=/dev/null
-source /etc/dms-settings
-
-find /var/lib/amavis/virusmails/ -type f -mtime +"${VIRUSMAILS_DELETE_DELAY}" -delete

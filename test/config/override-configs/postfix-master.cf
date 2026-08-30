@@ -1,7 +1,0 @@
-submission/inet/smtpd_sasl_security_options=noanonymous
-# this is a test comment, please don't delete me :'(
-    # this is also a test comment, :O
-
-# DMS must first process `postfix-master.cf` to `master.cf` when any custom parameters are from `postfix-main.cf`
-# before an updated `main.cf` is read via `postconf`, otherwise without an existing reference the parameter is excluded.
-submission/inet/smtpd_client_restrictions=$custom_parameter

@@ -1,4 +1,0 @@
-USER added@localhost.localdomain
-PASS mypassword
-LIST
-quit

@@ -1,2 +1,0 @@
-mail._domainkey.localhost.localdomain localhost.localdomain:mail:/etc/opendkim/keys/localhost.localdomain/mail.private
-mail._domainkey.otherdomain.tld otherdomain.tld:mail:/etc/opendkim/keys/otherdomain.tld/mail.private

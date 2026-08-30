@@ -1,8 +1,0 @@
-HELO mail.example.test
-MAIL FROM: test@localhost
-RCPT TO: user2@external.tld
-DATA
-This is a test mail.
-
-.
-QUIT

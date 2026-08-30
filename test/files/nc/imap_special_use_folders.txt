@@ -1,3 +1,0 @@
-a1 LOGIN user1@localhost.localdomain mypassword
-a2 LIST "" "*"
-a3 LOGOUT

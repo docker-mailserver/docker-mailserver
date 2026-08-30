@@ -1,9 +1,0 @@
-bind             = yes
-bind_dn          = cn=admin,dc=example,dc=com
-bind_pw          = admin
-query_filter     = (&(mail=%s)(mailEnabled=TRUE))
-result_attribute = mail
-search_base      = ou=people,dc=example,dc=com
-server_host      = mail.example.com
-start_tls        = no
-version          = 3

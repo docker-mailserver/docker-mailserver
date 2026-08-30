@@ -1,3 +1,0 @@
-Subject: Test Message test-email.txt
-
-This is a test mail.

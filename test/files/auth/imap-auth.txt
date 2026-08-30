@@ -1,4 +1,0 @@
-a1 LOGIN user1@localhost.localdomain mypassword
-a3 EXAMINE INBOX
-a4 FETCH 1 BODY[]
-a5 LOGOUT
