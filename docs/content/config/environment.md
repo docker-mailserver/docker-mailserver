@@ -228,6 +228,8 @@ Configures the handling of creating mails with forged sender addresses.
 - **0** => (not recommended) Mail address spoofing allowed. Any logged in user may create email messages with a [forged sender address](https://en.wikipedia.org/wiki/Email_spoofing).
 - 1 => Mail spoofing denied. Each user may only send with their own or their alias addresses. Addresses with [extension delimiters](http://www.postfix.org/postconf.5.html#recipient_delimiter) are not able to send messages.
 
+To allow certain accounts to send as other addresses, set the `SPOOF_PROTECTION` to `1` and see [the Aliases page in the documentation][docs-aliases].
+
 ##### ENABLE_SRS
 
 Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See [postsrsd](https://github.com/roehling/postsrsd/blob/main/README.rst) for further explanation.
