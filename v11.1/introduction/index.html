@@ -1,0 +1,1937 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A fullstack but simple mail-server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.) using Docker.">
+      
+      
+        <meta name="author" content="docker-mailserver (Github Organization)">
+      
+      
+        <link rel="canonical" href="https://docker-mailserver.github.io/docker-mailserver/edge/introduction/">
+      
+      <link rel="icon" href="../assets/logo/favicon-32x32.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.5">
+    
+    
+      
+        <title>An overview of Mail-Server infrastructure - Docker Mailserver</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4a0965b7.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/css/customizations.css">
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#anatomy-of-a-mail-server" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        <aside class="md-banner md-banner--warning">
+          
+        </aside>
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Docker Mailserver" class="md-header__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+      
+  <img src="../assets/logo/dmo-logo-white.min.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Mailserver
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              An overview of Mail-Server infrastructure
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/docker-mailserver/docker-mailserver" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    docker-mailserver
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  <li class="md-tabs__item">
+    <a href="./" class="md-tabs__link md-tabs__link--active">
+      Introduction
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../config/setup.sh/" class="md-tabs__link">
+        Configuration
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../examples/tutorials/basic-installation/" class="md-tabs__link">
+        Examples
+      </a>
+    </li>
+  
+
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../faq/" class="md-tabs__link">
+      FAQ
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../contributing/issues-and-pull-requests/" class="md-tabs__link">
+        Contributing
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="https://hub.docker.com/r/mailserver/docker-mailserver/" class="md-tabs__link">
+      DockerHub
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver" class="md-tabs__link">
+      GHCR
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Docker Mailserver" class="md-nav__button md-logo" aria-label="Docker Mailserver" data-md-component="logo">
+      
+  <img src="../assets/logo/dmo-logo-white.min.svg" alt="logo">
+
+    </a>
+    Docker Mailserver
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/docker-mailserver/docker-mailserver" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    docker-mailserver
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Introduction
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Introduction
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#anatomy-of-a-mail-server" class="md-nav__link">
+    Anatomy of a Mail-Server
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    Components
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#about-security-ports" class="md-nav__link">
+    About Security &amp; Ports
+  </a>
+  
+    <nav class="md-nav" aria-label="About Security &amp; Ports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#submission-smtp" class="md-nav__link">
+    Submission - SMTP
+  </a>
+  
+    <nav class="md-nav" aria-label="Submission - SMTP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#two-kinds-of-submission" class="md-nav__link">
+    Two kinds of Submission
+  </a>
+  
+    <nav class="md-nav" aria-label="Two kinds of Submission">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#outward-submission" class="md-nav__link">
+    Outward Submission
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inward-submission" class="md-nav__link">
+    Inward Submission
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrieval-imap" class="md-nav__link">
+    Retrieval - IMAP
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrieval-pop3" class="md-nav__link">
+    Retrieval - POP3
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-does-docker-mailserver-help-with-setting-everything-up" class="md-nav__link">
+    How does docker-mailserver help with setting everything up?
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Configuration
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Configuration" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Configuration
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/setup.sh/" class="md-nav__link">
+        Your Best Friend setup.sh
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/environment/" class="md-nav__link">
+        Environment Variables
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_3" type="checkbox" id="__nav_3_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_3">
+          User Management
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="User Management" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_3">
+          <span class="md-nav__icon md-icon"></span>
+          User Management
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/user-management/accounts/" class="md-nav__link">
+        Accounts
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/user-management/aliases/" class="md-nav__link">
+        Aliases
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_4">
+          Best Practices
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Best Practices" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_4">
+          <span class="md-nav__icon md-icon"></span>
+          Best Practices
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/best-practices/dkim/" class="md-nav__link">
+        DKIM
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/best-practices/dmarc/" class="md-nav__link">
+        DMARC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/best-practices/spf/" class="md-nav__link">
+        SPF
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/best-practices/autodiscover/" class="md-nav__link">
+        Auto-discovery
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_5" type="checkbox" id="__nav_3_5" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_5">
+          Security
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Security" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_5">
+          <span class="md-nav__icon md-icon"></span>
+          Security
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/security/understanding-the-ports/" class="md-nav__link">
+        Understanding the Ports
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/security/ssl/" class="md-nav__link">
+        SSL/TLS
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/security/fail2ban/" class="md-nav__link">
+        Fail2Ban
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/security/mail_crypt/" class="md-nav__link">
+        Mail Encryption
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_6" type="checkbox" id="__nav_3_6" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_6">
+          Troubleshooting
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Troubleshooting" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_6">
+          <span class="md-nav__icon md-icon"></span>
+          Troubleshooting
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/troubleshooting/debugging/" class="md-nav__link">
+        Debugging
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/pop3/" class="md-nav__link">
+        Mail Delivery with POP3
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_8" type="checkbox" id="__nav_3_8" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_8">
+          Advanced Configuration
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Advanced Configuration" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_8">
+          <span class="md-nav__icon md-icon"></span>
+          Advanced Configuration
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/optional-config/" class="md-nav__link">
+        Optional Configuration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_8_2" type="checkbox" id="__nav_3_8_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_8_2">
+          Maintenance
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Maintenance" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_8_2">
+          <span class="md-nav__icon md-icon"></span>
+          Maintenance
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/maintenance/update-and-cleanup/" class="md-nav__link">
+        Update and Cleanup
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_8_3" type="checkbox" id="__nav_3_8_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_8_3">
+          Override the Default Configs
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Override the Default Configs" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_8_3">
+          <span class="md-nav__icon md-icon"></span>
+          Override the Default Configs
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/override-defaults/dovecot/" class="md-nav__link">
+        Dovecot
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/override-defaults/postfix/" class="md-nav__link">
+        Postfix
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/override-defaults/user-patches/" class="md-nav__link">
+        Modifications via Script
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/auth-ldap/" class="md-nav__link">
+        LDAP Authentication
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/mail-sieve/" class="md-nav__link">
+        Email Filtering with Sieve
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/mail-fetchmail/" class="md-nav__link">
+        Email Gathering with Fetchmail
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_3_8_7" type="checkbox" id="__nav_3_8_7" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_8_7">
+          Email Forwarding
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Email Forwarding" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_8_7">
+          <span class="md-nav__icon md-icon"></span>
+          Email Forwarding
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/mail-forwarding/relay-hosts/" class="md-nav__link">
+        Relay Hosts
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/mail-forwarding/aws-ses/" class="md-nav__link">
+        AWS SES
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/full-text-search/" class="md-nav__link">
+        Full-Text Search
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/kubernetes/" class="md-nav__link">
+        Kubernetes
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/ipv6/" class="md-nav__link">
+        IPv6
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/podman/" class="md-nav__link">
+        Podman
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/advanced/dovecot-master-accounts/" class="md-nav__link">
+        Dovecot Master Accounts
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          Examples
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Examples" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_1" type="checkbox" id="__nav_4_1" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_1">
+          Tutorials
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Tutorials" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_1">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/tutorials/basic-installation/" class="md-nav__link">
+        Basic Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/tutorials/mailserver-behind-proxy/" class="md-nav__link">
+        Mailserver behind Proxy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/tutorials/docker-build/" class="md-nav__link">
+        Building your own Docker image
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/tutorials/blog-posts/" class="md-nav__link">
+        Blog Posts
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Use Cases
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Use Cases" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Use Cases
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/use-cases/forward-only-mailserver-with-ldap-authentication/" class="md-nav__link">
+        Forward-Only Mail-Server with LDAP
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/use-cases/imap-folders/" class="md-nav__link">
+        Customize IMAP Folders
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Contributing
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Contributing" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Contributing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/issues-and-pull-requests/" class="md-nav__link">
+        Issues and Pull Requests
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/coding-style/" class="md-nav__link">
+        Coding Style
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/tests/" class="md-nav__link">
+        Tests
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/documentation/" class="md-nav__link">
+        Documentation
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://hub.docker.com/r/mailserver/docker-mailserver/" class="md-nav__link">
+        DockerHub
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/docker-mailserver/docker-mailserver/pkgs/container/docker-mailserver" class="md-nav__link">
+        GHCR
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#anatomy-of-a-mail-server" class="md-nav__link">
+    Anatomy of a Mail-Server
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    Components
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#about-security-ports" class="md-nav__link">
+    About Security &amp; Ports
+  </a>
+  
+    <nav class="md-nav" aria-label="About Security &amp; Ports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#submission-smtp" class="md-nav__link">
+    Submission - SMTP
+  </a>
+  
+    <nav class="md-nav" aria-label="Submission - SMTP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#two-kinds-of-submission" class="md-nav__link">
+    Two kinds of Submission
+  </a>
+  
+    <nav class="md-nav" aria-label="Two kinds of Submission">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#outward-submission" class="md-nav__link">
+    Outward Submission
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inward-submission" class="md-nav__link">
+    Inward Submission
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrieval-imap" class="md-nav__link">
+    Retrieval - IMAP
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrieval-pop3" class="md-nav__link">
+    Retrieval - POP3
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-does-docker-mailserver-help-with-setting-everything-up" class="md-nav__link">
+    How does docker-mailserver help with setting everything up?
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/docker-mailserver/docker-mailserver/edit/master/docs/content/introduction.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+  <h1>Introduction</h1>
+
+<p>What is a mail-server, and how does it perform its duty?</p>
+<p>Here's an introduction to the field that covers everything you need to know to get started with <code>docker-mailserver</code>.</p>
+<h2 id="anatomy-of-a-mail-server"><a class="toclink" href="#anatomy-of-a-mail-server">Anatomy of a Mail-Server</a></h2>
+<p>A mail-server is only a part of a <a href="https://en.wikipedia.org/wiki/Client%E2%80%93server_model">client-server relationship</a> aimed at exchanging information in the form of <a href="https://en.wikipedia.org/wiki/Email">emails</a>. Exchanging emails requires using specific means (programs and protocols).</p>
+<p><code>docker-mailserver</code> provides you with the server portion, whereas the client can be anything from a terminal via text-based software (eg. <a href="https://en.wikipedia.org/wiki/Mutt_(email_client)">Mutt</a>) to a fully-fledged desktop application (eg. <a href="https://en.wikipedia.org/wiki/Mozilla_Thunderbird">Mozilla Thunderbird</a>, <a href="https://en.wikipedia.org/wiki/Microsoft_Outlook">Microsoft Outlook</a>…), to a web interface, etc.</p>
+<p>Unlike the client-side where usually a single program is used to perform retrieval and viewing of emails, the server-side is composed of many specialized components. The mail-server is capable of accepting, forwarding, delivering, storing and overall exchanging messages, but each one of those tasks is actually handled by a specific piece of software. All of these "agents" must be integrated with one another for the exchange to take place.</p>
+<p><code>docker-mailserver</code> has made informed choices about those components and their (default) configuration. It offers a comprehensive platform to run a fully featured mail-server in no time!</p>
+<h2 id="components"><a class="toclink" href="#components">Components</a></h2>
+<p>The following components are required to create a <a href="https://en.wikipedia.org/wiki/Email_agent_(infrastructure)">complete delivery chain</a>:</p>
+<ul>
+<li>MUA: a <a href="https://en.wikipedia.org/wiki/Email_client">Mail User Agent</a> is basically any client/program capable of sending emails to a mail-server; while also capable of fetching emails from a mail-server for presenting them to the end users.</li>
+<li>MTA: a <a href="https://en.wikipedia.org/wiki/Message_transfer_agent">Mail Transfer Agent</a> is the so-called "mail-server" as seen from the MUA's perspective. It's a piece of software dedicated to accepting submitted emails, then forwarding them-where exactly will depend on an email's final destination. If the receiving MTA is responsible for the FQDN the email is sent to, then an MTA is to forward that email to an MDA (see below). Otherwise, it is to transfer (ie. forward, relay) to another MTA, "closer" to the email's final destination.</li>
+<li>MDA: a <a href="https://en.wikipedia.org/wiki/Mail_delivery_agent">Mail Delivery Agent</a> is responsible for accepting emails from an MTA and dropping them into their recipients' mailboxes, whichever the form.</li>
+</ul>
+<p>Here's a schematic view of mail delivery:</p>
+<div class="highlight"><pre><span></span><code>Sending an email:    MUA ----&gt; MTA ----&gt; (MTA relays) ----&gt; MDA
+Fetching an email:   MUA &lt;--------------------------------- MDA
+</code></pre></div>
+<p>There may be other moving parts or sub-divisions (for instance, at several points along the chain, specialized programs may be analyzing, filtering, bouncing, editing… the exchanged emails).</p>
+<p>In a nutshell, <code>docker-mailserver</code> provides you with the following components:</p>
+<ul>
+<li>A MTA: <a href="http://www.postfix.org/">Postfix</a></li>
+<li>A MDA: <a href="https://dovecot.org/">Dovecot</a></li>
+<li>A bunch of additional programs to improve security and emails processing</li>
+</ul>
+<p>Here's where <code>docker-mailserver</code>'s toochain fits within the delivery chain:</p>
+<div class="highlight"><pre><span></span><code>                                    docker-mailserver is here:
+                                                         ┏━━━━━━━┓
+Sending an email:    MUA ---&gt; MTA ---&gt; (MTA relays) ---&gt; ┫ MTA ╮ ┃
+Fetching an email:   MUA &lt;------------------------------ ┫ MDA ╯ ┃
+                                                         ┗━━━━━━━┛
+</code></pre></div>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>Let's say Alice owns a Gmail account, <code>alice@gmail.com</code>; and Bob owns an account on a <code>docker-mailserver</code>'s instance, <code>bob@dms.io</code>.</p>
+<p>Make sure not to conflate these two very different scenarios:
+A) Alice sends an email to <code>bob@dms.io</code> =&gt; the email is first submitted to MTA <code>smtp.gmail.com</code>, then relayed to MTA <code>smtp.dms.io</code> where it is then delivered into Bob's mailbox.
+B) Bob sends an email to <code>alice@gmail.com</code> =&gt; the email is first submitted to MTA <code>smtp.dms.io</code>, then relayed to MTA <code>smtp.gmail.com</code> and eventually delivered into Alice's mailbox.</p>
+<p>In scenario <em>A</em> the email leaves Gmail's premises, that email's <em>initial</em> submission is <em>not</em> handled by your <code>docker-mailserver</code> instance(MTA); it merely receives the email after it has been relayed by Gmail's MTA. In scenario <em>B</em>, the <code>docker-mailserver</code> instance(MTA) handles the submission, prior to relaying.</p>
+<p>The main takeaway is that when a third-party sends an email to a <code>docker-mailserver</code> instance(MTA) (or any MTA for that matter), it does <em>not</em> establish a direct connection with that MTA. Email submission first goes through the sender's MTA, then some relaying between at least two MTAs is required to deliver the email. That will prove very important when it comes to security management.</p>
+</div>
+<p>One important thing to note is that MTA and MDA programs may actually handle <em>multiple</em> tasks (which is the case with <code>docker-mailserver</code>'s Postfix and Dovecot).</p>
+<p>For instance, Postfix is both an SMTP server (accepting emails) and a relaying MTA (transferring, ie. sending emails to other MTA/MDA); Dovecot is both an MDA (delivering emails in mailboxes) and an IMAP server (allowing MUAs to fetch emails from the <em>mail-server</em>). On top of that, Postfix may rely on Dovecot's authentication capabilities.</p>
+<p>The exact relationship between all the components and their respective (sometimes shared) responsibilities is beyond the scope of this document. Please explore this wiki &amp; the web to get more insights about <code>docker-mailserver</code>'s toolchain.</p>
+<h2 id="about-security-ports"><a class="toclink" href="#about-security-ports">About Security &amp; Ports</a></h2>
+<p>In the previous section, different components were outlined. Each one of those is responsible for a specific task, it has a specific purpose.</p>
+<p>Three main purposes exist when it comes to exchanging emails:</p>
+<ul>
+<li><em>Submission</em>: for a MUA (client), the act of sending actual email data over the network, toward an MTA (server).</li>
+<li><em>Transfer</em> (aka. <em>Relay</em>): for an MTA, the act of sending actual email data over the network, toward another MTA (server) closer to the final destination (where an MTA will forward data to an MDA).</li>
+<li><em>Retrieval</em>: for a MUA (client), the act of fetching actual email data over the network, from an MDA.</li>
+</ul>
+<p>Postfix handles Submission (and might handle Relay), whereas Dovecot handles Retrieval. They both need to be accessible by MUAs in order to act as servers, therefore they expose public endpoints on specific TCP ports (see. <a href="../config/security/understanding-the-ports/"><em>Understanding the ports</em></a> for more details). Those endpoints <em>may</em> be secured, using an encryption scheme and TLS certificates.</p>
+<p>When it comes to the specifics of email exchange, we have to look at protocols and ports enabled to support all the identified purposes. There are several valid options and they've been evolving overtime.</p>
+<p><strong>Here's <code>docker-mailserver</code>'s <em>default</em> configuration:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Purpose</th>
+<th>Protocol</th>
+<th>TCP port / encryption</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transfer/Relay</td>
+<td>SMTP</td>
+<td>25 (unencrypted)</td>
+</tr>
+<tr>
+<td>Submission</td>
+<td>ESMTP</td>
+<td>587 (encrypted using STARTTLS)</td>
+</tr>
+<tr>
+<td>Retrieval</td>
+<td>IMAP4</td>
+<td>143 (encrypted using STARTTLS) + 993 (TLS)</td>
+</tr>
+<tr>
+<td>Retrieval</td>
+<td>POP3</td>
+<td><em>Not activated</em></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code> ┏━━━━━━━━━━ Submission ━━━━━━━━━┓┏━━━━━━━━━━━━━ Transfer/Relay ━━━━━━━━━━━┓
+                        ┌─────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+MUA ----- STARTTLS ---&gt; ┤(587)   MTA ╮    (25)├ &lt;-- cleartext ---&gt; ┊ Third-party MTA ┊
+    ---- cleartext ---&gt; ┤(25)        │        |                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+                        |┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄|
+MUA &lt;---- STARTTLS ---- ┤(143)   MDA ╯        |
+    &lt;-- enforced TLS -- ┤(993)                |
+                        └─────────────────────┘
+ ┗━━━━━━━━━━ Retrieval ━━━━━━━━━━┛
+</code></pre></div>
+<p>If you're new to email infrastructure, both that table and the schema may be confusing.<br />
+Read on to expand your understanding and learn about <code>docker-mailserver</code>'s configuration, including how you can customize it.</p>
+<h3 id="submission-smtp"><a class="toclink" href="#submission-smtp">Submission - SMTP</a></h3>
+<p>For a MUA to send an email to an MTA, it needs to establish a connection with that server, then push data packets over a network that both the MUA (client) and the MTA (server) are connected to. The server implements the <a href="https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol">SMTP</a> protocol, which makes it capable of handling <em>Submission</em>.</p>
+<p>In the case of <code>docker-mailserver</code>, the MTA (SMTP server) is Postfix. The MUA (client) may vary, yet its Submission request is performed as <a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP</a> packets sent over the <em>public</em> internet. This exchange of information may be secured in order to counter eavesdropping.</p>
+<h4 id="two-kinds-of-submission"><a class="toclink" href="#two-kinds-of-submission">Two kinds of Submission</a></h4>
+<p>Let's say I own an account on a <code>docker-mailserver</code> instance, <code>me@dms.io</code>. There are two very different use-cases for Submission:</p>
+<ol>
+<li>I want to send an email to someone</li>
+<li>Someone wants to send you an email</li>
+</ol>
+<p>In the first scenario, I will be submitting my email directly to my <code>docker-mailserver</code> instance/MTA (Postfix), which will then relay the email to its recipient's MTA for final delivery. In this case, Submission is first handled by establishing a direct connection to my own MTA-so at least for this portion of the delivery chain, I'll be able to ensure security/confidentiality. Not so much for what comes next, ie. relaying between MTAs and final delivery.</p>
+<p>In the second scenario, a third-party email account owner will be first submitting an email to some third-party MTA. I have no control over this initial portion of the delivery chain, nor do I have control over the relaying that comes next. My MTA will merely accept a relayed email coming "out of the blue".</p>
+<p>My MTA will thus have to support two kinds of Submission:</p>
+<ul>
+<li>Outward Submission (self-owned email is submitted directly to the MTA, then is relayed "outside")</li>
+<li>Inward Submission (third-party email has been submitted &amp; relayed, then is accepted "inside" by the MTA)</li>
+</ul>
+<div class="highlight"><pre><span></span><code> ┏━━━━ Outward Submission ━━━━┓
+                    ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+Me ---------------&gt; ┤                    ├ -----------------&gt; ┊                 ┊
+                    │       My MTA       │                    ┊ Third-party MTA ┊
+                    │                    ├ &lt;----------------- ┊                 ┊
+                    └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+                               ┗━━━━━━━━━━ Inward Submission ━━━━━━━━━━┛
+</code></pre></div>
+<h5 id="outward-submission"><a class="toclink" href="#outward-submission">Outward Submission</a></h5>
+<p>The best practice as of 2020 when it comes to securing Outward Submission is to use <em>Implicit TLS connection via ESMTP on port 465</em> (see <a href="https://tools.ietf.org/html/rfc8314">RFC 8314</a>). Let's break it down.</p>
+<ul>
+<li>Implicit TLS means the server <em>enforces</em> the client into using an encrypted TCP connection, using <a href="https://en.wikipedia.org/wiki/Transport_Layer_Security">TLS</a>. With this kind of connection, the MUA <em>has</em> to establish a TLS-encrypted connection from the get go (TLS is implied, hence the name "Implicit"). Any client attempting to either submit email in cleartext (unencrypted, not secure), or requesting a cleartext connection to be upgraded to a TLS-encrypted one using <code>STARTTLS</code>, is to be denied. Implicit TLS is sometimes called Enforced TLS for that reason.</li>
+<li><a href="https://en.wikipedia.org/wiki/ESMTP">ESMTP</a> is <a href="https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol">SMTP</a> + extensions. It's the version of the SMTP protocol that a mail-server commonly communicates with today. For the purpose of this documentation, ESMTP and SMTP are synonymous.</li>
+<li>Port 465 is the reserved TCP port for Implicit TLS Submission (since 2018). There is actually a boisterous history to that ports usage, but let's keep it simple.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This Submission setup is sometimes refered to as <a href="https://en.wikipedia.org/wiki/SMTPS">SMTPS</a>. Long story short: this is incorrect and should be avoided.</p>
+</div>
+<p>Although a very satisfactory setup, Implicit TLS on port 465 is somewhat "cutting edge". There exists another well established mail Submission setup that must be supported as well, SMTP+STARTTLS on port 587. It uses Explicit TLS: the client starts with a cleartext connection, then the server informs a TLS-encrypted "upgraded" connection may be established, and the client <em>may</em> eventually decide to establish it prior to the Submission. Basically it's an opportunistic, opt-in TLS upgrade of the connection between the client and the server, at the client's discretion, using a mechanism known as <a href="https://en.wikipedia.org/wiki/Opportunistic_TLS">STARTTLS</a> that both ends need to implement.</p>
+<p>In many implementations, the mail-server doesn't enforce TLS encryption, for backwards compatibility. Clients are thus free to deny the TLS-upgrade proposal (or <a href="https://security.stackexchange.com/questions/168998/what-happens-if-starttls-dropped-in-smtp">misled by a hacker</a> about STARTTLS not being available), and the server accepts unencrypted (cleartext) mail exchange, which poses a confidentiality threat and, to some extent, spam issues. <a href="https://tools.ietf.org/html/rfc8314#section-3.3">RFC 8314 (section 3.3)</a> recommends for a mail-server to support both Implicit and Explicit TLS for Submission, <em>and</em> to enforce TLS-encryption on ports 587 (Explicit TLS) and 465 (Implicit TLS). That's exactly <code>docker-mailserver</code>'s default configuration: abiding by RFC 8314, it <a href="http://www.postfix.org/postconf.5.html#smtpd_tls_security_level">enforces a strict (<code>encrypt</code>) STARTTLS policy</a>, where a denied TLS upgrade terminates the connection thus (hopefully but at the client's discretion) preventing unencrypted (cleartext) Submission.</p>
+<ul>
+<li><strong><code>docker-mailserver</code>'s default configuration enables and <em>requires</em> Explicit TLS (STARTTLS) on port 587 for Outward Submission.</strong></li>
+<li>It does not enable Implicit TLS Outward Submission on port 465 by default. One may enable it through simple custom configuration, either as a replacement or (better!) supplementary mean of secure Submission.</li>
+<li>It does not support old MUAs (clients) not supporting TLS encryption on ports 587/465 (those should perform Submission on port 25, more details below). One may relax that constraint through advanced custom configuration, for backwards compatibility.</li>
+</ul>
+<p>A final Outward Submission setup exists and is akin SMTP+STARTTLS on port 587, but on port 25. That port has historically been reserved specifically for unencrypted (cleartext) mail exchange though, making STARTTLS a bit wrong to use. As is expected by <a href="https://tools.ietf.org/html/rfc5321">RFC 5321</a>, <code>docker-mailserver</code> uses port 25 for unencrypted Submission in order to support older clients, but most importantly for unencrypted Transfer/Relay between MTAs.</p>
+<ul>
+<li><strong><code>docker-mailserver</code>'s default configuration also enables unencrypted (cleartext) on port 25 for Outward Submission.</strong></li>
+<li>It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Outward Submission.</li>
+<li>One may also secure Outward Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.</li>
+</ul>
+<h5 id="inward-submission"><a class="toclink" href="#inward-submission">Inward Submission</a></h5>
+<p>Granted it's still very difficult enforcing encryption between MTAs (Transfer/Relay) without risking dropping emails (when relayed by MTAs not supporting TLS-encryption), Inward Submission is to be handled in cleartext on port 25 by default.</p>
+<ul>
+<li><strong><code>docker-mailserver</code>'s default configuration enables unencrypted (cleartext) on port 25 for Inward Submission.</strong></li>
+<li>It does not enable Explicit TLS (STARTTLS) on port 25 by default. One may enable it through advanced custom configuration, either as a replacement (bad!) or as a supplementary mean of secure Inward Submission.</li>
+<li>One may also secure Inward Submission using advanced encryption scheme, such as DANE/DNSSEC and/or MTA-STS.</li>
+</ul>
+<p>Overall, <code>docker-mailserver</code>'s default configuration for SMTP looks like this:</p>
+<div class="highlight"><pre><span></span><code> ┏━━━━ Outward Submission ━━━━┓
+                    ┌────────────────────┐                    ┌┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┐
+Me -- cleartext --&gt; ┤(25)            (25)├ --- cleartext ---&gt; ┊                 ┊
+Me -- STARTTLS ---&gt; ┤(587)  My MTA       │                    ┊ Third-party MTA ┊
+                    │                (25)├ &lt;---cleartext ---- ┊                 ┊
+                    └────────────────────┘                    └┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘
+                               ┗━━━━━━━━━━ Inward Submission ━━━━━━━━━━┛
+</code></pre></div>
+<h3 id="retrieval-imap"><a class="toclink" href="#retrieval-imap">Retrieval - IMAP</a></h3>
+<p>A MUA willing to fetch an email from a mail-server will most likely communicate with its <a href="https://en.wikipedia.org/wiki/IMAP">IMAP</a> server. As with SMTP described earlier, communication will take place in the form of data packets exchanged over a network that both the client and the server are connected to. The IMAP protocol makes the server capable of handling <em>Retrieval</em>.</p>
+<p>In the case of <code>docker-mailserver</code>, the IMAP server is Dovecot. The MUA (client) may vary, yet its Retrieval request is performed as <a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP</a> packets sent over the <em>public</em> internet. This exchange of information may be secured in order to counter eavesdropping.</p>
+<p>Again, as with SMTP described earlier, the IMAP protocol may be secured with either Implicit TLS (aka. <a href="https://en.wikipedia.org/wiki/IMAPS">IMAPS</a> / IMAP4S) or Explicit TLS (using STARTTLS).</p>
+<p>The best practice as of 2020 is to enforce IMAPS on port 993, rather than IMAP+STARTTLS on port 143 (see <a href="https://tools.ietf.org/html/rfc8314">RFC 8314</a>); yet the latter is usually provided for backwards compatibility.</p>
+<p><strong><code>docker-mailserver</code>'s default configuration enables both Implicit and Explicit TLS for Retrievial, on ports 993 and 143 respectively.</strong></p>
+<h3 id="retrieval-pop3"><a class="toclink" href="#retrieval-pop3">Retrieval - POP3</a></h3>
+<p>Similarly to IMAP, the older POP3 protocol may be secured with either Implicit or Explicit TLS.</p>
+<p>The best practice as of 2020 would be <a href="https://en.wikipedia.org/wiki/POP3S">POP3S</a> on port 995, rather than <a href="https://en.wikipedia.org/wiki/POP3">POP3</a>+STARTTLS on port 110 (see <a href="https://tools.ietf.org/html/rfc8314">RFC 8314</a>).</p>
+<p><strong><code>docker-mailserver</code>'s default configuration disables POP3 altogether.</strong> One should expect MUAs to use TLS-encrypted IMAP for Retrieval.</p>
+<h2 id="how-does-docker-mailserver-help-with-setting-everything-up"><a class="toclink" href="#how-does-docker-mailserver-help-with-setting-everything-up">How does <code>docker-mailserver</code> help with setting everything up?</a></h2>
+<p>As a <em>batteries included</em> Docker image, <code>docker-mailserver</code> provides you with all the required components and a default configuration, to run a decent and secure mail-server.</p>
+<p>One may then customize all aspects of its internal components.</p>
+<ul>
+<li>Simple customization is supported through <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/docker-compose.yml">docker-compose configuration</a> and the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/mailserver.env">env-mailserver</a> configuration file.</li>
+<li>Advanced customization is supported through providing "monkey-patching" configuration files and/or <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/Dockerfile">deriving your own image</a> from <code>docker-mailserver</code>'s upstream, for a complete control over how things run.</li>
+</ul>
+<p>On the subject of security, one might consider <code>docker-mailserver</code>'s <strong>default</strong> configuration to <em>not</em> be 100% secure:</p>
+<ul>
+<li>it enables unencrypted traffic on port 25</li>
+<li>it enables Explicit TLS (STARTTLS) on port 587, instead of Implicit TLS on port 465</li>
+</ul>
+<p>We believe <code>docker-mailserver</code>'s default configuration to be a good middle ground: it goes slightly beyond "old" (1999) <a href="https://tools.ietf.org/html/rfc2487">RFC 2487</a>; and with developer friendly configuration settings, it makes it pretty easy to abide by the "newest" (2018) <a href="https://tools.ietf.org/html/rfc8314">RFC 8314</a>.</p>
+<p>Eventually, it is up to <em>you</em> deciding exactly what kind of transportation/encryption to use and/or enforce, and to customize your instance accordingly (with looser or stricter security). Be also aware that protocols and ports on your server can only go so far with security; third-party MTAs might relay your emails on insecure connections, man-in-the-middle attacks might still prove effective, etc. Advanced counter-measure such as DANE, MTA-STS and/or full body encryption (eg. PGP) should be considered as well for increased confidentiality, but ideally without compromising backwards compatibility so as to not block emails.</p>
+<p>The <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md">README</a> is the best starting point in configuring and running your mail-server. You may then explore this wiki to cover additional topics, including but not limited to, security.</p>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Home
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../config/setup.sh/" class="md-footer__link md-footer__link--next" aria-label="Next: Your Best Friend setup.sh" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Your Best Friend setup.sh
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      <p>&copy <a href="https://github.com/docker-mailserver"><em>Docker Mailserver Organization</em></a><br/><span>This project is licensed under the MIT license.</span></p>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top", "navigation.expand", "navigation.instant", "content.code.annotate"], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.431f3d41.min.js"></script>
+      
+    
+  </body>
+</html>
