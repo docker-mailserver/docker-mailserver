@@ -34,9 +34,7 @@ function __environment_variables_backwards_compatibility() {
   fi
 
   if [[ -n ${SA_SPAM_SUBJECT:-} ]]; then
-    _log 'warn' "'SA_SPAM_SUBJECT' has been renamed to 'SPAM_SUBJECT' - this warning will block startup on v15.0.0"
-    _log 'info' "Copying value of 'SA_SPAM_SUBJECT' into 'SPAM_SUBJECT' if 'SPAM_SUBJECT' has not been set explicitly"
-    SPAM_SUBJECT=${SPAM_SUBJECT:-${SA_SPAM_SUBJECT}}
+    _log 'error' "'SA_SPAM_SUBJECT' has been renamed to 'SPAM_SUBJECT' since DMS v16"
   fi
 
   # TODO this can be uncommented in a PR handling the HOSTNAME/DOMAINNAME issue

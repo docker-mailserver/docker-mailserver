@@ -417,8 +417,8 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 [spamhaus::faq::what-is-a-dnsbl]: https://www.spamhaus.org/faqs/dnsbl-usage/#what-is-a-dnsbl
 [docker-docs::compose::default-network]: https://docs.docker.com/reference/compose-file/networks/#the-default-network
 
-[dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd/local.d/actions.conf
-[dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v15.0.0/target/rspamd
+[dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/tree/v16.0.0/target/rspamd/local.d/actions.conf
+[dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v16.0.0/target/rspamd
 [gh-dms::guide::valkey]: https://github.com/docker-mailserver/docker-mailserver/issues/4001#issuecomment-2652596692
 [gh-dms::guide::rspamd-web]: https://github.com/orgs/docker-mailserver/discussions/4269#discussioncomment-11329588
 
