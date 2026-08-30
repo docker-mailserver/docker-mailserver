@@ -57,7 +57,9 @@ ${ORANGE}EXAMPLES${RESET}
 
     ${LWHITE}setup config dkim keytype ed25519 domain edward.com selector elliptic-test${RESET}
         Generate the DKIM key using the ED25519 elliptic curve for the domain
-        edward.com and the selector elliptic-test.
+        edward.com and the selector elliptic-test. Ed25519 and RSA cannot share
+        a selector (one DNS TXT record per selector). Dual signing needs a
+        distinct selector per key and a 'selectors' array in dkim_signing.conf.
 
 ${ORANGE}EXIT STATUS${RESET}
     Exit status is 0 if command was successful. If wrong arguments are provided or arguments contain
@@ -158,17 +160,19 @@ function _preflight_checks() {
 
   mkdir -p "${RSPAMD_DMS_DKIM_D}" "${RSPAMD_DMS_OVERRIDE_D}"
   chown _rspamd:_rspamd "${RSPAMD_DMS_DKIM_D}"
+
+  SELECTOR_MAP_FILE="${RSPAMD_DMS_D}/dkim_selectors.map"
 }
 
 function _create_keys() {
+  local BASE_FILE_NAME="${RSPAMD_DMS_DKIM_D}/${DOMAIN}-${SELECTOR}"
   if [[ ${KEYTYPE} == 'rsa' ]]; then
-    local BASE_FILE_NAME="${RSPAMD_DMS_DKIM_D}/${DOMAIN}-${SELECTOR}"
     KEYTYPE_OPTIONS=('-b' "${KEYSIZE}")
     _log 'info' "Creating DKIM keys of type '${KEYTYPE}' and length '${KEYSIZE}' with selector '${SELECTOR}' for domain '${DOMAIN}'"
   else
-    local BASE_FILE_NAME="${RSPAMD_DMS_DKIM_D}/${DOMAIN}-${SELECTOR}"
     KEYTYPE_OPTIONS=('-t' "${KEYTYPE}")
     _log 'info' "Creating DKIM keys of type '${KEYTYPE}' with selector '${SELECTOR}' for domain '${DOMAIN}'"
+    _log 'info' "Ed25519 and RSA cannot share a selector; generate an RSA fallback with a different selector and add both to a 'selectors' array in dkim_signing.conf"
   fi
 
   PUBLIC_KEY_FILE="${BASE_FILE_NAME}.public.txt"
@@ -241,19 +245,27 @@ allow_username_mismatch = true;
 check_pubkey = true; # you want to use this in the beginning
 
 try_fallback = true;
-selector_map = "/etc/rspamd/dkim_selectors.map";
+selector_map = "${SELECTOR_MAP_FILE}";
 selector = "mail";
 
 # The path location is searched for a DKIM key with these variables:
 # - '\$domain' is sourced from the MIME mail message 'From' header
-# - '\$selector' is configured for 'mail' (as a default fallback)
-path = "/tmp/docker-mailserver/rspamd/dkim/\$domain-\$selector.private";
+# - '\$selector' comes from selector_map when present, otherwise the default below
+path = "${RSPAMD_DMS_DKIM_D}/\$domain-\$selector.private";
 
-# domain specific configurations can be provided below:
+# Dual signing (e.g. RSA + Ed25519) needs a domain-specific selectors array:
 #domain {
 #    example.com {
-#        path = "...";
-#        selector = "...";
+#        selectors [
+#            {
+#                path = "${RSPAMD_DMS_DKIM_D}/example.com-mail.private";
+#                selector = "mail";
+#            },
+#            {
+#                path = "${RSPAMD_DMS_DKIM_D}/example.com-mail-ed25519.private";
+#                selector = "mail-ed25519";
+#            }
+#        ]
 #    }
 #}
 
@@ -265,6 +277,31 @@ EOF
     cp "${DEFAULT_CONFIG_FILE}" "${RSPAMD_OVERRIDE_D}/dkim_signing.conf"
     chown _rspamd:_rspamd "${DEFAULT_CONFIG_FILE}" "${RSPAMD_OVERRIDE_D}/dkim_signing.conf"
   fi
+
+  # Rspamd fails to load selector_map when the file is missing; keep an empty map around.
+  touch "${SELECTOR_MAP_FILE}"
+  chown _rspamd:_rspamd "${SELECTOR_MAP_FILE}"
+}
+
+# Record DOMAIN -> SELECTOR so a custom selector is used with the path template.
+# One map entry per domain; dual signing needs a 'selectors' array in dkim_signing.conf.
+function _update_selector_map() {
+  local TMP_FILE="${SELECTOR_MAP_FILE}.tmp"
+  local PREVIOUS_SELECTOR
+
+  touch "${SELECTOR_MAP_FILE}"
+  PREVIOUS_SELECTOR=$(awk -v domain="${DOMAIN}" '$1 == domain { print $2; exit }' "${SELECTOR_MAP_FILE}")
+  if [[ -n "${PREVIOUS_SELECTOR}" ]] && [[ "${PREVIOUS_SELECTOR}" != "${SELECTOR}" ]]; then
+    _log 'warn' "Selector map for '${DOMAIN}' already used '${PREVIOUS_SELECTOR}'; replacing with '${SELECTOR}'. Dual signing (RSA + Ed25519) needs a 'selectors' array in dkim_signing.conf, not selector_map"
+  fi
+
+  awk -v domain="${DOMAIN}" -v selector="${SELECTOR}" '
+    $1 != domain { print }
+    END { print domain, selector }
+  ' "${SELECTOR_MAP_FILE}" >"${TMP_FILE}"
+  mv "${TMP_FILE}" "${SELECTOR_MAP_FILE}"
+  chown _rspamd:_rspamd "${SELECTOR_MAP_FILE}"
+  chmod 644 "${SELECTOR_MAP_FILE}"
 }
 
 function _transform_public_key_file_to_dns_record_contents() {
@@ -293,5 +330,6 @@ _preflight_checks
 _create_keys
 _check_permissions
 _setup_default_signing_conf
+_update_selector_map
 _transform_public_key_file_to_dns_record_contents
 _final_steps
