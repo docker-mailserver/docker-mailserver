@@ -284,6 +284,7 @@ function __check_default_signing_config() {
   assert_success
   _run_in_container grep -F 'selector_map = "/tmp/docker-mailserver/rspamd/dkim_selectors.map";' "${SIGNING_CONF_FILE}"
   assert_success
+  # shellcheck disable=SC2016
   _run_in_container grep -F 'path = "/tmp/docker-mailserver/rspamd/dkim/$domain-$selector.private";' "${SIGNING_CONF_FILE}"
   assert_success
 }
@@ -296,6 +297,7 @@ function __check_selector_map_entry() {
   local DOMAIN=${1:?Domain must be supplied to __check_selector_map_entry}
   local SELECTOR=${2:?Selector must be supplied to __check_selector_map_entry}
   _file_exists_in_container "${SELECTOR_MAP_FILE}"
+  # shellcheck disable=SC2016
   _run_in_container awk -v domain="${DOMAIN}" -v selector="${SELECTOR}" \
     '$1 == domain && $2 == selector { found = 1 } END { exit found ? 0 : 1 }' \
     "${SELECTOR_MAP_FILE}"
