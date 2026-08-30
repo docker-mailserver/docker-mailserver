@@ -61,11 +61,14 @@ function _create_accounts() {
         echo "${DOVECOT_USERDB_LINE}" >>"${DOVECOT_USERDB_FILE}"
       fi
 
-      mkdir -p "/var/mail/${DOMAIN}/${USER}/home"
+      local MAILBOX_HOME="/var/mail/${DOMAIN}/${USER}/home"
+      mkdir -p "${MAILBOX_HOME}"
+      chown -- "${DMS_VMAIL_UID}:${DMS_VMAIL_GID}" "${MAILBOX_HOME}"
 
       # copy user provided sieve file, if present
       if [[ -e "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" ]]; then
-        cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "/var/mail/${DOMAIN}/${USER}/home/.dovecot.sieve"
+        cp "/tmp/docker-mailserver/${LOGIN}.dovecot.sieve" "${MAILBOX_HOME}/.dovecot.sieve"
+        chown -- "${DMS_VMAIL_UID}:${DMS_VMAIL_GID}" "${MAILBOX_HOME}/.dovecot.sieve"
       fi
     done < <(_get_valid_lines_from_file "${DATABASE_ACCOUNTS}")
 

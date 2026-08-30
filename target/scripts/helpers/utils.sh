@@ -73,9 +73,9 @@ function _get_dms_env_value() {
 # `helpers/accounts.sh:_create_accounts` (mkdir, cp) appears to be the only writer to
 # /var/mail folders (used during startup and change detection handling).
 function _chown_var_mail() {
-  # if needed, fix permissions for all files and folders 3 levels deep /var/mail
-  log 'trace' 'Fixing /var/mail permissions'
-  find /var/mail -maxdepth 3 \( \! -user "${DMS_VMAIL_UID}" -o \! -group "${DMS_VMAIL_GID}" \) -exec chown "${DMS_VMAIL_UID}:${DMS_VMAIL_GID}" {} +
+  # Fix ownership of mismatched paths within 3 levels of /var/mail, recursively.
+  _log 'trace' 'Fixing /var/mail permissions'
+  find /var/mail -maxdepth 3 \( \! -user "${DMS_VMAIL_UID}" -o \! -group "${DMS_VMAIL_GID}" \) -exec chown -R -- "${DMS_VMAIL_UID}:${DMS_VMAIL_GID}" {} +
 }
 
 function _require_n_parameters_or_print_usage() {

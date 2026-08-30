@@ -8,13 +8,14 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Breaking
 
-- **Rspamd:**
-  - `setup config dkim` now writes keys as `<domain>-<selector>.private` (previously `<keytype>-<keysize>-<selector>-<domain>.private.txt`). The default `dkim_signing.conf` uses a `$domain-$selector` path template with `try_fallback = true`, so multiple domains share one config. Existing `dkim_signing.conf` files are not overwritten. Rename keys to the new layout if you regenerate them (OpenDKIM: `opendkim/keys/<domain>/<selector>.private` → `rspamd/dkim/<domain>-<selector>.private`). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
-
-### Updated
-
 - **Rspamd**
+  - `setup config dkim` now writes keys as `<domain>-<selector>.private` (previously `<keytype>-<keysize>-<selector>-<domain>.private.txt`). The default `dkim_signing.conf` uses a `$domain-$selector` path template with `try_fallback = true`, so multiple domains share one config. Existing `dkim_signing.conf` files are not overwritten. Rename keys to the new layout if you regenerate them (OpenDKIM: `opendkim/keys/<domain>/<selector>.private` → `rspamd/dkim/<domain>-<selector>.private`). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
   - `setup config dkim` writes a persisted `dkim_selectors.map` for custom selectors. Documentation covers multi-domain setup, OpenDKIM migration, and Ed25519 + RSA fallback (distinct selectors plus a `selectors` array). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
+
+### Fixed
+
+- **Internal**
+  - `/var/mail` permission repair now runs `chown -R` only on paths `find` reports as mismatched (within `-maxdepth 3`), instead of `chown -R` on the entire tree. Account creation sets ownership on new mailbox `home/` and copied sieve files so change detection no longer needs to scan `/var/mail` ([#4696](https://github.com/docker-mailserver/docker-mailserver/pull/4696), [#4112](https://github.com/docker-mailserver/docker-mailserver/issues/4112))
 
 ## [v16.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v16.0.0)
 

@@ -141,10 +141,6 @@ function _postfix_dovecot_changes() {
   [[ ${CHANGED} =~ ${DMS_DIR}/postfix-virtual.cf ]] && _handle_postfix_virtual_config
   [[ ${CHANGED} =~ ${DMS_DIR}/postfix-regexp.cf  ]] && _handle_postfix_regexp_config
   [[ ${CHANGED} =~ ${DMS_DIR}/postfix-aliases.cf ]] && _handle_postfix_aliases_config
-
-  # Legacy workaround handled here, only seems necessary for _create_accounts:
-  # - `helpers/accounts.sh` logic creates folders/files with wrong ownership.
-  _chown_var_mail
 }
 
 function _ssl_changes() {
