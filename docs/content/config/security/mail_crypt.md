@@ -22,11 +22,13 @@ Official Dovecot documentation: https://doc.dovecot.org/configuration_manual/mai
 
     ```
     # Enables mail_crypt for all services (imap, pop3, etc)
-    mail_plugins = $mail_plugins mail_crypt
-    plugin {
-      mail_crypt_global_private_key = /certs/ecprivkey.pem
-      mail_crypt_global_public_key = /certs/ecpubkey.pem
-      mail_crypt_save_version = 2
+    mail_plugins {
+      mail_crypt = yes
+    }
+
+    crypt_global_public_key_file = /certs/ecpubkey.pem
+    crypt_global_private_key main {
+      crypt_private_key_file = /certs/ecprivkey.pem
     }
     ```
 
