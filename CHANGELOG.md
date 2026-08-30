@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Fixed
 
 - **Internal**
-  - `/var/mail` permission repair now runs `chown -R` only on paths `find` reports as mismatched (within `-maxdepth 3`), instead of `chown -R` on the entire tree. Account creation sets ownership on new mailbox `home/` and copied sieve files so change detection no longer needs to scan `/var/mail` ([#4696](https://github.com/docker-mailserver/docker-mailserver/pull/4696), [#4112](https://github.com/docker-mailserver/docker-mailserver/issues/4112))
+  - `/var/mail` permission repair now runs `chown -R` only on paths `find` reports as mismatched (within `-maxdepth 3`), instead of `chown -R` on the entire tree. Account creation sets ownership on the new mailbox directory (`mail_path`) so change detection no longer needs to scan `/var/mail` ([#4696](https://github.com/docker-mailserver/docker-mailserver/pull/4696), [#4112](https://github.com/docker-mailserver/docker-mailserver/issues/4112))
 
 ## [v16.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v16.0.0)
 
