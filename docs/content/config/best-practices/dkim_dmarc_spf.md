@@ -226,7 +226,7 @@ When mail signed with your DKIM key is sent from your mail server, the receiver 
 
 ### Troubleshooting { #dkim-debug }
 
-[MxToolbox has a DKIM Verifier][mxtoolbox-dkim-verifier] that you can use to check your DKIM DNS record(s).
+[MxToolbox has a DKIM Verifier][mxtoolbox-dkim-verifier] that you can use to check your DKIM DNS record(s). [uChecker has a DKIM checker][uchecker-dkim] that you can use to check your DKIM DNS record.
 
 When using Rspamd, we recommend you turn on `check_pubkey = true;` in `dkim_signing.conf`. Rspamd will then check whether your private key matches your public key, and you can check possible mismatches by looking at `/var/log/mail/rspamd.log`.
 
@@ -318,6 +318,7 @@ volumes:
 [dkim-ed25519-support]: https://serverfault.com/questions/1023674/is-ed25519-well-supported-for-the-dkim-validation/1074545#1074545
 [dkim-verification-expiry-refusal]: https://mxtoolbox.com/problem/dkim/dkim-signature-expiration
 [mxtoolbox-dkim-verifier]: https://mxtoolbox.com/dkim.aspx
+[uchecker-dkim]: https://uchecker.net/dkim-checker
 [dmarc-howto-configtags]: https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md#overview-of-dmarc-configuration-tags
 [dmarc-tool-gca]: https://dmarcguide.globalcyberalliance.org
 [dmarcian-tools]: https://dmarcian.com/dmarc-tools/
