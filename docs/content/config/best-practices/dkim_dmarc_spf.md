@@ -375,7 +375,7 @@ volumes:
 [dkim-ed25519-support]: https://serverfault.com/questions/1023674/is-ed25519-well-supported-for-the-dkim-validation/1074545#1074545
 [dkim-verification-expiry-refusal]: https://mxtoolbox.com/problem/dkim/dkim-signature-expiration
 [mxtoolbox-dkim-verifier]: https://mxtoolbox.com/dkim.aspx
-[uchecker-dkim]: https://uchecker.net/en/dkim-checker
+[uchecker-dkim]: https://uchecker.net/dkim-checker
 [dmarc-howto-configtags]: https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md#overview-of-dmarc-configuration-tags
 [dmarc-tool-gca]: https://dmarcguide.globalcyberalliance.org
 [dmarcian-tools]: https://dmarcian.com/dmarc-tools/
