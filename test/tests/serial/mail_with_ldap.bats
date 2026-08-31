@@ -157,6 +157,10 @@ function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     "${ENV_LDAP_CONFIG[@]}"
 
+    --env DOVECOT_AUTH_BIND=yes
+    --env DOVECOT_PASS_ATTRS='userID=user,userPassword=password'
+    --env DOVECOT_USER_ATTRS='=uid=5000,=gid=5000,=home=/var/mail/%{user | domain | lower}/%{user | username | lower},=mail=maildir:~/Maildir'
+
     # `hostname` should be unique when connecting containers via network:
     --hostname "custom-config.${DMS_DOMAIN}"
     --network "${DMS_TEST_NETWORK}"
@@ -220,6 +224,23 @@ function teardown() {
     _run_in_container grep '# Testconfig for ldap integration' "${LDAP_CONFIG}"
     assert_success
   done
+
+  _run_in_container grep '^passdb_ldap_bind = yes$' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  assert_success
+  _run_in_container grep '^    user = %{ldap:userID}$' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  assert_success
+  _run_in_container grep '^    uid = 5000$' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  assert_success
+  _run_in_container grep '^    gid = 5000$' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  assert_success
+  _run_in_container grep '^    home = /var/mail/%{user | domain | lower}/%{user | username | lower}$' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  assert_success
+  _run_in_container grep '^    mail_path = ~/Maildir$' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  assert_success
+  _run_in_container grep '^    password = ' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  assert_failure
+  _run_in_container grep '^    mail = ' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  assert_failure
 }
 
 @test "postfix: ldap config overwrites success" {
@@ -268,6 +289,9 @@ function teardown() {
     'ldap_base = ou=users,dc=example,dc=test'
     'ldap_auth_dn = cn=admin,dc=example,dc=test'
     'ldap_starttls = no'
+    'ldap_version = 3'
+    'passdb_ldap_bind = no'
+    'passdb_default_password_scheme = SSHA'
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_DOVECOT[@]}"; do
