@@ -150,7 +150,7 @@ DMS will connect internally to the `solr` service above. Either have both servic
     //}
     ```
 
-    Excluding Trash form indexing is optional and so is including attachment text. The decode2text script [may or may not work][decoder-script-notice], upstream prefers Tika which SOLR should be able to do but is outside of scope for this tutorial.
+    Excluding Trash from indexing is optional and so is including attachment text. The decode2text script [may or may not work][decoder-script-notice], upstream prefers Tika which SOLR should be able to do but is outside of scope for this tutorial.
 
     Starting with dovecot 2.4 dovecot fts-solr needs a default language to initialize solr searching. In this example langcode `en` was set as default, but any langcode will do. If you want to enable additional languages add them like this:
 
