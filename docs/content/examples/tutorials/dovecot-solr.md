@@ -154,10 +154,10 @@ DMS will connect internally to the `solr` service above. Either have both servic
 
     Starting with dovecot 2.4 dovecot fts-solr needs a default language to initialize solr searching. In this example langcode `en` was set as default, but any langcode will do. If you want to enable additional languages add them like this:
 
-     ```config
-     language de {
-     }
-     ```
+    ```config
+    language de {
+    }
+    ```
 
     Add a volume mount for that config to your DMS service in `compose.yaml`:
 
