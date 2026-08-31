@@ -19,6 +19,8 @@ All notable changes to this project will be documented in this file. The format 
   - LDAP `DOVECOT_PASS_ATTRS`, `DOVECOT_USER_ATTRS`, and `DOVECOT_AUTH_BIND` now configure Dovecot 2.4 LDAP fields and authentication binds correctly.
 - **Internal**
   - `/var/mail` permission repair now runs `chown -R` only on paths `find` reports as mismatched (within `-maxdepth 3`), instead of `chown -R` on the entire tree. Account creation sets ownership on the new mailbox directory (`mail_path`) so change detection no longer needs to scan `/var/mail` ([#4696](https://github.com/docker-mailserver/docker-mailserver/pull/4696), [#4112](https://github.com/docker-mailserver/docker-mailserver/issues/4112))
+- **Documentation**
+  - Updated the dovecot fts solr tutorial for dovecot 2.4+ and solr 10.x. 
 
 ## [v16.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v16.0.0)
 
