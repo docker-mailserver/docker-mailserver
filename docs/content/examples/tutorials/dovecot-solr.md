@@ -83,7 +83,7 @@ services:
       SOLR_JAVA_MEM: "-Xms2g -Xmx2g"
       # Current dovecot solr config needs the analysis-extras solr module,
       # so add it with this env var.
-      SOLR_MODULES=analysis-extras
+      SOLR_MODULES: "analysis-extras"
     volumes:
       - ./docker-data/solr:/var/solr
     restart: always
