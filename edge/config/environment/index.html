@@ -6948,7 +6948,7 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <li>yes =&gt; LDAP over TLS enabled for Dovecot</li>
 </ul>
 <h4 id="dovecot"><a class="toclink" href="#dovecot">Dovecot</a></h4>
-<p>The following variables overwrite the default values for <code>/etc/dovecot/dovecot-ldap.conf.ext</code>.</p>
+<p>The following variables overwrite the default values for <code>/etc/dovecot/conf.d/auth-ldap.conf.ext</code>.</p>
 <h5 id="dovecot_base"><a class="toclink" href="#dovecot_base">DOVECOT_BASE</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt;  same as <code>LDAP_SEARCH_BASE</code></li>
@@ -6957,6 +6957,7 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <h5 id="dovecot_default_pass_scheme"><a class="toclink" href="#dovecot_default_pass_scheme">DOVECOT_DEFAULT_PASS_SCHEME</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt;  <code>SSHA</code></li>
+<li>=&gt; Sets Dovecot's <code>passdb_default_password_scheme</code> for the LDAP passdb.</li>
 <li>=&gt; Select one crypt scheme for password hashing from this list of <a href="https://doc.dovecot.org/configuration_manual/authentication/password_schemes/">password schemes</a>.</li>
 </ul>
 <h5 id="dovecot_dn"><a class="toclink" href="#dovecot_dn">DOVECOT_DN</a></h5>
@@ -6984,11 +6985,11 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <h5 id="dovecot_auth_bind"><a class="toclink" href="#dovecot_auth_bind">DOVECOT_AUTH_BIND</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; no</li>
-<li>yes =&gt; Enable <a href="https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds">LDAP authentication binds</a></li>
+<li>yes =&gt; Enable <a href="https://doc.dovecot.org/2.4.4/core/config/auth/databases/ldap.html#authentication-binds">LDAP authentication binds</a></li>
 </ul>
 <h5 id="dovecot_user_filter"><a class="toclink" href="#dovecot_user_filter">DOVECOT_USER_FILTER</a></h5>
 <ul>
-<li>e.g. <code>(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))</code></li>
+<li>e.g. <code>(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))</code></li>
 </ul>
 <h5 id="dovecot_user_attrs"><a class="toclink" href="#dovecot_user_attrs">DOVECOT_USER_ATTRS</a></h5>
 <ul>
@@ -6996,11 +6997,12 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <li>=&gt; Specify the directory to dovecot attribute mapping that fits your directory structure.</li>
 <li>Note: This is necessary for directories that do not use the Postfix Book Schema.</li>
 <li>Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.</li>
-<li>More details on the <a href="https://wiki.dovecot.org/AuthDatabase/LDAP/Userdb">Dovecot Wiki</a></li>
+<li>Note: <code>mail</code> is converted to Dovecot 2.4's <code>mail_path</code> field and a leading <code>maildir:</code> prefix is removed.</li>
+<li>More details in the <a href="https://doc.dovecot.org/2.4.4/core/config/auth/databases/ldap.html#ldap-userdb">Dovecot LDAP userdb documentation</a>.</li>
 </ul>
 <h5 id="dovecot_pass_filter"><a class="toclink" href="#dovecot_pass_filter">DOVECOT_PASS_FILTER</a></h5>
 <ul>
-<li>e.g. <code>(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))</code></li>
+<li>e.g. <code>(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))</code></li>
 <li><strong>empty</strong> =&gt; same as <code>DOVECOT_USER_FILTER</code></li>
 </ul>
 <h5 id="dovecot_pass_attrs"><a class="toclink" href="#dovecot_pass_attrs">DOVECOT_PASS_ATTRS</a></h5>
@@ -7009,7 +7011,8 @@ X-Spam-Status: No, score=4.162 tagged_above=2 required=4
 <li>=&gt; Specify the directory to dovecot variable mapping that fits your directory structure.</li>
 <li>Note: This is necessary for directories that do not use the Postfix Book Schema.</li>
 <li>Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.</li>
-<li>More details on the <a href="https://wiki.dovecot.org/AuthDatabase/LDAP/PasswordLookups">Dovecot Wiki</a></li>
+<li>Note: With <code>DOVECOT_AUTH_BIND=yes</code>, the <code>password</code> field is omitted because Dovecot verifies the password by binding as the user.</li>
+<li>More details in the <a href="https://doc.dovecot.org/2.4.4/core/config/auth/databases/ldap.html#password-lookups">Dovecot LDAP password lookup documentation</a>.</li>
 </ul>
 <h4 id="postgrey"><a class="toclink" href="#postgrey">Postgrey</a></h4>
 <h5 id="enable_postgrey"><a class="toclink" href="#enable_postgrey">ENABLE_POSTGREY</a></h5>

@@ -3159,25 +3159,25 @@
 </details>
 <h3 id="dovecot__filter-dovecot__attrs"><a class="toclink" href="#dovecot__filter-dovecot__attrs"><code>DOVECOT_*_FILTER</code> &amp; <code>DOVECOT_*_ATTRS</code></a></h3>
 <p>These variables specify the LDAP filters that dovecot uses to determine if a user can log in to their IMAP account, and which mailbox is responsible to receive email for a specific postfix user.</p>
-<p>This is split into the following two lookups, both using <code>%u</code> as the placeholder for the full login name (<a href="https://doc.dovecot.org/configuration_manual/config_file/config_variables/">see dovecot documentation for a full list of placeholders</a>). Usually you only need to set <code>DOVECOT_USER_FILTER</code>, in which case it will be used for both filters.</p>
+<p>This is split into the following two lookups, both using <code>%{user}</code> as the placeholder for the full login name (<a href="https://doc.dovecot.org/2.4.4/core/config/settings.html">see Dovecot documentation for a full list of placeholders</a>). Usually you only need to set <code>DOVECOT_USER_FILTER</code>, in which case it will be used for both filters.</p>
 <ul>
 <li><code>DOVECOT_USER_FILTER</code> is used to get the account details (uid, gid, home directory, quota, ...) of a user.</li>
 <li><code>DOVECOT_PASS_FILTER</code> is used to get the password information of the user, and is in pretty much all cases identical to <code>DOVECOT_USER_FILTER</code> (which is the default behavior if left away).</li>
 </ul>
-<p>If your directory doesn't have the <a href="https://github.com/variablenix/ldap-mail-schema/blob/master/postfix-book.schema">postfix-book schema</a> installed, then you must change the internal attribute handling for dovecot. For this you have to change the <code>pass_attr</code> and the <code>user_attr</code> mapping, as shown in the example below:</p>
+<p>If your directory doesn't have the <a href="https://github.com/variablenix/ldap-mail-schema/blob/master/postfix-book.schema">postfix-book schema</a> installed, then you must change the internal attribute handling for Dovecot. For this you have to change the <code>pass_attr</code> and <code>user_attr</code> mappings, as shown in the example below:</p>
 <div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=&lt;YOUR_USER_IDENTIFIER_ATTRIBUTE&gt;=user,&lt;YOUR_USER_PASSWORD_ATTRIBUTE&gt;=password</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=&lt;YOUR_USER_HOME_DIRECTORY_ATTRIBUTE&gt;=home,&lt;YOUR_USER_MAILSTORE_ATTRIBUTE&gt;=mail,&lt;YOUR_USER_MAIL_UID_ATTRIBUTE&gt;=uid,&lt;YOUR_USER_MAIL_GID_ATTRIBUTE&gt;=gid</span>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For <code>DOVECOT_*_ATTRS</code>, you can replace <code>ldapAttr=dovecotAttr</code> with <code>=dovecotAttr=%{ldap:ldapAttr}</code> for more flexibility, like for example <code>=home=/var/mail/%{ldap:uid}</code> or just <code>=uid=5000</code>.</p>
+<p>For <code>DOVECOT_*_ATTRS</code>, you can replace <code>ldapAttr=dovecotAttr</code> with <code>=dovecotAttr=%{ldap:ldapAttr}</code> for more flexibility, like for example <code>=home=/var/mail/%{ldap:uid}</code> or just <code>=uid=5000</code>. DMS converts these legacy mappings to Dovecot 2.4 <code>fields { }</code> entries. The <code>mail</code> field is converted to <code>mail_path</code>, and a leading <code>maildir:</code> prefix is removed.</p>
 <p>A list of dovecot attributes can be found <a href="https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/#authentication-user-database">in the dovecot documentation</a>.</p>
 </div>
 <details class="example" open="open">
 <summary>Defaults</summary>
 <div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uniqueIdentifier=user,userPassword=password</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))</span>
 </code></pre></div>
 </details>
 <details class="example" open="open">
@@ -3185,12 +3185,12 @@
 <p>Setup for a directory that has the <a href="https://github.com/amery/qmail/blob/master/qmail.schema">qmail-schema</a> installed and uses <code>uid</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uid=user,userPassword=password</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=qmailUser)(uid=%u)(accountStatus=active))</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=qmailUser)(uid=%{user})(accountStatus=active))</span>
 </code></pre></div>
 </details>
 <p>The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in <a href="../../../environment/">the environment section in the docs</a>.</p>
 <h3 id="dovecot_auth_bind"><a class="toclink" href="#dovecot_auth_bind"><code>DOVECOT_AUTH_BIND</code></a></h3>
-<p>Set this to <code>yes</code> to enable authentication binds (<a href="https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds">more details in the dovecot documentation</a>). Currently, only DN lookup is supported without further changes to the configuration files, so this is only useful when you want to bind as a readonly user without the permission to read passwords.</p>
+<p>Set this to <code>yes</code> to enable authentication binds (<a href="https://doc.dovecot.org/2.4.4/core/config/auth/databases/ldap.html#authentication-binds">more details in the Dovecot documentation</a>). Dovecot verifies the supplied password by binding as the user, so the <code>password</code> field in <code>DOVECOT_PASS_ATTRS</code> is ignored.</p>
 <h3 id="saslauthd_ldap_filter"><a class="toclink" href="#saslauthd_ldap_filter"><code>SASLAUTHD_LDAP_FILTER</code></a></h3>
 <p>This filter is used for <code>saslauthd</code>, which is called by postfix when someone is authenticating through SMTP (assuming that <code>SASLAUTHD_MECHANISMS=ldap</code> is being used). Note that you'll need to set up the LDAP server for saslauthd separately from postfix.</p>
 <p>The filter variables are explained in detail <a href="https://github.com/winlibs/cyrus-sasl/blob/master/saslauthd/LDAP_SASLAUTHD#L121">in the <code>LDAP_SASLAUTHD</code> file</a>, but unfortunately, this method doesn't really support domains right now - that means that <code>%U</code> is the only token that makes sense in this variable.</p>
@@ -3255,9 +3255,9 @@ update-ca-certificates
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPOOF_PROTECTION=1</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))</span>
 
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectclass=person)(sAMAccountName=%n))</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectclass=person)(sAMAccountName=%{user | username}))</span>
 <span class="c1"># At the moment to be able to use %{ldap:uidNumber}, a manual bug fix as described above must be used. Otherwise %{ldap:uidNumber} %{ldap:uidNumber} must be replaced by the hard-coded value 5000.</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%{user | username},=mail=maildir:~/Maildir</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=sAMAccountName=user,userPassword=password</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SASLAUTHD_LDAP_FILTER=(&amp;(sAMAccountName=%U)(objectClass=person))</span>
 </code></pre></div>
@@ -3304,7 +3304,7 @@ update-ca-certificates
 <span class="w">      </span><span class="c1"># &lt;&lt;&lt; Postfix LDAP Integration</span>
 
 <span class="w">      </span><span class="c1"># &gt;&gt;&gt; Dovecot LDAP Integration</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=inetOrgPerson)(mail=%u))</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_FILTER=(&amp;(objectClass=inetOrgPerson)(mail=%{user}))</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_PASS_ATTRS=uid=user,userPassword=password</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOVECOT_USER_ATTRS==home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir,uidNumber=uid,gidNumber=gid</span>
 <span class="w">      </span><span class="c1"># &lt;&lt;&lt; Dovecot LDAP Integration</span>
