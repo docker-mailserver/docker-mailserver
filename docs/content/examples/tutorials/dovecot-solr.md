@@ -75,7 +75,7 @@ Firstly you need a working Solr container, for this the [official docker image][
 ```yaml
 services:
   solr:
-    image: solr:latest
+    image: solr:10
     container_name: dms-solr
     environment:
       # As Solr can be quite resource hungry, raise the memory limit to 2GB.
