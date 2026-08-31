@@ -2429,17 +2429,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#compatibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compatibility
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -3003,17 +2992,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#compatibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compatibility
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -3115,12 +3093,15 @@ apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&am
 <p>Firstly you need a working Solr container, for this the <a href="https://hub.docker.com/_/solr">official docker image</a> will do:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">solr</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">solr:latest</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">solr:10</span>
 <span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-solr</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="c1"># As Solr can be quite resource hungry, raise the memory limit to 2GB.</span>
 <span class="w">      </span><span class="c1"># The default is 512MB, which may be exhausted quickly.</span>
 <span class="w">      </span><span class="nt">SOLR_JAVA_MEM</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;-Xms2g</span><span class="nv"> </span><span class="s">-Xmx2g&quot;</span>
+<span class="w">      </span><span class="c1"># Current dovecot solr config needs the analysis-extras solr module,</span>
+<span class="w">      </span><span class="c1"># so add it with this env var.</span>
+<span class="w">      </span><span class="nt">SOLR_MODULES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;analysis-extras&quot;</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/solr:/var/solr</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
@@ -3132,13 +3113,12 @@ apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&am
 <p>Once the Solr container is started, you need to configure a "Solr core" for Dovecot:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>dms-solr<span class="w"> </span>/bin/sh
 solr<span class="w"> </span>create<span class="w"> </span>-c<span class="w"> </span>dovecot
-cp<span class="w"> </span>-R<span class="w"> </span>/opt/solr/contrib/analysis-extras/lib<span class="w"> </span>/var/solr/data/dovecot
 </code></pre></div>
 <p>Stop the <code>dms-solr</code> container and you should now have a <code>./data/dovecot</code> folder in the local bind mount volume.</p>
 </li>
 <li>
 <p>Solr needs a schema that is specifically tailored for Dovecot FTS.</p>
-<p>As of writing of this guide, Solr 9 is the current release. <a href="https://github.com/dovecot/core/tree/main/doc">Dovecot provides the required schema configs</a> for Solr, copy the following two v9 config files to <code>./data/dovecot</code> and rename them accordingly:</p>
+<p>As of writing of this guide, Solr 10 is the current release. <a href="https://github.com/dovecot/core/tree/main/doc">Dovecot provides the required schema configs</a> for Solr, copy the following two v9 config files which also work with solr 10 to <code>./data/dovecot</code> and rename them accordingly:</p>
 <ul>
 <li><code>solr-config-9.xml</code> (<em>rename to <code>solrconfig.xml</code></em>)</li>
 <li><code>solr-schema-9.xml</code> (<em>rename to <code>schema.xml</code></em>)</li>
@@ -3149,12 +3129,40 @@ cp<span class="w"> </span>-R<span class="w"> </span>/opt/solr/contrib/analysis-e
 <li>
 <p>Configure Dovecot in DMS to connect to this Solr core:</p>
 <p>Create a <code>10-plugin.conf</code> file in your <code>./config/dovecot</code> folder with this contents:</p>
-<div class="highlight"><pre><span></span><code>mail_plugins = $mail_plugins fts fts_solr
+<div class="highlight"><pre><span></span><code>language en {
+  default = yes
+}
 
-plugin {
-  fts = solr
-  fts_autoindex = yes
-  fts_solr = url=http://dms-solr:8983/solr/dovecot/
+mail_plugins {
+  fts = yes
+  fts_solr = yes
+}
+
+fts_solr_url = http://solr:8983/solr/dovecot/
+
+fts_autoindex = yes
+fts_search_add_missing = yes
+fts_search_read_fallback = no
+
+mailbox Trash {
+  fts_autoindex = no
+}
+
+//fts_decoder_driver = script
+//fts_decoder_script_socket_path = decode2text
+
+//service decode2text {
+//  executable = script /usr/libexec/dovecot/decode2text.sh
+//  user = dovecot
+//
+//  unix_listener decode2text {
+//    mode = 0666
+//  }
+//}
+</code></pre></div>
+<p>Excluding Trash from indexing is optional and so is including attachment text. The decode2text script <a href="https://github.com/orgs/docker-mailserver/discussions/4461#discussioncomment-13002388">may or may not work</a>, upstream prefers Tika which SOLR should be able to do but is outside of scope for this tutorial.</p>
+<p>Starting with dovecot 2.4 dovecot fts-solr needs a default language to initialize solr searching. In this example langcode <code>en</code> was set as default, but any langcode will do. If you want to enable additional languages add them like this:</p>
+<div class="highlight"><pre><span></span><code>language de {
 }
 </code></pre></div>
 <p>Add a volume mount for that config to your DMS service in <code>compose.yaml</code>:</p>
@@ -3170,21 +3178,8 @@ plugin {
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>fts<span class="w"> </span>rescan<span class="w"> </span>-A
 </code></pre></div>
 <div class="admonition info">
-<p class="admonition-title">Indexing will take a while depending on how large your mail folders</p>
+<p class="admonition-title">Indexing will take a while depending on how large your mail folders are</p>
 <p>Usually within 15 minutes or so, you should be able to search your mail using the Dovecot FTS feature! <img alt="🎉" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f389.svg" title=":tada:" /></p>
-</div>
-<h3 id="compatibility"><a class="toclink" href="#compatibility">Compatibility</a></h3>
-<p>Since Solr 9.8.0 was released (Jan 2025), a breaking change <a href="https://issues.apache.org/jira/browse/SOLR-16781">deprecates support for <code>&lt;lib&gt;</code> directives</a> which is presently used by the Dovecot supplied Solr config (<code>solr-config-9.xml</code>) to automatically load additional jars required.</p>
-<p>To enable support for <code>&lt;lib&gt;</code> directives, add the following ENV to your <code>solr</code> container:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">solr</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">SOLR_CONFIG_LIB_ENABLED</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Solr 10</p>
-<p>From the Solr 10 release onwards, this opt-in ENV will no longer be available.</p>
-<p>If Dovecot has not updated their example Solr config (<a href="https://github.com/dovecot/core/pull/238">upstream PR</a>), you will need to manually modify the Solr XML config to remove the <code>&lt;lib&gt;</code> directives and replace the suggested ENV <code>SOLR_CONFIG_LIB_ENABLED=true</code> with <code>SOLR_MODULES=analysis-extras</code>.</p>
 </div>
 
 
