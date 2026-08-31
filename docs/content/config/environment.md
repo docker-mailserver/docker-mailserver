@@ -852,7 +852,7 @@ Enable or disable `getmail`.
 
 #### Dovecot
 
-The following variables overwrite the default values for ```/etc/dovecot/dovecot-ldap.conf.ext```.
+The following variables overwrite the default values for ```/etc/dovecot/conf.d/auth-ldap.conf.ext```.
 
 ##### DOVECOT_BASE
 
@@ -862,6 +862,7 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 ##### DOVECOT_DEFAULT_PASS_SCHEME
 
 - **empty** =>  `SSHA`
+- => Sets Dovecot's `passdb_default_password_scheme` for the LDAP passdb.
 - => Select one crypt scheme for password hashing from this list of [password schemes](https://doc.dovecot.org/configuration_manual/authentication/password_schemes/).
 
 ##### DOVECOT_DN
@@ -889,11 +890,11 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 ##### DOVECOT_AUTH_BIND
 
 - **empty** => no
-- yes => Enable [LDAP authentication binds](https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds)
+- yes => Enable [LDAP authentication binds](https://doc.dovecot.org/2.4.4/core/config/auth/databases/ldap.html#authentication-binds)
 
 ##### DOVECOT_USER_FILTER
 
-- e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
+- e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))`
 
 ##### DOVECOT_USER_ATTRS
 
@@ -901,11 +902,12 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 - => Specify the directory to dovecot attribute mapping that fits your directory structure.
 - Note: This is necessary for directories that do not use the Postfix Book Schema.
 - Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.
-- More details on the [Dovecot Wiki](https://wiki.dovecot.org/AuthDatabase/LDAP/Userdb)
+- Note: `mail` is converted to Dovecot 2.4's `mail_path` field and a leading `maildir:` prefix is removed.
+- More details in the [Dovecot LDAP userdb documentation](https://doc.dovecot.org/2.4.4/core/config/auth/databases/ldap.html#ldap-userdb).
 
 ##### DOVECOT_PASS_FILTER
 
-- e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))`
+- e.g. `(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))`
 - **empty** => same as `DOVECOT_USER_FILTER`
 
 ##### DOVECOT_PASS_ATTRS
@@ -914,7 +916,8 @@ The following variables overwrite the default values for ```/etc/dovecot/dovecot
 - => Specify the directory to dovecot variable mapping that fits your directory structure.
 - Note: This is necessary for directories that do not use the Postfix Book Schema.
 - Note: The left-hand value is the directory attribute, the right hand value is the dovecot variable.
-- More details on the [Dovecot Wiki](https://wiki.dovecot.org/AuthDatabase/LDAP/PasswordLookups)
+- Note: With `DOVECOT_AUTH_BIND=yes`, the `password` field is omitted because Dovecot verifies the password by binding as the user.
+- More details in the [Dovecot LDAP password lookup documentation](https://doc.dovecot.org/2.4.4/core/config/auth/databases/ldap.html#password-lookups).
 
 #### Postgrey
 

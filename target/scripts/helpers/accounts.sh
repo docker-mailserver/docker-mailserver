@@ -149,7 +149,7 @@ function _create_dovecot_alias_dummy_accounts() {
 }
 
 # Support Dovecot master user: https://doc.dovecot.org/configuration_manual/authentication/master_users/
-# Supporting LDAP users requires `auth_bind = yes` in `dovecot-ldap.conf.ext`, see docker-mailserver/docker-mailserver/pull/2535 for details
+# Supporting LDAP users requires `passdb_ldap_bind = yes` in `auth-ldap.conf.ext`, see docker-mailserver/docker-mailserver/pull/2535 for details
 function _create_masters() {
   : >"${DOVECOT_MASTERDB_FILE}"
 

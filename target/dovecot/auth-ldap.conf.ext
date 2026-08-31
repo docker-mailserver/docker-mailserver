@@ -10,6 +10,9 @@ ldap_base             = ou=people,dc=example,dc=com
 ldap_auth_dn          = cn=admin,dc=example,dc=com
 ldap_auth_dn_password = secret
 ldap_starttls         = no
+ldap_version          = 3
+passdb_ldap_bind      = no
+passdb_default_password_scheme = SSHA
 
 # TODO: Add breaking change after migration to Dovecot 2.4 is completed.
 # The `filter` setting for both passdb + userdb config below should be changed (`uniqueIdentifier` => `userID`) to:
@@ -23,7 +26,7 @@ passdb ldap {
   driver = ldap
 
   fields {
-    default_pass_scheme = SSHA
+    # DOVECOT_PASSDB_FIELDS
     user = %{ldap:uniqueIdentifier}
     password = %{ldap:userPassword}
   }
@@ -33,6 +36,7 @@ userdb ldap {
   driver = ldap
 
   fields {
+    # DOVECOT_USERDB_FIELDS
     uid = %{ldap:mailUidNumber}
     gid = %{ldap:mailGidNumber}
     home = %{ldap:mailHomeDirectory}

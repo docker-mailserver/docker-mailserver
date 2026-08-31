@@ -53,12 +53,12 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
 
 These variables specify the LDAP filters that dovecot uses to determine if a user can log in to their IMAP account, and which mailbox is responsible to receive email for a specific postfix user.
 
-This is split into the following two lookups, both using `%u` as the placeholder for the full login name ([see dovecot documentation for a full list of placeholders](https://doc.dovecot.org/configuration_manual/config_file/config_variables/)). Usually you only need to set `DOVECOT_USER_FILTER`, in which case it will be used for both filters.
+This is split into the following two lookups, both using `%{user}` as the placeholder for the full login name ([see Dovecot documentation for a full list of placeholders](https://doc.dovecot.org/2.4.4/core/config/settings.html)). Usually you only need to set `DOVECOT_USER_FILTER`, in which case it will be used for both filters.
 
 - `DOVECOT_USER_FILTER` is used to get the account details (uid, gid, home directory, quota, ...) of a user.
 - `DOVECOT_PASS_FILTER` is used to get the password information of the user, and is in pretty much all cases identical to `DOVECOT_USER_FILTER` (which is the default behavior if left away).
 
-If your directory doesn't have the [postfix-book schema](https://github.com/variablenix/ldap-mail-schema/blob/master/postfix-book.schema) installed, then you must change the internal attribute handling for dovecot. For this you have to change the `pass_attr` and the `user_attr` mapping, as shown in the example below:
+If your directory doesn't have the [postfix-book schema](https://github.com/variablenix/ldap-mail-schema/blob/master/postfix-book.schema) installed, then you must change the internal attribute handling for Dovecot. For this you have to change the `pass_attr` and `user_attr` mappings, as shown in the example below:
 
 ```yaml
 - DOVECOT_PASS_ATTRS=<YOUR_USER_IDENTIFIER_ATTRIBUTE>=user,<YOUR_USER_PASSWORD_ATTRIBUTE>=password
@@ -67,7 +67,7 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
 
 !!! note
 
-    For `DOVECOT_*_ATTRS`, you can replace `ldapAttr=dovecotAttr` with `=dovecotAttr=%{ldap:ldapAttr}` for more flexibility, like for example `=home=/var/mail/%{ldap:uid}` or just `=uid=5000`.
+    For `DOVECOT_*_ATTRS`, you can replace `ldapAttr=dovecotAttr` with `=dovecotAttr=%{ldap:ldapAttr}` for more flexibility, like for example `=home=/var/mail/%{ldap:uid}` or just `=uid=5000`. DMS converts these legacy mappings to Dovecot 2.4 `fields { }` entries. The `mail` field is converted to `mail_path`, and a leading `maildir:` prefix is removed.
 
     A list of dovecot attributes can be found [in the dovecot documentation](https://doc.dovecot.org/configuration_manual/authentication/user_databases_userdb/#authentication-user-database).
 
@@ -76,7 +76,7 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
     ```yaml
     - DOVECOT_USER_ATTRS=mailHomeDirectory=home,mailUidNumber=uid,mailGidNumber=gid,mailStorageDirectory=mail
     - DOVECOT_PASS_ATTRS=uniqueIdentifier=user,userPassword=password
-    - DOVECOT_USER_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%n))
+    - DOVECOT_USER_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))
     ```
 
 ???+ example
@@ -86,14 +86,14 @@ If your directory doesn't have the [postfix-book schema](https://github.com/vari
     ```yaml
     - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
     - DOVECOT_USER_ATTRS=homeDirectory=home,qmailUID=uid,qmailGID=gid,mailMessageStore=mail
-    - DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%u)(accountStatus=active))
+    - DOVECOT_USER_FILTER=(&(objectClass=qmailUser)(uid=%{user})(accountStatus=active))
     ```
 
 The LDAP server configuration for dovecot will be taken mostly from postfix, other options can be found in [the environment section in the docs][docs-environment].
 
 ### `DOVECOT_AUTH_BIND`
 
-Set this to `yes` to enable authentication binds ([more details in the dovecot documentation](https://wiki.dovecot.org/AuthDatabase/LDAP/AuthBinds)). Currently, only DN lookup is supported without further changes to the configuration files, so this is only useful when you want to bind as a readonly user without the permission to read passwords.
+Set this to `yes` to enable authentication binds ([more details in the Dovecot documentation](https://doc.dovecot.org/2.4.4/core/config/auth/databases/ldap.html#authentication-binds)). Dovecot verifies the supplied password by binding as the user, so the `password` field in `DOVECOT_PASS_ATTRS` is ignored.
 
 ### `SASLAUTHD_LDAP_FILTER`
 
@@ -176,9 +176,9 @@ The changes on the configurations necessary to work with Active Directory (**onl
 - SPOOF_PROTECTION=1
 - LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))
 
-- DOVECOT_USER_FILTER=(&(objectclass=person)(sAMAccountName=%n))
+- DOVECOT_USER_FILTER=(&(objectclass=person)(sAMAccountName=%{user | username}))
 # At the moment to be able to use %{ldap:uidNumber}, a manual bug fix as described above must be used. Otherwise %{ldap:uidNumber} %{ldap:uidNumber} must be replaced by the hard-coded value 5000.
-- DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%Ln,=mail=maildir:~/Maildir
+- DOVECOT_USER_ATTRS==uid=%{ldap:uidNumber},=gid=5000,=home=/var/mail/%{user | username},=mail=maildir:~/Maildir
 - DOVECOT_PASS_ATTRS=sAMAccountName=user,userPassword=password
 - SASLAUTHD_LDAP_FILTER=(&(sAMAccountName=%U)(objectClass=person))
 ```
@@ -228,7 +228,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
           # <<< Postfix LDAP Integration
 
           # >>> Dovecot LDAP Integration
-          - DOVECOT_USER_FILTER=(&(objectClass=inetOrgPerson)(mail=%u))
+          - DOVECOT_USER_FILTER=(&(objectClass=inetOrgPerson)(mail=%{user}))
           - DOVECOT_PASS_ATTRS=uid=user,userPassword=password
           - DOVECOT_USER_ATTRS==home=/var/mail/%{ldap:uid},=mail=maildir:~/Maildir,uidNumber=uid,gidNumber=gid
           # <<< Dovecot LDAP Integration
