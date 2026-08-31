@@ -135,6 +135,21 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial 'check_policy_service inet:localhost:65265'
 }
 
+@test 'should defer quota checks for aliases to external addresses' {
+  _run_in_container doveconf -h quota_status_success
+  assert_output 'DUNNO'
+
+  _run_in_container doveconf -h quota_status_nouser
+  assert_output 'DUNNO'
+
+  _run_in_container doveconf -h quota_status_overquota
+  assert_output '552 5.2.2 Mailbox is full'
+
+  _run_in_container_bash "printf '%s\n' 'request=smtpd_access_policy' 'protocol_state=RCPT' 'protocol_name=SMTP' 'recipient=alias2@localhost.localdomain' '' | nc -q 1 127.0.0.1 65265"
+  assert_success
+  assert_output --partial 'action=DUNNO'
+}
+
 @test '(ENV POSTFIX_MAILBOX_SIZE_LIMIT) should be configured for both Postfix and Dovecot' {
   _run_in_container postconf -h mailbox_size_limit
   assert_output 4096000
