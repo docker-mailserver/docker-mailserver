@@ -127,10 +127,8 @@ DMS will connect internally to the `solr` service above. Either have both servic
       fts_solr = yes
     }
 
-    fts solr {
-      fts_solr_url = http://solr:8983/solr/dovecot/
-    }
-
+    fts_solr_url = http://solr:8983/solr/dovecot/
+    
     fts_autoindex = yes
     fts_search_add_missing = yes
     fts_search_read_fallback = no
@@ -139,20 +137,20 @@ DMS will connect internally to the `solr` service above. Either have both servic
       fts_autoindex = no
     }
 
-    fts_decoder_driver = script
-    fts_decoder_script_socket_path = decode2text
+    //fts_decoder_driver = script
+    //fts_decoder_script_socket_path = decode2text
 
-    service decode2text {
-      executable = script /usr/libexec/dovecot/decode2text.sh
-      user = dovecot
-
-      unix_listener decode2text {
-        mode = 0666
-      }
-    }
+    //service decode2text {
+    //  executable = script /usr/libexec/dovecot/decode2text.sh
+    //  user = dovecot
+    //
+    //  unix_listener decode2text {
+    //    mode = 0666
+    //  }
+    //}
     ```
 
-    Excluding Trash form indexing is optional and so is including attachment text.
+    Excluding Trash form indexing is optional and so is including attachment text. The decode2text script [may or may not work][decoder-script-notice], upstream prefers Tika which SOLR should be able to do but is outside of scope for this tutorial.
 
     Starting with dovecot 2.4 dovecot fts-solr needs a default language to initialize solr searching. In this example langcode `en` was set as default, but any langcode will do. If you want to enable additional languages add them like this:
 
@@ -191,5 +189,4 @@ docker compose exec mailserver doveadm fts rescan -A
 [github-solr]: https://github.com/apache/solr
 [github-dovecot::core-docs]: https://github.com/dovecot/core/tree/main/doc
 
-[solr::9.8::lib-directive]: https://issues.apache.org/jira/browse/SOLR-16781
-[dovecot::pr::solr-config-lib]: https://github.com/dovecot/core/pull/238
+[decoder-script-notice]: https://github.com/orgs/docker-mailserver/discussions/4461#discussioncomment-13002388
