@@ -176,7 +176,7 @@ function setup_file() {
 }
 
 function teardown_file() {
-  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
+  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}"
   docker network rm "${DMS_TEST_NETWORK}"
 }
 
@@ -185,7 +185,8 @@ function teardown_file() {
 # As failure will bail early missing teardown, which then prevents network cleanup. This way is safer:
 function teardown() {
   if [[ ${CONTAINER_NAME} != "${CONTAINER1_NAME}" ]] \
-  && [[ ${CONTAINER_NAME} != "${CONTAINER2_NAME}" ]]
+  && [[ ${CONTAINER_NAME} != "${CONTAINER2_NAME}" ]] \
+  && [[ ${CONTAINER_NAME} != "${CONTAINER3_NAME}" ]]
   then
     _default_teardown
   fi
@@ -241,6 +242,20 @@ function teardown() {
   assert_failure
   _run_in_container grep '^    mail = ' /etc/dovecot/conf.d/auth-ldap.conf.ext
   assert_failure
+}
+
+@test "dovecot: ldap authentication bind works" {
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+
+  _run_in_container doveconf -n
+  assert_success
+  assert_output --partial 'bind = yes'
+
+  _run_in_container_bash "doveadm auth test 'some.user@${FQDN_LOCALHOST_A}' secret | grep 'auth succeeded'"
+  assert_success
+
+  _run_in_container_bash "doveadm auth test 'some.user@${FQDN_LOCALHOST_A}' wrongpassword | grep 'auth failed'"
+  assert_success
 }
 
 @test "postfix: ldap config overwrites success" {
