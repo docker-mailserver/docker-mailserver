@@ -2,146 +2,420 @@
 title: 'Advanced | Full-Text Search'
 ---
 
-## Overview
+# Full Text Search (FTS)
 
-Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content. Dovecot supports a variety of community supported [FTS indexing backends](https://doc.dovecot.org/configuration_manual/fts/).
+??? abstract "What is FTS?"
 
-DMS comes pre-installed with two plugins that can be enabled with a dovecot config file.
+    FTS allows all emails to be indexed so that mail clients can quickly and efficiently search messages by their full text content directly from the IMAP server. As the size of your mail storage grows, the benefits of FTS are especially notable.
 
-Please be aware that indexing consumes memory and takes up additional disk space.
+    1. Without FTS, Dovecot would perform a search query by checking each individual email stored for a match, and then repeat this process again from scratch for the exact same query in the future.
+    2. Some mail clients (_like Thunderbird_) may provide their own indexing and search features when all mail to search is stored locally; otherwise, Dovecot needs to handle the search query (_for example webmail and mobile clients, like Gmail_).
+    3. FTS indexes each mail into a database for querying, where it can skip the cost of inspecting irrelevant emails for a query.
 
-### Xapian
+    Please be aware that indexing consumes memory and takes up additional disk space.
 
-The [dovecot-fts-xapian](https://github.com/grosjo/fts-xapian) plugin makes use of [Xapian](https://xapian.org/). Xapian enables embedding an FTS engine without the need for additional backends.
+Dovecot supports a variety of (community-) supported [FTS indexing backends][dovecot::docs::fts]. DMS provides different levels of support for them.
 
-The indexes will be stored as a subfolder named `xapian-indexes` inside your local `mail-data` folder (_`/var/mail` internally_). With the default settings, 10GB of email data may generate around 4GB of indexed data.
+!!! warning "Do not enable two FTS indexers simultaneously"
 
-While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB).
+    Dovecot supports only one FTS backend at a time. If you migrate, remove the old configuration first, (optionally) prune the old index data to free up space, and only the configure the new indexer.
 
-#### Setup
+!!! info "Indexing will take a while depending on how large your mail folders are."
 
-1. To configure `fts-xapian` as a dovecot plugin, create a file at `docker-data/dms/config/dovecot/fts-xapian-plugin.conf` and place the following in it:
+=== "Flatcurve"
 
-    ```
-    mail_plugins = $mail_plugins fts fts_xapian
+    **About**
 
-    plugin {
-        fts = xapian
-        fts_xapian = partial=3 full=20 verbose=0
+    [`fts-flatcurve`][dovecot::docs::fts::flatcurve] is an FTS backend that became part of Dovecot core with the 2.4 release.
 
+    ??? info "Comparison to Xapian"
+
+        Like Xapian, Flatcurve uses the [Xapian][web::xapian] library to store indexes locally, so no additional service is needed (unlike solr). But Flatcurve
+
+        - is maintained by the Dovecot developers as part of Dovecot itself, and it is the FTS backend recommended by upstream for local indexing.
+        - uses the Dovecot 2.4 `language` settings for tokenizing, stemming and stop words, so search behaviour is consistent with the other Dovecot FTS backends.
+        - stores its index in an `fts-flatcurve` directory alongside each mailbox's Dovecot index files (so it is retained in your `mail-data` volume).
+        - does not require a recurring job to run `fts optimize` on a schedule.
+
+    **Support Status**
+
+    [Flatcurve][dovecot::docs::fts::flatcurve] was officially introduced with DMS 16.0.0. It will be the preferred FTS indexer going forward because of its straightforward integration into and its fist-party support by Dovecot.
+
+    **Setup**
+
+    1. Configure Dovecot to use Flatcurve
+
+        Create a `fts-flatcurve-plugin.conf` file in your `./docker-data/dms/config/dovecot/` folder with the         following content:
+
+        ```conf
+        # Enable FTS Flatcurve
+        mail_plugins {
+          fts = yes
+          fts_flatcurve = yes
+        }
+
+        # Index new mail as it is delivered
         fts_autoindex = yes
-        fts_enforced = yes
 
-        # disable indexing of folders
-        # fts_autoindex_exclude = \Trash
+        # If FTS lookup or indexing fails, Dovecot
+        # falls back to a slow non-indexed search.
+        # After the initial indexing (see below)
+        # has completed you may prefer to fail such
+        # searches instead.
+        fts_search_read_fallback = yes
 
-        # Index attachments
-        # fts_decoder = decode2text
-    }
+        # Skip autoindexing of folders that grow
+        # quickly and are rarely searched:
+        mailbox Trash {
+          special_use = \Trash
+          fts_autoindex = no
+        }
+        mailbox Junk {
+          special_use = \Junk
+          fts_autoindex = no
+        }
 
-    service indexer-worker {
-        # limit size of indexer-worker RAM usage, ex: 512MB, 1GB, 2GB
-        vsz_limit = 1GB
-    }
+        # Tokenizing and stemming. Add a `language xx { }`
+        # block for each language you expect in your mail.
+        # Refer to the Dovecot docs for the languages
+        # supported by the `snowball` stemmer.
+        #
+        # DO NOT enable stopwords together with multiple
+        # languages: searches can then miss matches.
+        language en {
+          default = yes
+          language_filters = lowercase snowball english-possessive stopwords
+        }
 
-    # service decode2text {
-    #     executable = script /usr/libexec/dovecot/decode2text.sh
-    #     user = dovecot
-    #     unix_listener decode2text {
-    #         mode = 0666
-    #     }
-    # }
+        language_filter_stopwords_dir = /usr/share/dovecot/stopwords
+        language_filters = normalizer-icu snowball stopwords
+        language_tokenizers = generic email-address
+        language_tokenizer_generic_algorithm = simple
+
+        fts flatcurve {
+          # Match any part of a word (e.g. `mail` matches
+          #`mailserver`) at the cost of a much larger index.
+          # The default `no` only matches from the start of a word.
+          substring_search = yes
+
+          # Further optional tuning (commit_limit,`min_term_size,
+          # optimize_limit, rotate_count, rotate_time) is documented
+          # upstream. The defaults are sensible for most users.
+        }
+
+        service indexer-worker {
+          # Limit the size of an indexer-worker's RAM usage
+          vsz_limit = 1G
+        }
+        ```
+
+        Add a volume mount for that config to your DMS service in `compose.yaml`:
+
+        ```yaml
+        services:
+          mailserver:
+            volumes:
+              - ./docker-data/dms/config/dovecot/fts-flatcurve-plugin.conf:/etc/dovecot/conf.d/90-fts-flatcurve.        conf:ro
+        ```
+
+        Alternatively, put the same snippet in [`dovecot.cf`][docs::dovecot-cf] (_DMS copies it to `/etc/dovecot/       local.conf`_). That uses the existing config volume and does not need an extra bind-mount.
+
+    2. Trigger Dovecot FTS indexing
+
+        After following the previous steps, restart DMS and run this command to have Dovecot index all existing mail for every account:
+
+        ```bash
+        docker compose exec mailserver doveadm index -A -q '*'
+        ```
+
+        The `-q` flag queues the work through the `indexer` service instead of running it in the foreground. You can watch progress in the Dovecot logs (`docker compose logs -f mailserver`). Once complete, you should be able to search your mail using the Dovecot FTS feature! :tada:
+
+    **Maintenance**
+
+    Flatcurve automatically rotates and optimizes its Xapian databases as mail is indexed (_controlled by the `rotate_*` and `optimize_limit` settings_), so unlike `fts-xapian`, a scheduled `doveadm fts optimize` job is not required.
+
+    Some `doveadm` commands specific to Flatcurve that may be useful:
+
+    ```bash
+    # Show index statistics (size, number of mails indexed)
+    # per mailbox for a user:
+    docker compose exec mailserver doveadm fts flatcurve stats -u user@example.com '*'
+    # Verify the index databases of a user are not corrupt:
+    docker compose exec mailserver doveadm fts flatcurve check -u user@example.com '*'
+    # Drop the index of a user (rebuild it afterwards with `doveadm index`):
+    docker compose exec mailserver doveadm fts flatcurve remove -u user@example.com '*'
+    # Rebuild the index for everyone from scratch (for example after
+    # changing `language` or `substring_search` settings)
+    docker compose exec mailserver doveadm fts rescan -A
+    docker compose exec mailserver doveadm index -A -q '*'
     ```
 
-    adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments
+=== "Solr"
 
-2. Update `compose.yaml` to load the previously created dovecot plugin config file:
+    **About**
 
-    ```yaml
-      services:
-        mailserver:
-          image: ghcr.io/docker-mailserver/docker-mailserver:latest
-          container_name: mailserver
-          hostname: mail.example.com
-          env_file: mailserver.env
-          ports:
-            - "25:25"    # SMTP  (explicit TLS => STARTTLS)
-            - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
-            - "465:465"  # ESMTP (implicit TLS)
-            - "587:587"  # ESMTP (explicit TLS => STARTTLS)
-            - "993:993"  # IMAP4 (implicit TLS)
-          volumes:
-            - ./docker-data/dms/mail-data/:/var/mail/
-            - ./docker-data/dms/mail-state/:/var/mail-state/
-            - ./docker-data/dms/mail-logs/:/var/log/mail/
-            - ./docker-data/dms/config/:/tmp/docker-mailserver/
-            - ./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
-            - /etc/localtime:/etc/localtime:ro
-          restart: always
-          stop_grace_period: 1m
-          cap_add:
-            - NET_ADMIN
-    ```
+    [Apache Solr][github::repo::apache-solr] is a fast and efficient multi-purpose search indexer.
 
-3. Recreate containers:
+    **Support Status**
 
-    ```
-    docker compose down
-    docker compose up -d
-    ```
+    The support for Solr is entirely community-driven. The build scripts for DMS currently install the `dovecot-solr` package to help users of Solr; the package will be removed, though, in case DMS encounters problems with it (especially when building for `arm64`). Bug reports for Solr are not accepted unless they concern the documentation and if they follow up with a pull request to fix the issue.
 
-4. Initialize indexing on all users for all mail:
+    **Setup**
 
-    ```
-    docker compose exec mailserver doveadm index -A -q \*
-    ```
+    1. Firstly you need a working Solr container
 
-5. Run the following command in a daily cron job:
+        The [official docker image][dockerhub::solr] will do:
 
-    ```
-    docker compose exec mailserver doveadm fts optimize -A
-    ```
-    Or like the [Spamassassin example][docs-faq-sa-learn-cron] shows, you can instead use `cron` from within DMS to avoid potential errors if the mail server is not running:
+        ```yaml
+        services:
+          solr:
+            image: solr:10
+            container_name: dms-solr
+            environment:
+              # As Solr can be quite resource hungry, raise the memory limit to 2GB.
+              # The default is 512MB, which may be exhausted quickly.
+              SOLR_JAVA_MEM: "-Xms2g -Xmx2g"
+              # Current dovecot solr config needs the analysis-extras solr module,
+              # so add it with this env var.
+              SOLR_MODULES: "analysis-extras"
+            volumes:
+              - ./docker-data/solr:/var/solr
+            restart: always
+        ```
 
-??? example
+        DMS will connect internally to the `solr` service above. Either have both services in the same `compose.yaml` file, or ensure that the containers are connected to the same docker network.
 
-    Create a _system_ cron file:
+    2. Configure Solr for Dovecot
 
-    ```sh
-    # in the compose.yaml root directory
-    mkdir -p ./docker-data/dms/cron # if you didn't have this folder before
-    touch ./docker-data/dms/cron/fts_xapian
-    chown root:root ./docker-data/dms/cron/fts_xapian
-    chmod 0644 ./docker-data/dms/cron/fts_xapian
-    ```
+        1. Once the Solr container is started, you need to configure a "Solr core" for Dovecot:
 
-    Edit the system cron file `nano ./docker-data/dms/cron/fts_xapian`, and set an appropriate configuration:
+            ```bash
+            docker exec -it dms-solr /bin/sh
+            solr create -c dovecot
+            ```
 
-    ```conf
-    # Adding `MAILTO=""` prevents cron emailing notifications of the task outcome each run
-    MAILTO=""
-    #
-    # m h dom mon dow user command
-    #
-    # Everyday 4:00AM, optimize index files
-    0  4 * * * root  doveadm fts optimize -A
-    ```
+            Stop the `dms-solr` container and you should now have a `./data/dovecot` folder in the local bind mount volume.
 
-    Then with `compose.yaml`:
+        2. Solr needs a schema that is specifically tailored for Dovecot FTS.
 
-    ```yaml
-    services:
-      mailserver:
-        image: ghcr.io/docker-mailserver/docker-mailserver:latest
-        volumes:
-          - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
-    ```
+            As of writing of this guide, Solr 10 is the current release. [Dovecot provides the required schema configs][github::repo::dovecot::docs] for Solr, copy the following two v9 config files which also work with solr 10 to `./data/dovecot` and rename them accordingly:
 
-#### Further Discussion
+            - `solr-config-9.xml` (_rename to `solrconfig.xml`_)
+            - `solr-schema-9.xml` (_rename to `schema.xml`_)
 
-See [#905](https://github.com/docker-mailserver/docker-mailserver/issues/905)
+            Additionally, remove the `managed-schema.xml` file from `./data/dovecot` and ensure the two files you copied have a [UID and GID of `8983`][solr::docker::uidgid] assigned.
 
-Attempting to enable commented out features in the config example above [may not be functional][gh::xapian-decode2text].
+            Start the Solr container once again, you should now have a working Solr core specifically for Dovecot FTS.
 
-[docs-faq-sa-learn-cron]: ../../faq.md#how-can-i-make-spamassassin-better-recognize-spam
-[gh::xapian-decode2text]: https://github.com/orgs/docker-mailserver/discussions/4461#discussioncomment-13002388
+        3. Configure Dovecot in DMS to connect to this Solr core:
+
+            Create a `10-plugin.conf` file in your `./config/dovecot` folder with this contents:
+
+            ```conf
+            language en {
+              default = yes
+            }
+
+            mail_plugins {
+              fts = yes
+              fts_solr = yes
+            }
+
+            fts solr {
+            }
+
+            fts_solr_url = http://solr:8983/solr/dovecot/
+
+            fts_autoindex = yes
+            fts_search_add_missing = yes
+            fts_search_read_fallback = no
+
+            mailbox Trash {
+              fts_autoindex = no
+            }
+
+            #fts_decoder_driver = script
+            #fts_decoder_script_socket_path = decode2text
+
+            #service decode2text {
+            #  executable = script /usr/libexec/dovecot/decode2text.sh
+            #  user = dovecot
+            #
+            #  unix_listener decode2text {
+            #    mode = 0666
+            #  }
+            #}
+            ```
+
+            Excluding Trash from indexing is optional and so is including attachment text. The `decode2text` script [may or may not work][docs::discussion::decode2text-notice], upstream prefers Tika which SOLR should be able to do but is outside of scope for this tutorial.
+
+            Starting with dovecot 2.4 dovecot fts-solr needs a default language to initialize solr searching. In this example langcode `en` was set as default, but any langcode will do. If you want to enable additional languages add them like this:
+
+            ```conf
+            language de {
+            }
+            ```
+
+            Add a volume mount for that config to your DMS service in `compose.yaml`:
+
+            ```yaml
+            services:
+              mailserver:
+                volumes:
+                  - ./docker-data/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
+            ```
+
+    3. Trigger Dovecot FTS indexing
+
+        After following the previous steps, restart DMS and run this command to have Dovecot re-index all mail:
+
+        ```bash
+        docker compose exec mailserver doveadm fts rescan -A
+        ```
+
+=== "Xapian"
+
+    **About**
+
+    [`fts-xapian`][github::repo::dovecot-xapian] is a (comminity-maintained) plugin that makes use of [Xapian][web::xapian]. Xapian enables embedding an FTS engine without the need for additional backends.
+
+    The indexes will be stored as a subfolder named `xapian-indexes` inside your local `mail-data` folder (_`/var/mail` internally_). With the default settings, 10GB of email data may generate around 4GB of indexed data.
+
+    While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB).
+
+    **Support Status**
+
+    [Xapian][github::repo::dovecot-xapian] was the officially supported FTS indexing option until DMS 16.0.0. With 16.0.0, Flatcurve is preferred and Xapian is not officially supported anymore. We urge you to migrate to Flatcurve. New issues concerning Xapian cannot be worked on.
+
+    **Setup**
+
+    1. To configure `fts-xapian` as a dovecot plugin, create a file at `docker-data/dms/config/dovecot/fts-xapian-plugin.conf` and place the following in it:
+
+        ```conf
+        mail_plugins = $mail_plugins fts fts_xapian
+
+        plugin {
+            fts = xapian
+            fts_xapian = partial=3 full=20 verbose=0
+
+            fts_autoindex = yes
+            fts_enforced = yes
+
+            # disable indexing of folders
+            # fts_autoindex_exclude = \Trash
+
+            # Index attachments
+            # fts_decoder = decode2text
+        }
+
+        service indexer-worker {
+            # limit size of indexer-worker RAM usage, ex: 512MB, 1GB, 2GB
+            vsz_limit = 1GB
+        }
+
+        # service decode2text {
+        #     executable = script /usr/libexec/dovecot/decode2text.sh
+        #     user = dovecot
+        #     unix_listener decode2text {
+        #         mode = 0666
+        #     }
+        # }
+        ```
+
+        Adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments.
+
+    2. Update `compose.yaml` to load the previously created dovecot plugin config file:
+
+        ```yaml
+        services:
+          mailserver:
+            image: ghcr.io/docker-mailserver/docker-mailserver:latest
+            container_name: mailserver
+            hostname: mail.example.com
+            env_file: mailserver.env
+            ports:
+              - "25:25"    # SMTP  (explicit TLS => STARTTLS)
+              - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
+              - "465:465"  # ESMTP (implicit TLS)
+              - "587:587"  # ESMTP (explicit TLS => STARTTLS)
+              - "993:993"  # IMAP4 (implicit TLS)
+            volumes:
+              - ./docker-data/dms/mail-data/:/var/mail/
+              - ./docker-data/dms/mail-state/:/var/mail-state/
+              - ./docker-data/dms/mail-logs/:/var/log/mail/
+              - ./docker-data/dms/config/:/tmp/docker-mailserver/
+              - ./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
+              - /etc/localtime:/etc/localtime:ro
+            restart: always
+            stop_grace_period: 1m
+            cap_add:
+              - NET_ADMIN
+        ```
+
+    3. Recreate containers:
+
+        ```bash
+        docker compose down
+        docker compose up -d
+        ```
+
+    4. Initialize indexing on all users for all mail:
+
+        ```bash
+        docker compose exec mailserver doveadm index -A -q \*
+        ```
+
+    5. Run the following command in a daily cron job:
+
+        ```bash
+        docker compose exec mailserver doveadm fts optimize -A
+        ```
+
+        Or like the [Spamassassin example][docs::faq::sa-learn-cron] shows, you can instead use `cron` from within DMS to avoid potential errors if the mail server is not running:
+
+        ??? example
+
+            Create a _system_ cron file:
+
+            ```bash
+            # in the compose.yaml root directory
+            mkdir -p ./docker-data/dms/cron # if you didn't have this folder before
+            touch ./docker-data/dms/cron/fts_xapian
+            chown root:root ./docker-data/dms/cron/fts_xapian
+            chmod 0644 ./docker-data/dms/cron/fts_xapian
+            ```
+
+            Edit the system cron file `nano ./docker-data/dms/cron/fts_xapian`, and set an appropriate configuration:
+
+            ```ini
+            # Adding `MAILTO=""` prevents cron emailing notifications of the task outcome each run
+            MAILTO=""
+            #
+            # m h dom mon dow user command
+            #
+            # Everyday 4:00AM, optimize index files
+            0  4 * * * root  doveadm fts optimize -A
+            ```
+
+            Then with `compose.yaml`:
+
+            ```yaml
+            services:
+              mailserver:
+                image: ghcr.io/docker-mailserver/docker-mailserver:latest
+                volumes:
+                  - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
+            ```
+
+[docs::dovecot-cf]: override-defaults/dovecot.md#add-configuration
+[docs::faq::sa-learn-cron]: ../../faq.md#how-can-i-make-spamassassin-better-recognize-spam
+[docs::discussion::decode2text-notice]: https://github.com/orgs/docker-mailserver/discussions/4461#discussioncomment-13002388
+
+[dockerhub::solr]: https://hub.docker.com/_/solr
+[dovecot::docs::fts]: https://doc.dovecot.org/main/core/plugins/fts.html
+[dovecot::docs::fts::flatcurve]: https://doc.dovecot.org/main/core/plugins/fts_flatcurve.html
+[github::repo::apache-solr]: https://github.com/apache/solr
+[github::repo::dovecot-xapian]: https://github.com/grosjo/fts-xapian
+[github::repo::dovecot::docs]: https://github.com/dovecot/core/tree/main/doc
+[solr::docker::uidgid]: https://github.com/apache/solr-docker/blob/9cd850b72309de05169544395c83a85b329d6b86/9.6/Dockerfile#L89-L92
+[web::xapian]: https://xapian.org/
