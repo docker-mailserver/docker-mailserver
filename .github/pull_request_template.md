@@ -1,4 +1,4 @@
-# Description
+## Description
 
 <!--
   Include a summary of the change.
@@ -8,22 +8,31 @@
 <!-- Link the issue which will be fixed (if any) here: -->
 Fixes #
 
+<!-- Remove this line of the change is breaking
+> [!CAUTTION]
+>
+> This is a breaking change
+Remove this line of the change is breaking -->
+
 ## Type of change
 
-<!-- Delete options that are not relevant. -->
+<!-- Delete options that are not relevant. Multiple choices allowed. -->
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Improvement (non-breaking change that does improve existing functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] This change requires a documentation update
+- Bug Fix
+- New Feature
+- Refactoring
+- Update
 
-## Checklist
+<!-- DO NOT DELETE THE TEXT BELOW THIS LINE -->
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation (README.md or the documentation under `docs/`)
-- [ ] If necessary, I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] **I have added information about changes made in this PR to `CHANGELOG.md`**
+---
+
+> [!IMPORTANT]
+>
+> I understand and have ensured that
+>
+> 1. my code follows the style guidelines of this project,
+> 2. I have commented my code, particularly in hard-to-understand areas,
+> 3. new and existing unit tests pass locally with my changes,
+> 4. if necessary, I added tests that prove my fix is effective or that my feature works,
+> 5. if necessary, I added information about changes made in this PR to the changelog.
