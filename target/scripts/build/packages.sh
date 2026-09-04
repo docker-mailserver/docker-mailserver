@@ -167,6 +167,7 @@ function _install_dovecot() {
 
     # Additional Dovecot packages for supporting the DMS community (docs-only guide contributions)
     dovecot-auth-lua
+    dovecot-solr
   )
 
   # NOTE: (Opt-in via ENV) Change repo source for dovecot packages
