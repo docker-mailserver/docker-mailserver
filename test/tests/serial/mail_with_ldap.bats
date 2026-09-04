@@ -247,7 +247,7 @@ function teardown() {
 @test "dovecot: ldap authentication bind works" {
   export CONTAINER_NAME=${CONTAINER3_NAME}
 
-  _run_in_container doveconf -h passdb_ldap_bind
+  _run_in_container doveconf -h -f passdb=ldap bind
   assert_success
   assert_output 'yes'
 

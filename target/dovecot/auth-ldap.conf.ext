@@ -11,7 +11,6 @@ ldap_auth_dn          = cn=admin,dc=example,dc=com
 ldap_auth_dn_password = secret
 ldap_starttls         = no
 ldap_version          = 3
-passdb_ldap_bind      = no
 passdb_default_password_scheme = SSHA
 
 # TODO: Add breaking change after migration to Dovecot 2.4 is completed.
@@ -46,5 +45,6 @@ userdb ldap {
 
 # Set the `filter` field of the above passdb + userdb `ldap` blocks
 # This long-form namespaced form for the settings are easier for DMS scripts (ldap.sh) to target for replacement support:
+passdb_ldap_bind = no
 passdb_ldap_filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))
 userdb_ldap_filter = (&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))
