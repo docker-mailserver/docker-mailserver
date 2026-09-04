@@ -20,7 +20,13 @@ All notable changes to this project will be documented in this file. The format 
 - **Internal**
   - `/var/mail` permission repair now runs `chown -R` only on paths `find` reports as mismatched (within `-maxdepth 3`), instead of `chown -R` on the entire tree. Account creation sets ownership on the new mailbox directory (`mail_path`) so change detection no longer needs to scan `/var/mail` ([#4696](https://github.com/docker-mailserver/docker-mailserver/pull/4696), [#4112](https://github.com/docker-mailserver/docker-mailserver/issues/4112))
 - **Documentation**
-  - Updated the dovecot fts solr tutorial for dovecot 2.4+ and solr 10.x. 
+  - Removed the amd64 notice from the dovecot solr tuturial.
+  - Updated the dovecot fts solr tutorial for dovecot 2.4+ and solr 10.x.
+
+### Added
+
+- **Dovecot**
+  - `dovecot-solr` is included by default again; using it is optional and requires manual configuration by the user (consult the documentation)
 
 ## [v16.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v16.0.0)
 
