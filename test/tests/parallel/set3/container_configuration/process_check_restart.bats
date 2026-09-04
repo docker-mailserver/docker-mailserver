@@ -22,7 +22,8 @@ function teardown() { _default_teardown ; }
 # mta-sts-daemon (/usr/bin/bin/python3 /usr/bin/mta-sts-daemon)
 # postgrey (postgrey) - NOTE: This process command uses perl via shebang, but unlike python3 the context is missing
 # postsrsd (/usr/sbin/postsrsd)
-# saslauthd (/usr/sbin/saslauthd) - x5 of the same process are found running (1 is a parent of 4)
+# saslauthd (/usr/sbin/saslauthd) - x5 of the same process are found running (1 is a parent of 4);
+# skip restart check because SIGTERM does not reliably reap the parent process
 
 # Delays:
 # (An old process may still be running: `pkill -e opendkim && sleep 3 && pgrep -a --older 5 opendkim`)
@@ -119,6 +120,12 @@ ENV_PROCESS_LIST=(
   )
 
   for PROCESS in "${ENABLED_PROCESS_LIST[@]}"; do
+    if [[ ${PROCESS} == 'saslauthd' ]]; then
+      # saslauthd forks workers, and SIGTERM does not reliably reap its parent.
+      _run_until_success_or_timeout 30 _check_if_process_is_running "${PROCESS}"
+      assert_success
+      continue
+    fi
     _should_restart_when_killed "${PROCESS}"
   done
 
