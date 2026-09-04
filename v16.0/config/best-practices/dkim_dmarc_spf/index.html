@@ -2424,62 +2424,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/tutorials/dovecot-flatcurve/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dovecot FTS with Flatcurve
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/tutorials/dovecot-solr/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dovecot FTS with Apache Solr
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -3360,7 +3304,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 </code></pre></div>
 </details>
 <h3 id="dkim-debug"><a class="toclink" href="#dkim-debug">Troubleshooting</a></h3>
-<p><a href="https://mxtoolbox.com/dkim.aspx">MxToolbox has a DKIM Verifier</a> that you can use to check your DKIM DNS record(s).</p>
+<p><a href="https://mxtoolbox.com/dkim.aspx">MxToolbox has a DKIM Verifier</a> that you can use to check your DKIM DNS record(s). <a href="https://uchecker.net/dkim-checker">uChecker has a DKIM checker</a> that you can use to check your DKIM DNS record.</p>
 <p>When using Rspamd, we recommend you turn on <code>check_pubkey = true;</code> in <code>dkim_signing.conf</code>. Rspamd will then check whether your private key matches your public key, and you can check possible mismatches by looking at <code>/var/log/mail/rspamd.log</code>.</p>
 <h2 id="dmarc"><a class="toclink" href="#dmarc">DMARC</a></h2>
 <p>With DMS, DMARC is pre-configured out of the box. You may disable extra and excessive DMARC checks when using Rspamd via <code>ENABLE_OPENDMARC=0</code>.</p>

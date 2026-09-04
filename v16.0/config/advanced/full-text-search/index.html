@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#overview" class="md-skip">
+        <a href="#full-text-search-fts" class="md-skip">
           Skip to content
         </a>
       
@@ -1919,24 +1919,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Full-Text Search
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -1954,79 +1938,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#xapian" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Xapian
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Xapian">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Setup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#further-discussion" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Further Discussion
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -2363,62 +2274,6 @@
     
   
     Blog Posts
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/tutorials/dovecot-flatcurve/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dovecot FTS with Flatcurve
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../examples/tutorials/dovecot-solr/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dovecot FTS with Apache Solr
   
 
     
@@ -2916,70 +2771,8 @@
   
   
   
+    
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Overview">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#xapian" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Xapian
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Xapian">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Setup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#further-discussion" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Further Discussion
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -3012,96 +2805,306 @@
   
 
 
-  <h1>Full-Text Search</h1>
-
-<h2 id="overview"><a class="toclink" href="#overview">Overview</a></h2>
-<p>Full-text search allows all messages to be indexed, so that mail clients can quickly and efficiently search messages by their full text content. Dovecot supports a variety of community supported <a href="https://doc.dovecot.org/configuration_manual/fts/">FTS indexing backends</a>.</p>
-<p>DMS comes pre-installed with two plugins that can be enabled with a dovecot config file.</p>
+<h1 id="full-text-search-fts"><a class="toclink" href="#full-text-search-fts">Full Text Search (FTS)</a></h1>
+<details class="abstract">
+<summary>What is FTS?</summary>
+<p>FTS allows all emails to be indexed so that mail clients can quickly and efficiently search messages by their full text content directly from the IMAP server. As the size of your mail storage grows, the benefits of FTS are especially notable.</p>
+<ol>
+<li>Without FTS, Dovecot would perform a search query by checking each individual email stored for a match, and then repeat this process again from scratch for the exact same query in the future.</li>
+<li>Some mail clients (<em>like Thunderbird</em>) may provide their own indexing and search features when all mail to search is stored locally; otherwise, Dovecot needs to handle the search query (<em>for example webmail and mobile clients, like Gmail</em>).</li>
+<li>FTS indexes each mail into a database for querying, where it can skip the cost of inspecting irrelevant emails for a query.</li>
+</ol>
 <p>Please be aware that indexing consumes memory and takes up additional disk space.</p>
-<h3 id="xapian"><a class="toclink" href="#xapian">Xapian</a></h3>
-<p>The <a href="https://github.com/grosjo/fts-xapian">dovecot-fts-xapian</a> plugin makes use of <a href="https://xapian.org/">Xapian</a>. Xapian enables embedding an FTS engine without the need for additional backends.</p>
-<p>The indexes will be stored as a subfolder named <code>xapian-indexes</code> inside your local <code>mail-data</code> folder (<em><code>/var/mail</code> internally</em>). With the default settings, 10GB of email data may generate around 4GB of indexed data.</p>
+</details>
+<p>Dovecot supports a variety of community-supported <a href="https://doc.dovecot.org/main/core/plugins/fts.html">FTS indexing backends</a>. DMS provides different levels of support for them.</p>
+<div class="admonition warning">
+<p class="admonition-title">Do not enable two FTS indexers simultaneously</p>
+<p>Dovecot supports only one FTS backend at a time. If you migrate, remove the old configuration first, (optionally) prune the old index data to free up space, and only then configure the new indexer.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Indexing will take a while depending on how large your mail folders are.</p>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="flatcurve" name="__tabbed_1" type="radio" /><input id="solr" name="__tabbed_1" type="radio" /><input id="xapian" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="flatcurve">Flatcurve</label><label for="solr">Solr</label><label for="xapian">Xapian</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><strong>About</strong></p>
+<p><a href="https://doc.dovecot.org/main/core/plugins/fts_flatcurve.html"><code>fts-flatcurve</code></a> is an FTS backend that became part of Dovecot core with the 2.4 release.</p>
+<details class="info">
+<summary>Comparison to Xapian</summary>
+<p>Like Xapian, Flatcurve uses the <a href="https://xapian.org/">Xapian</a> library to store indexes locally, so no additional service is needed (unlike solr). But Flatcurve</p>
+<ul>
+<li>is maintained by the Dovecot developers as part of Dovecot itself, and it is the FTS backend recommended by upstream for local indexing.</li>
+<li>uses the Dovecot 2.4 <code>language</code> settings for tokenizing, stemming and stop words, so search behaviour is consistent with the other Dovecot FTS backends.</li>
+<li>stores its index in an <code>fts-flatcurve</code> directory alongside each mailbox's Dovecot index files (so it is retained in your <code>mail-data</code> volume).</li>
+<li>does not require a recurring job to run <code>fts optimize</code> on a schedule.</li>
+</ul>
+</details>
+<p><strong>Support Status</strong></p>
+<p><a href="https://doc.dovecot.org/main/core/plugins/fts_flatcurve.html">Flatcurve</a> was officially introduced with DMS 16.0.0. It will be the preferred FTS indexer going forward because of its straightforward integration into and its first-party support by Dovecot.</p>
+<p><strong>Setup</strong></p>
+<ol>
+<li>
+<p>Configure Dovecot to use Flatcurve</p>
+<p>Create a <code>fts-flatcurve-plugin.conf</code> file in your <code>./docker-data/dms/config/dovecot/</code> folder with the following content:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Enable FTS Flatcurve</span>
+<span class="na">mail_plugins {</span>
+<span class="w">  </span><span class="na">fts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="w">  </span><span class="na">fts_flatcurve</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="na">}</span>
+
+<span class="c1"># Index new mail as it is delivered</span>
+<span class="na">fts_autoindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+
+<span class="c1"># If FTS lookup or indexing fails, Dovecot</span>
+<span class="c1"># falls back to a slow non-indexed search.</span>
+<span class="c1"># After the initial indexing (see below)</span>
+<span class="c1"># has completed you may prefer to fail such</span>
+<span class="c1"># searches instead.</span>
+<span class="na">fts_search_read_fallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+
+<span class="c1"># Skip autoindexing of folders that grow</span>
+<span class="c1"># quickly and are rarely searched:</span>
+<span class="na">mailbox Trash {</span>
+<span class="w">  </span><span class="na">fts_autoindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span>
+<span class="na">}</span>
+<span class="na">mailbox Junk {</span>
+<span class="w">  </span><span class="na">fts_autoindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span>
+<span class="na">}</span>
+
+<span class="c1"># Tokenizing and stemming. Add a `language xx { }`</span>
+<span class="c1"># block for each language you expect in your mail.</span>
+<span class="c1"># Refer to the Dovecot docs for the languages</span>
+<span class="c1"># supported by the `snowball` stemmer.</span>
+<span class="c1">#</span>
+<span class="c1"># DO NOT enable stopwords together with multiple</span>
+<span class="c1"># languages: searches can then miss matches.</span>
+<span class="na">language en {</span>
+<span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="w">  </span><span class="na">language_filters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">lowercase snowball english-possessive stopwords</span>
+<span class="na">}</span>
+
+<span class="na">language_filter_stopwords_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/usr/share/dovecot/stopwords</span>
+<span class="na">language_filters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">normalizer-icu snowball stopwords</span>
+<span class="na">language_tokenizers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">generic email-address</span>
+<span class="na">language_tokenizer_generic_algorithm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">simple</span>
+
+<span class="na">fts flatcurve {</span>
+<span class="w">  </span><span class="c1"># Match any part of a word (e.g. `mail` matches</span>
+<span class="w">  </span><span class="c1"># `mailserver`) at the cost of a much larger index.</span>
+<span class="w">  </span><span class="c1"># The default `no` only matches from the start of a word.</span>
+<span class="w">  </span><span class="na">substring_search</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+
+<span class="w">  </span><span class="c1"># Further optional tuning (commit_limit, min_term_size,</span>
+<span class="w">  </span><span class="c1"># optimize_limit, rotate_count, rotate_time) is documented</span>
+<span class="w">  </span><span class="c1"># upstream. The defaults are sensible for most users.</span>
+<span class="na">}</span>
+
+<span class="na">service indexer-worker {</span>
+<span class="w">  </span><span class="c1"># Limit the size of an indexer-worker&#39;s RAM usage</span>
+<span class="w">  </span><span class="na">vsz_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1G</span>
+<span class="na">}</span>
+</code></pre></div>
+<p>Add a volume mount for that config to your DMS service in <code>compose.yaml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/fts-flatcurve-plugin.conf:/etc/dovecot/conf.d/90-fts-flatcurve.conf:ro</span>
+</code></pre></div>
+<p>Alternatively, put the same snippet in <a href="../override-defaults/dovecot/#add-configuration"><code>dovecot.cf</code></a> (<em>DMS copies it to <code>/etc/dovecot/local.conf</code></em>). That uses the existing config volume and does not need an extra bind-mount.</p>
+</li>
+<li>
+<p>Trigger Dovecot FTS indexing</p>
+<p>After following the previous steps, restart DMS and run this command to have Dovecot index all existing mail for every account:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>index<span class="w"> </span>-A<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;*&#39;</span>
+</code></pre></div>
+<p>The <code>-q</code> flag queues the work through the <code>indexer</code> service instead of running it in the foreground. You can watch progress in the Dovecot logs (<code>docker compose logs -f mailserver</code>). Once complete, you should be able to search your mail using the Dovecot FTS feature! <img alt="🎉" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f389.svg" title=":tada:" /></p>
+</li>
+</ol>
+<p><strong>Maintenance</strong></p>
+<p>Flatcurve automatically rotates and optimizes its Xapian databases as mail is indexed (<em>controlled by the <code>rotate_*</code> and <code>optimize_limit</code> settings</em>), so unlike <code>fts-xapian</code>, a scheduled <code>doveadm fts optimize</code> job is not required.</p>
+<p>Some <code>doveadm</code> commands specific to Flatcurve that may be useful:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Show index statistics (size, number of mails indexed)</span>
+<span class="c1"># per mailbox for a user:</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>fts<span class="w"> </span>flatcurve<span class="w"> </span>stats<span class="w"> </span>-u<span class="w"> </span>user@example.com<span class="w"> </span><span class="s1">&#39;*&#39;</span>
+<span class="c1"># Verify the index databases of a user are not corrupt:</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>fts<span class="w"> </span>flatcurve<span class="w"> </span>check<span class="w"> </span>-u<span class="w"> </span>user@example.com<span class="w"> </span><span class="s1">&#39;*&#39;</span>
+<span class="c1"># Drop the index of a user (rebuild it afterwards with `doveadm index`):</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>fts<span class="w"> </span>flatcurve<span class="w"> </span>remove<span class="w"> </span>-u<span class="w"> </span>user@example.com<span class="w"> </span><span class="s1">&#39;*&#39;</span>
+<span class="c1"># Rebuild the index for everyone from scratch (for example after</span>
+<span class="c1"># changing `language` or `substring_search` settings)</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>fts<span class="w"> </span>rescan<span class="w"> </span>-A
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>index<span class="w"> </span>-A<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;*&#39;</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p><strong>About</strong></p>
+<p><a href="https://github.com/apache/solr">Apache Solr</a> is a fast and efficient multi-purpose search indexer.</p>
+<p><strong>Support Status</strong></p>
+<p>Support for Solr is entirely community-driven. The build scripts for DMS currently install the <code>dovecot-solr</code> package to help users of Solr; the package may be removed if DMS encounters problems with it (especially when building for <code>arm64</code>). Bug reports for Solr are not accepted unless they concern the documentation and are accompanied by a pull request to fix the issue.</p>
+<p><strong>Setup</strong></p>
+<ol>
+<li>
+<p>Firstly you need a working Solr container</p>
+<p>The <a href="https://hub.docker.com/_/solr">official docker image</a> will do:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">solr</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">solr:10</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-solr</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># As Solr can be quite resource hungry, raise the memory limit to 2GB.</span>
+<span class="w">      </span><span class="c1"># The default is 512MB, which may be exhausted quickly.</span>
+<span class="w">      </span><span class="nt">SOLR_JAVA_MEM</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;-Xms2g</span><span class="nv"> </span><span class="s">-Xmx2g&quot;</span>
+<span class="w">      </span><span class="c1"># Current dovecot solr config needs the analysis-extras solr module,</span>
+<span class="w">      </span><span class="c1"># so add it with this env var.</span>
+<span class="w">      </span><span class="nt">SOLR_MODULES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;analysis-extras&quot;</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/solr:/var/solr</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
+</code></pre></div>
+<p>DMS will connect internally to the <code>solr</code> service above. Either have both services in the same <code>compose.yaml</code> file, or ensure that the containers are connected to the same docker network.</p>
+</li>
+<li>
+<p>Configure Solr for Dovecot</p>
+<ol>
+<li>
+<p>Once the Solr container is started, you need to configure a "Solr core" for Dovecot:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>dms-solr<span class="w"> </span>/bin/sh
+solr<span class="w"> </span>create<span class="w"> </span>-c<span class="w"> </span>dovecot
+</code></pre></div>
+<p>Stop the <code>dms-solr</code> container and you should now have a <code>./docker-data/solr/data/dovecot</code> folder in the local bind mount volume.</p>
+</li>
+<li>
+<p>Solr needs a schema that is specifically tailored for Dovecot FTS.</p>
+<p>As of writing of this guide, Solr 10 is the current release. <a href="https://github.com/dovecot/core/tree/main/doc">Dovecot provides the required schema configs</a> for Solr. Copy the following two v9 config files, which also work with Solr 10, to <code>./docker-data/solr/data/dovecot/conf/</code> and rename them accordingly:</p>
+<ul>
+<li><a href="https://github.com/dovecot/core/blob/main/doc/solr-config-9.xml"><code>solr-config-9.xml</code></a> (<em>rename to <code>solrconfig.xml</code></em>)</li>
+<li><a href="https://github.com/dovecot/core/blob/main/doc/solr-schema-9.xml"><code>solr-schema-9.xml</code></a> (<em>rename to <code>schema.xml</code></em>)</li>
+</ul>
+<p>Additionally, remove any generated <code>managed-schema</code> or <code>managed-schema.xml</code> file from <code>./docker-data/solr/data/dovecot/conf/</code> and ensure the two files you copied have a <a href="https://github.com/apache/solr-docker/blob/main/10.0/Dockerfile">UID and GID of <code>8983</code></a> assigned.</p>
+<p>Start the Solr container once again, you should now have a working Solr core specifically for Dovecot FTS.</p>
+</li>
+<li>
+<p>Configure Dovecot in DMS to connect to this Solr core:</p>
+<p>Create a <code>90-fts-solr.conf</code> file in your <code>./docker-data/dms/config/dovecot/</code> folder with this content:</p>
+<div class="highlight"><pre><span></span><code><span class="na">language en {</span>
+<span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="na">}</span>
+
+<span class="na">mail_plugins {</span>
+<span class="w">  </span><span class="na">fts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="w">  </span><span class="na">fts_solr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="na">}</span>
+
+<span class="na">fts solr {</span>
+<span class="na">}</span>
+
+<span class="na">fts_solr_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">http://solr:8983/solr/dovecot/</span>
+
+<span class="na">fts_autoindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="na">fts_search_add_missing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="na">fts_search_read_fallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span>
+
+<span class="na">mailbox Trash {</span>
+<span class="w">  </span><span class="na">fts_autoindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span>
+<span class="na">}</span>
+
+<span class="c1">#fts_decoder_driver = script</span>
+<span class="c1">#fts_decoder_script_socket_path = decode2text</span>
+
+<span class="c1">#service decode2text {</span>
+<span class="c1">#  executable = script /usr/libexec/dovecot/decode2text.sh</span>
+<span class="c1">#  user = dovecot</span>
+<span class="c1">#</span>
+<span class="c1">#  unix_listener decode2text {</span>
+<span class="c1">#    mode = 0666</span>
+<span class="c1">#  }</span>
+<span class="c1">#}</span>
+</code></pre></div>
+<p>Excluding Trash from indexing is optional and so is including attachment text. The <code>decode2text</code> script <a href="https://github.com/orgs/docker-mailserver/discussions/4461#discussioncomment-13002388">may or may not work</a>, upstream prefers Tika which SOLR should be able to do but is outside of scope for this tutorial.</p>
+<p>Starting with dovecot 2.4 dovecot fts-solr needs a default language to initialize solr searching. In this example langcode <code>en</code> was set as default, but any langcode will do. If you want to enable additional languages add them like this:</p>
+<div class="highlight"><pre><span></span><code><span class="na">language de {</span>
+<span class="na">}</span>
+</code></pre></div>
+<p>Add a volume mount for that config to your DMS service in <code>compose.yaml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/90-fts-solr.conf:/etc/dovecot/conf.d/90-fts-solr.conf:ro</span>
+</code></pre></div>
+<p>Alternatively, put the same snippet in <a href="../override-defaults/dovecot/#add-configuration"><code>dovecot.cf</code></a> to use the existing config volume instead of an additional bind mount.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Trigger Dovecot FTS indexing</p>
+<p>After following the previous steps, restart DMS and run these commands to reconcile the Solr index and index all existing mail:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>fts<span class="w"> </span>rescan<span class="w"> </span>-A
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>index<span class="w"> </span>-A<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;*&#39;</span>
+</code></pre></div>
+</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<p><strong>About</strong></p>
+<p><a href="https://github.com/grosjo/fts-xapian"><code>fts-xapian</code></a> is a community-maintained plugin that makes use of <a href="https://xapian.org/">Xapian</a>. Xapian enables embedding an FTS engine without the need for additional backends.</p>
+<p>The indexes are stored in a subfolder named <code>xapian-indexes</code> inside each user's mailbox directory in your local <code>mail-data</code> folder (<em><code>/var/mail</code> internally</em>). With the default settings, 10GB of email data may generate around 4GB of indexed data.</p>
 <p>While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB).</p>
-<h4 id="setup"><a class="toclink" href="#setup">Setup</a></h4>
+<p><strong>Support Status</strong></p>
+<p><a href="https://github.com/grosjo/fts-xapian">Xapian</a> was the officially supported FTS indexing option until DMS 16.0.0. With 16.0.0, Flatcurve is preferred and Xapian is not officially supported anymore. We urge you to migrate to Flatcurve. New issues concerning Xapian cannot be worked on.</p>
+<p><strong>Setup</strong></p>
 <ol>
 <li>
 <p>To configure <code>fts-xapian</code> as a dovecot plugin, create a file at <code>docker-data/dms/config/dovecot/fts-xapian-plugin.conf</code> and place the following in it:</p>
-<div class="highlight"><pre><span></span><code>mail_plugins = $mail_plugins fts fts_xapian
+<div class="highlight"><pre><span></span><code><span class="na">mail_plugins {</span>
+<span class="w">  </span><span class="na">fts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="w">  </span><span class="na">fts_xapian</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="na">}</span>
 
-plugin {
-    fts = xapian
-    fts_xapian = partial=3 full=20 verbose=0
+<span class="na">fts_autoindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
 
-    fts_autoindex = yes
-    fts_enforced = yes
+<span class="na">language en {</span>
+<span class="w">  </span><span class="na">default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">yes</span>
+<span class="na">}</span>
 
-    # disable indexing of folders
-    # fts_autoindex_exclude = \Trash
+<span class="na">fts xapian {</span>
+<span class="w">  </span><span class="na">verbose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+<span class="w">  </span><span class="na">partial</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+<span class="na">}</span>
 
-    # Index attachments
-    # fts_decoder = decode2text
-}
-
-service indexer-worker {
-    # limit size of indexer-worker RAM usage, ex: 512MB, 1GB, 2GB
-    vsz_limit = 1GB
-}
-
-# service decode2text {
-#     executable = script /usr/libexec/dovecot/decode2text.sh
-#     user = dovecot
-#     unix_listener decode2text {
-#         mode = 0666
-#     }
-# }
+<span class="na">service indexer-worker {</span>
+<span class="w">  </span><span class="c1"># Limit the indexer-worker&#39;s virtual memory size.</span>
+<span class="w">  </span><span class="na">vsz_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1G</span>
+<span class="w">  </span><span class="c1"># Xapian requires an unlimited number of indexer-worker processes.</span>
+<span class="w">  </span><span class="na">process_limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+<span class="na">}</span>
 </code></pre></div>
-<p>adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments</p>
+<p>Adjust the settings to tune for your desired memory limits. To index attachments, configure an attachment decoder as described in the <a href="https://doc.dovecot.org/main/core/plugins/fts.html">Dovecot FTS documentation</a>.</p>
 </li>
 <li>
-<p>Update <code>compose.yaml</code> to load the previously created dovecot plugin config file:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">services</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">mailserver</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
-<span class="w">      </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver</span>
-<span class="w">      </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.com</span>
-<span class="w">      </span><span class="nt">env_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mailserver.env</span>
-<span class="w">      </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;25:25&quot;</span><span class="w">    </span><span class="c1"># SMTP  (explicit TLS =&gt; STARTTLS)</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;143:143&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (explicit TLS =&gt; STARTTLS)</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;465:465&quot;</span><span class="w">  </span><span class="c1"># ESMTP (implicit TLS)</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;587:587&quot;</span><span class="w">  </span><span class="c1"># ESMTP (explicit TLS =&gt; STARTTLS)</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;993:993&quot;</span><span class="w">  </span><span class="c1"># IMAP4 (implicit TLS)</span>
-<span class="w">      </span><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-state/:/var/mail-state/</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-logs/:/var/log/mail/</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
-<span class="w">      </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
-<span class="w">      </span><span class="nt">stop_grace_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1m</span>
-<span class="w">      </span><span class="nt">cap_add</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_ADMIN</span>
+<p>Update <code>compose.yaml</code> to load the previously created Dovecot plugin config file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/90-fts-xapian.conf:ro</span>
 </code></pre></div>
+<p>Alternatively, put the same snippet in <a href="../override-defaults/dovecot/#add-configuration"><code>dovecot.cf</code></a> to use the existing config volume instead of an additional bind mount.</p>
 </li>
 <li>
 <p>Recreate containers:</p>
-<div class="highlight"><pre><span></span><code>docker compose down
-docker compose up -d
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>down
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
 </li>
 <li>
 <p>Initialize indexing on all users for all mail:</p>
-<div class="highlight"><pre><span></span><code>docker compose exec mailserver doveadm index -A -q \*
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>index<span class="w"> </span>-A<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;*&#39;</span>
 </code></pre></div>
 </li>
 <li>
 <p>Run the following command in a daily cron job:</p>
-<p><div class="highlight"><pre><span></span><code>docker compose exec mailserver doveadm fts optimize -A
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>fts<span class="w"> </span>optimize<span class="w"> </span>-A
 </code></pre></div>
-Or like the <a href="../../../faq/#how-can-i-make-spamassassin-better-recognize-spam">Spamassassin example</a> shows, you can instead use <code>cron</code> from within DMS to avoid potential errors if the mail server is not running:</p>
-</li>
-</ol>
+<p>Or like the <a href="../../../faq/#how-can-i-make-spamassassin-better-recognize-spam">Spamassassin example</a> shows, you can instead use <code>cron</code> from within DMS to avoid potential errors if the mail server is not running:</p>
 <details class="example">
 <summary>Example</summary>
 <p>Create a <em>system</em> cron file:</p>
@@ -3123,14 +3126,15 @@ chmod<span class="w"> </span><span class="m">0644</span><span class="w"> </span>
 <p>Then with <code>compose.yaml</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian</span>
 </code></pre></div>
 </details>
-<h4 id="further-discussion"><a class="toclink" href="#further-discussion">Further Discussion</a></h4>
-<p>See <a href="https://github.com/docker-mailserver/docker-mailserver/issues/905">#905</a></p>
-<p>Attempting to enable commented out features in the config example above <a href="https://github.com/orgs/docker-mailserver/discussions/4461#discussioncomment-13002388">may not be functional</a>.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
 
 
 
