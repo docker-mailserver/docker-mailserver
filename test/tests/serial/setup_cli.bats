@@ -5,6 +5,7 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 BATS_TEST_NAME_PREFIX='[setup.sh] '
 CONTAINER_NAME='dms-test_setup-cli'
 
+# This file must run serially because setup.sh auto-selects any running DMS container.
 # This is a bare minimal container setup.
 # All test-cases run sequentially against the same container instance,
 # no state is reset between test-cases.
