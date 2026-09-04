@@ -14,11 +14,11 @@ title: 'Advanced | Full-Text Search'
 
     Please be aware that indexing consumes memory and takes up additional disk space.
 
-Dovecot supports a variety of (community-) supported [FTS indexing backends][dovecot::docs::fts]. DMS provides different levels of support for them.
+Dovecot supports a variety of community-supported [FTS indexing backends][dovecot::docs::fts]. DMS provides different levels of support for them.
 
 !!! warning "Do not enable two FTS indexers simultaneously"
 
-    Dovecot supports only one FTS backend at a time. If you migrate, remove the old configuration first, (optionally) prune the old index data to free up space, and only the configure the new indexer.
+    Dovecot supports only one FTS backend at a time. If you migrate, remove the old configuration first, (optionally) prune the old index data to free up space, and only then configure the new indexer.
 
 !!! info "Indexing will take a while depending on how large your mail folders are."
 
@@ -39,13 +39,13 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
 
     **Support Status**
 
-    [Flatcurve][dovecot::docs::fts::flatcurve] was officially introduced with DMS 16.0.0. It will be the preferred FTS indexer going forward because of its straightforward integration into and its fist-party support by Dovecot.
+    [Flatcurve][dovecot::docs::fts::flatcurve] was officially introduced with DMS 16.0.0. It will be the preferred FTS indexer going forward because of its straightforward integration into and its first-party support by Dovecot.
 
     **Setup**
 
     1. Configure Dovecot to use Flatcurve
 
-        Create a `fts-flatcurve-plugin.conf` file in your `./docker-data/dms/config/dovecot/` folder with the         following content:
+        Create a `fts-flatcurve-plugin.conf` file in your `./docker-data/dms/config/dovecot/` folder with the following content:
 
         ```conf
         # Enable FTS Flatcurve
@@ -67,11 +67,9 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
         # Skip autoindexing of folders that grow
         # quickly and are rarely searched:
         mailbox Trash {
-          special_use = \Trash
           fts_autoindex = no
         }
         mailbox Junk {
-          special_use = \Junk
           fts_autoindex = no
         }
 
@@ -94,11 +92,11 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
 
         fts flatcurve {
           # Match any part of a word (e.g. `mail` matches
-          #`mailserver`) at the cost of a much larger index.
+          # `mailserver`) at the cost of a much larger index.
           # The default `no` only matches from the start of a word.
           substring_search = yes
 
-          # Further optional tuning (commit_limit,`min_term_size,
+          # Further optional tuning (commit_limit, min_term_size,
           # optimize_limit, rotate_count, rotate_time) is documented
           # upstream. The defaults are sensible for most users.
         }
@@ -115,10 +113,10 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
         services:
           mailserver:
             volumes:
-              - ./docker-data/dms/config/dovecot/fts-flatcurve-plugin.conf:/etc/dovecot/conf.d/90-fts-flatcurve.        conf:ro
+              - ./docker-data/dms/config/dovecot/fts-flatcurve-plugin.conf:/etc/dovecot/conf.d/90-fts-flatcurve.conf:ro
         ```
 
-        Alternatively, put the same snippet in [`dovecot.cf`][docs::dovecot-cf] (_DMS copies it to `/etc/dovecot/       local.conf`_). That uses the existing config volume and does not need an extra bind-mount.
+        Alternatively, put the same snippet in [`dovecot.cf`][docs::dovecot-cf] (_DMS copies it to `/etc/dovecot/local.conf`_). That uses the existing config volume and does not need an extra bind-mount.
 
     2. Trigger Dovecot FTS indexing
 
@@ -158,7 +156,7 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
 
     **Support Status**
 
-    The support for Solr is entirely community-driven. The build scripts for DMS currently install the `dovecot-solr` package to help users of Solr; the package will be removed, though, in case DMS encounters problems with it (especially when building for `arm64`). Bug reports for Solr are not accepted unless they concern the documentation and if they follow up with a pull request to fix the issue.
+    Support for Solr is entirely community-driven. The build scripts for DMS currently install the `dovecot-solr` package to help users of Solr; the package may be removed if DMS encounters problems with it (especially when building for `arm64`). Bug reports for Solr are not accepted unless they concern the documentation and are accompanied by a pull request to fix the issue.
 
     **Setup**
 
@@ -194,22 +192,22 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
             solr create -c dovecot
             ```
 
-            Stop the `dms-solr` container and you should now have a `./data/dovecot` folder in the local bind mount volume.
+            Stop the `dms-solr` container and you should now have a `./docker-data/solr/data/dovecot` folder in the local bind mount volume.
 
         2. Solr needs a schema that is specifically tailored for Dovecot FTS.
 
-            As of writing of this guide, Solr 10 is the current release. [Dovecot provides the required schema configs][github::repo::dovecot::docs] for Solr, copy the following two v9 config files which also work with solr 10 to `./data/dovecot` and rename them accordingly:
+            As of writing of this guide, Solr 10 is the current release. [Dovecot provides the required schema configs][github::repo::dovecot::docs] for Solr. Copy the following two v9 config files, which also work with Solr 10, to `./docker-data/solr/data/dovecot/conf/` and rename them accordingly:
 
-            - `solr-config-9.xml` (_rename to `solrconfig.xml`_)
-            - `solr-schema-9.xml` (_rename to `schema.xml`_)
+            - [`solr-config-9.xml`][github::dovecot::solr-config-9] (_rename to `solrconfig.xml`_)
+            - [`solr-schema-9.xml`][github::dovecot::solr-schema-9] (_rename to `schema.xml`_)
 
-            Additionally, remove the `managed-schema.xml` file from `./data/dovecot` and ensure the two files you copied have a [UID and GID of `8983`][solr::docker::uidgid] assigned.
+            Additionally, remove any generated `managed-schema` or `managed-schema.xml` file from `./docker-data/solr/data/dovecot/conf/` and ensure the two files you copied have a [UID and GID of `8983`][solr::docker::uidgid] assigned.
 
             Start the Solr container once again, you should now have a working Solr core specifically for Dovecot FTS.
 
         3. Configure Dovecot in DMS to connect to this Solr core:
 
-            Create a `10-plugin.conf` file in your `./config/dovecot` folder with this contents:
+            Create a `90-fts-solr.conf` file in your `./docker-data/dms/config/dovecot/` folder with this content:
 
             ```conf
             language en {
@@ -262,24 +260,27 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
             services:
               mailserver:
                 volumes:
-                  - ./docker-data/config/dovecot/10-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
+                  - ./docker-data/dms/config/dovecot/90-fts-solr.conf:/etc/dovecot/conf.d/90-fts-solr.conf:ro
             ```
+
+            Alternatively, put the same snippet in [`dovecot.cf`][docs::dovecot-cf] to use the existing config volume instead of an additional bind mount.
 
     3. Trigger Dovecot FTS indexing
 
-        After following the previous steps, restart DMS and run this command to have Dovecot re-index all mail:
+        After following the previous steps, restart DMS and run these commands to reconcile the Solr index and index all existing mail:
 
         ```bash
         docker compose exec mailserver doveadm fts rescan -A
+        docker compose exec mailserver doveadm index -A -q '*'
         ```
 
 === "Xapian"
 
     **About**
 
-    [`fts-xapian`][github::repo::dovecot-xapian] is a (comminity-maintained) plugin that makes use of [Xapian][web::xapian]. Xapian enables embedding an FTS engine without the need for additional backends.
+    [`fts-xapian`][github::repo::dovecot-xapian] is a community-maintained plugin that makes use of [Xapian][web::xapian]. Xapian enables embedding an FTS engine without the need for additional backends.
 
-    The indexes will be stored as a subfolder named `xapian-indexes` inside your local `mail-data` folder (_`/var/mail` internally_). With the default settings, 10GB of email data may generate around 4GB of indexed data.
+    The indexes are stored in a subfolder named `xapian-indexes` inside each user's mailbox directory in your local `mail-data` folder (_`/var/mail` internally_). With the default settings, 10GB of email data may generate around 4GB of indexed data.
 
     While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB).
 
@@ -292,65 +293,42 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
     1. To configure `fts-xapian` as a dovecot plugin, create a file at `docker-data/dms/config/dovecot/fts-xapian-plugin.conf` and place the following in it:
 
         ```conf
-        mail_plugins = $mail_plugins fts fts_xapian
+        mail_plugins {
+          fts = yes
+          fts_xapian = yes
+        }
 
-        plugin {
-            fts = xapian
-            fts_xapian = partial=3 full=20 verbose=0
+        fts_autoindex = yes
 
-            fts_autoindex = yes
-            fts_enforced = yes
+        language en {
+          default = yes
+        }
 
-            # disable indexing of folders
-            # fts_autoindex_exclude = \Trash
-
-            # Index attachments
-            # fts_decoder = decode2text
+        fts xapian {
+          verbose = 0
+          partial = 3
         }
 
         service indexer-worker {
-            # limit size of indexer-worker RAM usage, ex: 512MB, 1GB, 2GB
-            vsz_limit = 1GB
+          # Limit the indexer-worker's virtual memory size.
+          vsz_limit = 1G
+          # Xapian requires an unlimited number of indexer-worker processes.
+          process_limit = 0
         }
-
-        # service decode2text {
-        #     executable = script /usr/libexec/dovecot/decode2text.sh
-        #     user = dovecot
-        #     unix_listener decode2text {
-        #         mode = 0666
-        #     }
-        # }
         ```
 
-        Adjust the settings to tune for your desired memory limits, exclude folders and enable searching text inside of attachments.
+        Adjust the settings to tune for your desired memory limits. To index attachments, configure an attachment decoder as described in the [Dovecot FTS documentation][dovecot::docs::fts].
 
-    2. Update `compose.yaml` to load the previously created dovecot plugin config file:
+    2. Update `compose.yaml` to load the previously created Dovecot plugin config file:
 
         ```yaml
         services:
           mailserver:
-            image: ghcr.io/docker-mailserver/docker-mailserver:latest
-            container_name: mailserver
-            hostname: mail.example.com
-            env_file: mailserver.env
-            ports:
-              - "25:25"    # SMTP  (explicit TLS => STARTTLS)
-              - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
-              - "465:465"  # ESMTP (implicit TLS)
-              - "587:587"  # ESMTP (explicit TLS => STARTTLS)
-              - "993:993"  # IMAP4 (implicit TLS)
             volumes:
-              - ./docker-data/dms/mail-data/:/var/mail/
-              - ./docker-data/dms/mail-state/:/var/mail-state/
-              - ./docker-data/dms/mail-logs/:/var/log/mail/
-              - ./docker-data/dms/config/:/tmp/docker-mailserver/
-              - ./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/10-plugin.conf:ro
-              - /etc/localtime:/etc/localtime:ro
-            restart: always
-            stop_grace_period: 1m
-            cap_add:
-              - NET_ADMIN
+              - ./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/90-fts-xapian.conf:ro
         ```
+
+        Alternatively, put the same snippet in [`dovecot.cf`][docs::dovecot-cf] to use the existing config volume instead of an additional bind mount.
 
     3. Recreate containers:
 
@@ -362,7 +340,7 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
     4. Initialize indexing on all users for all mail:
 
         ```bash
-        docker compose exec mailserver doveadm index -A -q \*
+        docker compose exec mailserver doveadm index -A -q '*'
         ```
 
     5. Run the following command in a daily cron job:
@@ -402,7 +380,6 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
             ```yaml
             services:
               mailserver:
-                image: ghcr.io/docker-mailserver/docker-mailserver:latest
                 volumes:
                   - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
             ```
@@ -417,5 +394,7 @@ Dovecot supports a variety of (community-) supported [FTS indexing backends][dov
 [github::repo::apache-solr]: https://github.com/apache/solr
 [github::repo::dovecot-xapian]: https://github.com/grosjo/fts-xapian
 [github::repo::dovecot::docs]: https://github.com/dovecot/core/tree/main/doc
-[solr::docker::uidgid]: https://github.com/apache/solr-docker/blob/9cd850b72309de05169544395c83a85b329d6b86/9.6/Dockerfile#L89-L92
+[github::dovecot::solr-config-9]: https://github.com/dovecot/core/blob/main/doc/solr-config-9.xml
+[github::dovecot::solr-schema-9]: https://github.com/dovecot/core/blob/main/doc/solr-schema-9.xml
+[solr::docker::uidgid]: https://github.com/apache/solr-docker/blob/main/10.0/Dockerfile
 [web::xapian]: https://xapian.org/
