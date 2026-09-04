@@ -17,6 +17,11 @@ All notable changes to this project will be documented in this file. The format 
 - Moved `setup_cli.bats` to the serial test suite to prevent `setup.sh` from racing with teardown of another DMS test container ([#4701](https://github.com/docker-mailserver/docker-mailserver/issues/4701))
 - Excluded `saslauthd` from the process kill/restart assertion because its forked parent process is not reliably reaped by the test
 
+### Fixed
+
+- **Dovecot**
+  - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example. 
+
 ## [v16.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v16.0.1)
 
 ### Added
