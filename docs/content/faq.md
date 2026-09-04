@@ -496,7 +496,7 @@ $spam_quarantine_to       = "quarantine\@example.com";
 
 [fail2ban-customize]: ./config/security/fail2ban.md
 [docs::dms-volumes-state]: ./config/advanced/optional-config.md#volumes-state
-[docs::rspamd-rbl-dnsbl]: ./config/security/rspamd.md#rbls-real-time-blacklists-dnsbls-dns-based-blacklists
+[docs::rspamd-rbl-dnsbl]: ./config/security/rspamd.md#rspamd-module-rbl
 [docs-maintenance]: ./config/advanced/maintenance/update-and-cleanup.md
 [docs-override-postfix]: ./config/advanced/override-defaults/postfix.md
 [docs-userpatches]: ./config/advanced/override-defaults/user-patches.md
