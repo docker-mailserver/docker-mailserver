@@ -127,6 +127,9 @@ DMS will connect internally to the `solr` service above. Either have both servic
       fts_solr = yes
     }
 
+    fts solr {
+    }
+
     fts_solr_url = http://solr:8983/solr/dovecot/
     
     fts_autoindex = yes
