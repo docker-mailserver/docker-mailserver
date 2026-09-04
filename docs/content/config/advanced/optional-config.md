@@ -109,6 +109,6 @@ This is a list of all configuration files and directories which are optional, au
 [docs-sieve]: ./mail-sieve.md
 [docs-setupsh]: ../../config/setup.sh.md
 [docs-ssl]: ../../config/security/ssl.md
-[docs-rspamd-override-d]: ../security/rspamd.md#manually
+[docs-rspamd-override-d]: ../security/rspamd.md#providing-custom-settings-overriding-settings
 [docs-rspamd-commands]: ../security/rspamd.md#with-the-help-of-a-custom-file
 [github-commit-setup-stack.sh-L411]: https://github.com/docker-mailserver/docker-mailserver/blob/941e7acdaebe271eaf3d296b36d4d81df4c54b90/target/scripts/startup/setup-stack.sh#L411
