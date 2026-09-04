@@ -173,14 +173,6 @@
          <lastmod>2026-09-04</lastmod>
     </url>
     <url>
-         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/dovecot-flatcurve/</loc>
-         <lastmod>2026-09-04</lastmod>
-    </url>
-    <url>
-         <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/dovecot-solr/</loc>
-         <lastmod>2026-09-04</lastmod>
-    </url>
-    <url>
          <loc>https://docker-mailserver.github.io/docker-mailserver/edge/examples/tutorials/mailserver-behind-proxy/</loc>
          <lastmod>2026-09-04</lastmod>
     </url>
