@@ -1,6 +1,7 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
 
 source "${REPOSITORY_ROOT}/target/scripts/helpers/log.sh"
+source "${REPOSITORY_ROOT}/target/scripts/helpers/utils.sh"
 source "${REPOSITORY_ROOT}/target/scripts/startup/setup.d/ldap.sh"
 
 BATS_TEST_NAME_PREFIX='[Dovecot LDAP config] '
@@ -48,6 +49,25 @@ function teardown() {
     yes
   assert_success
 
+  run grep -E '^    password = ' "${TMP_CONFIG_FILE}"
+  assert_failure
+}
+
+@test "configures authentication binds without custom passdb attributes" {
+  export DOVECOT_AUTH_BIND=yes
+  unset DOVECOT_PASSDB_LDAP_BIND DOVECOT_PASS_ATTRS
+  export DOVECOT_PASSDB_LDAP_BIND="${DOVECOT_PASSDB_LDAP_BIND:=${DOVECOT_AUTH_BIND:=no}}"
+
+  run _replace_by_env_in_file 'DOVECOT_' "${TMP_CONFIG_FILE}"
+  assert_success
+
+  run sed -i '/^    password = /d' "${TMP_CONFIG_FILE}"
+  assert_success
+
+  run grep -E '^passdb_ldap_bind = yes$' "${TMP_CONFIG_FILE}"
+  assert_success
+  run grep -E '^    user = %\{ldap:uniqueIdentifier\}$' "${TMP_CONFIG_FILE}"
+  assert_success
   run grep -E '^    password = ' "${TMP_CONFIG_FILE}"
   assert_failure
 }

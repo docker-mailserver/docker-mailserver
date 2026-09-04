@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Dovecot**
   - `ENABLE_QUOTAS=1` no longer rejects aliases that forward to external addresses. Restored the `quota_status_*` responses dropped during the Dovecot 2.3 to 2.4 migration ([#4767](https://github.com/docker-mailserver/docker-mailserver/issues/4767))
-  - LDAP `DOVECOT_PASS_ATTRS`, `DOVECOT_USER_ATTRS`, and `DOVECOT_AUTH_BIND` now configure Dovecot 2.4 LDAP fields and authentication binds correctly.
+  - LDAP `DOVECOT_PASS_ATTRS`, `DOVECOT_USER_ATTRS`, and `DOVECOT_AUTH_BIND` now configure Dovecot 2.4 LDAP fields and authentication binds correctly ([#4770](https://github.com/docker-mailserver/docker-mailserver/pull/4770), [#4777](https://github.com/docker-mailserver/docker-mailserver/issues/4777)).
 - **Internal**
   - `/var/mail` permission repair now runs `chown -R` only on paths `find` reports as mismatched (within `-maxdepth 3`), instead of `chown -R` on the entire tree. Account creation sets ownership on the new mailbox directory (`mail_path`) so change detection no longer needs to scan `/var/mail` ([#4696](https://github.com/docker-mailserver/docker-mailserver/pull/4696), [#4112](https://github.com/docker-mailserver/docker-mailserver/issues/4112))
 - **Documentation**
