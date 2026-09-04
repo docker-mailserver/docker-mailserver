@@ -2,25 +2,27 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v16.0.0...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v16.0.1...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
-### Fixed
-
-- **Dovecot**
-  - `ENABLE_QUOTAS=1` no longer rejects aliases that forward to external addresses. Restored the `quota_status_*` responses dropped during the Dovecot 2.3 to 2.4 migration ([#4767](https://github.com/docker-mailserver/docker-mailserver/issues/4767))
-  - LDAP `DOVECOT_PASS_ATTRS`, `DOVECOT_USER_ATTRS`, and `DOVECOT_AUTH_BIND` now configure Dovecot 2.4 LDAP fields and authentication binds correctly ([#4770](https://github.com/docker-mailserver/docker-mailserver/pull/4770), [#4777](https://github.com/docker-mailserver/docker-mailserver/issues/4777)).
-- **Internal**
-  - `/var/mail` permission repair now runs `chown -R` only on paths `find` reports as mismatched (within `-maxdepth 3`), instead of `chown -R` on the entire tree. Account creation sets ownership on the new mailbox directory (`mail_path`) so change detection no longer needs to scan `/var/mail` ([#4696](https://github.com/docker-mailserver/docker-mailserver/pull/4696), [#4112](https://github.com/docker-mailserver/docker-mailserver/issues/4112))
-- **Documentation**
-  - Removed the amd64 notice from the dovecot solr tuturial.
-  - Updated the dovecot fts solr tutorial for dovecot 2.4+ and solr 10.x.
+## [v16.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v16.0.1)
 
 ### Added
 
 - **Dovecot**
-  - `dovecot-solr` is included by default again; using it is optional and requires manual configuration by the user (consult the documentation)
+  - `dovecot-solr` is included by default again; using it is optional and requires manual configuration by the user (consult the documentation) ([#4782](https://github.com/docker-mailserver/docker-mailserver/pull/4782))
+
+### Fixed
+
+- **Dovecot**
+  - `ENABLE_QUOTAS=1` no longer rejects aliases that forward to external addresses. Restored the `quota_status_*` responses dropped during the Dovecot 2.3 to 2.4 migration ([#4769](https://github.com/docker-mailserver/docker-mailserver/pull/4769), [#4767](https://github.com/docker-mailserver/docker-mailserver/issues/4767))
+  - LDAP `DOVECOT_PASS_ATTRS`, `DOVECOT_USER_ATTRS`, and `DOVECOT_AUTH_BIND` now configure Dovecot 2.4 LDAP fields and authentication binds correctly ([#4770](https://github.com/docker-mailserver/docker-mailserver/pull/4770), [#4777](https://github.com/docker-mailserver/docker-mailserver/issues/4777))
+- **Internal**
+  - `/var/mail` permission repair now runs `chown -R` only on paths `find` reports as mismatched (within `-maxdepth 3`), instead of `chown -R` on the entire tree. Account creation sets ownership on the new mailbox directory (`mail_path`) so change detection no longer needs to scan `/var/mail` ([#4696](https://github.com/docker-mailserver/docker-mailserver/pull/4696), [#4112](https://github.com/docker-mailserver/docker-mailserver/issues/4112))
+- **Documentation**
+  - Revised the FTS documentation for Dovecot 2.4 (Solr 10.x, Flatcurve, and Xapian) ([#4773](https://github.com/docker-mailserver/docker-mailserver/pull/4773), [#4783](https://github.com/docker-mailserver/docker-mailserver/pull/4783))
+  - Updated mail-crypt documentation for Dovecot 2.4 ([#4764](https://github.com/docker-mailserver/docker-mailserver/pull/4764))
 
 ## [v16.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v16.0.0)
 
