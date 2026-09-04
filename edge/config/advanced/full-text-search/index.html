@@ -2948,15 +2948,16 @@ docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">ex
 <p>The <a href="https://hub.docker.com/_/solr">official docker image</a> will do:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">solr</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">solr:10</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">solr:10.0</span>
 <span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-solr</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;solr-foreground&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;--user-managed&quot;</span><span class="p p-Indicator">]</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="c1"># As Solr can be quite resource hungry, raise the memory limit to 2GB.</span>
 <span class="w">      </span><span class="c1"># The default is 512MB, which may be exhausted quickly.</span>
 <span class="w">      </span><span class="nt">SOLR_JAVA_MEM</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;-Xms2g</span><span class="nv"> </span><span class="s">-Xmx2g&quot;</span>
 <span class="w">      </span><span class="c1"># Current dovecot solr config needs the analysis-extras solr module,</span>
 <span class="w">      </span><span class="c1"># so add it with this env var.</span>
-<span class="w">      </span><span class="nt">SOLR_MODULES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;analysis-extras&quot;</span>
+<span class="w">      </span><span class="nt">SOLR_MODULES</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analysis-extras</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/solr:/var/solr</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
@@ -3007,20 +3008,8 @@ solr<span class="w"> </span>create<span class="w"> </span>-c<span class="w"> </s
 <span class="na">mailbox Trash {</span>
 <span class="w">  </span><span class="na">fts_autoindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span>
 <span class="na">}</span>
-
-<span class="c1">#fts_decoder_driver = script</span>
-<span class="c1">#fts_decoder_script_socket_path = decode2text</span>
-
-<span class="c1">#service decode2text {</span>
-<span class="c1">#  executable = script /usr/libexec/dovecot/decode2text.sh</span>
-<span class="c1">#  user = dovecot</span>
-<span class="c1">#</span>
-<span class="c1">#  unix_listener decode2text {</span>
-<span class="c1">#    mode = 0666</span>
-<span class="c1">#  }</span>
-<span class="c1">#}</span>
 </code></pre></div>
-<p>Excluding Trash from indexing is optional and so is including attachment text. The <code>decode2text</code> script <a href="https://github.com/orgs/docker-mailserver/discussions/4461#discussioncomment-13002388">may or may not work</a>, upstream prefers Tika which SOLR should be able to do but is outside of scope for this tutorial.</p>
+<p>Excluding Trash from indexing is optional.</p>
 <p>Starting with dovecot 2.4 dovecot fts-solr needs a default language to initialize solr searching. In this example langcode <code>en</code> was set as default, but any langcode will do. If you want to enable additional languages add them like this:</p>
 <div class="highlight"><pre><span></span><code><span class="na">language de {</span>
 <span class="na">}</span>
