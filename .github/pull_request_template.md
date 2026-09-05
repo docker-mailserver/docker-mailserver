@@ -9,7 +9,7 @@
 Fixes #
 
 <!-- Remove this line of the change is breaking
-> [!CAUTTION]
+> [!CAUTION]
 >
 > This is a breaking change
 Remove this line of the change is breaking -->

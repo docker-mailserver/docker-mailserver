@@ -167,15 +167,16 @@ Dovecot supports a variety of community-supported [FTS indexing backends][doveco
         ```yaml
         services:
           solr:
-            image: solr:10
+            image: solr:10.0
             container_name: dms-solr
+            command: ["solr-foreground", "--user-managed"]
             environment:
               # As Solr can be quite resource hungry, raise the memory limit to 2GB.
               # The default is 512MB, which may be exhausted quickly.
               SOLR_JAVA_MEM: "-Xms2g -Xmx2g"
               # Current dovecot solr config needs the analysis-extras solr module,
               # so add it with this env var.
-              SOLR_MODULES: "analysis-extras"
+              SOLR_MODULES: analysis-extras
             volumes:
               - ./docker-data/solr:/var/solr
             restart: always
@@ -231,21 +232,9 @@ Dovecot supports a variety of community-supported [FTS indexing backends][doveco
             mailbox Trash {
               fts_autoindex = no
             }
-
-            #fts_decoder_driver = script
-            #fts_decoder_script_socket_path = decode2text
-
-            #service decode2text {
-            #  executable = script /usr/libexec/dovecot/decode2text.sh
-            #  user = dovecot
-            #
-            #  unix_listener decode2text {
-            #    mode = 0666
-            #  }
-            #}
             ```
 
-            Excluding Trash from indexing is optional and so is including attachment text. The `decode2text` script [may or may not work][docs::discussion::decode2text-notice], upstream prefers Tika which SOLR should be able to do but is outside of scope for this tutorial.
+            Excluding Trash from indexing is optional.
 
             Starting with dovecot 2.4 dovecot fts-solr needs a default language to initialize solr searching. In this example langcode `en` was set as default, but any langcode will do. If you want to enable additional languages add them like this:
 
