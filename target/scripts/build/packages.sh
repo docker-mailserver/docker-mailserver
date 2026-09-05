@@ -196,8 +196,7 @@ EOF
   fi
 
   _log 'debug' 'Installing Dovecot'
-  # NOTE libxapian30 is a runtime dependency for fts_xapian (built via `compile.sh`)
-  apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}" libxapian30
+  apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
 
   # We remove the enabled-by-default Flatcurve configuration to disable FTS by default
   rm /etc/dovecot/conf.d/90-fts-flatcurve.conf

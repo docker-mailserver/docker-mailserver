@@ -130,7 +130,7 @@ Dovecot supports a variety of community-supported [FTS indexing backends][doveco
 
     **Maintenance**
 
-    Flatcurve automatically rotates and optimizes its Xapian databases as mail is indexed (_controlled by the `rotate_*` and `optimize_limit` settings_), so unlike `fts-xapian`, a scheduled `doveadm fts optimize` job is not required.
+    Flatcurve automatically rotates and optimizes its Xapian databases as mail is indexed (_controlled by the `rotate_*` and `optimize_limit` settings_).
 
     Some `doveadm` commands specific to Flatcurve that may be useful:
 
@@ -265,123 +265,23 @@ Dovecot supports a variety of community-supported [FTS indexing backends][doveco
 
 === "Xapian"
 
-    **About**
-
-    [`fts-xapian`][github::repo::dovecot-xapian] is a community-maintained plugin that makes use of [Xapian][web::xapian]. Xapian enables embedding an FTS engine without the need for additional backends.
-
-    The indexes are stored in a subfolder named `xapian-indexes` inside each user's mailbox directory in your local `mail-data` folder (_`/var/mail` internally_). With the default settings, 10GB of email data may generate around 4GB of indexed data.
-
-    While indexing is memory intensive, you can configure the plugin to limit the amount of memory consumed by the index workers. With Xapian being small and fast, this plugin is a good choice for low memory environments (2GB).
-
     **Support Status**
 
-    [Xapian][github::repo::dovecot-xapian] was the officially supported FTS indexing option until DMS 16.0.0. With 16.0.0, Flatcurve is preferred and Xapian is not officially supported anymore. We urge you to migrate to Flatcurve. New issues concerning Xapian cannot be worked on.
+    The `fts-xapian` plugin is no longer shipped with DMS. It was already unofficially supported since DMS 16.0.0. Use [Flatcurve](#flatcurve) for local FTS indexing instead.
 
-    **Setup**
+    **Migration**
 
-    1. To configure `fts-xapian` as a dovecot plugin, create a file at `docker-data/dms/config/dovecot/fts-xapian-plugin.conf` and place the following in it:
+    When upgrading from a DMS version that included `fts-xapian`, remove any custom Dovecot configuration that enables it, such as `fts-xapian-plugin.conf` or `90-fts-xapian.conf`, and remove any `fts_xapian` cron configuration or bind mount.
 
-        ```conf
-        mail_plugins {
-          fts = yes
-          fts_xapian = yes
-        }
-
-        fts_autoindex = yes
-
-        language en {
-          default = yes
-        }
-
-        fts xapian {
-          verbose = 0
-          partial = 3
-        }
-
-        service indexer-worker {
-          # Limit the indexer-worker's virtual memory size.
-          vsz_limit = 1G
-          # Xapian requires an unlimited number of indexer-worker processes.
-          process_limit = 0
-        }
-        ```
-
-        Adjust the settings to tune for your desired memory limits. To index attachments, configure an attachment decoder as described in the [Dovecot FTS documentation][dovecot::docs::fts].
-
-    2. Update `compose.yaml` to load the previously created Dovecot plugin config file:
-
-        ```yaml
-        services:
-          mailserver:
-            volumes:
-              - ./docker-data/dms/config/dovecot/fts-xapian-plugin.conf:/etc/dovecot/conf.d/90-fts-xapian.conf:ro
-        ```
-
-        Alternatively, put the same snippet in [`dovecot.cf`][docs::dovecot-cf] to use the existing config volume instead of an additional bind mount.
-
-    3. Recreate containers:
-
-        ```bash
-        docker compose down
-        docker compose up -d
-        ```
-
-    4. Initialize indexing on all users for all mail:
-
-        ```bash
-        docker compose exec mailserver doveadm index -A -q '*'
-        ```
-
-    5. Run the following command in a daily cron job:
-
-        ```bash
-        docker compose exec mailserver doveadm fts optimize -A
-        ```
-
-        Or like the [Spamassassin example][docs::faq::sa-learn-cron] shows, you can instead use `cron` from within DMS to avoid potential errors if the mail server is not running:
-
-        ??? example
-
-            Create a _system_ cron file:
-
-            ```bash
-            # in the compose.yaml root directory
-            mkdir -p ./docker-data/dms/cron # if you didn't have this folder before
-            touch ./docker-data/dms/cron/fts_xapian
-            chown root:root ./docker-data/dms/cron/fts_xapian
-            chmod 0644 ./docker-data/dms/cron/fts_xapian
-            ```
-
-            Edit the system cron file `nano ./docker-data/dms/cron/fts_xapian`, and set an appropriate configuration:
-
-            ```ini
-            # Adding `MAILTO=""` prevents cron emailing notifications of the task outcome each run
-            MAILTO=""
-            #
-            # m h dom mon dow user command
-            #
-            # Everyday 4:00AM, optimize index files
-            0  4 * * * root  doveadm fts optimize -A
-            ```
-
-            Then with `compose.yaml`:
-
-            ```yaml
-            services:
-              mailserver:
-                volumes:
-                  - ./docker-data/dms/cron/fts_xapian:/etc/cron.d/fts_xapian
-            ```
+    Existing Xapian indexes are stored in a subfolder named `xapian-indexes` inside each user's mailbox directory in your local `mail-data` folder (_`/var/mail` internally_). These indexes are incompatible with Flatcurve and can be deleted before [configuring Flatcurve](#flatcurve). Flatcurve stores its indexes in an `fts-flatcurve` directory alongside each mailbox's Dovecot index files.
 
 [docs::dovecot-cf]: override-defaults/dovecot.md#add-configuration
-[docs::faq::sa-learn-cron]: ../../faq.md#how-can-i-make-spamassassin-better-recognize-spam
 [docs::discussion::decode2text-notice]: https://github.com/orgs/docker-mailserver/discussions/4461#discussioncomment-13002388
 
 [dockerhub::solr]: https://hub.docker.com/_/solr
 [dovecot::docs::fts]: https://doc.dovecot.org/main/core/plugins/fts.html
 [dovecot::docs::fts::flatcurve]: https://doc.dovecot.org/main/core/plugins/fts_flatcurve.html
 [github::repo::apache-solr]: https://github.com/apache/solr
-[github::repo::dovecot-xapian]: https://github.com/grosjo/fts-xapian
 [github::repo::dovecot::docs]: https://github.com/dovecot/core/tree/main/doc
 [github::dovecot::solr-config-9]: https://github.com/dovecot/core/blob/main/doc/solr-config-9.xml
 [github::dovecot::solr-schema-9]: https://github.com/dovecot/core/blob/main/doc/solr-schema-9.xml

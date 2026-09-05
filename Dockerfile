@@ -1,6 +1,6 @@
 # syntax=docker.io/docker/dockerfile:1
 
-# This Dockerfile provides four stages: stage-base, stage-compile, stage-main and stage-final
+# This Dockerfile provides three stages: stage-base, stage-main and stage-final
 # This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -24,17 +24,6 @@ COPY target/scripts/build/packages.sh /build/
 COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
 
 RUN /bin/bash /build/packages.sh && rm -r /build
-
-# -----------------------------------------------
-# --- Compile deb packages ----------------------
-# -----------------------------------------------
-
-# When absolutely necessary DMS carries support to compile `.deb` packages of software:
-# - `dovecot-fts-xapian` for compatibility with the Dovecot CE `dovecot-core` package:
-#   https://github.com/docker-mailserver/docker-mailserver/pull/3373
-FROM stage-base AS stage-compile
-COPY target/scripts/build/compile.sh /build/
-RUN /bin/bash /build/compile.sh
 
 #
 # main stage provides all packages, config, and adds scripts
@@ -69,10 +58,6 @@ EOF
 # -----------------------------------------------
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
-
-# Install compiled `dovecot-fts-xapian` package:
-RUN --mount=type=bind,from=stage-compile,target=/mnt/stage-compile/ \
-  dpkg -i /mnt/stage-compile/dovecot-fts-xapian_*.deb
 
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
