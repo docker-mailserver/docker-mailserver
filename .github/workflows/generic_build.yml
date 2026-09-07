@@ -40,7 +40,7 @@ jobs:
       # Native ARM64 runners do not need QEMU. AMD64-only builds skip it too.
       - name: 'Set up QEMU'
         if: contains(inputs.platforms, 'arm64') && runner.arch != 'ARM64'
-        uses: docker/setup-qemu-action@v4.2.0
+        uses: docker/setup-qemu-action@v4.3.0
         with:
           platforms: arm64
 
