@@ -81,6 +81,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#directly-binding" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -2490,6 +2495,24 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bind outbound SMTP to a specific network
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -2506,6 +2529,45 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#directly-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directly binding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bridged-networks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bridged Networks
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2799,6 +2861,36 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#directly-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directly binding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bridged-networks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bridged Networks
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2836,21 +2928,26 @@
 
 <div class="admonition warning">
 <p class="admonition-title">Advice not extensively tested</p>
-<p>This configuration advice is a community contribution which has only been verified as a solution when using <code>network: host</code>, where you have direct access to the host interfaces.</p>
-<p>It may be applicable in other network modes if the container has control of the outbound IPs to bind to. This is not the case with bridge networks that typically bind to a private range network for containers which are bridged to a public interface via Docker.</p>
+<p>This configuration advice is a community contribution.</p>
 </div>
-<p>If your Docker host is running multiple IPv4 and IPv6 IP-addresses, it may be beneficial to bind outgoing SMTP connections to specific IP-address / interface.</p>
+<p>If your Docker host has multiple public IPv4 or IPv6 IP addresses, it may be beneficial to bind outgoing SMTP connections to a specific IP.</p>
+<p>When the IP address for DMS is inconsistent, it may fail to pass common security checks when interacting with other mail servers:</p>
 <ul>
-<li>When a mail is sent outbound from DMS, it greets the MTA it is connecting to with a EHLO (DMS FQDN) which might be verified against the IP resolved, and that a <code>PTR</code> record for that IP resolves an address back to the same IP.</li>
-<li>A similar check with SPF can be against the envelope-sender address which may verify a DNS record like MX / A is valid (<em>or a similar restriction check from an MTA like <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3465#discussion_r1458114528">Postfix has with <code>reject_unknown_sender</code></a></em>).</li>
-<li>If the IP address is inconsistent for those connections from DMS, these DNS checks are likely to fail.</li>
+<li>When a mail is sent outbound from DMS, it connects to the external MTA and greets it with an EHLO (the DMS FQDN) which the MTA might verify that the EHLO address resolves to the same IP that DMS is connecting to the MTA from, and that a <code>PTR</code> record for that same IP resolves back to that same IP (<em>the <code>PTR</code> record address may not need to match the DMS FQDN</em>).</li>
+<li>SPF receivers evaluate whether the connecting source IP is authorized by the SPF <code>TXT</code> record for the <em>envelope sender domain</em>. If that policy uses DNS-based mechanisms such as <code>mx</code> or <code>a</code>, the corresponding <code>MX</code>, <code>A</code>, or <code>AAAA</code> records must resolve consistently with the selected sending IP.</li>
+<li>There may be other security checks handled by an MTA, like <a href="https://github.com/docker-mailserver/docker-mailserver/pull/3465#discussion_r1458114528">Postfix supports with <code>reject_unknown_sender</code></a>.</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">IP addresses for documentation</p>
+<p>IP addresses shown in the below examples (<code>198.51.100.42</code> + <code>2001:DB8::42</code>) are placeholders, they are IP addresses reserved for documentation by IANA (<em><a href="https://datatracker.ietf.org/doc/html/rfc5737">RFC-5737 (IPv4)</a> and <a href="https://datatracker.ietf.org/doc/html/rfc3849">RFC-3849 (IPv6)</a></em>). Replace them with the IP addresses you want DMS to send mail through.</p>
+</div>
+<h2 id="directly-binding"><a class="toclink" href="#directly-binding">Directly binding</a></h2>
+<p>This approach is for when the desired source IP is available inside the DMS container's network namespace, such as with <a href="https://docs.docker.com/reference/compose-file/services/#network_mode"><code>network_mode: host</code></a> or a <a href="https://docs.docker.com/engine/network/drivers/macvlan">macvlan</a> network with the desired address assigned to the container. A macvlan container does not inherit addresses assigned only to the host.</p>
 <p>This can be configured by <a href="../../../config/advanced/override-defaults/postfix/">overriding the default Postfix configurations</a> DMS provides. Create <code>postfix-master.cf</code> and <code>postfix-main.cf</code> files for your config volume (<code>docker-data/dms/config</code>).</p>
-<p>In <code>postfix-main.cf</code> you'll have to set the <a href="https://www.postfix.org/postconf.5.html#smtp_bind_address"><code>smtp_bind_address</code></a> and <a href="https://www.postfix.org/postconf.5.html#smtp_bind_address6"><code>smtp_bind_address6</code></a>
-to the respective IP-address on the server you want to use.</p>
+<p>In <code>postfix-main.cf</code> you'll have to set the <a href="https://www.postfix.org/postconf.5.html#smtp_bind_address"><code>smtp_bind_address</code></a> and <a href="https://www.postfix.org/postconf.5.html#smtp_bind_address6"><code>smtp_bind_address6</code></a> to the respective IP-address on the server you want to use.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="contributed-solution" name="__tabbed_1" type="radio" /><input id="alternative-unverified" name="__tabbed_1" type="radio" /><input id="bridged-networks" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="contributed-solution">Contributed solution</label><label for="alternative-unverified">Alternative (unverified)</label><label for="bridged-networks">Bridged Networks</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="contributed-solution" name="__tabbed_1" type="radio" /><input id="alternative-unverified" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="contributed-solution">Contributed solution</label><label for="alternative-unverified">Alternative (unverified)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><span class="filename">postfix-main.cf</span><pre><span></span><code>smtp_bind_address = 198.51.100.42
@@ -2858,7 +2955,8 @@ smtp_bind_address6 = 2001:DB8::42
 </code></pre></div>
 <div class="admonition bug">
 <p class="admonition-title">Inheriting the bind from <code>main.cf</code> can misconfigure services</p>
-<p>One problem when setting <code>smtp_bind_address</code> in <code>main.cf</code> is that it will be inherited by any services in <code>master.cf</code> that extend the <code>smtp</code> transport. One of these is <code>smtp-amavis</code>, which is explicitly configured to listen / connect via loopback (localhost / <code>127.0.0.1</code>).</p>
+<p>One problem when setting <code>smtp_bind_address</code> in <code>main.cf</code> is that it will be inherited by any services in <code>master.cf</code> that extend the <code>smtp</code> transport.</p>
+<p>One of these is <code>smtp-amavis</code>, which is explicitly configured to listen / connect via loopback (<code>localhost</code> / <code>127.0.0.1</code>).</p>
 <p>A <code>postfix-master.cf</code> override can workaround that issue by ensuring <code>smtp-amavis</code> binds to the expected internal IP:</p>
 <div class="highlight"><span class="filename">postfix-master.cf</span><pre><span></span><code>smtp-amavis/unix/smtp_bind_address=127.0.0.1
 smtp-amavis/unix/smtp_bind_address6=::1
@@ -2870,13 +2968,18 @@ smtp-amavis/unix/smtp_bind_address6=::1
 <div class="highlight"><span class="filename">postfix-master.cf</span><pre><span></span><code>smtp/inet/smtp_bind_address = 198.51.100.42
 smtp/inet/smtp_bind_address6 = 2001:DB8::42
 </code></pre></div>
-<p>If that avoids the concern with <code>smtp-amavis</code>, you may still need to additionally override for the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65"><code>relay</code> transport</a> as well if you have configured DMS to relay mail.</p>
+<p>If that avoids the concern with <code>smtp-amavis</code>, you may still need to additionally override for the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/9cdbef2b369fb4fb0f1b4e534da8703daf92abc9/target/postfix/master.cf#L65"><code>relay</code> transport</a> as well if you have configured DMS to send mail through a relay service.</p>
 </div>
-<div class="tabbed-block">
+</div>
+</div>
+</div>
+<h2 id="bridged-networks"><a class="toclink" href="#bridged-networks">Bridged Networks</a></h2>
 <p>When your DMS container is using a bridge network, you'll instead need to restrict which IP address inbound and outbound traffic is routed through via the bridged interface.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
 <p>For <strong>inbound</strong> traffic, you may configure this at whatever scope is most appropriate for you:</p>
 <ul>
-<li><strong>Daemon:</strong> Change the <a href="https://docs.docker.com/reference/cli/dockerd/#default-network-options">default bind address</a> configured in <code>/etc/docker/daemon.json</code> (default <code>0.0.0.0</code>)</li>
+<li><strong>Daemon:</strong> Change the <a href="https://docs.docker.com/reference/cli/dockerd/#default-network-options">default bind address</a> configured in <code>/etc/docker/daemon.json</code> (default <code>0.0.0.0</code>).</li>
 <li><strong>Network:</strong> Assign the <a href="https://docs.docker.com/engine/network/drivers/bridge/#default-host-binding-address"><code>host_binding_ipv4</code> bridge driver option</a> as shown in the below <code>compose.yaml</code> snippet.</li>
 <li><strong>Container:</strong> Provide an explicit host IP address when <a href="https://docs.docker.com/reference/compose-file/services/#ports">publishing a port</a>.</li>
 </ul>
@@ -2889,7 +2992,9 @@ smtp/inet/smtp_bind_address6 = 2001:DB8::42
 </ul>
 </li>
 </ul>
-<hr />
+</div>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
 <p>Here is a <code>compose.yaml</code> snippet that applies the inbound + outbound settings to the default bridge network Docker Compose creates (<em>if it already exists, you will need to ensure it's re-created to apply the updated settings</em>):</p>
 <div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">networks</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">default</span><span class="p">:</span>
@@ -2899,13 +3004,6 @@ smtp/inet/smtp_bind_address6 = 2001:DB8::42
 <span class="w">      </span><span class="c1"># Outbound IP (sets the host IP that external hosts will receive connections from):</span>
 <span class="w">      </span><span class="nt">com.docker.network.host_ipv4</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">198.51.100.42</span>
 </code></pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">IP addresses for documentation</p>
-<p>IP addresses shown in above examples (<code>198.51.100.42</code> + <code>2001:DB8::42</code>) are placeholders, they are IP addresses reserved for documentation by IANA (<em><a href="https://datatracker.ietf.org/doc/html/rfc5737">RFC-5737 (IPv4)</a> and <a href="https://datatracker.ietf.org/doc/html/rfc3849">RFC-3849 (IPv6)</a></em>). Replace them with the IP addresses you want DMS to send mail through.</p>
 </div>
 
 
