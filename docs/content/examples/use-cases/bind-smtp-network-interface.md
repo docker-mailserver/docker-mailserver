@@ -13,7 +13,7 @@ If your Docker host has multiple public IPv4 or IPv6 IP addresses, it may be ben
 When the IP address for DMS is inconsistent, it may fail to pass common security checks when interacting with other mail servers:
 
 - When a mail is sent outbound from DMS, it connects to the external MTA and greets it with an EHLO (the DMS FQDN) which the MTA might verify that the EHLO address resolves to the same IP that DMS is connecting to the MTA from, and that a `PTR` record for that same IP resolves back to that same IP (_the `PTR` record address may not need to match the DMS FQDN_).
-- SPF is common requirement which verifies the SPF `TXT` DNS record for the _envelope sender address_ is valid when it references any DNS values (`MX`, `A`, `AAAA`).
+- SPF receivers evaluate whether the connecting source IP is authorized by the SPF `TXT` record for the _envelope sender domain_. If that policy uses DNS-based mechanisms such as `mx` or `a`, the corresponding `MX`, `A`, or `AAAA` records must resolve consistently with the selected sending IP.
 - There may be other security checks handled by an MTA, like [Postfix supports with `reject_unknown_sender`][gh-pr::3465::comment-restrictions].
 
 !!! note "IP addresses for documentation"
@@ -22,7 +22,7 @@ When the IP address for DMS is inconsistent, it may fail to pass common security
 
 ## Directly binding
 
-This approach is for when the DMS container uses a [`network_mode`][docker-docs::compose-config::network-mode] / [`networks`][docker-docs::compose-config::networks] where the host IP is available to bind internally, such as [host][docker-docs::network-driver::host] and [macvlan][docker-docs::network-driver::macvlan].
+This approach is for when the desired source IP is available inside the DMS container's network namespace, such as with [`network_mode: host`][docker-docs::compose-config::network-mode] or a [macvlan][docker-docs::network-driver::macvlan] network with the desired address assigned to the container. A macvlan container does not inherit addresses assigned only to the host.
 
 This can be configured by [overriding the default Postfix configurations][docs::overrides-postfix] DMS provides. Create `postfix-master.cf` and `postfix-main.cf` files for your config volume (`docker-data/dms/config`).
 
