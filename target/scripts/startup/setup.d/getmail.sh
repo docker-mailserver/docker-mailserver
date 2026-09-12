@@ -34,7 +34,7 @@ function _setup_getmail() {
 
         GETMAIL_RC=${GETMAIL_RC_DIR}/${ID}
         cat "${GETMAIL_RC_GENERAL}" "${FILE}" >"${GETMAIL_RC}"
-  
+
         if [[ ${GETMAIL_PARALLEL} -eq 1 ]]; then
           # If parallel getmail is enable, configure a seperate serivce for each getmail_rc file.
           # Lateron this allows to leverage the "IMAP IDLE" extension for immediate download of new mails.
