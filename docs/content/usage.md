@@ -193,3 +193,4 @@ Here are some tools you can use to verify your configuration:
 3. [mail-tester.com](https://www.mail-tester.com/)
 4. [multiRBL.valli.org](https://multirbl.valli.org/)
 5. [internet.nl](https://internet.nl/test-mail/)
+6. [Email Spam Tester](https://email-spam-tester.com/)
