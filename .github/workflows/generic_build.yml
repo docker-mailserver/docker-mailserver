@@ -48,7 +48,7 @@ jobs:
         uses: docker/setup-buildx-action@v4.3.0
 
       - name: 'Build images'
-        uses: docker/build-push-action@v7.3.0
+        uses: docker/build-push-action@v7.4.0
         with:
           context: .
           platforms: ${{ inputs.platforms }}
