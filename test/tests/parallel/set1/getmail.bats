@@ -43,8 +43,7 @@ function setup_file() {
 }
 
 function teardown_file() {
-    docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}"
-    # "${CONTAINER4_NAME}"
+    docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}" "${CONTAINER4_NAME}"
 }
 
 #? The file used in the following tests is placed in test/config/getmail/user3.cf
