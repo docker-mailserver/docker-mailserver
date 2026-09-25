@@ -93,6 +93,9 @@ function _initial_setup() {
   function _prepare() {
     # Default `acme.json` for _acme_ecdsa test:
     cp "${LOCAL_BASE_PATH}/ecdsa.acme.json" "${TEST_TMP_CONFIG}/letsencrypt/acme.json"
+    cat >"${TEST_TMP_CONFIG}/postfix-main.cf" <<'EOF'
+tls_high_cipherlist = ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES256-GCM-SHA384
+EOF
 
     # TODO: Provision wildcard certs via Traefik to inspect if `example.test` non-wildcard is also added to the cert.
     local CUSTOM_SETUP_ARGUMENTS=(
@@ -123,6 +126,7 @@ function _initial_setup() {
   # It should replace the cert files in the existing `letsencrypt/live/mail.example.test/` folder.
   function _acme_rsa() {
     _should_extract_on_changes 'mail.example.test' "${LOCAL_BASE_PATH}/rsa.acme.json"
+    _should_have_custom_tls_cipherlist
 
     local RSA_KEY_PATH="${LOCAL_BASE_PATH}/key.rsa.pem"
     local RSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.rsa.pem"
@@ -224,6 +228,13 @@ function _should_have_expected_files() {
 
   _should_be_equal_in_content "${LE_KEY_PATH}" "${EXPECTED_KEY_PATH}"
   _should_be_equal_in_content "${LE_CERT_PATH}" "${EXPECTED_CERT_PATH}"
+}
+
+function _should_have_custom_tls_cipherlist() {
+  local EXPECTED='tls_high_cipherlist = ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES256-GCM-SHA384'
+
+  _run_in_container postconf tls_high_cipherlist
+  assert_output "${EXPECTED}"
 }
 
 #
