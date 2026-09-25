@@ -84,6 +84,7 @@ function _register_functions() {
   _register_setup_function '_setup_security_stack'
   _register_setup_function '_setup_rspamd'
 
+  _register_setup_function '_setup_tls_level'
   _register_setup_function '_setup_ssl'
   _register_setup_function '_setup_docker_permit'
   _register_setup_function '_setup_mailname'

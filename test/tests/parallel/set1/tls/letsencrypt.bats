@@ -28,7 +28,6 @@ function _initial_setup() {
   # `example.test` (Only this FQDN is supported by this certificate):
   _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/cert.rsa.pem' 'example.test/fullchain.pem'
   _copy_to_letsencrypt_storage 'example.test/with_ca/ecdsa/key.rsa.pem' 'example.test/privkey.pem'
-
 }
 
 # Should detect and choose the cert for FQDN `mail.example.test` (HOSTNAME):
@@ -116,7 +115,6 @@ EOF
     # SSL_DOMAIN value should not be present in current `acme.json`:
     _should_fail_to_extract_for_wildcard_env
     _should_have_valid_config 'mail.example.test' 'key.pem' 'fullchain.pem'
-    _should_have_custom_tls_cipherlist
 
     local ECDSA_KEY_PATH="${LOCAL_BASE_PATH}/key.ecdsa.pem"
     local ECDSA_CERT_PATH="${LOCAL_BASE_PATH}/cert.ecdsa.pem"

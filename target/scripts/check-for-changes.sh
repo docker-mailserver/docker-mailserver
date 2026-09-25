@@ -159,7 +159,6 @@ function _ssl_changes() {
     then
       _log 'debug' 'Manual certificates have changed - extracting certificates'
       _setup_ssl
-      _setup_postfix_override_configuration
     fi
   # `acme.json` is only relevant to Traefik, and is where it stores the certificates it manages.
   # When a change is detected it's assumed to be a possible cert renewal that needs to be
@@ -167,7 +166,6 @@ function _ssl_changes() {
   elif [[ ${CHANGED} =~ /etc/letsencrypt/acme.json ]]; then
     _log 'debug' "'/etc/letsencrypt/acme.json' has changed - extracting certificates"
     _setup_ssl
-    _setup_postfix_override_configuration
 
     # Prevent an unnecessary change detection from the newly extracted cert files by updating their hashes in advance:
     local CERT_DOMAIN ACME_CERT_DIR

@@ -107,11 +107,25 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "manual cert changes are picked up by check-for-changes" {
+  # Emulate `user-patches.sh` style TLS customizations, which must not be reverted by change detection:
+  local CUSTOM_CIPHERS='ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384'
+  _run_in_container postconf "tls_high_cipherlist = ${CUSTOM_CIPHERS}"
+  assert_success
+  _run_in_container sed -i -r "s|^(ssl_cipher_list =).*|\1 ${CUSTOM_CIPHERS}|" '/etc/dovecot/conf.d/10-ssl.conf'
+  assert_success
+
   printf '%s' 'someThingsChangedHere' \
     >>"$(pwd)/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
 
   run timeout 15 docker exec "${CONTAINER_NAME}" bash -c "tail -F /var/log/supervisor/changedetector.log | sed '/Manual certificates have changed/ q'"
   assert_success
+  run timeout 15 docker exec "${CONTAINER_NAME}" bash -c "tail -F /var/log/supervisor/changedetector.log | sed '/Completed handling of detected change/ q'"
+  assert_success
 
   sed -i '/someThingsChangedHere/d' "$(pwd)/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
+
+  _run_in_container postconf -h tls_high_cipherlist
+  assert_output "${CUSTOM_CIPHERS}"
+  _run_in_container grep '^ssl_cipher_list =' '/etc/dovecot/conf.d/10-ssl.conf'
+  assert_output "ssl_cipher_list = ${CUSTOM_CIPHERS}"
 }

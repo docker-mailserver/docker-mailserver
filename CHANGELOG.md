@@ -23,6 +23,8 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Dovecot**
   - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example. 
+- **TLS**
+  - Certificate changes detected at runtime no longer reset `TLS_LEVEL` ciphers and protocols, which discarded user overrides such as `postfix-main.cf` or `user-patches.sh` ([#4800](https://github.com/docker-mailserver/docker-mailserver/issues/4800))
 
 ### Documentation
 
