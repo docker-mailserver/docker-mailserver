@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Fixed
 
 - **Dovecot**
+  - The `stats` service is no longer disabled: `/etc/dovecot/conf.d/60-stats.conf` was removed and `stats_writer_socket_path` is no longer emptied, so Dovecot's upstream defaults apply and `doveadm stats dump` / metrics work without overrides. `user-patches.sh` workarounds that delete `60-stats.conf` should use `rm -f` ([#4387](https://github.com/docker-mailserver/docker-mailserver/issues/4387))
   - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example. 
 - **TLS**
   - Certificate changes detected at runtime no longer reset `TLS_LEVEL` ciphers and protocols, which discarded user overrides such as `postfix-main.cf` or `user-patches.sh` ([#4800](https://github.com/docker-mailserver/docker-mailserver/issues/4800))

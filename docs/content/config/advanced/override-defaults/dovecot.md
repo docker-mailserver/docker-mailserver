@@ -47,6 +47,16 @@ mkdir -p ./docker-data/dms/config/dovecot
 docker cp mailserver:/etc/dovecot/conf.d/10-master.conf ./docker-data/dms/config/dovecot/10-master.conf
 ```
 
+## Statistics
+
+DMS keeps Dovecot's upstream defaults for the `stats` service. To verify it works, run:
+
+```sh
+docker exec -it mailserver doveadm -f table stats dump
+```
+
+To collect metrics or expose them via the OpenMetrics `http` listener, add the relevant configuration to `dovecot.cf` as described in the [Dovecot statistics docs](https://doc.dovecot.org/main/core/config/statistics.html).
+
 ## Debugging
 
 To debug your dovecot configuration you can use:
