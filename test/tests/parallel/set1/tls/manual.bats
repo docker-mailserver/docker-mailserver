@@ -118,7 +118,7 @@ function teardown_file() { _default_teardown ; }
     >>"$(pwd)/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
 
   # Read from the start of the log, so that lines written before `tail` attaches are not missed:
-  run timeout 15 docker exec "${CONTAINER_NAME}" bash -c "tail -n +1 -F /var/log/supervisor/changedetector.log | sed -n '/Manual certificates have changed/,\$ { /Completed handling of detected change/ q }'"
+  run timeout 15 docker exec "${CONTAINER_NAME}" bash -c "tail -n +1 -F /var/log/supervisor/changedetector.log | sed -n '/Manual certificates have changed/,/Completed handling of detected change/ { /Completed handling of detected change/ q }'"
   assert_success
 
   sed -i '/someThingsChangedHere/d' "$(pwd)/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
