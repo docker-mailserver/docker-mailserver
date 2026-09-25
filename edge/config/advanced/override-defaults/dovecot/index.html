@@ -1671,6 +1671,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#debugging" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2895,6 +2906,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statistics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#debugging" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2968,6 +2990,11 @@
 <div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>./docker-data/dms/config/dovecot
 docker<span class="w"> </span>cp<span class="w"> </span>mailserver:/etc/dovecot/conf.d/10-master.conf<span class="w"> </span>./docker-data/dms/config/dovecot/10-master.conf
 </code></pre></div>
+<h2 id="statistics"><a class="toclink" href="#statistics">Statistics</a></h2>
+<p>DMS keeps Dovecot's upstream defaults for the <code>stats</code> service. To verify it works, run:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>mailserver<span class="w"> </span>doveadm<span class="w"> </span>-f<span class="w"> </span>table<span class="w"> </span>stats<span class="w"> </span>dump
+</code></pre></div>
+<p>To collect metrics or expose them via the OpenMetrics <code>http</code> listener, add the relevant configuration to <code>dovecot.cf</code> as described in the <a href="https://doc.dovecot.org/main/core/config/statistics.html">Dovecot statistics docs</a>.</p>
 <h2 id="debugging"><a class="toclink" href="#debugging">Debugging</a></h2>
 <p>To debug your dovecot configuration you can use:</p>
 <ul>
