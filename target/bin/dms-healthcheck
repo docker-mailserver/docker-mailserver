@@ -40,18 +40,18 @@ declare -a SERVICES=(
 )
 
 # Conditional services based on enabled features:
-[[ ${SMTP_ONLY}           -ne 1 ]] && SERVICES+=('dovecot')
-[[ ${ENABLE_OPENDKIM}     -eq 1 ]] && SERVICES+=('opendkim')
-[[ ${ENABLE_OPENDMARC}    -eq 1 ]] && SERVICES+=('opendmarc')
-[[ ${ENABLE_AMAVIS}       -eq 1 ]] && SERVICES+=('amavis')
-[[ ${ENABLE_CLAMAV}       -eq 1 ]] && SERVICES+=('clamav')
-[[ ${ENABLE_FAIL2BAN}     -eq 1 ]] && SERVICES+=('fail2ban')
-[[ ${ENABLE_POSTGREY}     -eq 1 ]] && SERVICES+=('postgrey')
-[[ ${ENABLE_SRS}          -eq 1 ]] && SERVICES+=('postsrsd')
-[[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]] && SERVICES+=('rspamd-redis')
-[[ ${ENABLE_RSPAMD}       -eq 1 ]] && SERVICES+=('rspamd')
-[[ ${ENABLE_MTA_STS}      -eq 1 ]] && SERVICES+=('mta-sts-daemon')
-[[ ${ENABLE_SASLAUTHD}    -eq 1 ]] && SERVICES+=("saslauthd_${SASLAUTHD_MECHANISMS}")
+[[ ${SMTP_ONLY}            -ne 1 ]] && SERVICES+=('dovecot')
+[[ ${ENABLE_OPENDKIM}      -eq 1 ]] && SERVICES+=('opendkim')
+[[ ${ENABLE_OPENDMARC}     -eq 1 ]] && SERVICES+=('opendmarc')
+[[ ${ENABLE_AMAVIS}        -eq 1 ]] && SERVICES+=('amavis')
+[[ ${ENABLE_CLAMAV}        -eq 1 ]] && SERVICES+=('clamav')
+[[ ${ENABLE_FAIL2BAN}      -eq 1 ]] && SERVICES+=('fail2ban')
+[[ ${ENABLE_POSTGREY}      -eq 1 ]] && SERVICES+=('postgrey')
+[[ ${ENABLE_SRS}           -eq 1 ]] && SERVICES+=('postsrsd')
+[[ ${ENABLE_RSPAMD_VALKEY} -eq 1 ]] && SERVICES+=('rspamd-valkey')
+[[ ${ENABLE_RSPAMD}        -eq 1 ]] && SERVICES+=('rspamd')
+[[ ${ENABLE_MTA_STS}       -eq 1 ]] && SERVICES+=('mta-sts-daemon')
+[[ ${ENABLE_SASLAUTHD}     -eq 1 ]] && SERVICES+=("saslauthd_${SASLAUTHD_MECHANISMS}")
 
 # shellcheck disable=SC2207
 [[ ${ENABLE_FETCHMAIL}    -eq 1 ]] && SERVICES+=(

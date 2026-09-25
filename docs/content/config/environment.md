@@ -416,21 +416,21 @@ Enable or disable [Rspamd][docs-rspamd].
 - **0** => disabled
 - 1 => enabled
 
-##### ENABLE_RSPAMD_REDIS
+##### ENABLE_RSPAMD_VALKEY
 
-Explicit control over running a Redis instance within the container. By default, this value will match what is set for [`ENABLE_RSPAMD`](#enable_rspamd).
+Explicit control over running a Valkey instance within the container. By default, this value will match what is set for [`ENABLE_RSPAMD`](#enable_rspamd).
 
-The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.
+The purpose of this setting is to opt-out of starting an internal Valkey instance when enabling Rspamd, replacing it with your own external instance.
 
-??? note "Configuring Rspamd for an external Redis instance"
+??? note "Configuring Rspamd for an external Valkey (or Redis) instance"
 
-    You will need to [provide configuration][rspamd-redis-config] at `/etc/rspamd/local.d/redis.conf` similar to:
+    You will need to [provide configuration][rspamd-valkey-config] at `/etc/rspamd/local.d/redis.conf` similar to:
 
     ```
-    servers = "redis.example.test:6379";
+    servers = "valkey.example.test:6379";
     ```
 
-[rspamd-redis-config]: https://rspamd.com/doc/configuration/redis.html
+[rspamd-valkey-config]: https://rspamd.com/doc/configuration/redis.html
 
 - 0 => Disabled
 - 1 => Enabled

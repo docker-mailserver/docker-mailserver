@@ -43,7 +43,7 @@ While you could configure Rspamd to only replace some of the legacy services, it
     The following environment variables are related to Rspamd:
     
     1. [`ENABLE_RSPAMD`](../environment.md#enable_rspamd)
-    2. [`ENABLE_RSPAMD_REDIS`](../environment.md#enable_rspamd_redis)
+    2. [`ENABLE_RSPAMD_VALKEY`](../environment.md#enable_rspamd_valkey)
     3. [`RSPAMD_CHECK_AUTHENTICATED`](../environment.md#rspamd_check_authenticated)
     4. [`RSPAMD_GREYLISTING`](../environment.md#rspamd_greylisting)
     5. [`RSPAMD_HFILTER`](../environment.md#rspamd_hfilter)
@@ -98,20 +98,18 @@ The proxy worker operates in [self-scan mode][rspamd-docs::proxy-self-scan-mode]
 
 DMS does not set a default password for the controller worker. You may want to do that yourself. In setups where you already have an authentication provider in front of the Rspamd webpage, you may want to [set the `secure_ip ` option to `"0.0.0.0/0"` for the controller worker](#with-the-help-of-a-custom-file) to disable password authentication inside Rspamd completely.
 
-### Persistence with Redis
+### Persistence with Valkey
 
-When Rspamd is enabled, we implicitly also start an instance of Redis in the container:
+When Rspamd is enabled, we implicitly also start an instance of Valkey in the container:
 
-- Redis is configured to persist its data via RDB snapshots to disk in the directory `/var/lib/redis` (_or the [`/var/mail-state/`][docs::dms-volumes-state] volume when present_).
-- With the volume mount, the snapshot will restore the Redis data across container updates, and provide a way to keep a backup.
+- Valkey is configured to persist its data via RDB snapshots to disk in the directory `/var/lib/valkey` (_or the [`/var/mail-state/`][docs::dms-volumes-state] volume when present_).
+- With the volume mount, the snapshot will restore the Valkey data across container updates, and provide a way to keep a backup.
 - Without a volume mount a containers internal state will persist across restarts until the container is recreated due to changes like ENV or upgrading the image for the container.
 
-Redis uses `/etc/redis/redis.conf` for configuration:
+Valkey uses `/etc/valkey/valkey.conf` for configuration:
 
-- We adjust this file when enabling the internal Redis service.
-- If you have an external instance of Redis to use, the internal Redis service can be opt-out via setting the ENV [`ENABLE_RSPAMD_REDIS=0`][docs::env::enable-redis] (_link also details required changes to the DMS Rspamd config_).
-
-If you are interested in using Valkey instead of Redis, please refer to [this guidance][gh-dms::guide::valkey].
+- We adjust this file when enabling the internal Valkey service.
+- If you have an external instance of Valkey (or Redis) to use, the internal Valkey service can be opt-out via setting the ENV [`ENABLE_RSPAMD_VALKEY=0`][docs::env::enable-valkey] (_link also details required changes to the DMS Rspamd config_).
 
 ### Web Interface
 
@@ -216,7 +214,7 @@ DMS does not supply custom values for DNS servers (to Rspamd). If you need to us
 
 ### Logs
 
-You can find the Rspamd logs at `/var/log/mail/rspamd.log`, and the corresponding logs for [Redis](#persistence-with-redis), if it is enabled, at `/var/log/supervisor/rspamd-redis.log`. We recommend inspecting these logs (with `docker exec -it <CONTAINER NAME> less /var/log/mail/rspamd.log`) in case Rspamd does not work as expected.
+You can find the Rspamd logs at `/var/log/mail/rspamd.log`, and the corresponding logs for [Valkey](#persistence-with-valkey), if it is enabled, at `/var/log/supervisor/rspamd-valkey.log`. We recommend inspecting these logs (with `docker exec -it <CONTAINER NAME> less /var/log/mail/rspamd.log`) in case Rspamd does not work as expected.
 
 ### Modules
 
@@ -419,10 +417,9 @@ While _Abusix_ can be integrated into Postfix, Postscreen and a multitude of oth
 
 [dms-repo::rspamd-actions-config]: https://github.com/docker-mailserver/docker-mailserver/tree/v16.0.0/target/rspamd/local.d/actions.conf
 [dms-repo::default-rspamd-configuration]: https://github.com/docker-mailserver/docker-mailserver/tree/v16.0.0/target/rspamd
-[gh-dms::guide::valkey]: https://github.com/docker-mailserver/docker-mailserver/issues/4001#issuecomment-2652596692
 [gh-dms::guide::rspamd-web]: https://github.com/orgs/docker-mailserver/discussions/4269#discussioncomment-11329588
 
-[docs::env::enable-redis]: ../environment.md#enable_rspamd_redis
+[docs::env::enable-valkey]: ../environment.md#enable_rspamd_valkey
 [docs::spam-to-junk]: ../environment.md#move_spam_to_junk
 [docs::dkim-dmarc-spf]: ../best-practices/dkim_dmarc_spf.md
 [docs::dkim-with-rspamd]: ../best-practices/dkim_dmarc_spf.md#dkim
