@@ -1188,10 +1188,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_rspamd_redis" class="md-nav__link">
+  <a href="#enable_rspamd_valkey" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ENABLE_RSPAMD_REDIS
+        ENABLE_RSPAMD_VALKEY
       
     </span>
   </a>
@@ -5032,10 +5032,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#enable_rspamd_redis" class="md-nav__link">
+  <a href="#enable_rspamd_valkey" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ENABLE_RSPAMD_REDIS
+        ENABLE_RSPAMD_VALKEY
       
     </span>
   </a>
@@ -6541,13 +6541,13 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 <li><strong>0</strong> =&gt; disabled</li>
 <li>1 =&gt; enabled</li>
 </ul>
-<h5 id="enable_rspamd_redis"><a class="toclink" href="#enable_rspamd_redis">ENABLE_RSPAMD_REDIS</a></h5>
-<p>Explicit control over running a Redis instance within the container. By default, this value will match what is set for <a href="#enable_rspamd"><code>ENABLE_RSPAMD</code></a>.</p>
-<p>The purpose of this setting is to opt-out of starting an internal Redis instance when enabling Rspamd, replacing it with your own external instance.</p>
+<h5 id="enable_rspamd_valkey"><a class="toclink" href="#enable_rspamd_valkey">ENABLE_RSPAMD_VALKEY</a></h5>
+<p>Explicit control over running a Valkey instance within the container. By default, this value will match what is set for <a href="#enable_rspamd"><code>ENABLE_RSPAMD</code></a>.</p>
+<p>The purpose of this setting is to opt-out of starting an internal Valkey instance when enabling Rspamd, replacing it with your own external instance.</p>
 <details class="note">
-<summary>Configuring Rspamd for an external Redis instance</summary>
+<summary>Configuring Rspamd for an external Valkey (or Redis) instance</summary>
 <p>You will need to <a href="https://rspamd.com/doc/configuration/redis.html">provide configuration</a> at <code>/etc/rspamd/local.d/redis.conf</code> similar to:</p>
-<div class="highlight"><pre><span></span><code>servers = &quot;redis.example.test:6379&quot;;
+<div class="highlight"><pre><span></span><code>servers = &quot;valkey.example.test:6379&quot;;
 </code></pre></div>
 </details>
 <ul>
