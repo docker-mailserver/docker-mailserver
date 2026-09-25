@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file. The format 
 - **Dovecot**
   - The `dovecot-fts-xapian` plugin is no longer included in the image. Existing users must remove their Xapian configuration and migrate to Flatcurve; existing `xapian-indexes` cannot be reused by Flatcurve.
 - **Rspamd**
+  - Redis has been replaced by Valkey ([#4001](https://github.com/docker-mailserver/docker-mailserver/issues/4001)). `ENABLE_RSPAMD_REDIS` has been renamed to `ENABLE_RSPAMD_VALKEY`, the `rspamd-redis` service to `rspamd-valkey`, and the config file is now `/etc/valkey/valkey.conf`. Existing state in `/var/mail-state/lib-redis` is moved to `/var/mail-state/lib-valkey` automatically.
   - `setup config dkim` now writes keys as `<domain>-<selector>.private` (previously `<keytype>-<keysize>-<selector>-<domain>.private.txt`). The default `dkim_signing.conf` uses a `$domain-$selector` path template with `try_fallback = true`, so multiple domains share one config. Existing `dkim_signing.conf` files are not overwritten. Rename keys to the new layout if you regenerate them (OpenDKIM: `opendkim/keys/<domain>/<selector>.private` → `rspamd/dkim/<domain>-<selector>.private`). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
   - `setup config dkim` writes a persisted `dkim_selectors.map` for custom selectors. Documentation covers multi-domain setup, OpenDKIM migration, and Ed25519 + RSA fallback (distinct selectors plus a `selectors` array). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
 

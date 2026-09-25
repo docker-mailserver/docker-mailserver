@@ -137,8 +137,8 @@ function _register_functions() {
     fi
   fi
 
-  # The order here matters: Since Rspamd is using Redis, Redis should be started before Rspamd.
-  [[ ${ENABLE_RSPAMD_REDIS}     -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_redis'
+  # The order here matters: Since Rspamd is using Valkey, Valkey should be started before Rspamd.
+  [[ ${ENABLE_RSPAMD_VALKEY}    -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_valkey'
   [[ ${ENABLE_RSPAMD}           -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
 
   # needs to be started before SASLauthd

@@ -13,7 +13,7 @@ function _setup_rspamd() {
     _rspamd_get_envs                          # must run first
     __rspamd__run_early_setup_and_checks      # must run second
     __rspamd__setup_logfile
-    __rspamd__setup_redis
+    __rspamd__setup_valkey
     __rspamd__setup_postfix
     __rspamd__setup_clamav
     __rspamd__setup_default_modules
@@ -116,11 +116,11 @@ function __rspamd__setup_logfile() {
 EOF
 }
 
-# Sets up Redis. In case the user does not use a dedicated Redis instance, we
-# supply a configuration for our local Redis instance which is started later.
-function __rspamd__setup_redis() {
-  if _env_var_expect_zero_or_one 'ENABLE_RSPAMD_REDIS' && [[ ${ENABLE_RSPAMD_REDIS} -eq 1 ]]; then
-    __rspamd__log 'debug' 'Internal Redis is enabled, adding configuration'
+# Sets up Valkey. In case the user does not use a dedicated Valkey instance, we
+# supply a configuration for our local Valkey instance which is started later.
+function __rspamd__setup_valkey() {
+  if _env_var_expect_zero_or_one 'ENABLE_RSPAMD_VALKEY' && [[ ${ENABLE_RSPAMD_VALKEY} -eq 1 ]]; then
+    __rspamd__log 'debug' 'Internal Valkey is enabled, adding configuration'
     cat >"${RSPAMD_LOCAL_D}/redis.conf" << "EOF"
 # documentation: https://rspamd.com/doc/configuration/redis.html
 
@@ -137,8 +137,8 @@ key_prefix = "rs_history{{COMPRESS}}";
 
 EOF
 
-    # Here we adjust the Redis default configuration that we supply to Redis when starting it.
-    # NOTE: `/var/lib/redis/` is symlinked to `/var/mail-state/redis/` when DMS is started
+    # Here we adjust the Valkey default configuration that we supply to Valkey when starting it.
+    # NOTE: `/var/lib/valkey/` is symlinked to `/var/mail-state/lib-valkey/` when DMS is started
     # with a volume mounted to `/var/mail-state/` for data persistence.
     sedfile -i -E                              \
       -e 's|^(bind).*|\1 127.0.0.1|g'          \
@@ -146,11 +146,11 @@ EOF
       -e 's|^(port).*|\1 6379|g'               \
       -e 's|^(loglevel).*|\1 warning|g'        \
       -e 's|^(logfile).*|\1 ""|g'              \
-      -e 's|^(dir).*|\1 /var/lib/redis|g'      \
+      -e 's|^(dir).*|\1 /var/lib/valkey|g'     \
       -e 's|^(dbfilename).*|\1 dms-dump.rdb|g' \
-      /etc/redis/redis.conf
+      /etc/valkey/valkey.conf
   else
-    __rspamd__log 'debug' 'Rspamd will not use internal Redis (which has been disabled)'
+    __rspamd__log 'debug' 'Rspamd will not use internal Valkey (which has been disabled)'
   fi
 }
 

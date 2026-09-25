@@ -33,14 +33,14 @@ Run-time specific state lives here, but so does some data you may want to keep i
     - The Postfix queue (eg: mail pending delivery attempt)
     - Fail2Ban blocks.
     - ClamAV signature updates.
-    - Redis storage for Rspamd.
+    - Valkey storage for Rspamd.
 
 !!! info "When a volume is mounted to `/var/mail-state/`"
 
     - Service run-time data is [consolidated into the `/var/mail-state/` directory][mail-state-folders]. Otherwise the original locations vary and would need to be mounted individually.
-    - The original locations are updated with symlinks to redirect to their new path in `/var/mail-state/` (_eg: `/var/lib/redis` => `/var/mail-state/lib-redis/`_).
+    - The original locations are updated with symlinks to redirect to their new path in `/var/mail-state/` (_eg: `/var/lib/valkey` => `/var/mail-state/lib-valkey/`_).
 
-    Supported services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd & Redis, Fetchmail, Getmail, LogRotate, PostSRSd, MTA-STS.
+    Supported services: Postfix, Dovecot, Fail2Ban, Amavis, PostGrey, ClamAV, SpamAssassin, Rspamd & Valkey, Fetchmail, Getmail, LogRotate, PostSRSd, MTA-STS.
 
 !!! tip
 

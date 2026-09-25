@@ -222,7 +222,7 @@ EOF
 
   _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" update
-  apt-get "${QUIET}" install rspamd redis-server
+  apt-get "${QUIET}" install rspamd valkey-server
 }
 
 function _install_fail2ban() {

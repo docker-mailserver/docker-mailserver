@@ -38,7 +38,7 @@ function setup_file() {
   # wait for ClamAV to be fully setup or we will get errors on the log
   _repeat_in_container_until_success_or_timeout 60 "${CONTAINER_NAME}" test -e /var/run/clamav/clamd.ctl
 
-  _wait_for_service rspamd-redis
+  _wait_for_service rspamd-valkey
   _wait_for_service rspamd
   _wait_for_rspamd_port_in_container
   _wait_for_service clamav
@@ -90,7 +90,11 @@ function teardown_file() { _default_teardown ; }
   refute_line --regexp 'rewrite_subject = [0-9]+;'
 }
 
-@test 'Rspamd Redis configuration is correct' {
+@test 'Rspamd Valkey configuration is correct' {
+  _run_in_container valkey-cli ping
+  assert_success
+  assert_output 'PONG'
+
   _run_in_container rspamadm configdump redis
   assert_success
   assert_line 'servers = "127.0.0.1:6379";'
