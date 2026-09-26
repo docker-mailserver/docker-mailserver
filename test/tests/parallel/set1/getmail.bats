@@ -2,20 +2,55 @@ load "${REPOSITORY_ROOT}/test/helper/setup"
 load "${REPOSITORY_ROOT}/test/helper/common"
 
 BATS_TEST_NAME_PREFIX='[Getmail] '
-CONTAINER_NAME='dms-test_getmail'
+CONTAINER1_NAME='dms-test_getmail'
+CONTAINER2_NAME='dms-test_getmail_parallel'
+CONTAINER3_NAME='dms-test_getmail_parallel_specific'
+CONTAINER4_NAME='dms-test_getmail_parallel_no_getmail_idle'
 
 function setup_file() {
+  export CONTAINER_NAME
 
+  CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(--env 'ENABLE_GETMAIL=1')
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  CONTAINER_NAME=${CONTAINER2_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_GETMAIL=1
+    --env GETMAIL_PARALLEL=1
+    --env GETMAIL_IDLE='auto'
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  CONTAINER_NAME=${CONTAINER3_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_GETMAIL=1
+    --env GETMAIL_PARALLEL=1
+    --env GETMAIL_IDLE='user3,user4:MYINBOX'
+  )
+  _init_with_defaults
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
+
+  CONTAINER_NAME=${CONTAINER4_NAME}
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_GETMAIL=1
+    --env GETMAIL_PARALLEL=1
+  )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 }
 
-function teardown_file() { _default_teardown ; }
+function teardown_file() {
+    docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}" "${CONTAINER4_NAME}"
+}
 
 #? The file used in the following tests is placed in test/config/getmail/user3.cf
 
 @test 'default configuration exists and is correct' {
+  export CONTAINER_NAME=${CONTAINER1_NAME}
+
   _run_in_container cat /etc/getmailrc_general
   assert_success
   assert_line '[options]'
@@ -34,6 +69,8 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test 'debug-getmail works as expected' {
+  export CONTAINER_NAME=${CONTAINER1_NAME}
+
   _run_in_container cat /etc/getmailrc.d/user3
   assert_success
   assert_line '[options]'
@@ -77,4 +114,87 @@ function teardown_file() { _default_teardown ; }
   assert_line '    to_oldmail_on_each_mail : False'
   assert_line '    use_netrc : False'
   assert_line '    verbose : 0'
+}
+
+@test "(ENV GETMAIL_PARALLEL=1, GETMAIL_IDLE=auto) should create seperate services and start idle on all IMAP configs" {
+  export CONTAINER_NAME=${CONTAINER2_NAME}
+
+  _wait_for_service getmail-1
+  _wait_for_service getmail-2
+  _wait_for_service getmail-3
+  _wait_for_service getmail-4
+
+  _container_service_log_should_contain_string "getmail-1" "Enabling IMAP IDLE for /etc/getmailrc.d/user3 for mailbox INBOX"
+  _container_service_log_should_contain_string "getmail-2" "Enabling IMAP IDLE for /etc/getmailrc.d/user4 for mailbox INBOX"
+  _container_service_log_should_contain_string "getmail-3" "Enabling IMAP IDLE for /etc/getmailrc.d/user5 for mailbox INBOX"
+  _container_service_log_should_not_contain_string "getmail-4" "Enabling IMAP IDLE for /etc/getmailrc.d/user6"
+  _container_service_log_should_contain_string "getmail-4" "IMAP IDLE not enabled for /etc/getmailrc.d/user6"
+
+  _container_service_log_should_not_contain_string "getmail-1" "user4"
+  _container_service_log_should_not_contain_string "getmail-1" "user5"
+  _container_service_log_should_not_contain_string "getmail-1" "user6"
+
+  _container_service_log_should_not_contain_string "getmail-2" "user3"
+  _container_service_log_should_not_contain_string "getmail-2" "user5"
+  _container_service_log_should_not_contain_string "getmail-2" "user6"
+
+  _container_service_log_should_not_contain_string "getmail-3" "user3"
+  _container_service_log_should_not_contain_string "getmail-3" "user4"
+  _container_service_log_should_not_contain_string "getmail-3" "user6"
+
+  _container_service_log_should_not_contain_string "getmail-4" "user3"
+  _container_service_log_should_not_contain_string "getmail-4" "user4"
+  _container_service_log_should_not_contain_string "getmail-4" "user5"
+}
+
+
+@test "(ENV GETMAIL_PARALLEL=1, GETMAIL_IDLE=user3,user4:MYINBOX) should create seperate services and only start idle on 2 configs" {
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+
+  _wait_for_service getmail-1
+  _wait_for_service getmail-2
+  _wait_for_service getmail-3
+  _wait_for_service getmail-4
+
+  _container_service_log_should_contain_string "getmail-1" "Enabling IMAP IDLE for /etc/getmailrc.d/user3 for mailbox INBOX"
+  _container_service_log_should_contain_string "getmail-2" "Enabling IMAP IDLE for /etc/getmailrc.d/user4 for mailbox MYINBOX"
+  _container_service_log_should_not_contain_string "getmail-3" "Enabling IMAP IDLE for /etc/getmailrc.d/user5"
+  _container_service_log_should_not_contain_string "getmail-4" "Enabling IMAP IDLE for /etc/getmailrc.d/user6"
+  _container_service_log_should_contain_string "getmail-3" "IMAP IDLE not enabled for /etc/getmailrc.d/user5"
+  _container_service_log_should_contain_string "getmail-4" "IMAP IDLE not enabled for /etc/getmailrc.d/user6"
+
+  _container_service_log_should_not_contain_string "getmail-1" "user4"
+  _container_service_log_should_not_contain_string "getmail-1" "user5"
+  _container_service_log_should_not_contain_string "getmail-1" "user6"
+
+  _container_service_log_should_not_contain_string "getmail-2" "user3"
+  _container_service_log_should_not_contain_string "getmail-2" "user5"
+  _container_service_log_should_not_contain_string "getmail-2" "user6"
+
+  _container_service_log_should_not_contain_string "getmail-3" "user3"
+  _container_service_log_should_not_contain_string "getmail-3" "user4"
+  _container_service_log_should_not_contain_string "getmail-3" "user6"
+
+  _container_service_log_should_not_contain_string "getmail-4" "user3"
+  _container_service_log_should_not_contain_string "getmail-4" "user4"
+  _container_service_log_should_not_contain_string "getmail-4" "user5"
+}
+
+@test "(ENV GETMAIL_PARALLEL=1, GETMAIL_IDLE=) should create seperate services and not start idle on any IMAP config" {
+  export CONTAINER_NAME=${CONTAINER4_NAME}
+
+  _wait_for_service getmail-1
+  _wait_for_service getmail-2
+  _wait_for_service getmail-3
+  _wait_for_service getmail-4
+
+  _container_service_log_should_contain_string "getmail-1" "IMAP IDLE not enabled for /etc/getmailrc.d/user3"
+  _container_service_log_should_contain_string "getmail-2" "IMAP IDLE not enabled for /etc/getmailrc.d/user4"
+  _container_service_log_should_contain_string "getmail-3" "IMAP IDLE not enabled for /etc/getmailrc.d/user5"
+  _container_service_log_should_contain_string "getmail-4" "IMAP IDLE not enabled for /etc/getmailrc.d/user6"
+
+  _container_service_log_should_not_contain_string "getmail-1" "Enabling IMAP IDLE for /etc/getmailrc.d/user3"
+  _container_service_log_should_not_contain_string "getmail-2" "Enabling IMAP IDLE for /etc/getmailrc.d/user4"
+  _container_service_log_should_not_contain_string "getmail-3" "Enabling IMAP IDLE for /etc/getmailrc.d/user5"
+  _container_service_log_should_not_contain_string "getmail-4" "Enabling IMAP IDLE for /etc/getmailrc.d/user6"
 }

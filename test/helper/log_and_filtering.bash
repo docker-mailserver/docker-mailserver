@@ -117,3 +117,37 @@ function _print_mail_log_for_msgid() {
   # Dovecot specific logs:
   _filter_service_log 'mail' "msgid=${MSG_ID}"
 }
+
+# Filters a service's logs (under `/var/log/supervisor/<SERVICE>.log`) given a specific string.
+#
+# @param ${1} = service name
+# @param ${2} = string to filter by
+# @param ...  = options given to `grep` (which is used to filter logs)
+function _filter_container_service_log() {
+  local SERVICE=${1:?Service name must be provided}
+  local STRING=${2:?String to match must be provided}
+  shift 2
+
+  local FILE="/var/log/supervisor/${SERVICE}.log"
+  # Alternative log location fallback:
+  _exec_in_container test -f ${FILE} || FILE="/var/log/mail/${SERVICE}.log"
+  _run_in_container grep "${@}" "${STRING}" "${FILE}"
+}
+
+# Like `_filter_service_log` but asserts that the string was found.
+#
+# @param ${1} = service name
+# @param ${2} = string to filter by
+function _container_service_log_should_contain_string() {
+  _filter_container_service_log "${1}" "${2}" --fixed-strings
+  assert_success
+}
+
+# Like `_filter_service_log` but asserts that the string was _not_ found.
+#
+# @param ${1} = service name
+# @param ${2} = string to filter by
+function _container_service_log_should_not_contain_string() {
+  _filter_container_service_log "${1}" "${2}" --fixed-strings
+  assert_failure
+}

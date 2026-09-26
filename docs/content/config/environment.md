@@ -780,6 +780,21 @@ Enable or disable `getmail`.
 
 - **5** => `getmail` The number of minutes for the interval. Min: 1; Default: 5.
 
+##### GETMAIL_PARALLEL
+
+Create a service for each getmail configuration so they can all run independently.
+
+- **0** => Disabled
+- 1 => Enabled
+
+##### GETMAIL_IDLE
+
+`getmail` Specify which getmail configs should be started with the --idle flag. By default it shall look for the folder INBOX. This can be changed by specifying the folder with a colon.
+This will only watch this specific folder for notification. `getmail` still fetches mailboxes (default INBOX).
+
+- **not set** Default to unset to ensure that --idle enabled only on accounts where needed/wanted.
+- auto => If auto is set, it will be enable for ever IMAP config.
+- => e.g. GETMAIL_IDLE=account1,account2:MAILBOX
 
 #### OAUTH2
 
