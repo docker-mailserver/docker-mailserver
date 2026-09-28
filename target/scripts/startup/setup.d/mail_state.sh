@@ -12,7 +12,7 @@ function _setup_save_states() {
 
   _log 'debug' "Consolidating all state onto ${DMS_STATE_DIR}"
 
-  local DEST SERVICEDIR SERVICEDIRS SERVICEFILE SERVICEFILES
+  local DEST RDB_HEADER='' SERVICEDIR SERVICEDIRS SERVICEFILE SERVICEFILES
 
   # Always enabled features:
   SERVICEDIRS=(
@@ -63,8 +63,14 @@ function _setup_save_states() {
   done
 
   if [[ -d ${DMS_STATE_DIR}/lib-redis ]] && [[ ! -e ${DMS_STATE_DIR}/lib-valkey ]]; then
-    _log 'info' "Migrating Redis state '${DMS_STATE_DIR}/lib-redis' to Valkey state '${DMS_STATE_DIR}/lib-valkey'"
-    mv "${DMS_STATE_DIR}/lib-redis" "${DMS_STATE_DIR}/lib-valkey"
+    [[ -f ${DMS_STATE_DIR}/lib-redis/dms-dump.rdb ]] && RDB_HEADER=$(head -c 9 "${DMS_STATE_DIR}/lib-redis/dms-dump.rdb")
+    # Valkey 8.1 cannot load RDB format 12+ (Redis 7.4+), not even with `rdb-version-check relaxed`
+    if [[ -z ${RDB_HEADER} ]] || [[ ${RDB_HEADER} =~ ^REDIS00(0[1-9]|1[01])$ ]]; then
+      _log 'info' "Migrating Redis state '${DMS_STATE_DIR}/lib-redis' to Valkey state '${DMS_STATE_DIR}/lib-valkey'"
+      mv "${DMS_STATE_DIR}/lib-redis" "${DMS_STATE_DIR}/lib-valkey"
+    else
+      _log 'warn' "Redis state '${DMS_STATE_DIR}/lib-redis' uses RDB format '${RDB_HEADER}' which Valkey cannot load - starting with empty Valkey state (Rspamd data like Bayes and history must be relearned); '${DMS_STATE_DIR}/lib-redis' can be removed"
+    fi
   fi
 
   for SERVICEDIR in "${SERVICEDIRS[@]}"; do

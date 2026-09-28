@@ -148,6 +148,7 @@ EOF
       -e 's|^(logfile).*|\1 ""|g'              \
       -e 's|^(dir).*|\1 /var/lib/valkey|g'     \
       -e 's|^(dbfilename).*|\1 dms-dump.rdb|g' \
+      -e 's|^(pidfile).*|\1 /run/valkey.pid|g' \
       /etc/valkey/valkey.conf
   else
     __rspamd__log 'debug' 'Rspamd will not use internal Valkey (which has been disabled)'

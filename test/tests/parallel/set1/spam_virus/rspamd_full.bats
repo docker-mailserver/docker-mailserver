@@ -95,6 +95,11 @@ function teardown_file() { _default_teardown ; }
   assert_success
   assert_output 'PONG'
 
+  _run_in_container grep -Fx 'pidfile /run/valkey.pid' /etc/valkey/valkey.conf
+  assert_success
+  _run_in_container test -f /run/valkey.pid
+  assert_success
+
   _run_in_container rspamadm configdump redis
   assert_success
   assert_line 'servers = "127.0.0.1:6379";'
