@@ -3433,6 +3433,7 @@
 <li>Valkey is configured to persist its data via RDB snapshots to disk in the directory <code>/var/lib/valkey</code> (<em>or the <a href="../../advanced/optional-config/#volumes-state"><code>/var/mail-state/</code></a> volume when present</em>).</li>
 <li>With the volume mount, the snapshot will restore the Valkey data across container updates, and provide a way to keep a backup.</li>
 <li>Without a volume mount a containers internal state will persist across restarts until the container is recreated due to changes like ENV or upgrading the image for the container.</li>
+<li>Redis state in <code>/var/mail-state/lib-redis</code> from DMS v15 or older is migrated automatically. Valkey cannot load the Redis 8 state from DMS v16 (RDB format 12); it is left untouched in <code>lib-redis</code> and Valkey starts empty, so Rspamd data such as Bayes must be relearned.</li>
 </ul>
 <p>Valkey uses <code>/etc/valkey/valkey.conf</code> for configuration:</p>
 <ul>
