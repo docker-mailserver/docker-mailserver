@@ -164,6 +164,9 @@ function _install_dovecot() {
     dovecot-managesieved
     dovecot-ldap
     dovecot-flatcurve
+    # Provides the snakeoil certificate used by `10-ssl.conf` (Debian's
+    # `dovecot-core` depends on it, the community repository's does not)
+    ssl-cert
 
     # Additional Dovecot packages for supporting the DMS
     # community (docs-only guide contributions)
@@ -203,7 +206,8 @@ EOF
   apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
 
   # We remove the enabled-by-default Flatcurve configuration to disable FTS by default
-  rm /etc/dovecot/conf.d/90-fts-flatcurve.conf
+  # (only Debian's package ships it)
+  rm -f /etc/dovecot/conf.d/90-fts-flatcurve.conf
 }
 
 function _install_rspamd() {

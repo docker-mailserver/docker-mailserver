@@ -59,6 +59,7 @@ EOF
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
 
+COPY target/dovecot/base/dovecot.conf /etc/dovecot/dovecot.conf
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
 RUN chmod 0 /etc/cron.d/dovecot-purge.disabled

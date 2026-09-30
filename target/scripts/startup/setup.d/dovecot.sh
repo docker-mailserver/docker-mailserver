@@ -5,11 +5,6 @@ function _setup_dovecot() {
 
   sedfile -i -E 's|^#(protocols =).*|\1 lmtp|' /etc/dovecot/dovecot.conf
 
-  # When deleting a line, we have to use `/` instead of `|`
-  sedfile -i -E \
-    '/^\!include_try \/usr\/share\/dovecot\/protocols.d\/\*.protocol/d' \
-    /etc/dovecot/dovecot.conf
-
   # NOTE: While Postfix will deliver to Dovecot via LMTP (Previously LDA until DMS v2),
   # LDA may be used via other services like Getmail being configured to use /usr/lib/dovecot/deliver
   # when mail does not need to go through Postfix.
@@ -43,19 +38,6 @@ function _setup_dovecot() {
     -e "s|^#?(postmaster_address =).*|\1 ${POSTMASTER_ADDRESS}|" \
     -e "s|^#?(hostname =).*|\1 ${HOSTNAME}|" \
     /etc/dovecot/conf.d/15-lda.conf
-
-  # Debian's `15-lda.conf` is not replaced by DMS (unlike `20-lmtp.conf`).
-  # Enable Sieve for LDA (`dovecot-lda` / Getmail `deliver`) using Dovecot 2.4 syntax:
-  if ! grep -q -E '^[[:space:]]*sieve = yes' /etc/dovecot/conf.d/15-lda.conf; then
-    cat >>/etc/dovecot/conf.d/15-lda.conf <<'EOF'
-
-protocol lda {
-  mail_plugins {
-    sieve = yes
-  }
-}
-EOF
-  fi
 
   # set mail_location according to mailbox format
   case "${DOVECOT_MAILBOX_FORMAT}" in
@@ -178,7 +160,7 @@ function _setup_dovecot_quota() {
     local MAILBOX_LIMIT_MB=$((POSTFIX_MAILBOX_SIZE_LIMIT / 1000000))
 
     sedfile -i \
-      "s|quota_mail_size =.*|quota_mail_size = ${MESSAGE_SIZE_LIMIT_MB}$([[ ${MESSAGE_SIZE_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
+      "s|quota_mail_size =.*|quota_mail_size = $([[ ${MESSAGE_SIZE_LIMIT_MB} -eq 0 ]] && echo 'unlimited' || echo "${MESSAGE_SIZE_LIMIT_MB}M")|g" \
       /etc/dovecot/conf.d/90-quota.conf
 
     sedfile -i \
