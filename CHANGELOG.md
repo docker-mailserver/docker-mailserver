@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### CI
 
+- `DOVECOT_COMMUNITY_REPO` is now enabled by default for `x86_64` (which is also the only supported architecture currently) to provide the latest version of Dovecot (which is especially important for CVEs)
 - Moved `setup_cli.bats` to the serial test suite to prevent `setup.sh` from racing with teardown of another DMS test container ([#4701](https://github.com/docker-mailserver/docker-mailserver/issues/4701))
 - Excluded `saslauthd` from the process kill/restart assertion because its forked parent process is not reliably reaped by the test
 
@@ -24,7 +25,11 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Dovecot**
   - The `stats` service is no longer disabled: `/etc/dovecot/conf.d/60-stats.conf` was removed and `stats_writer_socket_path` is no longer emptied, so Dovecot's upstream defaults apply and `doveadm stats dump` / metrics work without overrides. `user-patches.sh` workarounds that delete `60-stats.conf` should use `rm -f` ([#4387](https://github.com/docker-mailserver/docker-mailserver/issues/4387))
-  - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example. 
+  - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example.
+  - DMS now ships `/etc/dovecot/dovecot.conf`, `conf.d/15-lda.conf`, `conf.d/20-pop3.conf` and `conf.d/20-managesieve.conf` itself, because the Dovecot community repository packages ship different files than Debian (which broke LMTP delivery, `ENABLE_POP3=0`, `DOVECOT_INET_PROTOCOLS`, `dovecot.cf` overrides and LDA settings). `dovecot_config_version` and `dovecot_storage_version` are pinned to `2.4.0` for all architectures.
+  - `POSTFIX_MESSAGE_SIZE_LIMIT=0` now sets `quota_mail_size = unlimited`, as Dovecot 2.4.3+ no longer accepts `0`
+  - `mail_attachment_detection_options` is now explicitly empty, because LMTP in Dovecot 2.4.5 otherwise applies the new `add-flags` default (adding `$HasNoAttachment` keywords and storing delivered mails in `cur/` instead of `new/`)
+  - `ssl-cert` is now installed explicitly, as the Dovecot community repository packages do not depend on it (it provides the default snakeoil certificate)
 - **TLS**
   - Certificate changes detected at runtime no longer reset `TLS_LEVEL` ciphers and protocols, which discarded user overrides such as `postfix-main.cf` or `user-patches.sh` ([#4800](https://github.com/docker-mailserver/docker-mailserver/issues/4800))
 

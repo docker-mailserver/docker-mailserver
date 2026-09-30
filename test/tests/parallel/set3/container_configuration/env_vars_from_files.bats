@@ -77,6 +77,11 @@ function teardown_file() {
   run docker logs "${CONTAINER_NAME}"
   assert_success
   assert_line --partial "ENV value will not be sourced from 'ENABLE_POP3__FILE' since 'ENABLE_POP3' is already set"
+
+  _run_in_container doveconf protocols
+  assert_success
+  assert_output --partial 'lmtp'
+  refute_output --partial 'pop3'
 }
 
 @test "Referencing a non-existent file logs an error" {

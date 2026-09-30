@@ -164,42 +164,50 @@ function _install_dovecot() {
     dovecot-managesieved
     dovecot-ldap
     dovecot-flatcurve
+    # Provides the snakeoil certificate used by `10-ssl.conf` (Debian's
+    # `dovecot-core` depends on it, the community repository's does not)
+    ssl-cert
 
-    # Additional Dovecot packages for supporting the DMS community (docs-only guide contributions)
-    dovecot-auth-lua
+    # Additional Dovecot packages for supporting the DMS
+    # community (docs-only guide contributions)
     dovecot-solr
   )
 
-  # NOTE: (Opt-in via ENV) Change repo source for dovecot packages
-  #       to a third-party repo maintained by Dovecot.
   # NOTE: Arch restriction required because AMD64 / x86_64 is the
   #       only arch supported from the Dovecot CE repo.
   # Repo: https://repo.dovecot.org/ce-2.4-latest/debian/trixie/dists/trixie/main/
   # Docs: https://repo.dovecot.org/#debian
-  if [[ ${DOVECOT_COMMUNITY_REPO:-0} -eq 1 ]] && [[ $(uname --machine) == 'x86_64' ]]; then
-    _log 'trace' 'Adding third-party package repository (Dovecot)'
+  local ARCH
+  ARCH=$(uname --machine)
+  if [[ ${DOVECOT_COMMUNITY_REPO:=1} -eq 1 ]] && [[ ${ARCH} == 'x86_64' ]]; then
+    _log 'trace' 'Adding Dovecot community package repository'
     curl -fsSL https://repo.dovecot.org/DOVECOT-REPO-GPG-2.4 \
-      | gpg --dearmor > /usr/share/keyrings/upstream-dovecot.gpg
+      | gpg --dearmor >/usr/share/keyrings/upstream-dovecot.gpg
     cat >/etc/apt/sources.list.d/upstream-dovecot.sources <<EOF
 Types: deb
 URIs: https://repo.dovecot.org/ce-2.4-latest/debian/${VERSION_CODENAME}
 Suites: ${VERSION_CODENAME}
 Components: main
+Architectures: amd64
 Signed-By: /usr/share/keyrings/upstream-dovecot.gpg
 EOF
 
     apt-get "${QUIET}" update
-
-    # This repo instead provides `dovecot-auth-lua` as a transitional package to `dovecot-lua`,
-    # thus this extra package is required to retain lua support:
     DOVECOT_PACKAGES+=(dovecot-lua)
+  elif [[ ${DOVECOT_COMMUNITY_REPO} -eq 1 ]]; then
+    _log 'info' "Not adding Dovecot community package repository because the architecture '${ARCH}' is not supported"
+    DOVECOT_PACKAGES+=(dovecot-auth-lua)
+  else
+    _log 'info' 'Not adding Dovecot community package repository'
+    DOVECOT_PACKAGES+=(dovecot-auth-lua)
   fi
 
   _log 'debug' 'Installing Dovecot'
   apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
 
   # We remove the enabled-by-default Flatcurve configuration to disable FTS by default
-  rm /etc/dovecot/conf.d/90-fts-flatcurve.conf
+  # (only Debian's package ships it)
+  rm -f /etc/dovecot/conf.d/90-fts-flatcurve.conf
 }
 
 function _install_rspamd() {
