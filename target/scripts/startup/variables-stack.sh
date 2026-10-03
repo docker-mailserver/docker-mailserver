@@ -37,6 +37,10 @@ function __environment_variables_backwards_compatibility() {
     _log 'error' "'SA_SPAM_SUBJECT' has been renamed to 'SPAM_SUBJECT' since DMS v16"
   fi
 
+  if [[ -n ${ENABLE_RSPAMD_REDIS:-} ]]; then
+    _log 'error' "'ENABLE_RSPAMD_REDIS' has been renamed to 'ENABLE_RSPAMD_VALKEY' since DMS v17"
+  fi
+
   # TODO this can be uncommented in a PR handling the HOSTNAME/DOMAINNAME issue
   # TODO see check_for_changes.sh and dns.sh
   # if [[ -n ${OVERRIDE_HOSTNAME:-} ]]
@@ -107,7 +111,7 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_IMAP]="${ENABLE_IMAP:=1}"
   VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
   VARS[ENABLE_RSPAMD]="${ENABLE_RSPAMD:=0}"
-  VARS[ENABLE_RSPAMD_REDIS]="${ENABLE_RSPAMD_REDIS:=${ENABLE_RSPAMD}}"
+  VARS[ENABLE_RSPAMD_VALKEY]="${ENABLE_RSPAMD_VALKEY:=${ENABLE_RSPAMD}}"
   VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
   VARS[ENABLE_SPAMASSASSIN]="${ENABLE_SPAMASSASSIN:=0}"
   VARS[ENABLE_SPAMASSASSIN_KAM]="${ENABLE_SPAMASSASSIN_KAM:=0}"

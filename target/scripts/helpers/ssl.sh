@@ -1,5 +1,59 @@
 #!/bin/bash
 
+# `TLS_LEVEL` is static for the container lifetime, thus this is only applied at startup.
+# Re-applying it during change detection would discard user overrides (eg: `postfix-main.cf`, `user-patches.sh`).
+function _setup_tls_level() {
+  local POSTFIX_CONFIG_MAIN='/etc/postfix/main.cf'
+  local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
+
+  function _apply_tls_level() {
+    local TLS_CIPHERS_ALLOW=$1
+    local TLS_PROTOCOL_IGNORE=$2
+    local TLS_PROTOCOL_MINIMUM=$3
+
+    # Postfix configuration
+    sed -i -r \
+      -e "s|^(smtpd?_tls_mandatory_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" \
+      -e "s|^(smtpd?_tls_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" \
+      -e "s|^(tls_high_cipherlist =).*|\1 ${TLS_CIPHERS_ALLOW}|" \
+      "${POSTFIX_CONFIG_MAIN}"
+
+    # Dovecot configuration (secure by default though)
+    sed -i -r \
+      -e "s|^(ssl_min_protocol =).*|\1 ${TLS_PROTOCOL_MINIMUM}|" \
+      -e "s|^(ssl_cipher_list =).*|\1 ${TLS_CIPHERS_ALLOW}|" \
+      "${DOVECOT_CONFIG_SSL}"
+  }
+
+  # TLS strength/level configuration
+  case "${TLS_LEVEL}" in
+    ( "modern" )
+      local TLS_MODERN_SUITE='ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305'
+      local TLS_MODERN_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
+      local TLS_MODERN_MIN='TLSv1.2'
+
+      _apply_tls_level "${TLS_MODERN_SUITE}" "${TLS_MODERN_IGNORE}" "${TLS_MODERN_MIN}"
+
+      _log 'debug' "TLS configured with 'modern' ciphers"
+      ;;
+
+    ( "intermediate" )
+      local TLS_INTERMEDIATE_SUITE='ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384'
+      local TLS_INTERMEDIATE_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
+      local TLS_INTERMEDIATE_MIN='TLSv1.2'
+
+      _apply_tls_level "${TLS_INTERMEDIATE_SUITE}" "${TLS_INTERMEDIATE_IGNORE}" "${TLS_INTERMEDIATE_MIN}"
+
+      _log 'debug' "TLS configured with 'intermediate' ciphers"
+      ;;
+
+    ( * )
+      _log 'warn' "TLS_LEVEL '${TLS_LEVEL}' not valid"
+      ;;
+
+  esac
+}
+
 function _setup_ssl() {
   _log 'debug' 'Setting up SSL'
 
@@ -67,25 +121,6 @@ function _setup_ssl() {
       "${DOVECOT_CONFIG_SSL}"
   }
 
-  function _apply_tls_level() {
-    local TLS_CIPHERS_ALLOW=$1
-    local TLS_PROTOCOL_IGNORE=$2
-    local TLS_PROTOCOL_MINIMUM=$3
-
-    # Postfix configuration
-    sed -i -r \
-      -e "s|^(smtpd?_tls_mandatory_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" \
-      -e "s|^(smtpd?_tls_protocols =).*|\1 ${TLS_PROTOCOL_IGNORE}|" \
-      -e "s|^(tls_high_cipherlist =).*|\1 ${TLS_CIPHERS_ALLOW}|" \
-      "${POSTFIX_CONFIG_MAIN}"
-
-    # Dovecot configuration (secure by default though)
-    sed -i -r \
-      -e "s|^(ssl_min_protocol =).*|\1 ${TLS_PROTOCOL_MINIMUM}|" \
-      -e "s|^(ssl_cipher_list =).*|\1 ${TLS_CIPHERS_ALLOW}|" \
-      "${DOVECOT_CONFIG_SSL}"
-  }
-
   # 2020 feature intended for Traefik v2 support only:
   # https://github.com/docker-mailserver/docker-mailserver/pull/1553
   # Extracts files `key.pem` and `fullchain.pem`.
@@ -112,34 +147,6 @@ function _setup_ssl() {
       _log 'trace' "letsencrypt (acme.json) extracted certificate using ${EXTRACTED_DOMAIN[0]}: '${EXTRACTED_DOMAIN[1]}'"
     fi
   }
-
-  # TLS strength/level configuration
-  case "${TLS_LEVEL}" in
-    ( "modern" )
-      local TLS_MODERN_SUITE='ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305'
-      local TLS_MODERN_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
-      local TLS_MODERN_MIN='TLSv1.2'
-
-      _apply_tls_level "${TLS_MODERN_SUITE}" "${TLS_MODERN_IGNORE}" "${TLS_MODERN_MIN}"
-
-      _log 'debug' "TLS configured with 'modern' ciphers"
-      ;;
-
-    ( "intermediate" )
-      local TLS_INTERMEDIATE_SUITE='ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384'
-      local TLS_INTERMEDIATE_IGNORE='!SSLv2,!SSLv3,!TLSv1,!TLSv1.1'
-      local TLS_INTERMEDIATE_MIN='TLSv1.2'
-
-      _apply_tls_level "${TLS_INTERMEDIATE_SUITE}" "${TLS_INTERMEDIATE_IGNORE}" "${TLS_INTERMEDIATE_MIN}"
-
-      _log 'debug' "TLS configured with 'intermediate' ciphers"
-      ;;
-
-    ( * )
-      _log 'warn' "TLS_LEVEL '${TLS_LEVEL}' not valid"
-      ;;
-
-  esac
 
   local SCOPE_SSL_TYPE="TLS Setup [SSL_TYPE=${SSL_TYPE}]"
   # SSL certificate Configuration

@@ -57,10 +57,6 @@ protocol lda {
 EOF
   fi
 
-  if ! grep -q -E '^stats_writer_socket_path=' /etc/dovecot/dovecot.conf; then
-    printf '\n%s\n' 'stats_writer_socket_path=' >>/etc/dovecot/dovecot.conf
-  fi
-
   # set mail_location according to mailbox format
   case "${DOVECOT_MAILBOX_FORMAT}" in
 

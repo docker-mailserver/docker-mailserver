@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file. The format 
 - **Dovecot**
   - The `dovecot-fts-xapian` plugin is no longer included in the image. Existing users must remove their Xapian configuration and migrate to Flatcurve; existing `xapian-indexes` cannot be reused by Flatcurve.
 - **Rspamd**
+  - Redis has been replaced by Valkey ([#4001](https://github.com/docker-mailserver/docker-mailserver/issues/4001)). `ENABLE_RSPAMD_REDIS` has been renamed to `ENABLE_RSPAMD_VALKEY`, the `rspamd-redis` service to `rspamd-valkey`, and the config file is now `/etc/valkey/valkey.conf`. Existing state in `/var/mail-state/lib-redis` from Redis 7.2 or older (DMS v15 or older) is moved to `/var/mail-state/lib-valkey` automatically. State from DMS v16 (Redis 8, RDB format 12) cannot be loaded by Valkey: it is kept untouched in `lib-redis`, Valkey starts empty, and Rspamd data such as Bayes must be relearned.
   - `setup config dkim` now writes keys as `<domain>-<selector>.private` (previously `<keytype>-<keysize>-<selector>-<domain>.private.txt`). The default `dkim_signing.conf` uses a `$domain-$selector` path template with `try_fallback = true`, so multiple domains share one config. Existing `dkim_signing.conf` files are not overwritten. Rename keys to the new layout if you regenerate them (OpenDKIM: `opendkim/keys/<domain>/<selector>.private` → `rspamd/dkim/<domain>-<selector>.private`). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
   - `setup config dkim` writes a persisted `dkim_selectors.map` for custom selectors. Documentation covers multi-domain setup, OpenDKIM migration, and Ed25519 + RSA fallback (distinct selectors plus a `selectors` array). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
 
@@ -27,7 +28,10 @@ All notable changes to this project will be documented in this file. The format 
 ### Fixed
 
 - **Dovecot**
+  - The `stats` service is no longer disabled: `/etc/dovecot/conf.d/60-stats.conf` was removed and `stats_writer_socket_path` is no longer emptied, so Dovecot's upstream defaults apply and `doveadm stats dump` / metrics work without overrides. `user-patches.sh` workarounds that delete `60-stats.conf` should use `rm -f` ([#4387](https://github.com/docker-mailserver/docker-mailserver/issues/4387))
   - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example. 
+- **TLS**
+  - Certificate changes detected at runtime no longer reset `TLS_LEVEL` ciphers and protocols, which discarded user overrides such as `postfix-main.cf` or `user-patches.sh` ([#4800](https://github.com/docker-mailserver/docker-mailserver/issues/4800))
 
 ### Documentation
 
