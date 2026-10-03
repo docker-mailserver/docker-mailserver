@@ -130,11 +130,11 @@ function _filter_container_service_log() {
 
   local FILE="/var/log/supervisor/${SERVICE}.log"
   # Alternative log location fallback:
-  _exec_in_container test -f ${FILE} || FILE="/var/log/mail/${SERVICE}.log"
+  _exec_in_container test -f "${FILE}" || FILE="/var/log/mail/${SERVICE}.log"
   _run_in_container grep "${@}" "${STRING}" "${FILE}"
 }
 
-# Like `_filter_service_log` but asserts that the string was found.
+# Like `_container_service_log_should_contain_string` but asserts that the string was found.
 #
 # @param ${1} = service name
 # @param ${2} = string to filter by
@@ -143,7 +143,7 @@ function _container_service_log_should_contain_string() {
   assert_success
 }
 
-# Like `_filter_service_log` but asserts that the string was _not_ found.
+# Like `_container_service_log_should_not_contain_string` but asserts that the string was _not_ found.
 #
 # @param ${1} = service name
 # @param ${2} = string to filter by

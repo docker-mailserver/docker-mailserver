@@ -31,7 +31,7 @@ function _main() {
 
   if [[ -z "${RC_FILE}" ]]; then
     getmail_sequential
-  elif [[ -n "${RC_FILE}" ]]; then
+  else
     getmail_specific
   fi
 }
@@ -69,10 +69,6 @@ ${ORANGE}EXIT STATUS${RESET}
 }
 
 function _validate_parameters() {
-  if [[ ${GETMAIL_PARALLEL} -eq 1 ]]; then
-    [[ -z ${RC_FILE} ]] && { __usage ; _stop_service; _exit_with_error 'No RC file specified'     ; }
-  fi
-
   # Verify the correct value for GETMAIL_POLL. Valid are any numbers greater than 0.
   if [[ ! ${GETMAIL_POLL} =~ ^[0-9]+$ ]] || [[ ${GETMAIL_POLL} -lt 1 ]]; then
     _syslog_error "Invalid value for GETMAIL_POLL: ${GETMAIL_POLL}"
@@ -118,11 +114,12 @@ function getmail_specific() {
   if [[ -n "${GETMAIL_IDLE}" ]]; then
     # Read the GETMAIL_IDLE as array to support specifying the FOLDER for the IDLE command (e.g. 'account1:MYINBOX').
     IFS=',' read -ra GETMAIL_IDLE_MAP <<< "${GETMAIL_IDLE}"
+    IDLE_ENABLED=0
     for IDLE_ELEMENT in "${GETMAIL_IDLE_MAP[@]}"; do
-      IDLE_ACCOUNT="${IDLE_ELEMENT%:*}"
+      IDLE_ACCOUNT="${IDLE_ELEMENT%%:*}"
 
       # If the getmailrc file contains IMAP configuration and the GETMAIL_IDLE variable is set to "auto" or contains the specific getmailrc file, enable IMAP IDLE for this getmailrc file.
-      if grep -q 'IMAP' "${RC_FILE}" && [[ ${GETMAIL_IDLE} == "auto" || ${IDLE_ACCOUNT} == "$(basename "${RC_FILE}")" ]]; then
+      if grep -qE '^[[:space:]]*type[[:space:]]*=[[:space:]]*[^[:space:]]*IMAP[^[:space:]]*Retriever' "${RC_FILE}" && [[ ${GETMAIL_IDLE} == "auto" || ${IDLE_ACCOUNT} == "$(basename "${RC_FILE}")" ]]; then
         IDLE_MAP="${IDLE_ELEMENT#*:}"
 
         if [[ "${IDLE_MAP}" == "${IDLE_ELEMENT}" ]]; then
@@ -132,11 +129,15 @@ function getmail_specific() {
 
         _log 'debug' "Enabling IMAP IDLE for ${RC_FILE} for mailbox ${IDLE_MAP}"
         GETMAIL_OPTS+=("--idle=${IDLE_MAP}")
+        IDLE_ENABLED=1
         break
-      else
-        _log 'debug' "IMAP IDLE not enabled for ${RC_FILE}"
       fi
     done
+
+    if [[ ${IDLE_ENABLED} == 0 ]]; then
+      _log 'debug' "IMAP IDLE not enabled for ${RC_FILE}"
+    fi
+
   else
     _log 'debug' "GETMAIL_IDLE not defined, skipping"
     _log 'info' "IMAP IDLE not enabled for ${RC_FILE}"
