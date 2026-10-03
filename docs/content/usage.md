@@ -194,3 +194,4 @@ Here are some tools you can use to verify your configuration:
 4. [multiRBL.valli.org](https://multirbl.valli.org/)
 5. [internet.nl](https://internet.nl/test-mail/)
 6. [Email Spam Tester](https://email-spam-tester.com/)
+7. [DomainCanary](https://domaincanary.com/tools/spf-dkim-dmarc-checker)
