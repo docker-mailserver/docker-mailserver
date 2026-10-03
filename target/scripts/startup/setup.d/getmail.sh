@@ -24,6 +24,8 @@ function _setup_getmail() {
     # If the nullglob option is set, and no matches are found, the word is removed.
     shopt -s nullglob
 
+
+    local COUNTER=0
     # Generate getmailrc configs, starting with the `/etc/getmailrc_general` base config, then appending users own config to the end.
     for FILE in "${GETMAIL_CONFIG_DIR}"/*.cf; do
       if [[ ${FILE} =~ /getmail/(.+)\.cf ]] && [[ ${FILE} != "${GETMAIL_RC_GENERAL_CF}" ]]; then
@@ -33,10 +35,40 @@ function _setup_getmail() {
 
         GETMAIL_RC=${GETMAIL_RC_DIR}/${ID}
         cat "${GETMAIL_RC_GENERAL}" "${FILE}" >"${GETMAIL_RC}"
+
+        if [[ ${GETMAIL_PARALLEL} -eq 1 ]]; then
+          # If parallel getmail execution is enabled, configure a separate service
+          # for each getmailrc file. This enables the use of the "IMAP IDLE"
+          # extension for the immediate downloading of new emails.
+          _log 'debug' "Defining new service for '${GETMAIL_RC}'"
+          COUNTER=$(( COUNTER + 1 ))
+          cat >"/etc/supervisor/conf.d/getmail-${COUNTER}.conf" << EOF
+[program:getmail-${COUNTER}]
+startsecs=0
+stopwaitsecs=55
+autostart=false
+autorestart=true
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+command=/bin/bash -l -c '/usr/local/bin/getmail-service.sh "${GETMAIL_RC}"'
+environment=SERVICE_NAME="getmail-${COUNTER}"
+EOF
+
+          chown root:root "${GETMAIL_RC}"
+        fi
       fi
     done
+
     # Strip read access from non-root due to files containing secrets:
     chmod -R 600 "${GETMAIL_RC_DIR}"
+
+    if [[ ${GETMAIL_PARALLEL} -eq 1 ]]; then
+      # Ensure new services are registered with supervisord.
+      supervisorctl reread
+      supervisorctl update
+    else
+      _log 'debug' 'Getmail parallel is disabled'
+    fi
 
     # Directory, where "oldmail" files are stored.
     # For more information see: https://getmail6.org/faq.html#faq-about-oldmail
