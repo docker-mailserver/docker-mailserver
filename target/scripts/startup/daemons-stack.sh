@@ -67,10 +67,12 @@ function _start_daemon_fetchmail() {
 
 function _start_daemon_getmail() {
   if [[ ${GETMAIL_PARALLEL} -eq 1 ]]; then
-    local COUNTER=0
-    for _ in /etc/getmailrc.d/*; do
-      COUNTER=$(( COUNTER + 1 ))
-      _default_start_daemon "getmail-${COUNTER}"
+    local SERVICE_CONF
+    # Setup is skipped on container restarts, so `nullglob` cannot be relied upon here.
+    for SERVICE_CONF in /etc/supervisor/conf.d/getmail-*.conf; do
+      [[ -f ${SERVICE_CONF} ]] || continue
+      SERVICE_CONF=${SERVICE_CONF##*/}
+      _default_start_daemon "${SERVICE_CONF%.conf}"
     done
   else
     _default_start_daemon 'getmail'

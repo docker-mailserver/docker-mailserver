@@ -13,7 +13,7 @@ trap 'pkill --parent ${$}' EXIT
 
 function _main() {
   if [[ ${GETMAIL_PARALLEL} -eq 1 ]]; then
-    _log 'debug' 'Getmail parallel is enabled, required 1 argument to specify the getmailrc file will be processed in a seperate service'
+    _log 'debug' 'Getmail parallel is enabled, required 1 argument to specify the getmailrc file will be processed in a separate service'
     _require_n_parameters_or_print_usage 1 "${@}"
   else
     _log 'debug' 'Getmail parallel is disabled, running getmail in a loop'
@@ -50,13 +50,13 @@ ${ORANGE}DESCRIPTION${RESET}
     Run getmail in a loop, processing all configuration files in /etc/getmailrc.d/ periodically.
     The period is defined by GETMAIL_POLL environment variable (in minutes).
 
-    If GETMAIL_PARALLEL is set, each configuration file is processed in a seperate service.
-    The variable GETMAIL_IDLE can be set to either a list of getmailrc files (e.g. 'getmail-1,getmail-2')
-    or to 'auto' to enable IMAP IDLE for all IMAP getmailrc files,
+    If GETMAIL_PARALLEL is set, each configuration file is processed in a separate service.
+    The variable GETMAIL_IDLE can be set to either a list of getmailrc file names (e.g. 'user1,user2:MAILBOX')
+    or to 'auto' to enable IMAP IDLE for all IMAP getmailrc files.
 
 ${ORANGE}EXAMPLES${RESET}
-    ${LWHITE}./getmail-service.sh /etc/getmailrc.d/getmail-1.rc${RESET}
-        Process the getmail configuration file '/etc/getmailrc.d/getmail-1.rc'.
+    ${LWHITE}./getmail-service.sh /etc/getmailrc.d/user1${RESET}
+        Process the getmail configuration file '/etc/getmailrc.d/user1'.
 
     ${LWHITE}./getmail-service.sh${RESET}
         Process all getmail configuration files in /etc/getmailrc.d/.
@@ -122,7 +122,7 @@ function getmail_specific() {
       if grep -qE '^[[:space:]]*type[[:space:]]*=[[:space:]]*[^[:space:]]*IMAP[^[:space:]]*Retriever' "${RC_FILE}" && [[ ${GETMAIL_IDLE} == "auto" || ${IDLE_ACCOUNT} == "$(basename "${RC_FILE}")" ]]; then
         IDLE_MAP="${IDLE_ELEMENT#*:}"
 
-        if [[ "${IDLE_MAP}" == "${IDLE_ELEMENT}" ]]; then
+        if [[ "${IDLE_MAP}" == "${IDLE_ELEMENT}" ]] || [[ -z "${IDLE_MAP}" ]]; then
           # If no specific mailbox is defined for the IDLE flag, default to 'INBOX'.
           IDLE_MAP='INBOX'
         fi
@@ -144,7 +144,7 @@ function getmail_specific() {
   fi
 
   while :; do
-    _log 'debug' "Start processing ${RC_FILE}"
+    _log 'debug' "Start processing ${RC_FILE} with options '${GETMAIL_OPTS[*]}'"
     getmail --getmaildir "${GETMAIL_DIR}" --rcfile "${RC_FILE}" "${GETMAIL_OPTS[@]}"
 
     sleep "${GETMAIL_POLL}m"

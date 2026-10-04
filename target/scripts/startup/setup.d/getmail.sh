@@ -31,6 +31,12 @@ function _setup_getmail() {
       if [[ ${FILE} =~ /getmail/(.+)\.cf ]] && [[ ${FILE} != "${GETMAIL_RC_GENERAL_CF}" ]]; then
         ID=${BASH_REMATCH[1]}
 
+        # The ID is embedded into a supervisord `command=` line, where quotes, spaces and `%` break parsing.
+        if [[ ${GETMAIL_PARALLEL} -eq 1 ]] && [[ ! ${ID} =~ ^[A-Za-z0-9._-]+$ ]]; then
+          _log 'warn' "Skipping getmail config '${ID}': with GETMAIL_PARALLEL=1, names may only contain 'A-Z', 'a-z', '0-9', '.', '_' and '-'"
+          continue
+        fi
+
         _log 'debug' "Processing getmail config '${ID}'"
 
         GETMAIL_RC=${GETMAIL_RC_DIR}/${ID}
@@ -53,8 +59,6 @@ stderr_logfile=/var/log/supervisor/%(program_name)s.log
 command=/bin/bash -l -c '/usr/local/bin/getmail-service.sh "${GETMAIL_RC}"'
 environment=SERVICE_NAME="getmail-${COUNTER}"
 EOF
-
-          chown root:root "${GETMAIL_RC}"
         fi
       fi
     done
@@ -66,8 +70,8 @@ EOF
       # Ensure new services are registered with supervisord.
       supervisorctl reread
       supervisorctl update
-    else
-      _log 'debug' 'Getmail parallel is disabled'
+    elif [[ -n ${GETMAIL_IDLE} ]]; then
+      _log 'warn' "GETMAIL_IDLE is set but has no effect unless GETMAIL_PARALLEL=1"
     fi
 
     # Directory, where "oldmail" files are stored.

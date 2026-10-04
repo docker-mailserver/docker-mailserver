@@ -102,9 +102,11 @@ environment:
 
 ### IMAP IDLE support
 
-IDLE is a IMAP feature described in RFC 2177 that allows a client to indicate to the server that it is ready to accept notifications in real time.
+IDLE is an IMAP feature described in RFC 2177 that allows a client to indicate to the server that it is ready to accept notifications in real time.
 This allows email users to receive near instant delivery of a new email.
-By default the folder "INBOX" is watched, this can be changed by specifying the FOLDER with a colon ':' eg: GETMAIL_IDLE=account1:MY_FOLDER
+
+IDLE requires [`GETMAIL_PARALLEL=1`][docs-environment-getmail-parallel], which runs a separate `getmail` service per config file. [`GETMAIL_IDLE`][docs-environment-getmail-idle] selects the configs by their file name without the `.cf` extension (_e.g. `user1` for `user1.cf`_), or `auto` for all IMAP configs.
+By default the folder `INBOX` is watched; this can be changed by appending the folder with a colon (_e.g. `GETMAIL_IDLE=user1:MY_FOLDER`_).
 
 ```yaml
 environment:
@@ -112,11 +114,16 @@ environment:
   - GETMAIL_IDLE=auto
 ```
 
+!!! warning "Config file names"
+
+    With `GETMAIL_PARALLEL=1`, config files whose name contains characters other than `A-Z`, `a-z`, `0-9`, `.`, `_` and `-` are skipped.
 
 ### XOAUTH2 Authentication
 
 It is possible to utilize the `getmail-gmail-xoauth-tokens` helper to provide authentication using `xoauth2` for [gmail (example 12)][getmail-docs-xoauth-12] or [Microsoft Office 365 (example 13)][getmail-docs-xoauth-13]
 
+[docs-environment-getmail-parallel]: ../environment.md#getmail_parallel
+[docs-environment-getmail-idle]: ../environment.md#getmail_idle
 [getmail-website]: https://www.getmail6.org
 [getmail-docs]: https://getmail6.org/configuration.html
 [getmail-docs-xoauth-12]: https://github.com/getmail6/getmail6/blob/v6.19.10/docs/getmailrc-examples#L286

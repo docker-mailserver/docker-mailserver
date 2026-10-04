@@ -782,23 +782,25 @@ Enable or disable `getmail`.
 
 ##### GETMAIL_PARALLEL
 
-Create a service for each getmail configuration so they can all run independently.
+Create a service for each getmail configuration so they can all run independently. Required for [`GETMAIL_IDLE`](#getmail_idle).
+
+With parallel mode enabled, config files whose name contains characters other than `A-Z`, `a-z`, `0-9`, `.`, `_` and `-` are skipped.
 
 - **0** => Disabled
 - 1 => Enabled
 
 ##### GETMAIL_IDLE
 
-`getmail` Specify which getmail configs should be started with the --idle flag.
-By default it shall look for the folder INBOX. This can be changed by specifying the folder with a colon.
-This will only watch this specific folder for notification. `getmail` still fetches mailboxes (default INBOX). 
-Important: Spaces are not trimmed and will cause everything after the first space to be silently ignored.
+Comma-separated list of getmail configs that are started with the `--idle` flag. A config is selected by its file name without the `.cf` extension (_e.g. `user1` for `user1.cf`_).
+By default the folder `INBOX` is watched. This can be changed by appending the folder with a colon (_e.g. `user1:MAILBOX`_).
+This only watches that folder for notifications; `getmail` still fetches the folders configured in `mailboxes` (_default: `INBOX`_).
+Spaces are not trimmed, so `user1, user2` does not select `user2`.
 
-**GETMAIL_IDLE** will only be used when **GETMAIL_PARALLEL** is enabled.
+**GETMAIL_IDLE** only has an effect when **GETMAIL_PARALLEL** is enabled.
 
-- **not set** Default to unset to ensure that --idle enabled only on accounts where needed/wanted.
-- auto => If auto is set, it will be enable for ever IMAP config.
-- e.g. GETMAIL_IDLE=account1,account2:MAILBOX
+- **empty** => IMAP IDLE is disabled for all configs
+- auto => IMAP IDLE is enabled for every IMAP config
+- e.g. `user1,user2:MAILBOX` => IMAP IDLE is enabled for `user1.cf` (_watching `INBOX`_) and `user2.cf` (_watching `MAILBOX`_)
 
 #### OAUTH2
 
