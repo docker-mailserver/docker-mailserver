@@ -1831,6 +1831,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#imap-idle-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IMAP IDLE support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xoauth2-authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2935,6 +2946,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#imap-idle-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IMAP IDLE support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#xoauth2-authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3072,6 +3094,19 @@ arguments =(&quot;-d&quot;,&quot;user1@example.com&quot;)
 <div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GETMAIL_POLL=1</span>
 </code></pre></div>
+<h3 id="imap-idle-support"><a class="toclink" href="#imap-idle-support">IMAP IDLE support</a></h3>
+<p>IDLE is an IMAP feature described in RFC 2177 that allows a client to indicate to the server that it is ready to accept notifications in real time.
+This allows email users to receive near instant delivery of a new email.</p>
+<p>IDLE requires <a href="../../environment/#getmail_parallel"><code>GETMAIL_PARALLEL=1</code></a>, which runs a separate <code>getmail</code> service per config file. <a href="../../environment/#getmail_idle"><code>GETMAIL_IDLE</code></a> selects the configs by their file name without the <code>.cf</code> extension (<em>e.g. <code>user1</code> for <code>user1.cf</code></em>), or <code>auto</code> for all IMAP configs.
+By default the folder <code>INBOX</code> is watched; this can be changed by appending the folder with a colon (<em>e.g. <code>GETMAIL_IDLE=user1:MY_FOLDER</code></em>).</p>
+<div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GETMAIL_PARALLEL=1</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GETMAIL_IDLE=auto</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Config file names</p>
+<p>With <code>GETMAIL_PARALLEL=1</code>, config files whose name contains characters other than <code>A-Z</code>, <code>a-z</code>, <code>0-9</code>, <code>.</code>, <code>_</code> and <code>-</code> are skipped.</p>
+</div>
 <h3 id="xoauth2-authentication"><a class="toclink" href="#xoauth2-authentication">XOAUTH2 Authentication</a></h3>
 <p>It is possible to utilize the <code>getmail-gmail-xoauth-tokens</code> helper to provide authentication using <code>xoauth2</code> for <a href="https://github.com/getmail6/getmail6/blob/v6.19.10/docs/getmailrc-examples#L286">gmail (example 12)</a> or <a href="https://github.com/getmail6/getmail6/blob/v6.19.10/docs/getmailrc-examples#L351">Microsoft Office 365 (example 13)</a></p>
 <h2 id="debugging"><a class="toclink" href="#debugging">Debugging</a></h2>
