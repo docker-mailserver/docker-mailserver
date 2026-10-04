@@ -72,6 +72,13 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
+# `setup.sh` falls back to a temporary container when no DMS container is running:
+@test "email list (without running DMS container)" {
+  run docker run --rm -v "${TEST_TMP_CONFIG}:/tmp/docker-mailserver" "${IMAGE_NAME}" setup email list
+  assert_success
+  assert_output --partial 'user@example.com'
+}
+
 # Update an existing account
 @test "email update" {
   local MAIL_ACCOUNT='user@example.com'
