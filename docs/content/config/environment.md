@@ -780,6 +780,27 @@ Enable or disable `getmail`.
 
 - **5** => `getmail` The number of minutes for the interval. Min: 1; Default: 5.
 
+##### GETMAIL_PARALLEL
+
+Create a service for each getmail configuration so they can all run independently. Required for [`GETMAIL_IDLE`](#getmail_idle).
+
+With parallel mode enabled, config files whose name contains characters other than `A-Z`, `a-z`, `0-9`, `.`, `_` and `-` are skipped.
+
+- **0** => Disabled
+- 1 => Enabled
+
+##### GETMAIL_IDLE
+
+Comma-separated list of getmail configs that are started with the `--idle` flag. A config is selected by its file name without the `.cf` extension (_e.g. `user1` for `user1.cf`_).
+By default the folder `INBOX` is watched. This can be changed by appending the folder with a colon (_e.g. `user1:MAILBOX`_).
+This only watches that folder for notifications; `getmail` still fetches the folders configured in `mailboxes` (_default: `INBOX`_).
+Spaces are not trimmed, so `user1, user2` does not select `user2`.
+
+**GETMAIL_IDLE** only has an effect when **GETMAIL_PARALLEL** is enabled.
+
+- **empty** => IMAP IDLE is disabled for all configs
+- auto => IMAP IDLE is enabled for every IMAP config
+- e.g. `user1,user2:MAILBOX` => IMAP IDLE is enabled for `user1.cf` (_watching `INBOX`_) and `user2.cf` (_watching `MAILBOX`_)
 
 #### OAUTH2
 

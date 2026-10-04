@@ -6,7 +6,8 @@ source /usr/local/bin/helpers/log.sh
 source /usr/local/bin/setup.d/getmail.sh
 
 # Setup getmail, even if not enabled.
-ENABLE_GETMAIL=1 _setup_getmail
+# Parallel mode is disabled to not regenerate (and thereby stop) running supervisord services.
+ENABLE_GETMAIL=1 GETMAIL_PARALLEL=0 GETMAIL_IDLE='' _setup_getmail
 
 # Directory, where "oldmail" files are stored.
 # Getmail stores its state - its "memory" of what it has seen in your POP/IMAP account - in the oldmail files.
