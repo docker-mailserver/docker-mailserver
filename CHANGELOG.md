@@ -27,6 +27,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **setup**
+  - `setup.sh email list` works again when no DMS container is running, by defaulting to `ACCOUNT_PROVISIONER=FILE` ([#4812](https://github.com/docker-mailserver/docker-mailserver/issues/4812))
 - **Dovecot**
   - The `stats` service is no longer disabled: `/etc/dovecot/conf.d/60-stats.conf` was removed and `stats_writer_socket_path` is no longer emptied, so Dovecot's upstream defaults apply and `doveadm stats dump` / metrics work without overrides. `user-patches.sh` workarounds that delete `60-stats.conf` should use `rm -f` ([#4387](https://github.com/docker-mailserver/docker-mailserver/issues/4387))
   - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example. 
