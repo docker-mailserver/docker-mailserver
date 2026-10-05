@@ -4,7 +4,7 @@
 # This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG DOVECOT_COMMUNITY_REPO=0
+ARG DOVECOT_COMMUNITY_REPO=1
 ARG LOG_LEVEL=trace
 
 FROM docker.io/debian:13-slim AS stage-base
@@ -59,6 +59,7 @@ EOF
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
 
+COPY target/dovecot/base/dovecot.conf /etc/dovecot/dovecot.conf
 COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
 RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
