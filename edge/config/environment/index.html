@@ -1719,10 +1719,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_user" class="md-nav__link">
+  <a href="#postfix_users_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_USER
+        POSTFIX_USERS_QUERY_FILTER
       
     </span>
   </a>
@@ -1730,10 +1730,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_group" class="md-nav__link">
+  <a href="#postfix_groups_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_GROUP
+        POSTFIX_GROUPS_QUERY_FILTER
       
     </span>
   </a>
@@ -1741,10 +1741,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_alias" class="md-nav__link">
+  <a href="#postfix_aliases_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_ALIAS
+        POSTFIX_ALIASES_QUERY_FILTER
       
     </span>
   </a>
@@ -1752,10 +1752,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_domain" class="md-nav__link">
+  <a href="#postfix_domains_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_DOMAIN
+        POSTFIX_DOMAINS_QUERY_FILTER
       
     </span>
   </a>
@@ -1763,10 +1763,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_senders" class="md-nav__link">
+  <a href="#postfix_senders_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_SENDERS
+        POSTFIX_SENDERS_QUERY_FILTER
       
     </span>
   </a>
@@ -5585,10 +5585,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_user" class="md-nav__link">
+  <a href="#postfix_users_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_USER
+        POSTFIX_USERS_QUERY_FILTER
       
     </span>
   </a>
@@ -5596,10 +5596,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_group" class="md-nav__link">
+  <a href="#postfix_groups_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_GROUP
+        POSTFIX_GROUPS_QUERY_FILTER
       
     </span>
   </a>
@@ -5607,10 +5607,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_alias" class="md-nav__link">
+  <a href="#postfix_aliases_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_ALIAS
+        POSTFIX_ALIASES_QUERY_FILTER
       
     </span>
   </a>
@@ -5618,10 +5618,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_domain" class="md-nav__link">
+  <a href="#postfix_domains_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_DOMAIN
+        POSTFIX_DOMAINS_QUERY_FILTER
       
     </span>
   </a>
@@ -5629,10 +5629,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ldap_query_filter_senders" class="md-nav__link">
+  <a href="#postfix_senders_query_filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        LDAP_QUERY_FILTER_SENDERS
+        POSTFIX_SENDERS_QUERY_FILTER
       
     </span>
   </a>
@@ -6925,6 +6925,17 @@ Spaces are not trimmed, so <code>user1, user2</code> does not select <code>user2
 <li>=&gt; Specify the user info endpoint URL of the oauth2 provider (<em>eg: <code>https://oauth2.example.com/userinfo/</code></em>)</li>
 </ul>
 <h4 id="ldap"><a class="toclink" href="#ldap">LDAP</a></h4>
+<div class="admonition info">
+<p class="admonition-title">Postfix LDAP lookup tables</p>
+<p>The Postfix LDAP configs <code>/etc/postfix/ldap/{users,groups,aliases,domains,senders}.cf</code> are generated at startup. Each <a href="https://www.postfix.org/ldap_table.5.html"><code>ldap_table(5)</code></a> setting can be configured via ENV, where later sources take precedence:</p>
+<ol>
+<li>Defaults: <code>version = 3</code>, <code>result_attribute = mail</code> (<code>senders</code>: <code>mail, uid</code>).</li>
+<li><code>LDAP_&lt;SETTING&gt;</code> for all configs (<em>e.g. <code>LDAP_SERVER_HOST</code> =&gt; <code>server_host</code></em>).</li>
+<li>A custom config <code>ldap-&lt;KIND&gt;.cf</code> in your DMS config volume (<em>e.g. <code>docker-data/dms/config/ldap-groups.cf</code></em>).</li>
+<li><code>POSTFIX_&lt;KIND&gt;_&lt;SETTING&gt;</code> for a single config (<em>e.g. <code>POSTFIX_GROUPS_LEAF_RESULT_ATTRIBUTE</code> =&gt; <code>leaf_result_attribute</code> in <code>groups.cf</code></em>).</li>
+</ol>
+<p>A config without a <code>query_filter</code> is not generated, and its lookup table is not configured in Postfix.</p>
+</div>
 <h5 id="ldap_start_tls"><a class="toclink" href="#ldap_start_tls">LDAP_START_TLS</a></h5>
 <ul>
 <li><strong>empty</strong> =&gt; no</li>
@@ -6932,48 +6943,52 @@ Spaces are not trimmed, so <code>user1, user2</code> does not select <code>user2
 </ul>
 <h5 id="ldap_server_host"><a class="toclink" href="#ldap_server_host">LDAP_SERVER_HOST</a></h5>
 <ul>
-<li><strong>empty</strong> =&gt; mail.example.com</li>
+<li><strong>empty</strong> =&gt; none (required)</li>
 <li>=&gt; Specify the <code>&lt;dns-name&gt;</code> / <code>&lt;ip-address&gt;</code> where the LDAP server is reachable via a URI like: <code>ldaps://mail.example.com</code>.</li>
 <li>Note: You must include the desired URI scheme (<code>ldap://</code>, <code>ldaps://</code>, <code>ldapi://</code>).</li>
 </ul>
 <h5 id="ldap_search_base"><a class="toclink" href="#ldap_search_base">LDAP_SEARCH_BASE</a></h5>
 <ul>
-<li><strong>empty</strong> =&gt; ou=people,dc=domain,dc=com</li>
+<li><strong>empty</strong> =&gt; none (required)</li>
 <li>=&gt; e.g. LDAP_SEARCH_BASE=dc=mydomain,dc=local</li>
 </ul>
 <h5 id="ldap_bind_dn"><a class="toclink" href="#ldap_bind_dn">LDAP_BIND_DN</a></h5>
 <ul>
-<li><strong>empty</strong> =&gt; cn=admin,dc=domain,dc=com</li>
+<li><strong>empty</strong> =&gt; none</li>
 <li>=&gt; take a look at examples of SASL_LDAP_BIND_DN</li>
 </ul>
 <h5 id="ldap_bind_pw"><a class="toclink" href="#ldap_bind_pw">LDAP_BIND_PW</a></h5>
 <ul>
-<li><strong>empty</strong> =&gt; admin</li>
+<li><strong>empty</strong> =&gt; none</li>
 <li>=&gt; Specify the password to bind against ldap</li>
 </ul>
-<h5 id="ldap_query_filter_user"><a class="toclink" href="#ldap_query_filter_user">LDAP_QUERY_FILTER_USER</a></h5>
+<h5 id="postfix_users_query_filter"><a class="toclink" href="#postfix_users_query_filter">POSTFIX_USERS_QUERY_FILTER</a></h5>
 <ul>
+<li><strong>empty</strong> =&gt; Postfix does not look up users via LDAP (<code>virtual_mailbox_maps</code>)</li>
 <li>e.g. <code>(&amp;(mail=%s)(mailEnabled=TRUE))</code></li>
 <li>=&gt; Specify how ldap should be asked for users</li>
 </ul>
-<h5 id="ldap_query_filter_group"><a class="toclink" href="#ldap_query_filter_group">LDAP_QUERY_FILTER_GROUP</a></h5>
+<h5 id="postfix_groups_query_filter"><a class="toclink" href="#postfix_groups_query_filter">POSTFIX_GROUPS_QUERY_FILTER</a></h5>
 <ul>
+<li><strong>empty</strong> =&gt; Postfix does not look up groups via LDAP (<code>virtual_alias_maps</code>)</li>
 <li>e.g. <code>(&amp;(mailGroupMember=%s)(mailEnabled=TRUE))</code></li>
 <li>=&gt; Specify how ldap should be asked for groups</li>
 </ul>
-<h5 id="ldap_query_filter_alias"><a class="toclink" href="#ldap_query_filter_alias">LDAP_QUERY_FILTER_ALIAS</a></h5>
+<h5 id="postfix_aliases_query_filter"><a class="toclink" href="#postfix_aliases_query_filter">POSTFIX_ALIASES_QUERY_FILTER</a></h5>
 <ul>
+<li><strong>empty</strong> =&gt; Postfix does not look up aliases via LDAP (<code>virtual_alias_maps</code>)</li>
 <li>e.g. <code>(&amp;(mailAlias=%s)(mailEnabled=TRUE))</code></li>
 <li>=&gt; Specify how ldap should be asked for aliases</li>
 </ul>
-<h5 id="ldap_query_filter_domain"><a class="toclink" href="#ldap_query_filter_domain">LDAP_QUERY_FILTER_DOMAIN</a></h5>
+<h5 id="postfix_domains_query_filter"><a class="toclink" href="#postfix_domains_query_filter">POSTFIX_DOMAINS_QUERY_FILTER</a></h5>
 <ul>
+<li><strong>empty</strong> =&gt; Postfix does not look up domains via LDAP (<code>virtual_mailbox_domains</code>)</li>
 <li>e.g. <code>(&amp;(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))</code></li>
 <li>=&gt; Specify how ldap should be asked for domains</li>
 </ul>
-<h5 id="ldap_query_filter_senders"><a class="toclink" href="#ldap_query_filter_senders">LDAP_QUERY_FILTER_SENDERS</a></h5>
+<h5 id="postfix_senders_query_filter"><a class="toclink" href="#postfix_senders_query_filter">POSTFIX_SENDERS_QUERY_FILTER</a></h5>
 <ul>
-<li><strong>empty</strong>  =&gt; use user/alias/group maps directly, equivalent to <code>(|($LDAP_QUERY_FILTER_USER)($LDAP_QUERY_FILTER_ALIAS)($LDAP_QUERY_FILTER_GROUP))</code></li>
+<li><strong>empty</strong>  =&gt; with <code>SPOOF_PROTECTION=1</code>, the users/aliases/groups lookup tables are used instead</li>
 <li>=&gt; Override how ldap should be asked if a sender address is allowed for a user</li>
 </ul>
 <h5 id="dovecot_tls"><a class="toclink" href="#dovecot_tls">DOVECOT_TLS</a></h5>

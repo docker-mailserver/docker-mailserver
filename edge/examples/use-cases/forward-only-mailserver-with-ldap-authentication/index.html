@@ -2961,39 +2961,24 @@
 <span class="na">userPassword</span><span class="o">:</span><span class="w"> </span><span class="s">{SSHA}abcdefghi123456789</span>
 <span class="na">email</span><span class="o">:</span><span class="w"> </span><span class="s">external-account@gmail.com</span>
 </code></pre></div>
-<p>This structure is different from what is expected/assumed from the configuration scripts of DMS, so it doesn't work just by using the <code>LDAP_QUERY_FILTER_...</code> settings. Instead, I had to use a custom configuration (<a href="../../../config/advanced/override-defaults/user-patches/">via <code>user-patches.sh</code></a>). I created the script <code>docker-data/dms/config/user-patches.sh</code>, with content like this:</p>
+<p>This structure is different from what is expected/assumed from the configuration scripts of DMS, so besides <code>query_filter</code>, the settings <code>result_attribute</code> and <code>result_format</code> must be customized as well. This is done per lookup table via <code>POSTFIX_&lt;KIND&gt;_&lt;SETTING&gt;</code> ENV. The groups and domains lookup tables are not needed, they are disabled as no query filter is set for them:</p>
+<div class="highlight"><pre><span></span><code><span class="na">POSTFIX_USERS_QUERY_FILTER</span><span class="o">=</span><span class="s">(uid=%u)</span>
+<span class="na">POSTFIX_USERS_RESULT_ATTRIBUTE</span><span class="o">=</span><span class="s">uid</span>
+<span class="na">POSTFIX_USERS_RESULT_FORMAT</span><span class="o">=</span><span class="s">%s@example.org</span>
+
+<span class="na">POSTFIX_ALIASES_DOMAIN</span><span class="o">=</span><span class="s">example.org</span>
+<span class="na">POSTFIX_ALIASES_QUERY_FILTER</span><span class="o">=</span><span class="s">(uid=%u)</span>
+<span class="na">POSTFIX_ALIASES_RESULT_ATTRIBUTE</span><span class="o">=</span><span class="s">mail</span>
+</code></pre></div>
+<p>The aliases created with <code>./setup.sh</code> must still be included, and only the users lookup table should be used for checking the sender. This requires a custom configuration (<a href="../../../config/advanced/override-defaults/user-patches/">via <code>user-patches.sh</code></a>). I created the script <code>docker-data/dms/config/user-patches.sh</code>, with content like this:</p>
 <div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 
-rm<span class="w"> </span>-f<span class="w"> </span>/etc/postfix/<span class="o">{</span>ldap-groups.cf,ldap-domains.cf<span class="o">}</span>
-
 postconf<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="s2">&quot;virtual_mailbox_domains = /etc/postfix/vhost&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="s2">&quot;virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf texthash:/etc/postfix/virtual&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="s2">&quot;smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf&quot;</span>
-
-sed<span class="w"> </span>-i<span class="w"> </span>/etc/postfix/ldap-users.cf<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/query_filter/d&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/result_attribute/d&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/result_format/d&#39;</span>
-cat<span class="w"> </span><span class="s">&lt;&lt;EOF &gt;&gt; /etc/postfix/ldap-users.cf</span>
-<span class="s">query_filter = (uid=%u)</span>
-<span class="s">result_attribute = uid</span>
-<span class="s">result_format = %s@example.org</span>
-<span class="s">EOF</span>
-
-sed<span class="w"> </span>-i<span class="w"> </span>/etc/postfix/ldap-aliases.cf<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/domain/d&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/query_filter/d&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-e<span class="w"> </span><span class="s1">&#39;/result_attribute/d&#39;</span>
-cat<span class="w"> </span><span class="s">&lt;&lt;EOF &gt;&gt; /etc/postfix/ldap-aliases.cf</span>
-<span class="s">domain = example.org</span>
-<span class="s">query_filter = (uid=%u)</span>
-<span class="s">result_attribute = mail</span>
-<span class="s">EOF</span>
+<span class="w">    </span><span class="s2">&quot;virtual_alias_maps = ldap:/etc/postfix/ldap/aliases.cf texthash:/etc/postfix/virtual&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;smtpd_sender_login_maps = ldap:/etc/postfix/ldap/users.cf&quot;</span>
 
 postfix<span class="w"> </span>reload
 </code></pre></div>
-<p>You see that besides <code>query_filter</code>, I had to customize as well <code>result_attribute</code> and <code>result_format</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">See also</p>
 <p>For more details about using LDAP see: <a href="https://www.vennedey.net/resources/2-LDAP-managed-mail-server-with-Postfix-and-Dovecot-for-multiple-domains">LDAP managed mail server with Postfix and Dovecot for multiple domains</a></p>
