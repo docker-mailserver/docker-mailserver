@@ -815,6 +815,19 @@ Spaces are not trimmed, so `user1, user2` does not select `user2`.
 
 #### LDAP
 
+!!! info "Postfix LDAP lookup tables"
+
+    The Postfix LDAP configs `/etc/postfix/ldap/{users,groups,aliases,domains,senders}.cf` are generated at startup. Each [`ldap_table(5)`][postfix-docs::ldap-table] setting can be configured via ENV, where later sources take precedence:
+
+    1. Defaults: `version = 3`, `result_attribute = mail` (`senders`: `mail, uid`).
+    2. `LDAP_<SETTING>` for all configs (_e.g. `LDAP_SERVER_HOST` => `server_host`_).
+    3. A custom config `ldap-<KIND>.cf` in your DMS config volume (_e.g. `docker-data/dms/config/ldap-groups.cf`_).
+    4. `POSTFIX_<KIND>_<SETTING>` for a single config (_e.g. `POSTFIX_GROUPS_LEAF_RESULT_ATTRIBUTE` => `leaf_result_attribute` in `groups.cf`_).
+
+    A config without a `query_filter` is not generated, and its lookup table is not configured in Postfix.
+
+[postfix-docs::ldap-table]: https://www.postfix.org/ldap_table.5.html
+
 ##### LDAP_START_TLS
 
 - **empty** => no
@@ -822,48 +835,52 @@ Spaces are not trimmed, so `user1, user2` does not select `user2`.
 
 ##### LDAP_SERVER_HOST
 
-- **empty** => mail.example.com
+- **empty** => none (required)
 - => Specify the `<dns-name>` / `<ip-address>` where the LDAP server is reachable via a URI like: `ldaps://mail.example.com`.
 - Note: You must include the desired URI scheme (`ldap://`, `ldaps://`, `ldapi://`).
 
 ##### LDAP_SEARCH_BASE
 
-- **empty** => ou=people,dc=domain,dc=com
+- **empty** => none (required)
 - => e.g. LDAP_SEARCH_BASE=dc=mydomain,dc=local
 
 ##### LDAP_BIND_DN
 
-- **empty** => cn=admin,dc=domain,dc=com
+- **empty** => none
 - => take a look at examples of SASL_LDAP_BIND_DN
 
 ##### LDAP_BIND_PW
 
-- **empty** => admin
+- **empty** => none
 - => Specify the password to bind against ldap
 
-##### LDAP_QUERY_FILTER_USER
+##### POSTFIX_USERS_QUERY_FILTER
 
+- **empty** => Postfix does not look up users via LDAP (`virtual_mailbox_maps`)
 - e.g. `(&(mail=%s)(mailEnabled=TRUE))`
 - => Specify how ldap should be asked for users
 
-##### LDAP_QUERY_FILTER_GROUP
+##### POSTFIX_GROUPS_QUERY_FILTER
 
+- **empty** => Postfix does not look up groups via LDAP (`virtual_alias_maps`)
 - e.g. `(&(mailGroupMember=%s)(mailEnabled=TRUE))`
 - => Specify how ldap should be asked for groups
 
-##### LDAP_QUERY_FILTER_ALIAS
+##### POSTFIX_ALIASES_QUERY_FILTER
 
+- **empty** => Postfix does not look up aliases via LDAP (`virtual_alias_maps`)
 - e.g. `(&(mailAlias=%s)(mailEnabled=TRUE))`
 - => Specify how ldap should be asked for aliases
 
-##### LDAP_QUERY_FILTER_DOMAIN
+##### POSTFIX_DOMAINS_QUERY_FILTER
 
+- **empty** => Postfix does not look up domains via LDAP (`virtual_mailbox_domains`)
 - e.g. `(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))`
 - => Specify how ldap should be asked for domains
 
-##### LDAP_QUERY_FILTER_SENDERS
+##### POSTFIX_SENDERS_QUERY_FILTER
 
-- **empty**  => use user/alias/group maps directly, equivalent to `(|($LDAP_QUERY_FILTER_USER)($LDAP_QUERY_FILTER_ALIAS)($LDAP_QUERY_FILTER_GROUP))`
+- **empty**  => with `SPOOF_PROTECTION=1`, the users/aliases/groups lookup tables are used instead
 - => Override how ldap should be asked if a sender address is allowed for a user
 
 ##### DOVECOT_TLS

@@ -14,24 +14,35 @@ Getting started with ldap and DMS we need to take 3 parts in account:
 
 Have a look at [the ENV page][docs-environment] for information on the default values.
 
-### `LDAP_QUERY_FILTER_*`
+### `POSTFIX_<KIND>_QUERY_FILTER`
 
 Those variables contain the LDAP lookup filters for postfix, using `%s` as the placeholder for the domain or email address in question. This means that...
 
-- ...for incoming email, the domain must return an entry for the `DOMAIN` filter (see [`virtual_alias_domains`](http://www.postfix.org/postconf.5.html#virtual_alias_domains)).
-- ...for incoming email, the inboxes which receive the email are chosen by the `USER`, `ALIAS` and `GROUP` filters.
-    - The `USER` filter specifies personal mailboxes, for which only one should exist per address, for example `(mail=%s)` (also see [`virtual_mailbox_maps`](http://www.postfix.org/postconf.5.html#virtual_mailbox_maps))
-    - The `ALIAS` filter specifies aliases for mailboxes, using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailAlias=%s)`
-    - The `GROUP` filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailGroupMember=%s)`.
-    - Technically, there is no difference between `ALIAS` and `GROUP`, but ideally you should use `ALIAS` for personal aliases for a singular person (like `ceo@example.org`) and `GROUP` for multiple people (like `hr@example.org`).
+- ...for incoming email, the domain must return an entry for the `DOMAINS` filter (see [`virtual_mailbox_domains`](http://www.postfix.org/postconf.5.html#virtual_mailbox_domains)).
+- ...for incoming email, the inboxes which receive the email are chosen by the `USERS`, `ALIASES` and `GROUPS` filters.
+    - The `USERS` filter specifies personal mailboxes, for which only one should exist per address, for example `(mail=%s)` (also see [`virtual_mailbox_maps`](http://www.postfix.org/postconf.5.html#virtual_mailbox_maps))
+    - The `ALIASES` filter specifies aliases for mailboxes, using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailAlias=%s)`
+    - The `GROUPS` filter specifies the personal mailboxes in a group (for emails that multiple people shall receive), using [`virtual_alias_maps`](http://www.postfix.org/postconf.5.html#virtual_alias_maps), for example `(mailGroupMember=%s)`.
+    - Technically, there is no difference between `ALIASES` and `GROUPS`, but ideally you should use `ALIASES` for personal aliases for a singular person (like `ceo@example.org`) and `GROUPS` for multiple people (like `hr@example.org`).
 - ...for outgoing email, the sender address is put through the `SENDERS` filter, and only if the authenticated user is one of the returned entries, the email can be sent.
     - This only applies if `SPOOF_PROTECTION=1`.
-    - If the `SENDERS` filter is missing, the `USER`, `ALIAS` and `GROUP` filters will be used in a disjunction (OR).
+    - If the `SENDERS` filter is missing, the `USERS`, `ALIASES` and `GROUPS` lookup tables are used instead.
     - To for example allow users from the `admin` group to spoof any sender email address, and to force everyone else to only use their personal mailbox address for outgoing email, you can use something like this: `(|(memberOf=cn=admin,*)(mail=%s))`
+
+A lookup table without a filter is disabled, Postfix will then not query LDAP for it.
+
+!!! info "Other Postfix LDAP settings"
+
+    DMS generates the config `/etc/postfix/ldap/<kind>.cf` for each lookup table. Any [`ldap_table(5)`](https://www.postfix.org/ldap_table.5.html) setting can be configured, later sources take precedence:
+
+    1. Defaults: `version = 3`, `result_attribute = mail` (`senders`: `mail, uid`).
+    2. `LDAP_<SETTING>` ENV for all lookup tables (_e.g. `LDAP_SERVER_HOST` => `server_host`_).
+    3. A custom config `ldap-<kind>.cf` in your DMS config volume (_e.g. `docker-data/dms/config/ldap-groups.cf`_).
+    4. `POSTFIX_<KIND>_<SETTING>` ENV for a single lookup table (_e.g. `POSTFIX_GROUPS_RESULT_ATTRIBUTE` => `result_attribute` in `groups.cf`_).
 
 ???+ example
 
-    A really simple `LDAP_QUERY_FILTER` configuration, using only the _user filter_ and allowing only `admin@*` to spoof any sender addresses.
+    A really simple configuration, using only the _users filter_ and allowing only `admin@*` to spoof any sender addresses.
 
     ```yaml
     - LDAP_START_TLS=yes
@@ -42,11 +53,9 @@ Those variables contain the LDAP lookup filters for postfix, using `%s` as the p
     - LDAP_BIND_PW=mypassword
     - SPOOF_PROTECTION=1
 
-    - LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)
-    - LDAP_QUERY_FILTER_USER=(mail=%s)
-    - LDAP_QUERY_FILTER_ALIAS=(|) # doesn't match anything
-    - LDAP_QUERY_FILTER_GROUP=(|) # doesn't match anything
-    - LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(mail=admin@*))
+    - POSTFIX_DOMAINS_QUERY_FILTER=(mail=*@%s)
+    - POSTFIX_USERS_QUERY_FILTER=(mail=%s)
+    - POSTFIX_SENDERS_QUERY_FILTER=(|(mail=%s)(mail=admin@*))
     ```
 
 ### `DOVECOT_*_FILTER` & `DOVECOT_*_ATTRS`
@@ -135,18 +144,7 @@ In addition to LDAP explanation above, when Docker Mailserver is intended to be 
 - The username equivalent in Active Directory is: `sAMAccountName`.
 - `proxyAddresses` can be used to store email aliases of single users. The convention is to prefix the email aliases with `smtp:` (e.g: `smtp:some.name@example.com`).
 - Active Directory is used typically not only as LDAP Directory storage, but also as a _domain controller_, i.e., it will do many things including authenticating users. Mixing Linux and Windows clients requires the usage of [RFC2307 attributes](https://wiki.samba.org/index.php/Administer_Unix_Attributes_in_AD_using_samba-tool_and_ldb-tools), namely `uidNumber`, `gidNumber` instead of the typical `uid`. Assigning different owner to email folders can also be done in this approach, nevertheless [there is a bug at the moment in Docker Mailserver that overwrites all permissions](https://github.com/docker-mailserver/docker-mailserver/pull/2256) when starting the container. Either a manual fix is necessary now, or a temporary workaround to use a hard-coded `ldap:uidNumber` that equals to `5000` until this issue is fixed.
-- To deliver the emails to different members of Active Directory **Security Group** or **Distribution Group** (similar to mailing lists), use a [`user-patches.sh` script][docs-userpatches] to modify `ldap-groups.cf` so that it includes `leaf_result_attribute = mail` and `special_result_attribute = member`. This can be achieved simply by:
-
-The configuration shown to get the Group to work is from [here](https://doc.zarafa.com/trunk/Administrator_Manual/en-US/html/_MTAIntegration.html) and [here](https://kb.kopano.io/display/WIKI/Postfix).
-
-```bash
-# user-patches.sh
-
-...
-grep -q '^leaf_result_attribute = mail$' /etc/postfix/ldap-groups.cf || echo "leaf_result_attribute = mail" >> /etc/postfix/ldap-groups.cf
-grep -q '^special_result_attribute = member$' /etc/postfix/ldap-groups.cf || echo "special_result_attribute = member" >> /etc/postfix/ldap-groups.cf
-...
-```
+- To deliver the emails to different members of Active Directory **Security Group** or **Distribution Group** (similar to mailing lists), the groups lookup table needs `leaf_result_attribute = mail` and `special_result_attribute = member`. This is configured via `POSTFIX_GROUPS_LEAF_RESULT_ATTRIBUTE` and `POSTFIX_GROUPS_SPECIAL_RESULT_ATTRIBUTE` in the example below. The configuration shown to get the Group to work is from [here](https://doc.zarafa.com/trunk/Administrator_Manual/en-US/html/_MTAIntegration.html) and [here](https://kb.kopano.io/display/WIKI/Postfix).
 
 - In `/etc/ldap/ldap.conf`, if the `TLS_REQCERT` is `demand` / `hard` (default), the CA certificate used to verify the LDAP server certificate must be recognized as a trusted CA. This can be done by volume mounting the `ca.crt` file and updating the trust store via a `user-patches.sh` script:
 
@@ -167,14 +165,16 @@ The changes on the configurations necessary to work with Active Directory (**onl
 - SASLAUTHD_LDAP_START_TLS=yes
 - DOVECOT_TLS=yes
 
-- LDAP_QUERY_FILTER_USER=(&(objectclass=person)(mail=%s))
-- LDAP_QUERY_FILTER_ALIAS=(&(objectclass=person)(proxyAddresses=smtp:%s))
-# Filters Active Directory groups (mail lists). Additional changes on ldap-groups.cf are also required as shown above.
-- LDAP_QUERY_FILTER_GROUP=(&(objectClass=group)(mail=%s))
-- LDAP_QUERY_FILTER_DOMAIN=(mail=*@%s)
+- POSTFIX_USERS_QUERY_FILTER=(&(objectclass=person)(mail=%s))
+- POSTFIX_ALIASES_QUERY_FILTER=(&(objectclass=person)(proxyAddresses=smtp:%s))
+# Filters Active Directory groups (mail lists), with the additional settings described above:
+- POSTFIX_GROUPS_QUERY_FILTER=(&(objectClass=group)(mail=%s))
+- POSTFIX_GROUPS_LEAF_RESULT_ATTRIBUTE=mail
+- POSTFIX_GROUPS_SPECIAL_RESULT_ATTRIBUTE=member
+- POSTFIX_DOMAINS_QUERY_FILTER=(mail=*@%s)
 # Allows only Domain admins to send any sender email address, otherwise the sender address must match the LDAP attribute `mail`.
 - SPOOF_PROTECTION=1
-- LDAP_QUERY_FILTER_SENDERS=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))
+- POSTFIX_SENDERS_QUERY_FILTER=(|(mail=%s)(proxyAddresses=smtp:%s)(memberOf=cn=Domain Admins,cn=Users,dc=*))
 
 - DOVECOT_USER_FILTER=(&(objectclass=person)(sAMAccountName=%{user | username}))
 # At the moment to be able to use %{ldap:uidNumber}, a manual bug fix as described above must be used. Otherwise %{ldap:uidNumber} %{ldap:uidNumber} must be replaced by the hard-coded value 5000.
@@ -219,11 +219,11 @@ The changes on the configurations necessary to work with Active Directory (**onl
           - LDAP_BIND_DN=cn=admin,ou=users,dc=example,dc=org
           - LDAP_BIND_PW=mypassword
           - LDAP_SEARCH_BASE=dc=example,dc=org
-          - LDAP_QUERY_FILTER_DOMAIN=(|(mail=*@%s)(mailAlias=*@%s)(mailGroupMember=*@%s))
-          - LDAP_QUERY_FILTER_USER=(&(objectClass=inetOrgPerson)(mail=%s))
-          - LDAP_QUERY_FILTER_ALIAS=(&(objectClass=inetOrgPerson)(mailAlias=%s))
-          - LDAP_QUERY_FILTER_GROUP=(&(objectClass=inetOrgPerson)(mailGroupMember=%s))
-          - LDAP_QUERY_FILTER_SENDERS=(&(objectClass=inetOrgPerson)(|(mail=%s)(mailAlias=%s)(mailGroupMember=%s)))
+          - POSTFIX_DOMAINS_QUERY_FILTER=(|(mail=*@%s)(mailAlias=*@%s)(mailGroupMember=*@%s))
+          - POSTFIX_USERS_QUERY_FILTER=(&(objectClass=inetOrgPerson)(mail=%s))
+          - POSTFIX_ALIASES_QUERY_FILTER=(&(objectClass=inetOrgPerson)(mailAlias=%s))
+          - POSTFIX_GROUPS_QUERY_FILTER=(&(objectClass=inetOrgPerson)(mailGroupMember=%s))
+          - POSTFIX_SENDERS_QUERY_FILTER=(&(objectClass=inetOrgPerson)(|(mail=%s)(mailAlias=%s)(mailGroupMember=%s)))
           - SPOOF_PROTECTION=1
           # <<< Postfix LDAP Integration
 
@@ -287,10 +287,10 @@ The changes on the configurations necessary to work with Active Directory (**onl
           - LDAP_SEARCH_BASE=dc=mydomain,dc=loc
           - LDAP_BIND_DN=cn=Administrator,cn=Users,dc=mydomain,dc=loc
           - LDAP_BIND_PW=mypassword
-          - LDAP_QUERY_FILTER_USER=(&(objectClass=user)(mail=%s))
-          - LDAP_QUERY_FILTER_GROUP=(&(objectclass=group)(mail=%s))
-          - LDAP_QUERY_FILTER_ALIAS=(&(objectClass=user)(otherMailbox=%s))
-          - LDAP_QUERY_FILTER_DOMAIN=(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))
+          - POSTFIX_USERS_QUERY_FILTER=(&(objectClass=user)(mail=%s))
+          - POSTFIX_GROUPS_QUERY_FILTER=(&(objectclass=group)(mail=%s))
+          - POSTFIX_ALIASES_QUERY_FILTER=(&(objectClass=user)(otherMailbox=%s))
+          - POSTFIX_DOMAINS_QUERY_FILTER=(&(|(mail=*@%s)(mailalias=*@%s)(mailGroupMember=*@%s))(mailEnabled=TRUE))
           # <<< Postfix Ldap Integration
 
           # >>> Kopano Integration
@@ -305,4 +305,3 @@ The changes on the configurations necessary to work with Active Directory (**onl
     ```
 
 [docs-environment]: ../../environment.md
-[docs-userpatches]: ../../advanced/override-defaults/user-patches.md

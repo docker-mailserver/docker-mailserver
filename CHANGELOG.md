@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Dovecot**
   - The `dovecot-fts-xapian` plugin is no longer included in the image. Existing users must remove their Xapian configuration and migrate to Flatcurve; existing `xapian-indexes` cannot be reused by Flatcurve.
+- **LDAP** ([#3524](https://github.com/docker-mailserver/docker-mailserver/pull/3524))
+  - The Postfix LDAP configs are now generated at startup to `/etc/postfix/ldap/{users,groups,aliases,domains,senders}.cf` (previously `/etc/postfix/ldap-*.cf`). Custom configs `ldap-*.cf` in the DMS config volume are merged into them instead of replacing them, and `ldap-senders.cf` is now supported too.
+  - `LDAP_QUERY_FILTER_{USER,GROUP,ALIAS,DOMAIN,SENDERS}` have been renamed to `POSTFIX_{USERS,GROUPS,ALIASES,DOMAINS,SENDERS}_QUERY_FILTER`. Any other Postfix LDAP table setting can be set per lookup table via `POSTFIX_<KIND>_<SETTING>` (_e.g. `POSTFIX_GROUPS_LEAF_RESULT_ATTRIBUTE`_).
+  - There are no default query filters (_or placeholder values for `LDAP_SERVER_HOST` etc._) anymore. A lookup table without a `query_filter` is disabled.
 - **Rspamd**
   - Redis has been replaced by Valkey ([#4001](https://github.com/docker-mailserver/docker-mailserver/issues/4001)). `ENABLE_RSPAMD_REDIS` has been renamed to `ENABLE_RSPAMD_VALKEY`, the `rspamd-redis` service to `rspamd-valkey`, and the config file is now `/etc/valkey/valkey.conf`. Existing state in `/var/mail-state/lib-redis` from Redis 7.2 or older (DMS v15 or older) is moved to `/var/mail-state/lib-valkey` automatically. State from DMS v16 (Redis 8, RDB format 12) cannot be loaded by Valkey: it is kept untouched in `lib-redis`, Valkey starts empty, and Rspamd data such as Bayes must be relearned.
   - `setup config dkim` now writes keys as `<domain>-<selector>.private` (previously `<keytype>-<keysize>-<selector>-<domain>.private.txt`). The default `dkim_signing.conf` uses a `$domain-$selector` path template with `try_fallback = true`, so multiple domains share one config. Existing `dkim_signing.conf` files are not overwritten. Rename keys to the new layout if you regenerate them (OpenDKIM: `opendkim/keys/<domain>/<selector>.private` → `rspamd/dkim/<domain>-<selector>.private`). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
@@ -34,6 +38,7 @@ All notable changes to this project will be documented in this file. The format 
   - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example. 
 - **LDAP**
   - ENV overrides for the Postfix and Dovecot LDAP configs now correctly handle values containing `#`, a trailing `=` (_e.g. base64 padded passwords_) or regex tokens. The original white-space between key and value is now retained ([#3526](https://github.com/docker-mailserver/docker-mailserver/pull/3526))
+  - Postfix LDAP lookup tables that are not needed are no longer always configured, they are disabled by not setting their query filter ([#3519](https://github.com/docker-mailserver/docker-mailserver/issues/3519), [#3524](https://github.com/docker-mailserver/docker-mailserver/pull/3524))
 - **TLS**
   - Certificate changes detected at runtime no longer reset `TLS_LEVEL` ciphers and protocols, which discarded user overrides such as `postfix-main.cf` or `user-patches.sh` ([#4800](https://github.com/docker-mailserver/docker-mailserver/issues/4800))
 

@@ -59,42 +59,29 @@ userPassword: {SSHA}abcdefghi123456789
 email: external-account@gmail.com
 ```
 
-This structure is different from what is expected/assumed from the configuration scripts of DMS, so it doesn't work just by using the `LDAP_QUERY_FILTER_...` settings. Instead, I had to use a custom configuration ([via `user-patches.sh`][docs-userpatches]). I created the script `docker-data/dms/config/user-patches.sh`, with content like this:
+This structure is different from what is expected/assumed from the configuration scripts of DMS, so besides `query_filter`, the settings `result_attribute` and `result_format` must be customized as well. This is done per lookup table via `POSTFIX_<KIND>_<SETTING>` ENV. The groups and domains lookup tables are not needed, they are disabled as no query filter is set for them:
+
+```env
+POSTFIX_USERS_QUERY_FILTER=(uid=%u)
+POSTFIX_USERS_RESULT_ATTRIBUTE=uid
+POSTFIX_USERS_RESULT_FORMAT=%s@example.org
+
+POSTFIX_ALIASES_DOMAIN=example.org
+POSTFIX_ALIASES_QUERY_FILTER=(uid=%u)
+POSTFIX_ALIASES_RESULT_ATTRIBUTE=mail
+```
+
+The aliases created with `./setup.sh` must still be included, and only the users lookup table should be used for checking the sender. This requires a custom configuration ([via `user-patches.sh`][docs-userpatches]). I created the script `docker-data/dms/config/user-patches.sh`, with content like this:
 
 ```bash
 #!/bin/bash
 
-rm -f /etc/postfix/{ldap-groups.cf,ldap-domains.cf}
-
 postconf \
-    "virtual_mailbox_domains = /etc/postfix/vhost" \
-    "virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf texthash:/etc/postfix/virtual" \
-    "smtpd_sender_login_maps = ldap:/etc/postfix/ldap-users.cf"
-
-sed -i /etc/postfix/ldap-users.cf \
-    -e '/query_filter/d' \
-    -e '/result_attribute/d' \
-    -e '/result_format/d'
-cat <<EOF >> /etc/postfix/ldap-users.cf
-query_filter = (uid=%u)
-result_attribute = uid
-result_format = %s@example.org
-EOF
-
-sed -i /etc/postfix/ldap-aliases.cf \
-    -e '/domain/d' \
-    -e '/query_filter/d' \
-    -e '/result_attribute/d'
-cat <<EOF >> /etc/postfix/ldap-aliases.cf
-domain = example.org
-query_filter = (uid=%u)
-result_attribute = mail
-EOF
+    "virtual_alias_maps = ldap:/etc/postfix/ldap/aliases.cf texthash:/etc/postfix/virtual" \
+    "smtpd_sender_login_maps = ldap:/etc/postfix/ldap/users.cf"
 
 postfix reload
 ```
-
-You see that besides `query_filter`, I had to customize as well `result_attribute` and `result_format`.
 
 !!! note "See also"
 

@@ -80,13 +80,6 @@ COPY target/dovecot/auth-oauth2.conf.ext /etc/dovecot/conf.d
 # -----------------------------------------------
 
 COPY target/dovecot/auth-ldap.conf.ext /etc/dovecot/conf.d
-COPY \
-  target/postfix/ldap-users.cf \
-  target/postfix/ldap-groups.cf \
-  target/postfix/ldap-aliases.cf \
-  target/postfix/ldap-domains.cf \
-  target/postfix/ldap-senders.cf \
-  /etc/postfix/
 
 # hadolint ignore=SC2016
 RUN <<EOF
