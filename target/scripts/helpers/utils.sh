@@ -129,7 +129,6 @@ function _reload_postfix() {
 # @option --shutdown-on-error = shutdown in case an error is detected
 # @param ${1} = Prefix for selecting environment variables
 # @param ${2} = File in which substitutions should take place
-# @param ${3} = The key/value assignment operator used (default: `=`) [OPTIONAL]
 #
 # ## Example
 #
@@ -155,15 +154,21 @@ function _replace_by_env_in_file() {
   fi
 
   local ENV_PREFIX=${1} CONFIG_FILE=${2}
-  local KV_DELIMITER=${3:-'='}
-  local ESCAPED_VALUE ESCAPED_KEY
+  local ENV_LINE KEY VALUE ESCAPED_KEY ESCAPED_VALUE SEPARATOR
 
-  while IFS="${KV_DELIMITER}" read -r KEY VALUE; do
+  # Split at the first `=` only, `read` with `IFS='='` would drop a trailing `=` from the value:
+  while IFS= read -r ENV_LINE; do
+    KEY=${ENV_LINE%%=*}
+    VALUE=${ENV_LINE#*=}
     KEY=${KEY#"${ENV_PREFIX}"} # strip prefix
     ESCAPED_KEY=$(_escape_for_sed "${KEY,,}")
     ESCAPED_VALUE=$(_escape_for_sed "${VALUE}")
+    # Retain the original white-space around `=`, unless the value is empty (avoids trailing white-space):
+    SEPARATOR='[[:space:]]*'
+    [[ -z ${VALUE} ]] && SEPARATOR=''
     _log 'trace' "Setting value of '${KEY}' in '${CONFIG_FILE}' to '${VALUE}'"
-    sedfile -i -E "s#^(${ESCAPED_KEY}[[:space:]]*${KV_DELIMITER}[[:space:]]*).*#\1${ESCAPED_VALUE}#gi" "${CONFIG_FILE}"
+    # NOTE: The `/` delimiter is required, as it is the only delimiter escaped by `_escape_for_sed()`.
+    sed -i -E "s/^(${ESCAPED_KEY}[[:space:]]*=${SEPARATOR}).*/\1${ESCAPED_VALUE}/I" "${CONFIG_FILE}"
   done < <(env | grep "^${ENV_PREFIX}")
 }
 

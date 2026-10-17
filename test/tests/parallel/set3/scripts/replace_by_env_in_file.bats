@@ -28,15 +28,23 @@ function teardown_file() { rm "${TMP_CONFIG_FILE}" ; }
   _do_work "key_1 = ${TEST_KEY_1}"
 }
 
+@test "substitute key-value pair (02) (sed tokens / trailing '=')" {
+  export TEST_KEY_1='p#ss\1&w0rd=='
+  _do_work "key_1 = ${TEST_KEY_1}"
+  # shellcheck disable=SC2016
+  export TEST_KEY_1='a(b)|c{1}+d?[e]^f$g.*'
+  _do_work "key_1 = ${TEST_KEY_1}"
+}
+
 @test "substitute key-value pair (08) (spaces / no values)" {
   export TEST_KEY_2='new_value_2'
-  _do_work "key_2 = ${TEST_KEY_2}"
+  _do_work "key_2 =${TEST_KEY_2}"
   export TEST_KEY_3='new_value_3'
-  _do_work "key_3 = ${TEST_KEY_3}"
+  _do_work "key_3 =${TEST_KEY_3}"
   export TEST_KEY_4="new_value_4"
-  _do_work "key_4 = ${TEST_KEY_4}"
+  _do_work "key_4= ${TEST_KEY_4}"
   export TEST_KEY_5="new_value_5"
-  _do_work "key_5 = ${TEST_KEY_5}"
+  _do_work "key_5=${TEST_KEY_5}"
   export TEST_KEY_6=
   _do_work "key_6 ="
   run grep -q -F "key_6 = " "${TMP_CONFIG_FILE}"
