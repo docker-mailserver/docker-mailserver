@@ -40,7 +40,7 @@ The DNS setup is a big and essential part of the whole setup. There is a lot of 
 Now let's say you just bought `example.com` and you want to be able to send and receive e-mails for the address `test@example.com`. On the most basic level, you will need to
 
 1. set an `MX` record for your domain `example.com` - in our example, the MX record contains `mail.example.com`
-2. set an `A` record that resolves the name of your mail server - in our example, the A record contains `11.22.33.44`
+2. set an `A` record that resolves the name of your mail server - in our example, the A record contains `192.0.2.3`
 3. (in a best-case scenario) set a `PTR` record that resolves the IP of your mail server - in our example, the PTR contains `mail.example.com`
 
 We will later dig into DKIM, DMARC & SPF, but for now, these are the records that suffice in getting you up and running. Here is a short explanation of what the records do:
@@ -50,7 +50,7 @@ We will later dig into DKIM, DMARC & SPF, but for now, these are the records tha
     This does not imply your e-mails will look like `test@mail.example.com`, the DNS name of your mail server is decoupled of the domain it serves e-mails for.
     Your mail server could also handle emails for `test@some-other-domain.com`, if the MX record for `some-other-domain.com` points to `mail.example.com`.
 - The **A record** tells everyone which IP address the DNS name `mail.example.com` resolves to.
-- The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `11.22.33.44` resolves to.
+- The **PTR record** is the counterpart of the A record, telling everyone what name the IP address `192.0.2.3` resolves to.
 
 !!! note "About The Mail Server's Fully Qualified Domain Name"
 
@@ -69,8 +69,8 @@ If you setup everything, it should roughly look like this:
 $ dig @1.1.1.1 +short MX example.com
 mail.example.com
 $ dig @1.1.1.1 +short A mail.example.com
-11.22.33.44
-$ dig @1.1.1.1 +short -x 11.22.33.44
+192.0.2.3
+$ dig @1.1.1.1 +short -x 192.0.2.3
 mail.example.com
 ```
 
