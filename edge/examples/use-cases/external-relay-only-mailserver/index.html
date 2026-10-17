@@ -3018,13 +3018,13 @@
 <p class="admonition-title">DNS Zone file example</p>
 <p>For this guide, we assume DNS is configured with:</p>
 <ul>
-<li>A public reachable IP address of <code>11.22.33.44</code></li>
+<li>A public reachable IP address of <code>192.0.2.3</code></li>
 <li>Mail for <code>@example.com</code> addresses must have an MX record pointing to <code>mail.example.com</code>.</li>
 <li>An A record for <code>mail.example.com</code> pointing to the IP address of your <em>public server</em>.</li>
 </ul>
 <div class="highlight"><pre><span></span><code>$ORIGIN example.com
-@     IN  A      11.22.33.44
-mail  IN  A      11.22.33.44
+@     IN  A      192.0.2.3
+mail  IN  A      192.0.2.3
 
 ; mail server for example.com
 @     IN  MX  10 mail.example.com.

@@ -3239,7 +3239,7 @@
 <p>Now let's say you just bought <code>example.com</code> and you want to be able to send and receive e-mails for the address <code>test@example.com</code>. On the most basic level, you will need to</p>
 <ol>
 <li>set an <code>MX</code> record for your domain <code>example.com</code> - in our example, the MX record contains <code>mail.example.com</code></li>
-<li>set an <code>A</code> record that resolves the name of your mail server - in our example, the A record contains <code>11.22.33.44</code></li>
+<li>set an <code>A</code> record that resolves the name of your mail server - in our example, the A record contains <code>192.0.2.3</code></li>
 <li>(in a best-case scenario) set a <code>PTR</code> record that resolves the IP of your mail server - in our example, the PTR contains <code>mail.example.com</code></li>
 </ol>
 <p>We will later dig into DKIM, DMARC &amp; SPF, but for now, these are the records that suffice in getting you up and running. Here is a short explanation of what the records do:</p>
@@ -3249,7 +3249,7 @@
     This does not imply your e-mails will look like <code>test@mail.example.com</code>, the DNS name of your mail server is decoupled of the domain it serves e-mails for.
     Your mail server could also handle emails for <code>test@some-other-domain.com</code>, if the MX record for <code>some-other-domain.com</code> points to <code>mail.example.com</code>.</li>
 <li>The <strong>A record</strong> tells everyone which IP address the DNS name <code>mail.example.com</code> resolves to.</li>
-<li>The <strong>PTR record</strong> is the counterpart of the A record, telling everyone what name the IP address <code>11.22.33.44</code> resolves to.</li>
+<li>The <strong>PTR record</strong> is the counterpart of the A record, telling everyone what name the IP address <code>192.0.2.3</code> resolves to.</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">About The Mail Server's Fully Qualified Domain Name</p>
@@ -3264,8 +3264,8 @@
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>MX<span class="w"> </span>example.com
 <span class="go">mail.example.com</span>
 <span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>A<span class="w"> </span>mail.example.com
-<span class="go">11.22.33.44</span>
-<span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>-x<span class="w"> </span><span class="m">11</span>.22.33.44
+<span class="go">192.0.2.3</span>
+<span class="gp">$ </span>dig<span class="w"> </span>@1.1.1.1<span class="w"> </span>+short<span class="w"> </span>-x<span class="w"> </span><span class="m">192</span>.0.2.3
 <span class="go">mail.example.com</span>
 </code></pre></div>
 <h2 id="deploying-the-actual-image"><a class="toclink" href="#deploying-the-actual-image">Deploying the Actual Image</a></h2>
