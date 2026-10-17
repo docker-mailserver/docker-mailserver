@@ -1,76 +1,31 @@
-# Contributor Covenant Code of Conduct
+# :traffic_light: Code of Conduct
 
-## Our Pledge
+> [!IMPORTANT]
+>
+> This project is maintained by volunteers in their free time.
 
-We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
+We expect **everyone** to use English for all forms of communication. Moreover, we expect **everyone** to be sincere, welcoming and open-minded.
 
-We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.
+## Quality
 
-## Our Standards
+**This project does not accept contributions of any form that are not provided in good faith and with enough care. The decision whether a contribution has been proposed in good faith and with enough care lies solely with the maintainers.**
 
-Examples of behavior that contributes to a positive environment for our community include:
+If maintainers are not satisfied with the quality of a contribution, they will shortly explain why act accordingly. This applies even when the underlying matter is technically correct; maintainers simply lack the time to deal with a lack of information or care.
 
-- Demonstrating empathy and kindness toward other people
-- Being respectful of differing opinions, viewpoints, and experiences
-- Giving and gracefully accepting constructive feedback
-- Accepting responsibility and apologizing to those affected by our mistakes, and learning from the experience
-- Focusing on what is best not just for us as individuals, but for the
-  overall community
+## Issues
 
-Examples of unacceptable behavior include:
+1. Conduct a proper research of the problem that you have.
+2. Use the issue templates.
+3. Provide enough information with a clear description, proper references, logs, etc.
+4. Redact sensible information.
 
-- The use of sexualized language or imagery, and sexual attention or advances of any kind
-- Trolling, insulting or derogatory comments, and personal or political attacks
-- Public or private harassment
-- Publishing others' private information, such as a physical or email address, without their explicit permission
-- Other conduct which could reasonably be considered inappropriate in a professional setting
+## Pull Requests
 
-## Enforcement Responsibilities
+1. We expect you to open an issue first in case you resolve a more complex bug or in case you implement a feature.
+2. Stick to this project's style.
 
-Community leaders are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.
+## Usage of LLMs
 
-Community leaders have the right and responsibility to remove, edit, or reject comments, commits, code, documentation edits, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.
+We welcome contributions of any kind, whether they are written without LLMs, assisted by LLMs, or even completely written using LLMs. The deciding factor for all contributions has never been who proposed or who has written them.
 
-## Scope
-
-This Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public spaces. Examples of representing our community include using an official e-mail address, posting via an official social media account, or acting as an appointed representative at an online or offline event.
-
-## Enforcement
-
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement via issue. All complaints will be reviewed and investigated promptly and fairly.
-
-All community leaders are obligated to respect the privacy and security of the reporter of any incident.
-
-## Enforcement Guidelines
-
-Community leaders will follow these Community Impact Guidelines in determining the consequences for any action they deem in violation of this Code of Conduct:
-
-### 1. Correction
-
-**Community Impact**: Use of inappropriate language or other behavior deemed unprofessional or unwelcome in the community.
-
-**Consequence**: A private, written warning from community leaders, providing clarity around the nature of the violation and an explanation of why the behavior was inappropriate. A public apology may be requested.
-
-### 2. Warning
-
-**Community Impact**: A violation through a single incident or series of actions.
-
-**Consequence**: A warning with consequences for continued behavior. No interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, for a specified period of time. This includes avoiding interactions in community spaces as well as external channels like social media. Violating these terms may lead to a temporary or permanent ban.
-
-### 3. Temporary Ban
-
-**Community Impact**: A serious violation of community standards, including sustained inappropriate behavior.
-
-**Consequence**: A temporary ban from any sort of interaction or public communication with the community for a specified period of time. No public or private interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, is allowed during this period. Violating these terms may lead to a permanent ban.
-
-### 4. Permanent Ban
-
-**Community Impact**: Demonstrating a pattern of violation of community standards, including sustained inappropriate behavior,  harassment of an individual, or aggression toward or disparagement of classes of individuals.
-
-**Consequence**: A permanent ban from any sort of public interaction within the community.
-
-## Attribution
-
-This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 2.0, available at <https://www.contributor-covenant.org/version/2/0/code_of_conduct.html>. Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcement ladder](https://github.com/mozilla/diversity).
-
-[homepage]: https://www.contributor-covenant.org
+Everyone has to meet [the quality standard laid out earlier](#quality), whether you use an LLM or not. If maintainers have reason to believe a contributor acted without enough care or in bad faith, whether that is with or without LLMs, maintainers will take appropriate action.
