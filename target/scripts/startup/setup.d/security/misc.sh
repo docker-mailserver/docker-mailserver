@@ -159,8 +159,7 @@ function __setup__security__clamav() {
     # (e.g. `0 */6`) makes every DMS instance query the ClamAV CDN at the same moment,
     # which gets them rate limited (HTTP 429).
     local FRESHCLAM_MINUTE=$(( RANDOM % 59 + 1 ))
-    local FRESHCLAM_HOUR=$(( RANDOM % 6 ))
-    local FRESHCLAM_HOURS="${FRESHCLAM_HOUR},$(( FRESHCLAM_HOUR + 6 )),$(( FRESHCLAM_HOUR + 12 )),$(( FRESHCLAM_HOUR + 18 ))"
+    local FRESHCLAM_HOURS="$(( RANDOM % 6 ))-23/6"
     _log 'trace' "Scheduling freshclam at minute ${FRESHCLAM_MINUTE} of hours ${FRESHCLAM_HOURS}"
     echo "${FRESHCLAM_MINUTE} ${FRESHCLAM_HOURS} * * * clamav /usr/bin/freshclam --quiet" >/etc/cron.d/clamav-freshclam
 
