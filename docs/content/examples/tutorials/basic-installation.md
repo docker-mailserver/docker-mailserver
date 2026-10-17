@@ -156,8 +156,8 @@ In this setup DMS is not intended to receive email from the outside world, so no
 
         ```txt
         $ORIGIN example.com
-        @     IN  A      10.11.12.13
-        mail  IN  A      10.11.12.13
+        @     IN  A      192.0.2.3
+        mail  IN  A      192.0.2.3
 
         ; mail server for example.com
         @     IN  MX  10 mail.example.com.
