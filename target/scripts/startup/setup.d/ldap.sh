@@ -101,36 +101,93 @@ function _dovecot_ldap_replace_fields() {
   rm -f "${FIELDS_FILE}" "${TMP_FILE}"
 }
 
-function _setup_ldap() {
-  _log 'debug' 'Setting up LDAP'
-  _log 'trace' 'Checking for custom configs'
+# Prints `key = value` for each Postfix LDAP table setting (`ldap_table(5)`)
+# that has a non-empty ENV with the given prefix (e.g. `LDAP_` + `SEARCH_BASE`).
+#
+# @param ${1} = ENV prefix
+function _postfix_ldap_settings_from_env() {
+  local ENV_PREFIX=${1:?ENV prefix is required}
+  local SETTING ENV_NAME
 
-  for i in 'users' 'groups' 'aliases' 'domains'; do
-    local FPATH="/tmp/docker-mailserver/ldap-${i}.cf"
-    if [[ -f ${FPATH} ]]; then
-      cp "${FPATH}" "/etc/postfix/ldap-${i}.cf"
+  for SETTING in server_host server_port timeout search_base query_filter result_format domain \
+    result_attribute special_result_attribute terminal_result_attribute leaf_result_attribute \
+    scope bind bind_dn bind_pw recursion_limit expansion_limit size_limit dereference \
+    chase_referrals version debuglevel sasl_mechs sasl_realm sasl_authz_id sasl_minssf \
+    start_tls tls_ca_cert_dir tls_ca_cert_file tls_cert tls_key tls_require_cert \
+    tls_random_file tls_cipher_suite
+  do
+    ENV_NAME="${ENV_PREFIX}${SETTING^^}"
+    if [[ -n ${!ENV_NAME:-} ]]; then
+      printf '%s = %s\n' "${SETTING}" "${!ENV_NAME}"
     fi
   done
+}
 
-  _log 'trace' 'Starting to override configs'
+# Reads `key = value` lines from stdin, normalizes the white-space around the first `=`,
+# drops keys without a value and keeps only the last occurrence of each key.
+function _cleanse_config() {
+  sed -E \
+    -e 's/^[[:space:]]*([^=[:space:]]+)[[:space:]]*=[[:space:]]*/\1 = /' \
+    -e '/^[^=]+ = [[:space:]]*$/d' \
+  | tac | sort --unique --field-separator='=' --key=1,1
+}
 
-  local FILES=(
-    /etc/postfix/ldap-users.cf
-    /etc/postfix/ldap-groups.cf
-    /etc/postfix/ldap-aliases.cf
-    /etc/postfix/ldap-domains.cf
-    /etc/postfix/ldap-senders.cf
-    /etc/postfix/maps/sender_login_maps.ldap
-  )
+# Generates `/etc/postfix/ldap/<KIND>.cf` from layered sources, later sources take precedence:
+# defaults, `LDAP_*` ENV, the optional user config `ldap-<KIND>.cf`, `POSTFIX_<KIND>_*` ENV.
+# Without a `query_filter`, the config is removed (the lookup table is disabled).
+#
+# @param ${1} = Query kind (users, groups, aliases, domains, senders)
+function _create_config_postfix() {
+  local QUERY_KIND=${1:?Query kind is required}
+  local CONFIG_FILE="/etc/postfix/ldap/${QUERY_KIND}.cf"
+  local USER_CONFIG="/tmp/docker-mailserver/ldap-${QUERY_KIND}.cf"
 
-  for FILE in "${FILES[@]}"; do
-    [[ ${FILE} =~ ldap-user ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_USER}"
-    [[ ${FILE} =~ ldap-group ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_GROUP}"
-    [[ ${FILE} =~ ldap-aliases ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_ALIAS}"
-    [[ ${FILE} =~ ldap-domains ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_DOMAIN}"
-    [[ ${FILE} =~ ldap-senders ]] && export LDAP_QUERY_FILTER="${LDAP_QUERY_FILTER_SENDERS}"
-    [[ -f ${FILE} ]] && _replace_by_env_in_file 'LDAP_' "${FILE}"
+  {
+    echo 'version = 3'
+    echo 'result_attribute = mail'
+    # Spoof protection compares the results against the SASL login name:
+    if [[ ${QUERY_KIND} == 'senders' ]]; then
+      echo 'result_attribute = mail, uid'
+    fi
+    _postfix_ldap_settings_from_env 'LDAP_'
+    if [[ -f ${USER_CONFIG} ]]; then
+      _get_valid_lines_from_file "${USER_CONFIG}"
+    fi
+    _postfix_ldap_settings_from_env "POSTFIX_${QUERY_KIND^^}_"
+  } | _cleanse_config >"${CONFIG_FILE}"
+
+  if ! grep -q '^query_filter = ' "${CONFIG_FILE}"; then
+    _log 'warn' "No 'query_filter' configured for Postfix LDAP '${QUERY_KIND}' lookups (ENV 'POSTFIX_${QUERY_KIND^^}_QUERY_FILTER') - disabling"
+    rm "${CONFIG_FILE}"
+  fi
+}
+
+function _setup_ldap() {
+  _log 'debug' 'Setting up LDAP'
+  _log 'trace' 'Configuring Postfix LDAP'
+
+  mkdir -p /etc/postfix/ldap
+  local QUERY_KIND
+  for QUERY_KIND in 'users' 'groups' 'aliases' 'domains' 'senders'; do
+    _create_config_postfix "${QUERY_KIND}"
   done
+
+  # Lookup tables are only configured when their config was generated with a `query_filter`:
+  if [[ -f /etc/postfix/ldap/users.cf ]]; then
+    postconf 'virtual_mailbox_maps = ldap:/etc/postfix/ldap/users.cf'
+  fi
+
+  if [[ -f /etc/postfix/ldap/domains.cf ]]; then
+    postconf 'virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap/domains.cf'
+  fi
+
+  local ALIAS_MAPS=()
+  for QUERY_KIND in 'aliases' 'groups'; do
+    [[ -f /etc/postfix/ldap/${QUERY_KIND}.cf ]] && ALIAS_MAPS+=("ldap:/etc/postfix/ldap/${QUERY_KIND}.cf")
+  done
+  if [[ ${#ALIAS_MAPS[@]} -gt 0 ]]; then
+    postconf "virtual_alias_maps = ${ALIAS_MAPS[*]}"
+  fi
 
   _log 'trace' "Configuring Dovecot LDAP"
 
@@ -183,26 +240,6 @@ function _setup_ldap() {
 
   sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
   sed -i -e '/\!include auth-passwdfile\.inc/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
-
-  _log 'trace' "Configuring LDAP"
-
-  if [[ -f /etc/postfix/ldap-users.cf ]]; then
-    postconf 'virtual_mailbox_maps = ldap:/etc/postfix/ldap-users.cf'
-  else
-    _log 'warn' "'/etc/postfix/ldap-users.cf' not found"
-  fi
-
-  if [[ -f /etc/postfix/ldap-domains.cf ]]; then
-    postconf 'virtual_mailbox_domains = /etc/postfix/vhost, ldap:/etc/postfix/ldap-domains.cf'
-  else
-    _log 'warn' "'/etc/postfix/ldap-domains.cf' not found"
-  fi
-
-  if [[ -f /etc/postfix/ldap-aliases.cf ]] && [[ -f /etc/postfix/ldap-groups.cf ]]; then
-    postconf 'virtual_alias_maps = ldap:/etc/postfix/ldap-aliases.cf, ldap:/etc/postfix/ldap-groups.cf'
-  else
-    _log 'warn' "'/etc/postfix/ldap-aliases.cf' and / or '/etc/postfix/ldap-groups.cf' not found"
-  fi
 
   # shellcheck disable=SC2016
   sed -i 's|mydestination = \$myhostname, |mydestination = |' /etc/postfix/main.cf

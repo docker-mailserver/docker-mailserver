@@ -80,10 +80,7 @@ This is a list of all configuration files and directories which are optional, au
 - **postfix-sasl-password.cf:** listing of relayed domains with their respective `<username>:<password>`. Modify via `setup.sh relay add-auth <domain> <username> [<password>]`. (Docs: [Relay-Hosts Auth][docs::relay-hosts::advanced])
 - **postfix-relaymap.cf:** domain-specific relays and exclusions. Modify via `setup.sh relay add-domain` and `setup.sh relay exclude-domain`. (Docs: [Relay-Hosts Senders][docs::relay-hosts::advanced])
 - **postfix-regexp.cf:** Regular expression alias file. (Docs: [Aliases][docs-aliases-regex])
-- **ldap-users.cf:** Configuration for the virtual user mapping `virtual_mailbox_maps`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
-- **ldap-groups.cf:** Configuration for the virtual alias mapping `virtual_alias_maps`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
-- **ldap-aliases.cf:** Configuration for the virtual alias mapping `virtual_alias_maps`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
-- **ldap-domains.cf:** Configuration for the virtual domain mapping `virtual_mailbox_domains`. See the [`setup-stack.sh`][github-commit-setup-stack.sh-L411] script.
+- **ldap-{users,groups,aliases,domains,senders}.cf:** Settings for the Postfix LDAP lookup tables, merged into the generated configs `/etc/postfix/ldap/*.cf`. (Docs: [LDAP][docs-ldap-postfix])
 - **whitelist_clients.local:** Whitelisted domains, not considered by postgrey. Enter one host or domain per line.
 - **spamassassin-rules.cf:** Anti-spam rules for Spamassassin. (Docs: [FAQ - SpamAssassin Rules][docs-faq-spamrules])
 - **fail2ban-fail2ban.cf:** Additional config options for `fail2ban.cf`. (Docs: [Fail2Ban][docs-fail2ban])
@@ -111,4 +108,4 @@ This is a list of all configuration files and directories which are optional, au
 [docs-ssl]: ../../config/security/ssl.md
 [docs-rspamd-override-d]: ../security/rspamd.md#providing-custom-settings-overriding-settings
 [docs-rspamd-commands]: ../security/rspamd.md#with-the-help-of-a-custom-file
-[github-commit-setup-stack.sh-L411]: https://github.com/docker-mailserver/docker-mailserver/blob/941e7acdaebe271eaf3d296b36d4d81df4c54b90/target/scripts/startup/setup-stack.sh#L411
+[docs-ldap-postfix]: ../../config/account-management/provisioner/ldap.md#postfix_kind_query_filter

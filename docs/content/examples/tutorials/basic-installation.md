@@ -61,10 +61,10 @@ services:
       - LDAP_SEARCH_BASE=ou=people,dc=localhost,dc=localdomain
       - LDAP_BIND_DN=cn=admin,dc=localhost,dc=localdomain
       - LDAP_BIND_PW=admin
-      - LDAP_QUERY_FILTER_USER=(&(mail=%s)(mailEnabled=TRUE))
-      - LDAP_QUERY_FILTER_GROUP=(&(mailGroupMember=%s)(mailEnabled=TRUE))
-      - LDAP_QUERY_FILTER_ALIAS=(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))
-      - LDAP_QUERY_FILTER_DOMAIN=(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))
+      - POSTFIX_USERS_QUERY_FILTER=(&(mail=%s)(mailEnabled=TRUE))
+      - POSTFIX_GROUPS_QUERY_FILTER=(&(mailGroupMember=%s)(mailEnabled=TRUE))
+      - POSTFIX_ALIASES_QUERY_FILTER=(|(&(mailAlias=%s)(objectClass=PostfixBookMailForward))(&(mailAlias=%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE)))
+      - POSTFIX_DOMAINS_QUERY_FILTER=(|(&(mail=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailGroupMember=*@%s)(objectClass=PostfixBookMailAccount)(mailEnabled=TRUE))(&(mailalias=*@%s)(objectClass=PostfixBookMailForward)))
       - DOVECOT_PASS_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))
       - DOVECOT_USER_FILTER=(&(objectClass=PostfixBookMailAccount)(uniqueIdentifier=%{user | username}))
       - ENABLE_SASLAUTHD=1

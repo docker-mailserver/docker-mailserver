@@ -41,6 +41,20 @@ function __environment_variables_backwards_compatibility() {
     _log 'error' "'ENABLE_RSPAMD_REDIS' has been renamed to 'ENABLE_RSPAMD_VALKEY' since DMS v17"
   fi
 
+  local -A LDAP_QUERY_FILTER_RENAMES=(
+    [LDAP_QUERY_FILTER_USER]='POSTFIX_USERS_QUERY_FILTER'
+    [LDAP_QUERY_FILTER_GROUP]='POSTFIX_GROUPS_QUERY_FILTER'
+    [LDAP_QUERY_FILTER_ALIAS]='POSTFIX_ALIASES_QUERY_FILTER'
+    [LDAP_QUERY_FILTER_DOMAIN]='POSTFIX_DOMAINS_QUERY_FILTER'
+    [LDAP_QUERY_FILTER_SENDERS]='POSTFIX_SENDERS_QUERY_FILTER'
+  )
+  local OLD_ENV_NAME
+  for OLD_ENV_NAME in "${!LDAP_QUERY_FILTER_RENAMES[@]}"; do
+    if [[ -n ${!OLD_ENV_NAME:-} ]]; then
+      _log 'error' "'${OLD_ENV_NAME}' has been renamed to '${LDAP_QUERY_FILTER_RENAMES[${OLD_ENV_NAME}]}' since DMS v17"
+    fi
+  done
+
   # TODO this can be uncommented in a PR handling the HOSTNAME/DOMAINNAME issue
   # TODO see check_for_changes.sh and dns.sh
   # if [[ -n ${OVERRIDE_HOSTNAME:-} ]]
