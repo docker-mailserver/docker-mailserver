@@ -31,6 +31,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **ClamAV**
+  - `freshclam` now runs every 6 hours at a minute and hour offset chosen randomly at container startup, instead of at minute 0 of 00/06/12/18. The fixed schedule sent every DMS instance to the ClamAV CDN at the same moment, which got them rate limited (HTTP 429)
 - **setup**
   - `setup.sh email list` works again when no DMS container is running, by defaulting to `ACCOUNT_PROVISIONER=FILE` ([#4812](https://github.com/docker-mailserver/docker-mailserver/issues/4812))
 - **Dovecot**

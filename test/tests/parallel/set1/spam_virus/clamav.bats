@@ -46,6 +46,11 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
+@test 'freshclam cron runs every 6 hours at a randomized time' {
+  _run_in_container grep -E '^([1-9]|[1-5][0-9]) [0-5]-23/6 \* \* \* clamav /usr/bin/freshclam --quiet$' /etc/cron.d/clamav-freshclam
+  assert_success
+}
+
 @test 'env CLAMAV_MESSAGE_SIZE_LIMIT is set correctly' {
   _run_in_container grep -q '^MaxFileSize 30M$' /etc/clamav/clamd.conf
   assert_success

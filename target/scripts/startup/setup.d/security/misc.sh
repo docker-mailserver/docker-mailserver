@@ -155,6 +155,14 @@ function __setup__security__clamav() {
   if [[ ${ENABLE_CLAMAV} -eq 1 ]]; then
     _log 'debug' 'Enabling and configuring ClamAV'
 
+    # Run freshclam every 6 hours at a random minute and hour offset. A fixed schedule
+    # (e.g. `0 */6`) makes every DMS instance query the ClamAV CDN at the same moment,
+    # which gets them rate limited (HTTP 429).
+    local FRESHCLAM_MINUTE=$(( RANDOM % 59 + 1 ))
+    local FRESHCLAM_HOURS="$(( RANDOM % 6 ))-23/6"
+    _log 'trace' "Scheduling freshclam at minute ${FRESHCLAM_MINUTE} of hours ${FRESHCLAM_HOURS}"
+    echo "${FRESHCLAM_MINUTE} ${FRESHCLAM_HOURS} * * * clamav /usr/bin/freshclam --quiet" >/etc/cron.d/clamav-freshclam
+
     if [[ ${CLAMAV_MESSAGE_SIZE_LIMIT} != '25M' ]]; then
       _log 'trace' "Setting ClamAV message scan size limit to '${CLAMAV_MESSAGE_SIZE_LIMIT}'"
 
