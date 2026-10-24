@@ -87,7 +87,7 @@ The `postfix` jail comes with `mode=extra` by default, which covers SASL login e
 enabled = true
 ```
 
-### Viewing All Bans
+### Viewing All Bans and Ignores
 
 When just running
 
@@ -95,7 +95,7 @@ When just running
 setup fail2ban
 ```
 
-the script will show all banned IP addresses.
+the script will show all banned and ignored IP addresses.
 
 To get a more detailed `status` view, run
 
@@ -110,6 +110,27 @@ You can manage F2B with the `setup` script. The usage looks like this:
 ```bash
 docker exec <CONTAINER NAME> setup fail2ban [<ban|unban> <IP>]
 ```
+
+### Managing Ignores
+
+If there are IPs or IP ranges you would like Fail2Ban to ignore, you can run the following command:
+
+```bash
+docker exec <CONTAINER NAME> setup fail2ban [<ignore|consider> <IP OR CIDR RANGE>]
+```
+
+`ignore` adds the address to the ignore list of every jail, `consider` removes it again. Ignoring an address does not lift an existing ban, so unban it as well if needed.
+
+!!! note "Ignored addresses are not persisted"
+
+    Bans are stored in the F2B database, ignored addresses are not. They are lost when F2B reloads its configuration or the container restarts.
+
+    To ignore an address permanently, set `ignoreip` in [`fail2ban-jail.cf`](#custom-files). This replaces the DMS default, so keep `127.0.0.1/8` in the list:
+
+    ```ini title="docker-data/dms/config/fail2ban-jail.cf"
+    [DEFAULT]
+    ignoreip = 127.0.0.1/8 192.0.2.0/24
+    ```
 
 ### Viewing the Log File
 
