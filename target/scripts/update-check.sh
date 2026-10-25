@@ -5,7 +5,6 @@ source /usr/local/bin/helpers/log.sh
 
 VERSION="${DMS_RELEASE#v}"
 VERSION_URL='https://github.com/docker-mailserver/docker-mailserver/releases/latest'
-CHANGELOG_URL="https://github.com/docker-mailserver/docker-mailserver/blob/${LATEST}/CHANGELOG.md"
 
 # check for correct syntax
 # number + suffix. suffix must be 's' for seconds, 'm' for minutes, 'h' for hours or 'd' for days.
@@ -35,7 +34,7 @@ There is a docker-mailserver update available on your host: $(hostname -f)
 Current version: ${VERSION}
 Latest  version: ${LATEST}
 
-Changelog: ${CHANGELOG_URL}#END
+Changelog: https://github.com/docker-mailserver/docker-mailserver/blob/${LATEST}/CHANGELOG.md#END
 EOF
 
       _log 'info' "Update available [ ${VERSION} --> ${LATEST} ]"
