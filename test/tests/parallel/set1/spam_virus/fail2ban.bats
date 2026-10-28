@@ -230,8 +230,11 @@ function teardown_file() {
     assert_output --partial "Ignoring IP in ${JAIL}: 192.0.2.0/24"
   done
 
-  _run_in_container setup fail2ban
+  _run_in_container setup fail2ban status
   assert_output --partial 'Ignored in dovecot: 127.0.0.0/8 192.0.2.0/24'
+
+  _run_in_container setup fail2ban
+  refute_output --partial 'Ignored in'
 
   _run_in_container setup fail2ban consider 192.0.2.0/24
   assert_success
@@ -239,7 +242,7 @@ function teardown_file() {
     assert_output --partial "No longer ignoring IP in ${JAIL}: 192.0.2.0/24"
   done
 
-  _run_in_container setup fail2ban
+  _run_in_container setup fail2ban status
   assert_output --partial 'Ignored in dovecot: 127.0.0.0/8'
   refute_output --partial '192.0.2.0/24'
 
@@ -253,4 +256,28 @@ function teardown_file() {
 
   _run_in_container setup fail2ban consider
   assert_output --partial 'You need to specify an IP address or CIDR range: Run'
+}
+
+@test "setup.sh fail2ban ignore and consider reject anything but an IP address or CIDR range" {
+  for ADDRESS in 192.0.2.300 192.0.2.0/33 mail.example.test 'fe80::1%eth0'; do
+    for COMMAND in ignore consider; do
+      _run_in_container setup fail2ban "${COMMAND}" "${ADDRESS}"
+      assert_failure
+      assert_output --partial "'${ADDRESS}' is not an IP address or CIDR range"
+    done
+  done
+
+  _run_in_container setup fail2ban status
+  refute_output --partial '192.0.2.300'
+  refute_output --partial '192.0.2.0/33'
+}
+
+@test "setup.sh fail2ban consider finds an IPv6 address spelled differently" {
+  _run_in_container setup fail2ban ignore 2001:DB8:0:0::1
+  assert_success
+  assert_output --partial 'Ignoring IP in dovecot: 2001:db8::1'
+
+  _run_in_container setup fail2ban consider 2001:db8::1/128
+  assert_success
+  assert_output --partial 'No longer ignoring IP in dovecot: 2001:db8::1'
 }

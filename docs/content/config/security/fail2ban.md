@@ -87,7 +87,7 @@ The `postfix` jail comes with `mode=extra` by default, which covers SASL login e
 enabled = true
 ```
 
-### Viewing All Bans and Ignores
+### Viewing All Bans
 
 When just running
 
@@ -95,9 +95,9 @@ When just running
 setup fail2ban
 ```
 
-the script will show all banned and ignored IP addresses.
+the script will show all banned IP addresses.
 
-To get a more detailed `status` view, run
+To get a more detailed `status` view, which also lists the ignored IP addresses of each jail, run
 
 ```bash
 setup fail2ban status
@@ -119,7 +119,7 @@ If there are IPs or IP ranges you would like Fail2Ban to ignore, you can run the
 docker exec <CONTAINER NAME> setup fail2ban [<ignore|consider> <IP OR CIDR RANGE>]
 ```
 
-`ignore` adds the address to the ignore list of every jail, `consider` removes it again. Ignoring an address does not lift an existing ban, so unban it as well if needed.
+`ignore` adds the address to the ignore list of every jail, `consider` removes it again. Hostnames are not accepted. Ignoring an address does not lift an existing ban, so unban it as well if needed. `setup fail2ban status` shows what each jail ignores.
 
 !!! note "Ignored addresses are not persisted"
 

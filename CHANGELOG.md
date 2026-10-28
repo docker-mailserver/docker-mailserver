@@ -22,7 +22,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Added
 
 - **Fail2Ban**
-  - `setup fail2ban ignore <IP>` and `setup fail2ban consider <IP>` add an IP address or CIDR range to the ignore list of all jails or remove it again, and `setup fail2ban` lists the ignored addresses after the bans ([#4828](https://github.com/docker-mailserver/docker-mailserver/pull/4828))
+  - `setup fail2ban ignore <IP>` and `setup fail2ban consider <IP>` add an IP address or CIDR range to the ignore list of all jails or remove it again, and `setup fail2ban status` lists the ignored addresses of each jail ([#4828](https://github.com/docker-mailserver/docker-mailserver/pull/4828))
 - **Getmail**
   - `GETMAIL_PARALLEL` runs one getmail service per config, and `GETMAIL_IDLE` enables IMAP IDLE for selected (or all) IMAP configs ([#4675](https://github.com/docker-mailserver/docker-mailserver/pull/4675))
 

@@ -239,7 +239,7 @@ You see errors like "Connection Refused" and "Connection closed by foreign host"
 docker exec <CONTAINER NAME> setup fail2ban
 ```
 
-and check whether your IP address appears in a `Banned in` line. Use
+and check whether your IP address appears. Use
 
 ```bash
 docker exec <CONTAINER NAME> setup fail2ban unban <YOUR IP>
