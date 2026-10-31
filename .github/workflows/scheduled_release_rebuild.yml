@@ -1,0 +1,110 @@
+name: 'Rebuild Latest Release on Schedule'
+
+# Debian security fixes land continuously, but a release image is only built once.
+# This rebuilds the latest release from its tag, ignoring cached layers so that
+# `apt-get upgrade` runs again, then moves the floating tags (`X`, `X.Y`, `X.Y.Z`)
+# to the new image and adds an immutable `X.Y.Z-rN` tag to roll back to.
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-tag:
+        description: 'Release tag to rebuild (default: latest release)'
+        required: false
+        type: string
+      dry-run:
+        description: 'Build and test, but do not push any image'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    - cron: 0 6 * * 5
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  resolve:
+    name: 'Resolve Release and Rebuild Number'
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      is-latest: ${{ steps.release.outputs.is-latest }}
+      rebuild: ${{ steps.rebuild.outputs.number }}
+    steps:
+      - name: 'Resolve release tag'
+        id: release
+        shell: bash
+        run: |
+          LATEST=$(gh release view --repo "${GITHUB_REPOSITORY}" --json tagName --jq .tagName 2>/dev/null || true)
+          TAG=${INPUT_TAG:-${LATEST}}
+          if [[ -z ${TAG} ]]; then
+            echo 'No release found and no release-tag given' >&2
+            exit 1
+          fi
+          echo "tag=${TAG}" >>"${GITHUB_OUTPUT}"
+          # Only the newest release may move `latest`:
+          echo "is-latest=$([[ ${TAG} == "${LATEST}" ]] && echo true || echo false)" >>"${GITHUB_OUTPUT}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ inputs.release-tag }}
+
+      # Required to see private packages (eg on forks) when probing for existing tags:
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Probes the registry for the first unused `X.Y.Z-rN` (N >= 1), no stored state needed.
+      - name: 'Find next rebuild number'
+        id: rebuild
+        shell: bash
+        run: |
+          VERSION=${TAG#v}
+          N=1
+          while docker buildx imagetools inspect "${IMAGE}:${VERSION}-r${N}" &>/dev/null; do
+            N=$((N + 1))
+          done
+          echo "number=${N}" >>"${GITHUB_OUTPUT}"
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          IMAGE: ${{ secrets.GHCR_REPOSITORY }}
+
+  build-image-amd64:
+    name: 'Build AMD64 Image'
+    needs: resolve
+    uses: ./.github/workflows/generic_build.yml
+    with:
+      ref: ${{ needs.resolve.outputs.tag }}
+      no-cache: true
+
+  build-image-arm64:
+    name: 'Build ARM64 Image'
+    needs: resolve
+    uses: ./.github/workflows/generic_build.yml
+    with:
+      platforms: linux/arm64
+      runner: ubuntu-24.04-arm
+      ref: ${{ needs.resolve.outputs.tag }}
+      no-cache: true
+
+  run-tests:
+    name: 'Test AMD64 Image'
+    needs: [resolve, build-image-amd64]
+    uses: ./.github/workflows/generic_test.yml
+    with:
+      ref: ${{ needs.resolve.outputs.tag }}
+
+  publish-images:
+    name: 'Publish AMD64 and ARM64 Image'
+    needs: [resolve, build-image-amd64, build-image-arm64, run-tests]
+    uses: ./.github/workflows/generic_publish.yml
+    with:
+      release-tag: ${{ needs.resolve.outputs.tag }}
+      rebuild: ${{ needs.resolve.outputs.rebuild }}
+      latest: ${{ needs.resolve.outputs.is-latest == 'true' }}
+      dry-run: ${{ inputs.dry-run == true }}
+    secrets: inherit

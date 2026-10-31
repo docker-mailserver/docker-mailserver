@@ -36,6 +36,7 @@ title: 'Maintenance | Update and Cleanup'
     The tag for an image is never modified by `watchtower`, instead `watchtower` monitors the image digest associated to that image tag (_which will change to a new image digest if a new image release reassigns the tag_), when the digest for the tag changes this triggers a pull of the new image.
 
     - Your container will not update to a new major release version (_unless using `:latest`_).
+    - The tags of the latest release (`:16.0.1`, `:16.0`, `:16`, `:latest`) are rebuilt weekly with the current Debian security fixes. Use the immutable `:16.0.1-rN` tag if you need to pin an exact build.
     - Omit the minor or patch portion of a semver tag to receive updates for the omitted portion (_eg: `:16` will represent the latest minor + patch release, whereas `:16.0` would only receive patch updates instead of minor releases like `16.1`_).
 
 !!! tip "Updating only specific containers"

@@ -11,6 +11,16 @@ on:
         required: false
         type: string
         default: ubuntu-24.04
+      # Git ref (eg a release tag) to build instead of the triggering ref:
+      ref:
+        required: false
+        type: string
+        default: ''
+      # Ignore cached layers so `apt-get upgrade` in `packages.sh` runs again:
+      no-cache:
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -26,6 +36,7 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.ref }}
           submodules: recursive
 
       # GitHub cache keys MUST NOT contain commas. Sanitize `linux/amd64` and
@@ -52,6 +63,7 @@ jobs:
         with:
           context: .
           platforms: ${{ inputs.platforms }}
+          no-cache: ${{ inputs.no-cache }}
           # Per-platform GHA scope. BuildKit matches at the layer level, so the
           # newest successful build overwrites the scope (no content-digest key).
           cache-from: type=gha,scope=${{ steps.cache-scope.outputs.name }}
