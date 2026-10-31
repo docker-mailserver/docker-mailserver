@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### CI
 
+- A weekly workflow rebuilds the latest release without cached layers (so the Debian security updates in `packages.sh` are applied again), tests it, and republishes the `X.Y.Z`, `X.Y`, `X` and `latest` tags, plus an immutable `X.Y.Z-rN` tag for rollbacks ([#4822](https://github.com/docker-mailserver/docker-mailserver/issues/4822))
 - Moved `setup_cli.bats` to the serial test suite to prevent `setup.sh` from racing with teardown of another DMS test container ([#4701](https://github.com/docker-mailserver/docker-mailserver/issues/4701))
 - Excluded `saslauthd` from the process kill/restart assertion because its forked parent process is not reliably reaped by the test
 

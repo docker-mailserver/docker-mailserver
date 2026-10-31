@@ -2,12 +2,13 @@
 
 ## Supported Versions
 
-Due to the way DMS is released, the most recent patches and the most current software is published on the `:edge` tag of the container image. Hence, security updates will land on this "rolling release tag". Older tags need manual updating, as we do not usually release an updated image for an existing tag; this will only be done in case of _severe_ vulnerabilities.
+Due to the way DMS is released, the most recent patches and the most current software is published on the `:edge` tag of the container image. Hence, security updates will land on this "rolling release tag". The latest release (its `:latest`, `:X`, `:X.Y` and `:X.Y.Z` tags) is rebuilt weekly to include the current Debian security updates. Older tags need manual updating, as we do not usually release an updated image for an existing tag; this will only be done in case of _severe_ vulnerabilities.
 
-| Image Tags  | Latest Packages & Patches |
-|-------------|:-------------------------:|
-| `:edge`     | :white_check_mark:        |
-| not `:edge` | :x:                       |
+| Image Tags          | Latest Packages & Patches           |
+|---------------------|:-----------------------------------:|
+| `:edge`             | :white_check_mark:                  |
+| latest release tags | :white_check_mark: (weekly rebuild) |
+| older releases      | :x:                                 |
 
 ## Reporting a Vulnerability
 
