@@ -30,14 +30,22 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.release.outputs.tag }}
+      is-latest: ${{ steps.release.outputs.is-latest }}
       rebuild: ${{ steps.rebuild.outputs.number }}
     steps:
       - name: 'Resolve release tag'
         id: release
         shell: bash
         run: |
-          TAG=${INPUT_TAG:-$(gh release view --repo "${GITHUB_REPOSITORY}" --json tagName --jq .tagName)}
+          LATEST=$(gh release view --repo "${GITHUB_REPOSITORY}" --json tagName --jq .tagName 2>/dev/null || true)
+          TAG=${INPUT_TAG:-${LATEST}}
+          if [[ -z ${TAG} ]]; then
+            echo 'No release found and no release-tag given' >&2
+            exit 1
+          fi
           echo "tag=${TAG}" >>"${GITHUB_OUTPUT}"
+          # Only the newest release may move `latest`:
+          echo "is-latest=$([[ ${TAG} == "${LATEST}" ]] && echo true || echo false)" >>"${GITHUB_OUTPUT}"
         env:
           GH_TOKEN: ${{ github.token }}
           INPUT_TAG: ${{ inputs.release-tag }}
@@ -97,5 +105,6 @@ jobs:
     with:
       release-tag: ${{ needs.resolve.outputs.tag }}
       rebuild: ${{ needs.resolve.outputs.rebuild }}
+      latest: ${{ needs.resolve.outputs.is-latest == 'true' }}
       dry-run: ${{ inputs.dry-run == true }}
     secrets: inherit
