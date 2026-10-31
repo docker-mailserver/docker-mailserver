@@ -108,6 +108,38 @@ function teardown_file() {
   refute_output --partial "${CONTAINER2_IP}"
 }
 
+@test "ignored ip is not banned on multiple failed login" {
+  CONTAINER1_IP=$(_get_container_ip "${CONTAINER1_NAME}")
+  CONTAINER2_IP=$(_get_container_ip "${CONTAINER2_NAME}")
+  _run_in_container setup fail2ban ignore "${CONTAINER2_IP}"
+  assert_success
+  assert_output --partial "Ignoring IP in postfix: ${CONTAINER2_IP}"
+  # The earlier failed logins also got CONTAINER2_IP banned by the dovecot jail
+  _run_in_container setup fail2ban unban "${CONTAINER2_IP}"
+
+  for _ in {1..2}; do
+    CONTAINER_NAME=${CONTAINER2_NAME} _send_email --expect-rejection \
+      --server "${CONTAINER1_IP}" \
+      --port 465 \
+      --auth PLAIN \
+      --auth-user user1@localhost.localdomain \
+      --auth-password wrongpassword
+    assert_failure
+    assert_output --partial 'authentication failed'
+  done
+
+  run _repeat_in_container_until_success_or_timeout 10 "${CONTAINER_NAME}" grep -F "[postfix] Ignore ${CONTAINER2_IP} by ip" /var/log/mail/fail2ban.log
+  assert_success
+
+  _run_in_container fail2ban-client status postfix
+  assert_success
+  refute_output --partial "${CONTAINER2_IP}"
+
+  _run_in_container setup fail2ban consider "${CONTAINER2_IP}"
+  assert_success
+  assert_output --partial "No longer ignoring IP in postfix: ${CONTAINER2_IP}"
+}
+
 @test "bans work properly (single IP)" {
   _run_in_container fail2ban ban 192.0.66.7
   assert_success
@@ -189,4 +221,63 @@ function teardown_file() {
 
   _run_in_container setup fail2ban unban
   assert_output --partial 'You need to specify an IP address: Run'
+}
+
+@test "setup.sh fail2ban ignore and consider" {
+  _run_in_container setup fail2ban ignore 192.0.2.0/24
+  assert_success
+  for JAIL in custom dovecot postfix; do
+    assert_output --partial "Ignoring IP in ${JAIL}: 192.0.2.0/24"
+  done
+
+  _run_in_container setup fail2ban status
+  assert_output --partial 'Ignored in dovecot: 127.0.0.0/8 192.0.2.0/24'
+
+  _run_in_container setup fail2ban
+  refute_output --partial 'Ignored in'
+
+  _run_in_container setup fail2ban consider 192.0.2.0/24
+  assert_success
+  for JAIL in custom dovecot postfix; do
+    assert_output --partial "No longer ignoring IP in ${JAIL}: 192.0.2.0/24"
+  done
+
+  _run_in_container setup fail2ban status
+  assert_output --partial 'Ignored in dovecot: 127.0.0.0/8'
+  refute_output --partial '192.0.2.0/24'
+
+  _run_in_container setup fail2ban consider 192.0.2.0/24
+  assert_success
+  refute_output --partial 'No longer ignoring'
+  assert_output --partial 'is not ignored by any jail'
+
+  _run_in_container setup fail2ban ignore
+  assert_output --partial 'You need to specify an IP address or CIDR range: Run'
+
+  _run_in_container setup fail2ban consider
+  assert_output --partial 'You need to specify an IP address or CIDR range: Run'
+}
+
+@test "setup.sh fail2ban ignore and consider reject anything but an IP address or CIDR range" {
+  for ADDRESS in 192.0.2.300 192.0.2.0/33 mail.example.test 'fe80::1%eth0'; do
+    for COMMAND in ignore consider; do
+      _run_in_container setup fail2ban "${COMMAND}" "${ADDRESS}"
+      assert_failure
+      assert_output --partial "'${ADDRESS}' is not an IP address or CIDR range"
+    done
+  done
+
+  _run_in_container setup fail2ban status
+  refute_output --partial '192.0.2.300'
+  refute_output --partial '192.0.2.0/33'
+}
+
+@test "setup.sh fail2ban consider finds an IPv6 address spelled differently" {
+  _run_in_container setup fail2ban ignore 2001:DB8:0:0::1
+  assert_success
+  assert_output --partial 'Ignoring IP in dovecot: 2001:db8::1'
+
+  _run_in_container setup fail2ban consider 2001:db8::1/128
+  assert_success
+  assert_output --partial 'No longer ignoring IP in dovecot: 2001:db8::1'
 }
