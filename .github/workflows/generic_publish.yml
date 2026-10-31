@@ -39,7 +39,12 @@ jobs:
           ref: ${{ inputs.release-tag }}
           submodules: recursive
 
-      # Pushes of a tag publish that release. Scheduled rebuilds provide the tag as an input.
+      # Determines which release is published, as `steps.release.outputs.tag`:
+      # - Rebuilds provide `release-tag`. This wins, as they run from `master` and not from the tag.
+      # - Pushing a release tag publishes that tag.
+      # - Otherwise (push to `master`) the tag is empty, which means an `:edge` build.
+      # Later steps check for an empty tag to enable `:edge` and the release tags.
+      # The input is passed via `env` instead of being interpolated into the script, to avoid injection.
       - name: 'Resolve release tag'
         id: release
         shell: bash
