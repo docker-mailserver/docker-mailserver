@@ -2,6 +2,12 @@ name: 'Test the DMS Container Image'
 
 on:
   workflow_call:
+    inputs:
+      # Git ref (eg a release tag) to test instead of the triggering ref:
+      ref:
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -18,6 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.ref }}
           # Required to retrieve bats (core + extras):
           submodules: recursive
 
