@@ -47,7 +47,6 @@ RUN <<EOF
   # Restore ownership of parent dirs (Bug: https://github.com/moby/buildkit/issues/3912)
   chown root:root /var /var/lib
 
-  echo '0 */6 * * * clamav /usr/bin/freshclam --quiet' >/etc/cron.d/clamav-freshclam
   chmod 644 /etc/clamav/freshclam.conf
   sedfile -i 's/Foreground false/Foreground true/g' /etc/clamav/clamd.conf
   mkdir /var/run/clamav

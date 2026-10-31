@@ -37,14 +37,14 @@ Set your A, MX and PTR records for the _public server_ as if it were running DMS
     
     For this guide, we assume DNS is configured with:
 
-    - A public reachable IP address of `11.22.33.44`
+    - A public reachable IP address of `192.0.2.3`
     - Mail for `@example.com` addresses must have an MX record pointing to `mail.example.com`.
     - An A record for `mail.example.com` pointing to the IP address of your _public server_.
 
     ```txt
     $ORIGIN example.com
-    @     IN  A      11.22.33.44
-    mail  IN  A      11.22.33.44
+    @     IN  A      192.0.2.3
+    mail  IN  A      192.0.2.3
 
     ; mail server for example.com
     @     IN  MX  10 mail.example.com.

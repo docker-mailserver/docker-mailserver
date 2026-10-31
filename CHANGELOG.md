@@ -21,6 +21,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- **Fail2Ban**
+  - `setup fail2ban ignore <IP>` and `setup fail2ban consider <IP>` add an IP address or CIDR range to the ignore list of all jails or remove it again, and `setup fail2ban status` lists the ignored addresses of each jail ([#4828](https://github.com/docker-mailserver/docker-mailserver/pull/4828))
 - **Getmail**
   - `GETMAIL_PARALLEL` runs one getmail service per config, and `GETMAIL_IDLE` enables IMAP IDLE for selected (or all) IMAP configs ([#4675](https://github.com/docker-mailserver/docker-mailserver/pull/4675))
 
@@ -31,6 +33,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **ClamAV**
+  - `freshclam` now runs every 6 hours at a minute and hour offset chosen randomly at container startup, instead of at minute 0 of 00/06/12/18. The fixed schedule sent every DMS instance to the ClamAV CDN at the same moment, which got them rate limited (HTTP 429)
 - **setup**
   - `setup.sh email list` works again when no DMS container is running, by defaulting to `ACCOUNT_PROVISIONER=FILE` ([#4812](https://github.com/docker-mailserver/docker-mailserver/issues/4812))
 - **Dovecot**
