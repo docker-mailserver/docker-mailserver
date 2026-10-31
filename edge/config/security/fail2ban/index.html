@@ -1322,6 +1322,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#managing-ignores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing Ignores
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#viewing-the-log-file" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3005,6 +3016,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#managing-ignores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing Ignores
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#viewing-the-log-file" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3137,13 +3159,26 @@
 <div class="highlight"><pre><span></span><code>setup<span class="w"> </span>fail2ban
 </code></pre></div>
 <p>the script will show all banned IP addresses.</p>
-<p>To get a more detailed <code>status</code> view, run</p>
+<p>To get a more detailed <code>status</code> view, which also lists the ignored IP addresses of each jail, run</p>
 <div class="highlight"><pre><span></span><code>setup<span class="w"> </span>fail2ban<span class="w"> </span>status
 </code></pre></div>
 <h3 id="managing-bans"><a class="toclink" href="#managing-bans">Managing Bans</a></h3>
 <p>You can manage F2B with the <code>setup</code> script. The usage looks like this:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>fail2ban<span class="w"> </span><span class="o">[</span>&lt;ban<span class="p">|</span>unban&gt;<span class="w"> </span>&lt;IP&gt;<span class="o">]</span>
 </code></pre></div>
+<h3 id="managing-ignores"><a class="toclink" href="#managing-ignores">Managing Ignores</a></h3>
+<p>If there are IPs or IP ranges you would like Fail2Ban to ignore, you can run the following command:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>fail2ban<span class="w"> </span><span class="o">[</span>&lt;ignore<span class="p">|</span>consider&gt;<span class="w"> </span>&lt;IP<span class="w"> </span>OR<span class="w"> </span>CIDR<span class="w"> </span>RANGE&gt;<span class="o">]</span>
+</code></pre></div>
+<p><code>ignore</code> adds the address to the ignore list of every jail, <code>consider</code> removes it again. Hostnames are not accepted. Ignoring an address does not lift an existing ban, so unban it as well if needed. <code>setup fail2ban status</code> shows what each jail ignores.</p>
+<div class="admonition note">
+<p class="admonition-title">Ignored addresses are not persisted</p>
+<p>Bans are stored in the F2B database, ignored addresses are not. They are lost when F2B reloads its configuration or the container restarts.</p>
+<p>To ignore an address permanently, set <code>ignoreip</code> in <a href="#custom-files"><code>fail2ban-jail.cf</code></a>. This replaces the DMS default, so keep <code>127.0.0.1/8</code> in the list:</p>
+<div class="highlight"><span class="filename">docker-data/dms/config/fail2ban-jail.cf</span><pre><span></span><code><span class="k">[DEFAULT]</span>
+<span class="na">ignoreip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">127.0.0.1/8 192.0.2.0/24</span>
+</code></pre></div>
+</div>
 <h3 id="viewing-the-log-file"><a class="toclink" href="#viewing-the-log-file">Viewing the Log File</a></h3>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>setup<span class="w"> </span>fail2ban<span class="w"> </span>log
 </code></pre></div>
