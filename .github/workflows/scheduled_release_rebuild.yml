@@ -2,16 +2,13 @@ name: 'Rebuild Latest Release on Schedule'
 
 # Debian security fixes land continuously, but a release image is only built once.
 # This rebuilds the latest release from its tag, ignoring cached layers so that
-# `apt-get upgrade` runs again, then moves the floating tags (`X`, `X.Y`, `X.Y.Z`)
+# `apt-get upgrade` runs again, then moves the floating tags (`latest`, `X`, `X.Y`, `X.Y.Z`)
 # to the new image and adds an immutable `X.Y.Z-rN` tag to roll back to.
+# Only the latest release is rebuilt, as older releases must not move the floating tags.
 
 on:
   workflow_dispatch:
     inputs:
-      release-tag:
-        description: 'Release tag to rebuild (default: latest release)'
-        required: false
-        type: string
       dry-run:
         description: 'Build and test, but do not push any image'
         required: false
@@ -24,31 +21,25 @@ permissions:
   contents: read
   packages: write
 
+# Two overlapping runs would probe the same rebuild number and the second push would overwrite the first.
+concurrency:
+  group: release-rebuild
+  cancel-in-progress: false
+
 jobs:
   resolve:
     name: 'Resolve Release and Rebuild Number'
     runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.release.outputs.tag }}
-      is-latest: ${{ steps.release.outputs.is-latest }}
       rebuild: ${{ steps.rebuild.outputs.number }}
     steps:
-      - name: 'Resolve release tag'
+      - name: 'Resolve latest release'
         id: release
         shell: bash
-        run: |
-          LATEST=$(gh release view --repo "${GITHUB_REPOSITORY}" --json tagName --jq .tagName 2>/dev/null || true)
-          TAG=${INPUT_TAG:-${LATEST}}
-          if [[ -z ${TAG} ]]; then
-            echo 'No release found and no release-tag given' >&2
-            exit 1
-          fi
-          echo "tag=${TAG}" >>"${GITHUB_OUTPUT}"
-          # Only the newest release may move `latest`:
-          echo "is-latest=$([[ ${TAG} == "${LATEST}" ]] && echo true || echo false)" >>"${GITHUB_OUTPUT}"
+        run: echo "tag=$(gh release view --repo "${GITHUB_REPOSITORY}" --json tagName --jq .tagName)" >>"${GITHUB_OUTPUT}"
         env:
           GH_TOKEN: ${{ github.token }}
-          INPUT_TAG: ${{ inputs.release-tag }}
 
       # Required to see private packages (eg on forks) when probing for existing tags:
       - name: 'Login to GitHub Container Registry'
@@ -59,14 +50,29 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Probes the registry for the first unused `X.Y.Z-rN` (N >= 1), no stored state needed.
+      # Only a "not found" answer means the tag is free. Any other error (network, rate limit,
+      # outage) fails the job, as continuing could overwrite an existing, supposedly immutable tag.
       - name: 'Find next rebuild number'
         id: rebuild
         shell: bash
         run: |
+          if [[ -z ${IMAGE} ]]; then
+            echo 'The GHCR_REPOSITORY secret is empty' >&2
+            exit 1
+          fi
+
           VERSION=${TAG#v}
           N=1
-          while docker buildx imagetools inspect "${IMAGE}:${VERSION}-r${N}" &>/dev/null; do
-            N=$((N + 1))
+          while true; do
+            if OUTPUT=$(docker buildx imagetools inspect "${IMAGE}:${VERSION}-r${N}" 2>&1); then
+              N=$((N + 1))
+            elif grep -qiE 'not found|manifest unknown' <<< "${OUTPUT}"; then
+              break
+            else
+              echo "Unexpected error while checking for ${VERSION}-r${N}:" >&2
+              echo "${OUTPUT}" >&2
+              exit 1
+            fi
           done
           echo "number=${N}" >>"${GITHUB_OUTPUT}"
         env:
@@ -80,6 +86,7 @@ jobs:
     with:
       ref: ${{ needs.resolve.outputs.tag }}
       no-cache: true
+      cache-prefix: rebuild-
 
   build-image-arm64:
     name: 'Build ARM64 Image'
@@ -90,6 +97,7 @@ jobs:
       runner: ubuntu-24.04-arm
       ref: ${{ needs.resolve.outputs.tag }}
       no-cache: true
+      cache-prefix: rebuild-
 
   run-tests:
     name: 'Test AMD64 Image'
@@ -97,6 +105,7 @@ jobs:
     uses: ./.github/workflows/generic_test.yml
     with:
       ref: ${{ needs.resolve.outputs.tag }}
+      cache-prefix: rebuild-
 
   publish-images:
     name: 'Publish AMD64 and ARM64 Image'
@@ -105,6 +114,6 @@ jobs:
     with:
       release-tag: ${{ needs.resolve.outputs.tag }}
       rebuild: ${{ needs.resolve.outputs.rebuild }}
-      latest: ${{ needs.resolve.outputs.is-latest == 'true' }}
+      cache-prefix: rebuild-
       dry-run: ${{ inputs.dry-run == true }}
     secrets: inherit

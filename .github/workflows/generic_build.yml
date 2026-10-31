@@ -16,6 +16,11 @@ on:
         required: false
         type: string
         default: ''
+      # Prefix for the GHA cache scope, so a rebuild does not share (and get overwritten via) the default scope:
+      cache-prefix:
+        required: false
+        type: string
+        default: ''
       # Ignore cached layers so `apt-get upgrade` in `packages.sh` runs again:
       no-cache:
         required: false
@@ -44,9 +49,10 @@ jobs:
       - name: 'Derive cache scope from platforms'
         id: cache-scope
         shell: bash
-        run: echo "name=$(tr ',/' '--' <<< "${PLATFORMS}")" >>"${GITHUB_OUTPUT}"
+        run: echo "name=${CACHE_PREFIX}$(tr ',/' '--' <<< "${PLATFORMS}")" >>"${GITHUB_OUTPUT}"
         env:
           PLATFORMS: ${{ inputs.platforms }}
+          CACHE_PREFIX: ${{ inputs.cache-prefix }}
 
       # Native ARM64 runners do not need QEMU. AMD64-only builds skip it too.
       - name: 'Set up QEMU'

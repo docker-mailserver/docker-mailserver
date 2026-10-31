@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: ''
+      # Prefix of the GHA cache scope the image was built into:
+      cache-prefix:
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -45,7 +50,7 @@ jobs:
           load: true
           # Rebuilds the AMD64 image from the cache:
           platforms: linux/amd64
-          cache-from: type=gha,scope=linux-amd64
+          cache-from: type=gha,scope=${{ inputs.cache-prefix }}linux-amd64
           # Disable provenance attestation: https://docs.docker.com/build/attestations/slsa-provenance/
           provenance: false
 
