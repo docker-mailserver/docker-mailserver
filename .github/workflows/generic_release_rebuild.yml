@@ -1,0 +1,71 @@
+name: 'Rebuild, Test & Publish One Release'
+
+# The whole chain for a single release, so that a failing line (eg a broken older release)
+# does not block the publishing of another line.
+
+on:
+  workflow_call:
+    inputs:
+      # Release tag to rebuild (eg `v16.0.1`):
+      tag:
+        required: true
+        type: string
+      # Major version of the tag, used for an own GHA cache scope per line:
+      major:
+        required: true
+        type: string
+      # Rebuild counter for the immutable `X.Y.Z-rN` tag:
+      rebuild:
+        required: true
+        type: string
+      # Whether this is the newest release overall, which is the only one allowed to move `latest`:
+      latest:
+        required: true
+        type: boolean
+      dry-run:
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-image-amd64:
+    name: 'Build AMD64 Image'
+    uses: ./.github/workflows/generic_build.yml
+    with:
+      ref: ${{ inputs.tag }}
+      no-cache: true
+      cache-prefix: rebuild-${{ inputs.major }}-
+
+  build-image-arm64:
+    name: 'Build ARM64 Image'
+    uses: ./.github/workflows/generic_build.yml
+    with:
+      platforms: linux/arm64
+      runner: ubuntu-24.04-arm
+      ref: ${{ inputs.tag }}
+      no-cache: true
+      cache-prefix: rebuild-${{ inputs.major }}-
+
+  run-tests:
+    name: 'Test AMD64 Image'
+    needs: build-image-amd64
+    uses: ./.github/workflows/generic_test.yml
+    with:
+      ref: ${{ inputs.tag }}
+      cache-prefix: rebuild-${{ inputs.major }}-
+
+  publish-images:
+    name: 'Publish AMD64 and ARM64 Image'
+    needs: [build-image-amd64, build-image-arm64, run-tests]
+    uses: ./.github/workflows/generic_publish.yml
+    with:
+      release-tag: ${{ inputs.tag }}
+      rebuild: ${{ inputs.rebuild }}
+      latest: ${{ inputs.latest }}
+      cache-prefix: rebuild-${{ inputs.major }}-
+      dry-run: ${{ inputs.dry-run }}
+    secrets: inherit

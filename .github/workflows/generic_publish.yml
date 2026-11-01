@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: '0'
+      # Whether this release may move `latest` (only the newest release overall may):
+      latest:
+        required: false
+        type: boolean
+        default: true
       # Prefix of the GHA cache scopes the images were built into:
       cache-prefix:
         required: false
@@ -72,6 +77,8 @@ jobs:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
             ${{ secrets.GHCR_REPOSITORY }}
+          flavor: |
+            latest=${{ inputs.latest && 'auto' || 'false' }}
           tags: |
             type=edge,branch=master,enable=${{ steps.release.outputs.tag == '' }}
             type=semver,pattern={{major}},value=${{ steps.release.outputs.tag }},enable=${{ steps.release.outputs.tag != '' }}

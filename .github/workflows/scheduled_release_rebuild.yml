@@ -1,14 +1,20 @@
-name: 'Rebuild Latest Release on Schedule'
+name: 'Rebuild Supported Releases on Schedule'
 
 # Debian security fixes land continuously, but a release image is only built once.
-# This rebuilds the latest release from its tag, ignoring cached layers so that
-# `apt-get upgrade` runs again, then moves the floating tags (`latest`, `X`, `X.Y`, `X.Y.Z`)
-# to the new image and adds an immutable `X.Y.Z-rN` tag to roll back to.
-# Only the latest release is rebuilt, as older releases must not move the floating tags.
+# This rebuilds the newest release of every supported major version from its tag, ignoring
+# cached layers so that `apt-get upgrade` runs again, then moves the floating tags
+# (`X`, `X.Y`, `X.Y.Z`, and `latest` for the newest release overall) to the new image
+# and adds an immutable `X.Y.Z-rN` tag to roll back to.
+#
+# Only the newest release of a major is rebuilt, as older ones must not move the floating tags.
 
 on:
   workflow_dispatch:
     inputs:
+      major:
+        description: 'Rebuild only this supported major version (default: all)'
+        required: false
+        type: string
       dry-run:
         description: 'Build and test, but do not push any image'
         required: false
@@ -21,6 +27,11 @@ permissions:
   contents: read
   packages: write
 
+env:
+  # Majors whose base image (Debian release) still receives security updates. Keep in sync with `SECURITY.md`:
+  # 15 => Debian 12 (oldstable), 16 => Debian 13 (stable). Drop a major once its Debian release is end of life.
+  SUPPORTED_MAJORS: '15 16'
+
 # Two overlapping runs would probe the same rebuild number and the second push would overwrite the first.
 concurrency:
   group: release-rebuild
@@ -28,19 +39,11 @@ concurrency:
 
 jobs:
   resolve:
-    name: 'Resolve Release and Rebuild Number'
+    name: 'Resolve Releases and Rebuild Numbers'
     runs-on: ubuntu-24.04
     outputs:
-      tag: ${{ steps.release.outputs.tag }}
-      rebuild: ${{ steps.rebuild.outputs.number }}
+      matrix: ${{ steps.resolve.outputs.matrix }}
     steps:
-      - name: 'Resolve latest release'
-        id: release
-        shell: bash
-        run: echo "tag=$(gh release view --repo "${GITHUB_REPOSITORY}" --json tagName --jq .tagName)" >>"${GITHUB_OUTPUT}"
-        env:
-          GH_TOKEN: ${{ github.token }}
-
       # Required to see private packages (eg on forks) when probing for existing tags:
       - name: 'Login to GitHub Container Registry'
         uses: docker/login-action@v4
@@ -49,71 +52,85 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Probes the registry for the first unused `X.Y.Z-rN` (N >= 1), no stored state needed.
-      # Only a "not found" answer means the tag is free. Any other error (network, rate limit,
-      # outage) fails the job, as continuing could overwrite an existing, supposedly immutable tag.
-      - name: 'Find next rebuild number'
-        id: rebuild
+      # Builds the matrix of `{tag, major, rebuild, latest}`, one entry per supported major:
+      # - `tag` is the newest non-prerelease release of that major.
+      # - `latest` is only true for the newest release overall.
+      # - `rebuild` is the first unused `X.Y.Z-rN` (N >= 1), found by probing the registry (no stored state).
+      #   Only a "not found" answer means a tag is free. Any other error (network, rate limit, outage)
+      #   fails the job, as continuing could overwrite an existing, supposedly immutable tag.
+      - name: 'Resolve releases and rebuild numbers'
+        id: resolve
         shell: bash
         run: |
+          function next_rebuild() {
+            local VERSION=${1#v} N=1 OUTPUT
+            while true; do
+              if OUTPUT=$(docker buildx imagetools inspect "${IMAGE}:${VERSION}-r${N}" 2>&1); then
+                N=$((N + 1))
+              elif grep -qiE 'not found|manifest unknown' <<< "${OUTPUT}"; then
+                echo "${N}"
+                return
+              else
+                echo "Unexpected error while checking for ${VERSION}-r${N}:" >&2
+                echo "${OUTPUT}" >&2
+                return 1
+              fi
+            done
+          }
+
           if [[ -z ${IMAGE} ]]; then
             echo 'The GHCR_REPOSITORY secret is empty' >&2
             exit 1
           fi
 
-          VERSION=${TAG#v}
-          N=1
-          while true; do
-            if OUTPUT=$(docker buildx imagetools inspect "${IMAGE}:${VERSION}-r${N}" 2>&1); then
-              N=$((N + 1))
-            elif grep -qiE 'not found|manifest unknown' <<< "${OUTPUT}"; then
-              break
-            else
-              echo "Unexpected error while checking for ${VERSION}-r${N}:" >&2
-              echo "${OUTPUT}" >&2
+          if [[ -n ${INPUT_MAJOR} ]]; then
+            if [[ " ${SUPPORTED_MAJORS} " != *" ${INPUT_MAJOR} "* ]]; then
+              echo "'${INPUT_MAJOR}' is not a supported major (${SUPPORTED_MAJORS})" >&2
               exit 1
             fi
+            MAJORS=${INPUT_MAJOR}
+          else
+            MAJORS=${SUPPORTED_MAJORS}
+          fi
+
+          RELEASES=$(gh release list --repo "${GITHUB_REPOSITORY}" --limit 200 --exclude-drafts --exclude-pre-releases --json tagName --jq '.[].tagName' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)
+          NEWEST=$(tail -1 <<< "${RELEASES}")
+
+          ENTRIES=()
+          for MAJOR in ${MAJORS}; do
+            TAG=$(grep -E "^v${MAJOR}\." <<< "${RELEASES}" | tail -1 || true)
+            if [[ -z ${TAG} ]]; then
+              echo "No release found for supported major ${MAJOR}" >&2
+              exit 1
+            fi
+
+            REBUILD=$(next_rebuild "${TAG}")
+            LATEST=false
+            [[ ${TAG} == "${NEWEST}" ]] && LATEST=true
+
+            ENTRIES+=("$(jq -cn --arg tag "${TAG}" --arg major "${MAJOR}" --arg rebuild "${REBUILD}" --argjson latest "${LATEST}" \
+              '{tag: $tag, major: $major, rebuild: $rebuild, latest: $latest}')")
           done
-          echo "number=${N}" >>"${GITHUB_OUTPUT}"
+
+          echo "matrix=$(printf '%s\n' "${ENTRIES[@]}" | jq -cs '{include: .}')" >>"${GITHUB_OUTPUT}"
         env:
-          TAG: ${{ steps.release.outputs.tag }}
+          GH_TOKEN: ${{ github.token }}
           IMAGE: ${{ secrets.GHCR_REPOSITORY }}
+          INPUT_MAJOR: ${{ inputs.major }}
 
-  build-image-amd64:
-    name: 'Build AMD64 Image'
+  rebuild:
+    name: 'Rebuild ${{ matrix.tag }}'
     needs: resolve
-    uses: ./.github/workflows/generic_build.yml
+    strategy:
+      # A failing line must not stop the others:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
+    uses: ./.github/workflows/generic_release_rebuild.yml
     with:
-      ref: ${{ needs.resolve.outputs.tag }}
-      no-cache: true
-      cache-prefix: rebuild-
-
-  build-image-arm64:
-    name: 'Build ARM64 Image'
-    needs: resolve
-    uses: ./.github/workflows/generic_build.yml
-    with:
-      platforms: linux/arm64
-      runner: ubuntu-24.04-arm
-      ref: ${{ needs.resolve.outputs.tag }}
-      no-cache: true
-      cache-prefix: rebuild-
-
-  run-tests:
-    name: 'Test AMD64 Image'
-    needs: [resolve, build-image-amd64]
-    uses: ./.github/workflows/generic_test.yml
-    with:
-      ref: ${{ needs.resolve.outputs.tag }}
-      cache-prefix: rebuild-
-
-  publish-images:
-    name: 'Publish AMD64 and ARM64 Image'
-    needs: [resolve, build-image-amd64, build-image-arm64, run-tests]
-    uses: ./.github/workflows/generic_publish.yml
-    with:
-      release-tag: ${{ needs.resolve.outputs.tag }}
-      rebuild: ${{ needs.resolve.outputs.rebuild }}
-      cache-prefix: rebuild-
+      tag: ${{ matrix.tag }}
+      major: ${{ matrix.major }}
+      rebuild: ${{ matrix.rebuild }}
+      latest: ${{ matrix.latest }}
       dry-run: ${{ inputs.dry-run == true }}
     secrets: inherit

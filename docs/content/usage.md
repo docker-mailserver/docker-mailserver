@@ -91,11 +91,11 @@ All workflows are using the tagging convention listed below. It is subsequently 
 | `push` a tag (`v1.2.3`) | `1.2.3`, `1.2`, `1`, `latest` |
 | Weekly rebuild          | `1.2.3`, `1.2`, `1`, `latest`, `1.2.3-rN` |
 
-!!! info "Weekly rebuilds of the latest release"
+!!! info "Weekly rebuilds of supported releases"
 
-    Debian publishes security fixes continuously, but a release image is only built once. To pick those fixes up, the latest release is rebuilt every week without cached layers, tested, and published again:
+    Debian publishes security fixes continuously, but a release image is only built once. To pick those fixes up, the newest release of every supported major version (_currently `v15` and `v16`, the ones whose Debian base still receives updates_) is rebuilt every week without cached layers, tested, and published again:
 
-    - The tags `X.Y.Z`, `X.Y`, `X` and `latest` are moved to the rebuilt image. Older releases are not rebuilt and keep their last image.
+    - The tags `X.Y.Z`, `X.Y` and `X` of the rebuilt release are moved to the rebuilt image. `latest` is only moved when the rebuilt release is the newest overall. Older minor and patch releases within a major are not rebuilt and keep their last image.
     - Each build also receives an immutable `X.Y.Z-rN` tag (`-r0` is the original release build, rebuilds count up from `-r1`). Use it to pin an exact build or to roll back, or pin the image digest.
 
 [github-ci]: https://github.com/docker-mailserver/docker-mailserver/actions
