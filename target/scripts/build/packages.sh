@@ -118,6 +118,9 @@ function _install_packages() {
     locales logwatch netcat-openbsd
     nftables # primarily for Fail2Ban
     rsyslog supervisor
+    # provides the default "snakeoil" cert for Dovecot and Postfix, Debian's `dovecot-core`
+    # depends on it but the Dovecot CE package does not:
+    ssl-cert
     uuid # used for file-locking
     whois
   )
