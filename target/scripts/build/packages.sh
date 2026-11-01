@@ -154,7 +154,42 @@ function _install_packages() {
     "${COMMUNITY_PACKAGES[@]}"
 }
 
+# The Dovecot CE packages ship a minimal config layout that differs from Debian's
+# (no `15-lda.conf` or `90-fts.conf`, 2.3 syntax in `20-managesieve.conf`, no `local.conf` include, ...).
+# DMS is written against Debian's layout, so replace it with the config files from
+# Debian's own packages of the same release. Like Debian's postinst, this copies every
+# file from `/usr/share/dovecot/conf.d/` except `99-local.conf`. Debian's config sets
+# `dovecot_config_version = 2.4.0`, which newer 2.4.x releases read with the 2.4.0 defaults.
+function __install_dovecot_debian_config() {
+  local DEBIAN_PACKAGES=("${@}")
+  local DEBIAN_VERSION TMP_DIR PACKAGE
+
+  # Both repos use the `trixie` suite, so select Debian's packages by version:
+  DEBIAN_VERSION=$(apt-cache madison dovecot-core \
+    | awk -F '|' '$3 ~ /deb\.debian\.org/ { gsub(/ /, "", $2); print $2 }' \
+    | sort --version-sort | tail -n 1)
+  if [[ -z ${DEBIAN_VERSION} ]]; then
+    _log 'error' 'Could not find the Debian version of dovecot-core'
+    exit 1
+  fi
+
+  _log 'debug' "Installing Dovecot config from Debian's packages (${DEBIAN_VERSION})"
+  TMP_DIR=$(mktemp -d)
+  chown _apt "${TMP_DIR}"
+  ( cd "${TMP_DIR}" && apt-get "${QUIET}" download "${DEBIAN_PACKAGES[@]/%/=${DEBIAN_VERSION}}" )
+  for PACKAGE in "${TMP_DIR}"/*.deb; do
+    dpkg-deb --extract "${PACKAGE}" "${TMP_DIR}/extracted"
+  done
+
+  rm -f /etc/dovecot/dovecot.conf /etc/dovecot/conf.d/*
+  cp "${TMP_DIR}/extracted/usr/share/dovecot/dovecot.conf" /etc/dovecot/
+  cp "${TMP_DIR}"/extracted/usr/share/dovecot/conf.d/* /etc/dovecot/conf.d/
+  rm /etc/dovecot/conf.d/99-local.conf
+  rm -r "${TMP_DIR}"
+}
+
 function _install_dovecot() {
+  local USE_DOVECOT_CE_REPO=0
   local DOVECOT_PACKAGES=(
     dovecot-core
     dovecot-lmtpd
@@ -189,6 +224,7 @@ Signed-By: /usr/share/keyrings/upstream-dovecot.gpg
 EOF
 
     apt-get "${QUIET}" update
+    USE_DOVECOT_CE_REPO=1
 
     # This repo instead provides `dovecot-auth-lua` as a transitional package to `dovecot-lua`,
     # thus this extra package is required to retain lua support:
@@ -198,8 +234,14 @@ EOF
   _log 'debug' 'Installing Dovecot'
   apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
 
+  if [[ ${USE_DOVECOT_CE_REPO} -eq 1 ]]; then
+    __install_dovecot_debian_config dovecot-core dovecot-imapd dovecot-lmtpd dovecot-pop3d \
+      dovecot-sieve dovecot-managesieved dovecot-ldap
+  fi
+
   # We remove the enabled-by-default Flatcurve configuration to disable FTS by default
-  rm /etc/dovecot/conf.d/90-fts-flatcurve.conf
+  # (only Debian's package ships this file, the Dovecot CE package does not):
+  rm -f /etc/dovecot/conf.d/90-fts-flatcurve.conf
 }
 
 function _install_rspamd() {
