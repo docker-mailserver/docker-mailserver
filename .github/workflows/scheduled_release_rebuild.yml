@@ -28,9 +28,10 @@ permissions:
   packages: write
 
 env:
-  # Majors whose base image (Debian release) still receives security updates. Keep in sync with `SECURITY.md`:
-  # 15 => Debian 12 (oldstable), 16 => Debian 13 (stable). Drop a major once its Debian release is end of life.
-  SUPPORTED_MAJORS: '15 16'
+  # Majors whose base image (Debian release) still receives security updates. Keep in sync with `SECURITY.md`.
+  # Drop a major once its Debian release is end of life. Each line is gated on the tests of its own tag.
+  # `15` (Debian 12) is not listed, as its tests need `bitnami/openldap:latest`, which no longer exists.
+  SUPPORTED_MAJORS: '16'
 
 # Two overlapping runs would probe the same rebuild number and the second push would overwrite the first.
 concurrency:
