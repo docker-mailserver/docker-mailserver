@@ -2853,6 +2853,7 @@
 <p>The tag for an image is never modified by <code>watchtower</code>, instead <code>watchtower</code> monitors the image digest associated to that image tag (<em>which will change to a new image digest if a new image release reassigns the tag</em>), when the digest for the tag changes this triggers a pull of the new image.</p>
 <ul>
 <li>Your container will not update to a new major release version (<em>unless using <code>:latest</code></em>).</li>
+<li>The tags of the newest release of each supported major (eg <code>:16.0.1</code>, <code>:16.0</code>, <code>:16</code>, and <code>:latest</code> for the newest overall) are rebuilt weekly with the current Debian security fixes. Use the immutable <code>:16.0.1-rN</code> tag if you need to pin an exact build.</li>
 <li>Omit the minor or patch portion of a semver tag to receive updates for the omitted portion (<em>eg: <code>:16</code> will represent the latest minor + patch release, whereas <code>:16.0</code> would only receive patch updates instead of minor releases like <code>16.1</code></em>).</li>
 </ul>
 </div>
