@@ -5,8 +5,21 @@ source /usr/local/bin/helpers/index.sh
 
 function __usage() {
   echo "Usage: ./setup.sh fail2ban [<ban|unban> <IP>]"
+  echo "       ./setup.sh fail2ban [<ignore|consider> <IP OR CIDR RANGE>]"
   echo "       ./setup.sh fail2ban log"
   echo "       ./setup.sh fail2ban status"
+}
+
+# F2B takes anything that does not parse as an address for a hostname, and finds
+# a single address for removal only in the spelling it lists it in. The regex keeps
+# out IPv6 zone IDs, which ipaddress accepts but F2B does not.
+function __normalize_address() {
+  [[ ${1} =~ ^[[:xdigit:]:.]+(/[[:digit:]]+)?$ ]] || return 1
+  python3 -c '
+import ipaddress, sys
+net = ipaddress.ip_network(sys.argv[1], strict=False)
+print(net.network_address if net.prefixlen == net.max_prefixlen else net)
+' "${1}" 2>/dev/null
 }
 
 fail2ban-client ping &>/dev/null || _exit_with_error "Fail2ban not running"
@@ -69,13 +82,52 @@ else
       fi
       ;;
 
+    ( 'ignore' )
+      shift 1
+      if [[ -n ${1} ]]; then
+        ADDRESS=$(__normalize_address "${1}") || _exit_with_error "'${1}' is not an IP address or CIDR range"
+
+        for JAIL in "${JAILS[@]}"; do
+          if fail2ban-client set "${JAIL}" addignoreip "${ADDRESS}" >/dev/null; then
+            echo "Ignoring IP in ${JAIL}: ${ADDRESS}"
+          fi
+        done
+      else
+        _log 'warn' "You need to specify an IP address or CIDR range: Run './setup.sh fail2ban ignore <IP OR CIDR RANGE>'"
+        exit 0
+      fi
+      ;;
+
+    ( 'consider' )
+      shift 1
+      if [[ -n ${1} ]]; then
+        ADDRESS=$(__normalize_address "${1}") || _exit_with_error "'${1}' is not an IP address or CIDR range"
+        CONSIDERED=0
+
+        for JAIL in "${JAILS[@]}"; do
+          # Jails that do not ignore the address reject the removal
+          if fail2ban-client set "${JAIL}" delignoreip "${ADDRESS}" &>/dev/null; then
+            echo "No longer ignoring IP in ${JAIL}: ${ADDRESS}"
+            CONSIDERED=1
+          fi
+        done
+
+        [[ ${CONSIDERED} -eq 0 ]] && _log 'warn' "'${ADDRESS}' is not ignored by any jail"
+      else
+        _log 'warn' "You need to specify an IP address or CIDR range: Run './setup.sh fail2ban status' to get a list of ignored IP addresses"
+        exit 0
+      fi
+      ;;
+
     ( 'log' )
       cat /var/log/mail/fail2ban.log
       ;;
 
     ( 'status' )
       for JAIL in "${JAILS[@]}"; do
-        printf '%s\n\n' "$(fail2ban-client status "${JAIL}" 2>&1)"
+        printf '%s\n' "$(fail2ban-client status "${JAIL}" 2>&1)"
+        printf 'Ignored in %s: %s\n\n' "${JAIL}" \
+          "$(fail2ban-client get "${JAIL}" ignoreip | grep -oP '(?<=[|`]- ).+' | paste -sd ' ')"
       done
       ;;
 
