@@ -18,10 +18,6 @@ on:
       rebuild:
         required: true
         type: string
-      # Whether this is the newest release overall, which is the only one allowed to move `latest`:
-      latest:
-        required: true
-        type: boolean
       dry-run:
         required: false
         type: boolean
@@ -58,14 +54,49 @@ jobs:
       ref: ${{ inputs.tag }}
       cache-prefix: rebuild-${{ inputs.major }}-
 
+  # A rebuild takes a while, and a newer release may have been published in the meantime (its own
+  # publish then finishes after the release exists). Publishing the older release afterwards would move
+  # the floating tags back, so this checks again right before publishing. It also decides `latest`:
+  # only the newest release overall may move it.
+  check-release:
+    name: 'Check the Release is Still the Newest'
+    needs: [build-image-amd64, build-image-arm64, run-tests]
+    runs-on: ubuntu-24.04
+    outputs:
+      current: ${{ steps.check.outputs.current }}
+      latest: ${{ steps.check.outputs.latest }}
+    steps:
+      - name: 'Check for newer releases'
+        id: check
+        shell: bash
+        run: |
+          RELEASES=$(gh release list --repo "${GITHUB_REPOSITORY}" --limit 200 --exclude-drafts --exclude-pre-releases --json tagName --jq '.[].tagName' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)
+          NEWEST=$(tail -1 <<< "${RELEASES}")
+          NEWEST_OF_MAJOR=$(grep -E "^v${MAJOR}\." <<< "${RELEASES}" | tail -1 || true)
+
+          if [[ ${TAG} == "${NEWEST_OF_MAJOR}" ]]; then
+            echo 'current=true' >>"${GITHUB_OUTPUT}"
+          else
+            echo 'current=false' >>"${GITHUB_OUTPUT}"
+            echo "::warning::${TAG} is no longer the newest v${MAJOR} release (now ${NEWEST_OF_MAJOR:-unknown}), skipping the publish"
+          fi
+
+          echo "latest=$([[ ${TAG} == "${NEWEST}" ]] && echo true || echo false)" >>"${GITHUB_OUTPUT}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          MAJOR: ${{ inputs.major }}
+
   publish-images:
     name: 'Publish AMD64 and ARM64 Image'
-    needs: [build-image-amd64, build-image-arm64, run-tests]
+    needs: [build-image-amd64, build-image-arm64, run-tests, check-release]
+    if: needs.check-release.outputs.current == 'true'
     uses: ./.github/workflows/generic_publish.yml
     with:
       release-tag: ${{ inputs.tag }}
       rebuild: ${{ inputs.rebuild }}
-      latest: ${{ inputs.latest }}
+      latest: ${{ needs.check-release.outputs.latest == 'true' }}
       cache-prefix: rebuild-${{ inputs.major }}-
       dry-run: ${{ inputs.dry-run }}
     secrets: inherit

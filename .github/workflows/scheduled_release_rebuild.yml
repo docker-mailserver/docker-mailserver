@@ -4,7 +4,8 @@ name: 'Rebuild Supported Releases on Schedule'
 # This rebuilds the newest release of every supported major version from its tag, ignoring
 # cached layers so that `apt-get upgrade` runs again, then moves the floating tags
 # (`X`, `X.Y`, `X.Y.Z`, and `latest` for the newest release overall) to the new image
-# and adds an immutable `X.Y.Z-rN` tag to roll back to.
+# and adds an immutable `X.Y.Z-rN` tag to roll back to. The publish is skipped if a newer
+# release appeared in the meantime.
 #
 # Only the newest release of a major is rebuilt, as older ones must not move the floating tags.
 
@@ -53,9 +54,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Builds the matrix of `{tag, major, rebuild, latest}`, one entry per supported major:
+      # Builds the matrix of `{tag, major, rebuild}`, one entry per supported major:
       # - `tag` is the newest non-prerelease release of that major.
-      # - `latest` is only true for the newest release overall.
       # - `rebuild` is the first unused `X.Y.Z-rN` (N >= 1), found by probing the registry (no stored state).
       #   Only a "not found" answer means a tag is free. Any other error (network, rate limit, outage)
       #   fails the job, as continuing could overwrite an existing, supposedly immutable tag.
@@ -96,7 +96,6 @@ jobs:
 
           RELEASES=$(gh release list --repo "${GITHUB_REPOSITORY}" --limit 200 --exclude-drafts --exclude-pre-releases --json tagName --jq '.[].tagName' \
             | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)
-          NEWEST=$(tail -1 <<< "${RELEASES}")
 
           ENTRIES=()
           for MAJOR in ${MAJORS}; do
@@ -107,11 +106,9 @@ jobs:
             fi
 
             REBUILD=$(next_rebuild "${TAG}")
-            LATEST=false
-            [[ ${TAG} == "${NEWEST}" ]] && LATEST=true
 
-            ENTRIES+=("$(jq -cn --arg tag "${TAG}" --arg major "${MAJOR}" --arg rebuild "${REBUILD}" --argjson latest "${LATEST}" \
-              '{tag: $tag, major: $major, rebuild: $rebuild, latest: $latest}')")
+            ENTRIES+=("$(jq -cn --arg tag "${TAG}" --arg major "${MAJOR}" --arg rebuild "${REBUILD}" \
+              '{tag: $tag, major: $major, rebuild: $rebuild}')")
           done
 
           echo "matrix=$(printf '%s\n' "${ENTRIES[@]}" | jq -cs '{include: .}')" >>"${GITHUB_OUTPUT}"
@@ -132,6 +129,5 @@ jobs:
       tag: ${{ matrix.tag }}
       major: ${{ matrix.major }}
       rebuild: ${{ matrix.rebuild }}
-      latest: ${{ matrix.latest }}
       dry-run: ${{ inputs.dry-run == true }}
     secrets: inherit

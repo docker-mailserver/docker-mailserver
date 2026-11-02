@@ -85,10 +85,10 @@ To understand which tags you should use, read this section carefully. [Our CI][g
 
 All workflows are using the tagging convention listed below. It is subsequently applied to all images.
 
-| Event                   | Image Tags                    |
-|-------------------------|-------------------------------|
-| `push` on `master`      | `edge`                        |
-| `push` a tag (`v1.2.3`) | `1.2.3`, `1.2`, `1`, `latest` |
+| Event                   | Image Tags                                |
+|-------------------------|-------------------------------------------|
+| `push` on `master`      | `edge`                                    |
+| `push` a tag (`v1.2.3`) | `1.2.3`, `1.2`, `1`, `latest`, `1.2.3-r0` |
 | Weekly rebuild          | `1.2.3`, `1.2`, `1`, `latest`, `1.2.3-rN` |
 
 !!! info "Weekly rebuilds of supported releases"
