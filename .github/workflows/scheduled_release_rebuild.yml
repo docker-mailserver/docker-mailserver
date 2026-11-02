@@ -1,0 +1,133 @@
+name: 'Rebuild Supported Releases on Schedule'
+
+# Debian security fixes land continuously, but a release image is only built once.
+# This rebuilds the newest release of every supported major version from its tag, ignoring
+# cached layers so that `apt-get upgrade` runs again, then moves the floating tags
+# (`X`, `X.Y`, `X.Y.Z`, and `latest` for the newest release overall) to the new image
+# and adds an immutable `X.Y.Z-rN` tag to roll back to. The publish is skipped if a newer
+# release appeared in the meantime.
+#
+# Only the newest release of a major is rebuilt, as older ones must not move the floating tags.
+
+on:
+  workflow_dispatch:
+    inputs:
+      major:
+        description: 'Rebuild only this supported major version (default: all)'
+        required: false
+        type: string
+      dry-run:
+        description: 'Build and test, but do not push any image'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    - cron: 0 6 * * 5
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  # Majors whose base image (Debian release) still receives security updates. Keep in sync with `SECURITY.md`.
+  # Drop a major once its Debian release is end of life. Each line is gated on the tests of its own tag.
+  # `15` (Debian 12) is not listed, as its tests need `bitnami/openldap:latest`, which no longer exists.
+  SUPPORTED_MAJORS: '16'
+
+# Two overlapping runs would probe the same rebuild number and the second push would overwrite the first.
+concurrency:
+  group: release-rebuild
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    name: 'Resolve Releases and Rebuild Numbers'
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.resolve.outputs.matrix }}
+    steps:
+      # Required to see private packages (eg on forks) when probing for existing tags:
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Builds the matrix of `{tag, major, rebuild}`, one entry per supported major:
+      # - `tag` is the newest non-prerelease release of that major.
+      # - `rebuild` is the first unused `X.Y.Z-rN` (N >= 1), found by probing the registry (no stored state).
+      #   Only a "not found" answer means a tag is free. Any other error (network, rate limit, outage)
+      #   fails the job, as continuing could overwrite an existing, supposedly immutable tag.
+      - name: 'Resolve releases and rebuild numbers'
+        id: resolve
+        shell: bash
+        run: |
+          function next_rebuild() {
+            local VERSION=${1#v} N=1 OUTPUT
+            while true; do
+              if OUTPUT=$(docker buildx imagetools inspect "${IMAGE}:${VERSION}-r${N}" 2>&1); then
+                N=$((N + 1))
+              elif grep -qiE 'not found|manifest unknown' <<< "${OUTPUT}"; then
+                echo "${N}"
+                return
+              else
+                echo "Unexpected error while checking for ${VERSION}-r${N}:" >&2
+                echo "${OUTPUT}" >&2
+                return 1
+              fi
+            done
+          }
+
+          if [[ -z ${IMAGE} ]]; then
+            echo 'The GHCR_REPOSITORY secret is empty' >&2
+            exit 1
+          fi
+
+          if [[ -n ${INPUT_MAJOR} ]]; then
+            if [[ " ${SUPPORTED_MAJORS} " != *" ${INPUT_MAJOR} "* ]]; then
+              echo "'${INPUT_MAJOR}' is not a supported major (${SUPPORTED_MAJORS})" >&2
+              exit 1
+            fi
+            MAJORS=${INPUT_MAJOR}
+          else
+            MAJORS=${SUPPORTED_MAJORS}
+          fi
+
+          RELEASES=$(gh release list --repo "${GITHUB_REPOSITORY}" --limit 200 --exclude-drafts --exclude-pre-releases --json tagName --jq '.[].tagName' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)
+
+          ENTRIES=()
+          for MAJOR in ${MAJORS}; do
+            TAG=$(grep -E "^v${MAJOR}\." <<< "${RELEASES}" | tail -1 || true)
+            if [[ -z ${TAG} ]]; then
+              echo "No release found for supported major ${MAJOR}" >&2
+              exit 1
+            fi
+
+            REBUILD=$(next_rebuild "${TAG}")
+
+            ENTRIES+=("$(jq -cn --arg tag "${TAG}" --arg major "${MAJOR}" --arg rebuild "${REBUILD}" \
+              '{tag: $tag, major: $major, rebuild: $rebuild}')")
+          done
+
+          echo "matrix=$(printf '%s\n' "${ENTRIES[@]}" | jq -cs '{include: .}')" >>"${GITHUB_OUTPUT}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IMAGE: ${{ secrets.GHCR_REPOSITORY }}
+          INPUT_MAJOR: ${{ inputs.major }}
+
+  rebuild:
+    name: 'Rebuild ${{ matrix.tag }}'
+    needs: resolve
+    strategy:
+      # A failing line must not stop the others:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
+    uses: ./.github/workflows/generic_release_rebuild.yml
+    with:
+      tag: ${{ matrix.tag }}
+      major: ${{ matrix.major }}
+      rebuild: ${{ matrix.rebuild }}
+      dry-run: ${{ inputs.dry-run == true }}
+    secrets: inherit
