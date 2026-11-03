@@ -1,4 +1,4 @@
-name: 'Rebuild Supported Releases on Schedule'
+name: 'Rebuild Supported Releases on Package Updates'
 
 # Debian security fixes land continuously, but a release image is only built once.
 # This rebuilds the newest release of every supported major version from its tag, ignoring
@@ -8,6 +8,11 @@ name: 'Rebuild Supported Releases on Schedule'
 # release appeared in the meantime.
 #
 # Only the newest release of a major is rebuilt, as older ones must not move the floating tags.
+#
+# Scheduled runs (hourly) first check the published image: a major is only rebuilt if
+# `apt-get upgrade` would change something in it. There is no way to be notified of new Debian
+# (or Rspamd) packages, so this is as close to "as soon as an update is available" as it gets.
+# Manual runs always rebuild, unless `only-if-updates` is set.
 
 on:
   workflow_dispatch:
@@ -16,13 +21,18 @@ on:
         description: 'Rebuild only this supported major version (default: all)'
         required: false
         type: string
+      only-if-updates:
+        description: 'Only rebuild majors whose published image has pending package updates (always the case for scheduled runs)'
+        required: false
+        type: boolean
+        default: false
       dry-run:
         description: 'Build and test, but do not push any image'
         required: false
         type: boolean
         default: false
   schedule:
-    - cron: 0 6 * * 5
+    - cron: 0 * * * *
 
 permissions:
   contents: read
@@ -33,8 +43,12 @@ env:
   # Drop a major once its Debian release is end of life. Each line is gated on the tests of its own tag.
   # `15` (Debian 12) is not listed, as its tests need `bitnami/openldap:latest`, which no longer exists.
   SUPPORTED_MAJORS: '16'
+  # Scheduled runs skip a major whose published image is younger than this. Limits how often the tags
+  # change for people tracking them, and stops a rebuild loop if an update never clears.
+  MIN_REBUILD_INTERVAL_HOURS: 3
 
 # Two overlapping runs would probe the same rebuild number and the second push would overwrite the first.
+# GitHub keeps only one pending run per group, so a pending manual run can be replaced by a later scheduled one.
 concurrency:
   group: release-rebuild
   cancel-in-progress: false
@@ -45,6 +59,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.resolve.outputs.matrix }}
+      rebuild-needed: ${{ steps.resolve.outputs.rebuild-needed }}
     steps:
       # Required to see private packages (eg on forks) when probing for existing tags:
       - name: 'Login to GitHub Container Registry'
@@ -54,7 +69,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Builds the matrix of `{tag, major, rebuild}`, one entry per supported major:
+      # Builds the matrix of `{tag, major, rebuild}`, one entry per supported major that needs a rebuild:
       # - `tag` is the newest non-prerelease release of that major.
       # - `rebuild` is the first unused `X.Y.Z-rN` (N >= 1), found by probing the registry (no stored state).
       #   Only a "not found" answer means a tag is free. Any other error (network, rate limit, outage)
@@ -63,6 +78,41 @@ jobs:
         id: resolve
         shell: bash
         run: |
+          # Whether the published image of a release has package updates pending (returns 0 if it does).
+          # The check uses the amd64 image and what the image's own `apt-get upgrade` would do.
+          function needs_rebuild() {
+            local IMAGE_REF=$1 OUTPUT CREATED AGE_HOURS PENDING
+
+            if ! OUTPUT=$(docker pull --quiet --platform linux/amd64 "${IMAGE_REF}" 2>&1); then
+              if grep -qiE 'not found|manifest unknown' <<< "${OUTPUT}"; then
+                echo "${IMAGE_REF}: not published yet (release publish in progress?), skipping"
+                return 1
+              fi
+              echo "Unexpected error while pulling ${IMAGE_REF}:" >&2
+              echo "${OUTPUT}" >&2
+              exit 1
+            fi
+
+            CREATED=$(docker inspect --format '{{.Created}}' "${IMAGE_REF}") || exit 1
+            AGE_HOURS=$(( ($(date +%s) - $(date -d "${CREATED}" +%s)) / 3600 ))
+            if (( AGE_HOURS < MIN_REBUILD_INTERVAL_HOURS )); then
+              echo "${IMAGE_REF}: built ${AGE_HOURS}h ago, within the ${MIN_REBUILD_INTERVAL_HOURS}h cooldown, skipping"
+              return 1
+            fi
+
+            # A failing `apt-get update` must not look like "nothing pending":
+            PENDING=$(docker run --rm --platform linux/amd64 --entrypoint bash "${IMAGE_REF}" \
+              -c 'apt-get -qq update >/dev/null && { apt-get -s upgrade | grep -c "^Inst" || true; }') || exit 1
+
+            if (( PENDING > 0 )); then
+              echo "${IMAGE_REF}: ${PENDING} pending package updates, rebuilding"
+              return 0
+            fi
+
+            echo "${IMAGE_REF}: up to date"
+            return 1
+          }
+
           function next_rebuild() {
             local VERSION=${1#v} N=1 OUTPUT
             while true; do
@@ -97,6 +147,11 @@ jobs:
           RELEASES=$(gh release list --repo "${GITHUB_REPOSITORY}" --limit 200 --exclude-drafts --exclude-pre-releases --json tagName --jq '.[].tagName' \
             | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)
 
+          CHECK_UPDATES=false
+          if [[ ${EVENT_NAME} == schedule || ${INPUT_ONLY_IF_UPDATES} == true ]]; then
+            CHECK_UPDATES=true
+          fi
+
           ENTRIES=()
           for MAJOR in ${MAJORS}; do
             TAG=$(grep -E "^v${MAJOR}\." <<< "${RELEASES}" | tail -1 || true)
@@ -105,21 +160,37 @@ jobs:
               exit 1
             fi
 
+            # The floating `X.Y.Z` tag is the newest build of the release:
+            if [[ ${CHECK_UPDATES} == true ]] && ! needs_rebuild "${IMAGE}:${TAG#v}"; then
+              continue
+            fi
+
             REBUILD=$(next_rebuild "${TAG}")
 
             ENTRIES+=("$(jq -cn --arg tag "${TAG}" --arg major "${MAJOR}" --arg rebuild "${REBUILD}" \
               '{tag: $tag, major: $major, rebuild: $rebuild}')")
           done
 
-          echo "matrix=$(printf '%s\n' "${ENTRIES[@]}" | jq -cs '{include: .}')" >>"${GITHUB_OUTPUT}"
+          # An empty matrix is an error in Actions, so the `rebuild` job is skipped instead:
+          if (( ${#ENTRIES[@]} == 0 )); then
+            echo 'No rebuild needed'
+            echo 'matrix={"include":[]}' >>"${GITHUB_OUTPUT}"
+            echo 'rebuild-needed=false' >>"${GITHUB_OUTPUT}"
+          else
+            echo "matrix=$(printf '%s\n' "${ENTRIES[@]}" | jq -cs '{include: .}')" >>"${GITHUB_OUTPUT}"
+            echo 'rebuild-needed=true' >>"${GITHUB_OUTPUT}"
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
           IMAGE: ${{ secrets.GHCR_REPOSITORY }}
           INPUT_MAJOR: ${{ inputs.major }}
+          INPUT_ONLY_IF_UPDATES: ${{ inputs.only-if-updates }}
+          EVENT_NAME: ${{ github.event_name }}
 
   rebuild:
     name: 'Rebuild ${{ matrix.tag }}'
     needs: resolve
+    if: needs.resolve.outputs.rebuild-needed == 'true'
     strategy:
       # A failing line must not stop the others:
       fail-fast: false
