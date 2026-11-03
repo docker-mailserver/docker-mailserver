@@ -28,7 +28,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### CI
 
-- A weekly workflow rebuilds the newest release of each supported major version and republishes its `X.Y.Z`, `X.Y` and `X` tags (and `latest` for the newest release), plus an immutable `X.Y.Z-rN` tag for rollbacks ([#4833](https://github.com/docker-mailserver/docker-mailserver/pull/4833))
+- An hourly workflow rebuilds the newest release of each supported major version when its published image has package updates pending, and republishes its `X.Y.Z`, `X.Y` and `X` tags (and `latest` for the newest release), plus an immutable `X.Y.Z-rN` tag for rollbacks ([#4833](https://github.com/docker-mailserver/docker-mailserver/pull/4833), [#NNNN](https://github.com/docker-mailserver/docker-mailserver/pull/NNNN))
 - Moved `setup_cli.bats` to the serial test suite to prevent `setup.sh` from racing with teardown of another DMS test container ([#4701](https://github.com/docker-mailserver/docker-mailserver/issues/4701))
 - Excluded `saslauthd` from the process kill/restart assertion because its forked parent process is not reliably reaped by the test
 

@@ -2,13 +2,13 @@
 
 ## Supported Versions
 
-Due to the way DMS is released, the most recent patches and the most current software is published on the `:edge` tag of the container image. Hence, security updates will land on this "rolling release tag". The newest release of each supported major version (currently `v16`, while its Debian base still receives security updates) is rebuilt weekly to include the current Debian security updates. Older tags need manual updating, as we do not usually release an updated image for an existing tag; this will only be done in case of _severe_ vulnerabilities.
+Due to the way DMS is released, the most recent patches and the most current software is published on the `:edge` tag of the container image. Hence, security updates will land on this "rolling release tag". The newest release of each supported major version (currently `v16`, while its Debian base still receives security updates) is rebuilt as soon as package updates are available (checked hourly), to include the current Debian security updates. Older tags need manual updating, as we do not usually release an updated image for an existing tag; this will only be done in case of _severe_ vulnerabilities.
 
-| Image Tags                            | Latest Packages & Patches           |
-|---------------------------------------|:-----------------------------------:|
-| `:edge`                               | :white_check_mark:                  |
-| newest release of a supported major   | :white_check_mark: (weekly rebuild) |
-| other releases                        | :x:                                 |
+| Image Tags                          | Latest Packages & Patches                    |
+|-------------------------------------|:--------------------------------------------:|
+| `:edge`                             | :white_check_mark:                           |
+| newest release of a supported major | :white_check_mark: (rebuilt on updates)      |
+| other releases                      | :x:                                          |
 
 ## Reporting a Vulnerability
 
