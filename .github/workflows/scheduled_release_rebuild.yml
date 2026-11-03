@@ -46,6 +46,10 @@ env:
   # Scheduled runs skip a major whose published image is younger than this. Limits how often the tags
   # change for people tracking them, and stops a rebuild loop if an update never clears.
   MIN_REBUILD_INTERVAL_HOURS: 3
+  # Packages that stay "upgradable" even after a rebuild, so they must not trigger one. v16 builds
+  # `dovecot-fts-xapian` from source as `1.9.1-1~bpo12+1`, which apt sorts below Debian's `1.9.1-1.1`.
+  # Space separated. Not needed for v17+, where Xapian was removed.
+  IGNORED_PENDING_PACKAGES: 'dovecot-fts-xapian'
 
 # Two overlapping runs would probe the same rebuild number and the second push would overwrite the first.
 # GitHub keeps only one pending run per group, so a pending manual run can be replaced by a later scheduled one.
@@ -81,7 +85,7 @@ jobs:
           # Whether the published image of a release has package updates pending (returns 0 if it does).
           # The check uses the amd64 image and what the image's own `apt-get upgrade` would do.
           function needs_rebuild() {
-            local IMAGE_REF=$1 OUTPUT CREATED AGE_HOURS PENDING
+            local IMAGE_REF=$1 OUTPUT CREATED AGE_HOURS PACKAGE PACKAGES PENDING=()
 
             if ! OUTPUT=$(docker pull --quiet --platform linux/amd64 "${IMAGE_REF}" 2>&1); then
               if grep -qiE 'not found|manifest unknown' <<< "${OUTPUT}"; then
@@ -101,11 +105,17 @@ jobs:
             fi
 
             # A failing `apt-get update` must not look like "nothing pending":
-            PENDING=$(docker run --rm --platform linux/amd64 --entrypoint bash "${IMAGE_REF}" \
-              -c 'apt-get -qq update >/dev/null && { apt-get -s upgrade | grep -c "^Inst" || true; }') || exit 1
+            PACKAGES=$(docker run --rm --platform linux/amd64 --entrypoint bash "${IMAGE_REF}" \
+              -c 'apt-get -qq update >/dev/null && { apt-get -s upgrade | grep "^Inst" | cut -d" " -f2 || true; }') || exit 1
 
-            if (( PENDING > 0 )); then
-              echo "${IMAGE_REF}: ${PENDING} pending package updates, rebuilding"
+            for PACKAGE in ${PACKAGES}; do
+              if [[ " ${IGNORED_PENDING_PACKAGES} " != *" ${PACKAGE} "* ]]; then
+                PENDING+=("${PACKAGE}")
+              fi
+            done
+
+            if (( ${#PENDING[@]} > 0 )); then
+              echo "${IMAGE_REF}: ${#PENDING[@]} pending package updates, rebuilding (${PENDING[*]:0:10}...)"
               return 0
             fi
 
