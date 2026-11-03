@@ -32,7 +32,8 @@ on:
         type: boolean
         default: false
   schedule:
-    - cron: 0 * * * *
+    # Not at minute 0: GitHub delays or drops scheduled runs at the start of the hour, when load is highest.
+    - cron: 17 * * * *
 
 permissions:
   contents: read
