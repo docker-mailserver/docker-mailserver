@@ -2,6 +2,32 @@ name: 'Publish the DMS Container Image'
 
 on:
   workflow_call:
+    inputs:
+      # Release tag (eg `v16.0.1`) to (re)publish, provided by the rebuild workflow. Defaults to the triggering tag, if any:
+      release-tag:
+        required: false
+        type: string
+        default: ''
+      # Rebuild counter for the immutable `X.Y.Z-rN` tag (`0` is the original release build):
+      rebuild:
+        required: false
+        type: string
+        default: '0'
+      # Whether this release may move `latest` (only the newest release overall may):
+      latest:
+        required: false
+        type: boolean
+        default: true
+      # Prefix of the GHA cache scopes the images were built into:
+      cache-prefix:
+        required: false
+        type: string
+        default: ''
+      # Build everything but do not push any image:
+      dry-run:
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -15,7 +41,34 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.release-tag }}
           submodules: recursive
+
+      # Determines which release is published, as `steps.release.outputs.tag`:
+      # - Rebuilds provide `release-tag`. This wins, as they run from `master` and not from the tag.
+      # - Pushing a release tag publishes that tag.
+      # - Otherwise (push to `master`) the tag is empty, which means an `:edge` build.
+      # Later steps check for an empty tag to enable `:edge` and the release tags.
+      # The input is passed via `env` instead of being interpolated into the script, to avoid injection.
+      - name: 'Resolve release tag'
+        id: release
+        shell: bash
+        run: |
+          if [[ -n ${INPUT_TAG} ]]; then
+            echo "tag=${INPUT_TAG}" >>"${GITHUB_OUTPUT}"
+          elif [[ ${GITHUB_REF_TYPE} == tag ]]; then
+            echo "tag=${GITHUB_REF_NAME}" >>"${GITHUB_OUTPUT}"
+          else
+            echo 'tag=' >>"${GITHUB_OUTPUT}"
+          fi
+        env:
+          INPUT_TAG: ${{ inputs.release-tag }}
+
+      # The commit of the published code. For rebuilds this is the release tag, not the triggering `master`.
+      - name: 'Resolve revision'
+        id: revision
+        shell: bash
+        run: echo "sha=$(git rev-parse HEAD)" >>"${GITHUB_OUTPUT}"
 
       - name: 'Prepare tags'
         id: prep
@@ -24,11 +77,14 @@ jobs:
           images: |
             ${{ secrets.DOCKER_REPOSITORY }}
             ${{ secrets.GHCR_REPOSITORY }}
+          flavor: |
+            latest=${{ inputs.latest && 'auto' || 'false' }}
           tags: |
-            type=edge,branch=master
-            type=semver,pattern={{major}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}.{{minor}}.{{patch}}
+            type=edge,branch=master,enable=${{ steps.release.outputs.tag == '' }}
+            type=semver,pattern={{major}},value=${{ steps.release.outputs.tag }},enable=${{ steps.release.outputs.tag != '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.release.outputs.tag }},enable=${{ steps.release.outputs.tag != '' }}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}},value=${{ steps.release.outputs.tag }},enable=${{ steps.release.outputs.tag != '' }}
+            type=semver,pattern={{version}}-r${{ inputs.rebuild }},value=${{ steps.release.outputs.tag }},enable=${{ steps.release.outputs.tag != '' }}
 
       - name: 'Set up QEMU'
         uses: docker/setup-qemu-action@v4.4.0
@@ -56,13 +112,13 @@ jobs:
         with:
           context: .
           build-args: |
-            DMS_RELEASE=${{ github.ref_type == 'tag' && github.ref_name || 'edge' }}
-            VCS_REVISION=${{ github.sha }}
+            DMS_RELEASE=${{ steps.release.outputs.tag || 'edge' }}
+            VCS_REVISION=${{ steps.revision.outputs.sha }}
           platforms: linux/amd64,linux/arm64
-          push: true
+          push: ${{ !inputs.dry-run }}
           tags: ${{ steps.prep.outputs.tags }}
           cache-from: |
-            type=gha,scope=linux-amd64
-            type=gha,scope=linux-arm64
+            type=gha,scope=${{ inputs.cache-prefix }}linux-amd64
+            type=gha,scope=${{ inputs.cache-prefix }}linux-arm64
           # Disable provenance attestation: https://docs.docker.com/build/attestations/slsa-provenance/
           provenance: false
