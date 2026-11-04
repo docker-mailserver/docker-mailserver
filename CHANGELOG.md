@@ -34,7 +34,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Updated
 
-- **Swaks** is installed from the Debian package (same upstream version, `20240103.0`) instead of from a GitHub release download.
+- **Swaks** is installed from the Debian package (same upstream version, `20240103.0`) instead of from a GitHub release download ([#4837](https://github.com/docker-mailserver/docker-mailserver/pull/4837)).
 
 ### Fixed
 
