@@ -81,15 +81,6 @@ function _install_utils() {
     "https://github.com/smallstep/cli/releases/download/v${STEP_CLI_VERSION}/step-cli_${ARCH_B}.deb"
   dpkg -i /tmp/step-cli.deb
   rm /tmp/step-cli.deb
-
-  _log 'trace' 'Installing swaks'
-  # `perl-doc` is required for `swaks --help` to work:
-  apt-get "${QUIET}" install --no-install-recommends perl-doc
-  local SWAKS_VERSION='20240103.0'
-  local SWAKS_RELEASE="swaks-${SWAKS_VERSION}"
-  curl -sSfL \
-    "https://github.com/jetmore/swaks/releases/download/v${SWAKS_VERSION}/${SWAKS_RELEASE}.tar.gz" \
-    | tar -xz --directory /usr/local/bin --no-same-owner --strip-components=1 "${SWAKS_RELEASE}/swaks"
 }
 
 function _install_packages() {
@@ -117,7 +108,8 @@ function _install_packages() {
     libdate-manip-perl libldap-common libmail-spf-perl libnet-dns-perl
     locales logwatch netcat-openbsd
     nftables # primarily for Fail2Ban
-    rsyslog supervisor
+    perl-doc # required for `swaks --help` to work
+    rsyslog supervisor swaks
     uuid # used for file-locking
     whois
   )
