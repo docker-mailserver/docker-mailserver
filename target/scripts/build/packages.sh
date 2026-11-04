@@ -29,7 +29,7 @@ function _pre_installation_steps() {
     apt-utils
     # Required to ensure correct `clamav` ownership (for associated COPY in Dockerfile):
     adduser
-    # Required to support adding third-party repos (/etc/apt/sources.list.d) as alternative package sources (eg: Dovecot CE and Rspamd):
+    # Required to support adding third-party repos (/etc/apt/sources.list.d) as alternative package sources (eg: Rspamd):
     apt-transport-https ca-certificates curl gnupg
     # Avoid problems with SA / Amavis (https://github.com/docker-mailserver/docker-mailserver/pull/3403#pullrequestreview-1596689953):
     systemd-standalone-sysusers
@@ -169,31 +169,6 @@ function _install_dovecot() {
     dovecot-auth-lua
     dovecot-solr
   )
-
-  # NOTE: (Opt-in via ENV) Change repo source for dovecot packages
-  #       to a third-party repo maintained by Dovecot.
-  # NOTE: Arch restriction required because AMD64 / x86_64 is the
-  #       only arch supported from the Dovecot CE repo.
-  # Repo: https://repo.dovecot.org/ce-2.4-latest/debian/trixie/dists/trixie/main/
-  # Docs: https://repo.dovecot.org/#debian
-  if [[ ${DOVECOT_COMMUNITY_REPO:-0} -eq 1 ]] && [[ $(uname --machine) == 'x86_64' ]]; then
-    _log 'trace' 'Adding third-party package repository (Dovecot)'
-    curl -fsSL https://repo.dovecot.org/DOVECOT-REPO-GPG-2.4 \
-      | gpg --dearmor > /usr/share/keyrings/upstream-dovecot.gpg
-    cat >/etc/apt/sources.list.d/upstream-dovecot.sources <<EOF
-Types: deb
-URIs: https://repo.dovecot.org/ce-2.4-latest/debian/${VERSION_CODENAME}
-Suites: ${VERSION_CODENAME}
-Components: main
-Signed-By: /usr/share/keyrings/upstream-dovecot.gpg
-EOF
-
-    apt-get "${QUIET}" update
-
-    # This repo instead provides `dovecot-auth-lua` as a transitional package to `dovecot-lua`,
-    # thus this extra package is required to retain lua support:
-    DOVECOT_PACKAGES+=(dovecot-lua)
-  fi
 
   _log 'debug' 'Installing Dovecot'
   apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"

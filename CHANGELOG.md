@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Dovecot**
   - The `dovecot-fts-xapian` plugin is no longer included in the image. Existing users must remove their Xapian configuration and migrate to Flatcurve; existing `xapian-indexes` cannot be reused by Flatcurve.
+  - The `DOVECOT_COMMUNITY_REPO` build argument has been removed and Dovecot is always installed from the Debian repository. Debian's security tracker currently lists no unfixed CVEs for the Trixie package, and the community repository was only available for `amd64`. Custom images built with `DOVECOT_COMMUNITY_REPO=1` now get the Debian version of Dovecot.
 - **LDAP** ([#3524](https://github.com/docker-mailserver/docker-mailserver/pull/3524))
   - The Postfix LDAP configs are now generated at startup to `/etc/postfix/ldap/{users,groups,aliases,domains,senders}.cf` (previously `/etc/postfix/ldap-*.cf`). Custom configs `ldap-*.cf` in the DMS config volume are merged into them instead of replacing them, and `ldap-senders.cf` is now supported too.
   - `LDAP_QUERY_FILTER_{USER,GROUP,ALIAS,DOMAIN,SENDERS}` have been renamed to `POSTFIX_{USERS,GROUPS,ALIASES,DOMAINS,SENDERS}_QUERY_FILTER`. Any other Postfix LDAP table setting can be set per lookup table via `POSTFIX_<KIND>_<SETTING>` (_e.g. `POSTFIX_GROUPS_LEAF_RESULT_ATTRIBUTE`_).

@@ -4,13 +4,11 @@
 # This is in preparation for more granular stages (eg ClamAV and Fail2Ban split into their own)
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG DOVECOT_COMMUNITY_REPO=0
 ARG LOG_LEVEL=trace
 
 FROM docker.io/debian:13-slim AS stage-base
 
 ARG DEBIAN_FRONTEND
-ARG DOVECOT_COMMUNITY_REPO
 ARG LOG_LEVEL
 
 SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
