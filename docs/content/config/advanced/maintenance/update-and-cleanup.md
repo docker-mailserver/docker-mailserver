@@ -27,7 +27,7 @@ title: 'Maintenance | Update and Cleanup'
 
         A [community fork (`nicholas-fedor/watchtower`)][watchtower::community-fork] has since established itself as a maintained successor.
 
-!!! tip "The image tag used for a container is monitored for updates (eg: `:latest`, `:edge`, `:16`)"
+!!! tip "The image tag used for a container is monitored for updates (eg: `:latest`, `:edge`, `:17`)"
 
     The automatic update support is **only for updates to that specific image tag**.
 
@@ -36,8 +36,8 @@ title: 'Maintenance | Update and Cleanup'
     The tag for an image is never modified by `watchtower`, instead `watchtower` monitors the image digest associated to that image tag (_which will change to a new image digest if a new image release reassigns the tag_), when the digest for the tag changes this triggers a pull of the new image.
 
     - Your container will not update to a new major release version (_unless using `:latest`_).
-    - The tags of the newest release of each supported major (eg `:16.0.1`, `:16.0`, `:16`, and `:latest` for the newest overall) are rebuilt with the current package updates (_Debian security fixes included_) when any are available. This is checked every day. Use the immutable `:16.0.1-rN` tag if you need to pin an exact build.
-    - Omit the minor or patch portion of a semver tag to receive updates for the omitted portion (_eg: `:16` will represent the latest minor + patch release, whereas `:16.0` would only receive patch updates instead of minor releases like `16.1`_).
+    - The tags of the newest release of each supported major (eg `:17.0.0`, `:17.0`, `:17`, and `:latest` for the newest overall) are rebuilt with the current package updates (_Debian security fixes included_) when any are available. This is checked every day. Use the immutable `:17.0.0-rN` tag if you need to pin an exact build.
+    - Omit the minor or patch portion of a semver tag to receive updates for the omitted portion (_eg: `:17` will represent the latest minor + patch release, whereas `:17.0` would only receive patch updates instead of minor releases like `17.1`_).
 
 !!! tip "Updating only specific containers"
 

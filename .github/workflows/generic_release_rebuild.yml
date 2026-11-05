@@ -6,7 +6,7 @@ name: 'Rebuild, Test & Publish One Release'
 on:
   workflow_call:
     inputs:
-      # Release tag to rebuild (eg `v16.0.1`):
+      # Release tag to rebuild (eg `v17.0.0`):
       tag:
         required: true
         type: string

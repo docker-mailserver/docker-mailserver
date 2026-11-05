@@ -3,7 +3,7 @@ name: 'Publish the DMS Container Image'
 on:
   workflow_call:
     inputs:
-      # Release tag (eg `v16.0.1`) to (re)publish, provided by the rebuild workflow. Defaults to the triggering tag, if any:
+      # Release tag (eg `v17.0.0`) to (re)publish, provided by the rebuild workflow. Defaults to the triggering tag, if any:
       release-tag:
         required: false
         type: string

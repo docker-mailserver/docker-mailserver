@@ -71,7 +71,7 @@ This feature enables support for delegating DMS account authentication through t
 
         [Older releases of `curl` have a bug with `XOAUTH2` support][gh-issue::curl::xoauth2-bug] since `7.80.0` (Nov 2021) but fixed from `8.6.0` (Jan 2024). It treats `XOAUTH2` as `OAUTHBEARER`.
 
-        If you use `docker exec` to run `curl` from within DMS, the current DMS v14 release (_Debian 12 with curl `7.88.1`_) is affected by this bug.
+        If you use `docker exec` to run `curl` from within DMS, releases up to DMS v15 (_Debian 12 with curl `7.88.1`_) are affected by this bug. Since DMS v16 (_Debian 13_), the bundled `curl` is not affected.
 
 ## Config Examples
 
