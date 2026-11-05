@@ -6566,9 +6566,9 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 <p>Add trailing white-space by quote wrapping the value: <code>SPAM_SUBJECT='[SPAM] '</code></p>
 </details>
 <h5 id="dms_config_poll"><a class="toclink" href="#dms_config_poll">DMS_CONFIG_POLL</a></h5>
-<p>Defines how often DMS polls <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v16.0.0/target/scripts/helpers/change-detection.sh#L30-L42">monitored config files</a> for changes in the DMS Config Volume. This also includes TLS certificates and is often relied on for applying changes managed via <code>setup</code> CLI commands.</p>
+<p>Defines how often DMS polls <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v17.0.0/target/scripts/helpers/change-detection.sh#L30-L42">monitored config files</a> for changes in the DMS Config Volume. This also includes TLS certificates and is often relied on for applying changes managed via <code>setup</code> CLI commands.</p>
 <ul>
-<li><strong><code>2</code></strong> =&gt; How often (in seconds) <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v16.0.0/target/scripts/check-for-changes.sh#L37">change detection</a> is performed.</li>
+<li><strong><code>2</code></strong> =&gt; How often (in seconds) <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v17.0.0/target/scripts/check-for-changes.sh#L211">change detection</a> is performed.</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Decreasing the frequency of polling for changes</p>

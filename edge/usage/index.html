@@ -3300,7 +3300,7 @@
 </table>
 <div class="admonition info">
 <p class="admonition-title">Rebuilds of supported releases on package updates</p>
-<p>Debian publishes security fixes continuously, but a release image is only built once. To pick those fixes up, the newest release of every supported major version (<em>currently <code>v16</code></em>) is checked every day. If its published image has package updates pending (<em>from Debian</em>), it is rebuilt without cached layers, tested, and published again:</p>
+<p>Debian publishes security fixes continuously, but a release image is only built once. To pick those fixes up, the newest release of every supported major version (<em>currently <code>v16</code> and <code>v17</code></em>) is checked every day. If its published image has package updates pending (<em>from Debian</em>), it is rebuilt without cached layers, tested, and published again:</p>
 <ul>
 <li>The tags <code>X.Y.Z</code>, <code>X.Y</code> and <code>X</code> of the rebuilt release are moved to the rebuilt image. <code>latest</code> is only moved when the rebuilt release is the newest overall. Older minor and patch releases within a major are not rebuilt and keep their last image.</li>
 <li>Each build also receives an immutable <code>X.Y.Z-rN</code> tag (<code>-r0</code> is the original release build, rebuilds count up from <code>-r1</code>). Use it to pin an exact build or to roll back, or pin the image digest.</li>
