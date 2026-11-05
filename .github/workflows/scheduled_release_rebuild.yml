@@ -22,7 +22,7 @@ on:
         required: false
         type: string
       only-if-updates:
-        description: 'Only rebuild majors whose published image has pending package updates (always the case for scheduled runs)'
+        description: 'Only rebuild majors whose published image has pending package updates that were not attempted yet (always the case for scheduled runs)'
         required: false
         type: boolean
         default: false
@@ -36,6 +36,8 @@ on:
     - cron: 17 * * * *
 
 permissions:
+  # Required to look up the artifacts that record rebuild attempts:
+  actions: read
   contents: read
   packages: write
 
@@ -45,7 +47,7 @@ env:
   # `15` (Debian 12) is not listed, as its tests need `bitnami/openldap:latest`, which no longer exists.
   SUPPORTED_MAJORS: '16'
   # Scheduled runs skip a major whose published image is younger than this. Limits how often the tags
-  # change for people tracking them, and stops a rebuild loop if an update never clears.
+  # change for people tracking them. A rebuild loop is prevented by the recorded attempts (see `record-attempt`).
   MIN_REBUILD_INTERVAL_HOURS: 3
   # Packages that must not trigger a rebuild. Space separated.
   # - `dovecot-fts-xapian` stays "upgradable" even after a rebuild: v16 builds it from source as
@@ -76,19 +78,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Builds the matrix of `{tag, major, rebuild}`, one entry per supported major that needs a rebuild:
+      # Builds the matrix of `{tag, major, rebuild, attempt, pending}`, one entry per supported major that needs a rebuild:
       # - `tag` is the newest non-prerelease release of that major.
       # - `rebuild` is the first unused `X.Y.Z-rN` (N >= 1), found by probing the registry (no stored state).
       #   Only a "not found" answer means a tag is free. Any other error (network, rate limit, outage)
       #   fails the job, as continuing could overwrite an existing, supposedly immutable tag.
+      # - `attempt` is the name of the artifact that `record-attempt` creates, `pending` its content (the pending
+      #   updates as `name=version`). Both are empty if the rebuild was not conditional on pending updates.
       - name: 'Resolve releases and rebuild numbers'
         id: resolve
         shell: bash
         run: |
-          # Whether the published image of a release has package updates pending (returns 0 if it does).
-          # The check uses the amd64 image and what the image's own `apt-get upgrade` would do.
+          # Whether the published image of a release has package updates pending that were not attempted
+          # yet (returns 0 if so). The check uses the amd64 image and what the image's own `apt-get upgrade` would do.
+          # A rebuild that fails publishes nothing, and an update may never clear. Either would be retried on every
+          # run, so each attempt is recorded (see `record-attempt`) under a name made of the release and the pending
+          # updates with their versions. The same updates are not attempted again until the record expires.
+          # On success, sets `ATTEMPT_KEY` (that name) and `ATTEMPT_PENDING` (the pending updates) for the caller.
           function needs_rebuild() {
-            local IMAGE_REF=$1 OUTPUT CREATED AGE_HOURS PACKAGE PACKAGES PENDING=()
+            local TAG=$1 IMAGE_REF="${IMAGE}:${1#v}" OUTPUT CREATED AGE_HOURS ENTRY PACKAGES KEY ATTEMPTS PENDING=()
 
             if ! OUTPUT=$(docker pull --quiet --platform linux/amd64 "${IMAGE_REF}" 2>&1); then
               if grep -qiE 'not found|manifest unknown' <<< "${OUTPUT}"; then
@@ -107,23 +115,38 @@ jobs:
               return 1
             fi
 
-            # A failing `apt-get update` must not look like "nothing pending":
+            # A failing `apt-get update` (or `docker run`) must not look like "nothing pending", hence `pipefail`.
+            # Without `--error-on=any`, `apt-get update` exits 0 when index downloads fail.
+            # The lines to parse look like `Inst <name> [<installed>] (<candidate> <origin> [<arch>])`:
             PACKAGES=$(docker run --rm --platform linux/amd64 --entrypoint bash "${IMAGE_REF}" \
-              -c 'apt-get -qq update >/dev/null && { apt-get -s upgrade | grep "^Inst" | cut -d" " -f2 || true; }') || exit 1
+              -c 'apt-get -qq --error-on=any update >/dev/null && apt-get -s upgrade' \
+              | awk '/^Inst/ { for (i = 3; i <= NF; i++) if ($i ~ /^\(/) { print $2 "=" substr($i, 2); next } }') || exit 1
 
-            for PACKAGE in ${PACKAGES}; do
-              if [[ " ${IGNORED_PENDING_PACKAGES} " != *" ${PACKAGE} "* ]]; then
-                PENDING+=("${PACKAGE}")
+            for ENTRY in ${PACKAGES}; do
+              if [[ " ${IGNORED_PENDING_PACKAGES} " != *" ${ENTRY%%=*} "* ]]; then
+                PENDING+=("${ENTRY}")
               fi
             done
 
-            if (( ${#PENDING[@]} > 0 )); then
-              echo "${IMAGE_REF}: ${#PENDING[@]} pending package updates, rebuilding (${PENDING[*]:0:10}...)"
-              return 0
+            if (( ${#PENDING[@]} == 0 )); then
+              echo "${IMAGE_REF}: up to date"
+              return 1
             fi
 
-            echo "${IMAGE_REF}: up to date"
-            return 1
+            KEY="release-rebuild-attempt-${TAG}-$(printf '%s\n' "${PENDING[@]}" | LC_ALL=C sort | sha256sum | cut -c1-16)" || exit 1
+            ATTEMPTS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${KEY}" \
+              --jq '[.artifacts[] | select(.expired | not)] | length') || exit 1
+            if (( ATTEMPTS > 0 )); then
+              echo "${IMAGE_REF}: ${#PENDING[@]} pending package updates, but a rebuild for them was already attempted (${KEY}), skipping"
+              echo "To retry, dispatch the workflow manually without 'only-if-updates' or re-run the failed jobs of that run"
+              return 1
+            fi
+
+            echo "${IMAGE_REF}: ${#PENDING[@]} pending package updates, rebuilding"
+            printf '  %s\n' "${PENDING[@]}"
+            ATTEMPT_KEY=${KEY}
+            ATTEMPT_PENDING="${PENDING[*]}"
+            return 0
           }
 
           function next_rebuild() {
@@ -173,15 +196,17 @@ jobs:
               exit 1
             fi
 
-            # The floating `X.Y.Z` tag is the newest build of the release:
-            if [[ ${CHECK_UPDATES} == true ]] && ! needs_rebuild "${IMAGE}:${TAG#v}"; then
+            # The floating `X.Y.Z` tag, which `needs_rebuild` checks, is the newest build of the release:
+            ATTEMPT_KEY='' ATTEMPT_PENDING=''
+            if [[ ${CHECK_UPDATES} == true ]] && ! needs_rebuild "${TAG}"; then
               continue
             fi
 
             REBUILD=$(next_rebuild "${TAG}")
 
             ENTRIES+=("$(jq -cn --arg tag "${TAG}" --arg major "${MAJOR}" --arg rebuild "${REBUILD}" \
-              '{tag: $tag, major: $major, rebuild: $rebuild}')")
+              --arg attempt "${ATTEMPT_KEY}" --arg pending "${ATTEMPT_PENDING}" \
+              '{tag: $tag, major: $major, rebuild: $rebuild, attempt: $attempt, pending: $pending}')")
           done
 
           # An empty matrix is an error in Actions, so the `rebuild` job is skipped instead:
@@ -199,6 +224,33 @@ jobs:
           INPUT_MAJOR: ${{ inputs.major }}
           INPUT_ONLY_IF_UPDATES: ${{ inputs.only-if-updates }}
           EVENT_NAME: ${{ github.event_name }}
+
+  # A rebuild that fails publishes nothing, and an update may never clear. Without a record of the attempt, every
+  # scheduled run would start another full build. The artifact is looked up by `resolve` (see `needs_rebuild`).
+  # It runs in parallel to `rebuild` on purpose, so the attempt is recorded whatever the outcome is.
+  # The record expires after `retention-days`, which is when the same updates are attempted again.
+  record-attempt:
+    name: 'Record Attempt for ${{ matrix.tag }}'
+    needs: resolve
+    if: needs.resolve.outputs.rebuild-needed == 'true'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
+    steps:
+      - name: 'Write the pending updates'
+        if: matrix.attempt != ''
+        run: tr ' ' '\n' <<< "${PENDING}" >attempt.txt
+        env:
+          PENDING: ${{ matrix.pending }}
+
+      - name: 'Upload the record'
+        if: matrix.attempt != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.attempt }}
+          path: attempt.txt
+          retention-days: 7
 
   rebuild:
     name: 'Rebuild ${{ matrix.tag }}'

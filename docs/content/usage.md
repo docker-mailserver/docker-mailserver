@@ -97,6 +97,7 @@ All workflows are using the tagging convention listed below. It is subsequently 
 
     - The tags `X.Y.Z`, `X.Y` and `X` of the rebuilt release are moved to the rebuilt image. `latest` is only moved when the rebuilt release is the newest overall. Older minor and patch releases within a major are not rebuilt and keep their last image.
     - Each build also receives an immutable `X.Y.Z-rN` tag (`-r0` is the original release build, rebuilds count up from `-r1`). Use it to pin an exact build or to roll back, or pin the image digest.
+    - A given set of pending updates is only attempted once, even if the rebuild fails or the updates stay pending afterwards. The next attempt happens when the set of pending updates changes, or after 7 days. To retry earlier, re-run the failed jobs of the workflow run or dispatch the workflow manually.
 
 [github-ci]: https://github.com/docker-mailserver/docker-mailserver/actions
 [dockerhub-image]: https://hub.docker.com/r/mailserver/docker-mailserver
