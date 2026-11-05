@@ -167,9 +167,10 @@ function __install_dovecot_debian_config() {
   local DEBIAN_PACKAGES=("${@}")
   local DEBIAN_VERSION TMP_DIR PACKAGE
 
-  # Both repos use the `trixie` suite, so select Debian's packages by version:
+  # Both repos use the `trixie` suite, so select Debian's packages by version.
+  # Exclude the CE repo instead of matching a Debian host, so that builds behind a mirror also work:
   DEBIAN_VERSION=$(apt-cache madison dovecot-core \
-    | awk -F '|' '$3 ~ /deb\.debian\.org/ { gsub(/ /, "", $2); print $2 }' \
+    | awk -F '|' '$3 !~ /repo\.dovecot\.org/ { gsub(/ /, "", $2); print $2 }' \
     | sort --version-sort | tail -n 1)
   if [[ -z ${DEBIAN_VERSION} ]]; then
     _log 'error' 'Could not find the Debian version of dovecot-core'
