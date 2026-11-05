@@ -1,4 +1,4 @@
-name: 'Rebuild Supported Releases on Schedule'
+name: 'Rebuild Supported Releases on Package Updates'
 
 # Debian security fixes land continuously, but a release image is only built once.
 # This rebuilds the newest release of every supported major version from its tag, ignoring
@@ -8,6 +8,11 @@ name: 'Rebuild Supported Releases on Schedule'
 # release appeared in the meantime.
 #
 # Only the newest release of a major is rebuilt, as older ones must not move the floating tags.
+#
+# Scheduled runs (daily) first check the published image: a major is only rebuilt if
+# `apt-get upgrade` would change something in it. There is no way to be notified of new Debian
+# packages, so this is as close to "as soon as an update is available" as it gets.
+# Manual runs always rebuild, unless `only-if-updates` is set.
 
 on:
   workflow_dispatch:
@@ -16,15 +21,24 @@ on:
         description: 'Rebuild only this supported major version (default: all)'
         required: false
         type: string
+      only-if-updates:
+        description: 'Only rebuild majors whose published image has pending package updates that were not attempted yet (always the case for scheduled runs)'
+        required: false
+        type: boolean
+        default: false
       dry-run:
         description: 'Build and test, but do not push any image'
         required: false
         type: boolean
         default: false
   schedule:
-    - cron: 0 6 * * 5
+    # Not at minute 0: GitHub delays or drops scheduled runs
+    # at the start of the hour, when load is highest.
+    - cron: 35 4 * * *
 
 permissions:
+  # Required to look up the artifacts that record rebuild attempts:
+  actions: read
   contents: read
   packages: write
 
@@ -33,8 +47,15 @@ env:
   # Drop a major once its Debian release is end of life. Each line is gated on the tests of its own tag.
   # `15` (Debian 12) is not listed, as its tests need `bitnami/openldap:latest`, which no longer exists.
   SUPPORTED_MAJORS: '16'
+  # Packages that must not trigger a rebuild. Space separated.
+  # - `dovecot-fts-xapian` stays "upgradable" even after a rebuild: v16 builds it from source as
+  #   `1.9.1-1~bpo12+1`, which apt sorts below Debian's `1.9.1-1.1`. Not needed for v17+, where Xapian was removed.
+  # - `rspamd`: v16 installs it from the rspamd.com apt repository, so every upstream release would show up as
+  #   pending. Rebuilds should only pick up Debian updates. From v17 on, Rspamd is a pinned `.deb` (no apt repository).
+  IGNORED_PENDING_PACKAGES: 'dovecot-fts-xapian rspamd'
 
 # Two overlapping runs would probe the same rebuild number and the second push would overwrite the first.
+# GitHub keeps only one pending run per group, so a pending manual run can be replaced by a later scheduled one.
 concurrency:
   group: release-rebuild
   cancel-in-progress: false
@@ -45,6 +66,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.resolve.outputs.matrix }}
+      rebuild-needed: ${{ steps.resolve.outputs.rebuild-needed }}
     steps:
       # Required to see private packages (eg on forks) when probing for existing tags:
       - name: 'Login to GitHub Container Registry'
@@ -54,15 +76,70 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Builds the matrix of `{tag, major, rebuild}`, one entry per supported major:
+      # Builds the matrix of `{tag, major, rebuild, attempt, pending}`, one entry per supported major that needs a rebuild:
       # - `tag` is the newest non-prerelease release of that major.
       # - `rebuild` is the first unused `X.Y.Z-rN` (N >= 1), found by probing the registry (no stored state).
       #   Only a "not found" answer means a tag is free. Any other error (network, rate limit, outage)
       #   fails the job, as continuing could overwrite an existing, supposedly immutable tag.
+      # - `attempt` is the name of the artifact that `record-attempt` creates, `pending` its content (the pending
+      #   updates as `name=version`). Both are empty if the rebuild was not conditional on pending updates.
       - name: 'Resolve releases and rebuild numbers'
         id: resolve
         shell: bash
         run: |
+          # Whether the published image of a release has package updates pending that were not attempted
+          # yet (returns 0 if so). The check uses the amd64 image and what the image's own `apt-get upgrade` would do.
+          # A rebuild that fails publishes nothing, and an update may never clear. Either would be retried on every
+          # run, so each attempt is recorded (see `record-attempt`) under a name made of the release and the pending
+          # updates with their versions. The same updates are not attempted again until the record expires.
+          # On success, sets `ATTEMPT_KEY` (that name) and `ATTEMPT_PENDING` (the pending updates) for the caller.
+          function needs_rebuild() {
+            local TAG=$1 IMAGE_REF="${IMAGE}:${1#v}" OUTPUT ENTRY PACKAGES KEY ATTEMPTS PENDING=()
+
+            if ! OUTPUT=$(docker pull --quiet --platform linux/amd64 "${IMAGE_REF}" 2>&1); then
+              if grep -qiE 'not found|manifest unknown' <<< "${OUTPUT}"; then
+                echo "${IMAGE_REF}: not published yet (release publish in progress?), skipping"
+                return 1
+              fi
+              echo "Unexpected error while pulling ${IMAGE_REF}:" >&2
+              echo "${OUTPUT}" >&2
+              exit 1
+            fi
+
+            # A failing `apt-get update` (or `docker run`) must not look like "nothing pending", hence `pipefail`.
+            # Without `--error-on=any`, `apt-get update` exits 0 when index downloads fail.
+            # The lines to parse look like `Inst <name> [<installed>] (<candidate> <origin> [<arch>])`:
+            PACKAGES=$(docker run --rm --platform linux/amd64 --entrypoint bash "${IMAGE_REF}" \
+              -c 'apt-get -qq --error-on=any update >/dev/null && apt-get -s upgrade' \
+              | awk '/^Inst/ { for (i = 3; i <= NF; i++) if ($i ~ /^\(/) { print $2 "=" substr($i, 2); next } }') || exit 1
+
+            for ENTRY in ${PACKAGES}; do
+              if [[ " ${IGNORED_PENDING_PACKAGES} " != *" ${ENTRY%%=*} "* ]]; then
+                PENDING+=("${ENTRY}")
+              fi
+            done
+
+            if (( ${#PENDING[@]} == 0 )); then
+              echo "${IMAGE_REF}: up to date"
+              return 1
+            fi
+
+            KEY="release-rebuild-attempt-${TAG}-$(printf '%s\n' "${PENDING[@]}" | LC_ALL=C sort | sha256sum | cut -c1-16)" || exit 1
+            ATTEMPTS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${KEY}" \
+              --jq '[.artifacts[] | select(.expired | not)] | length') || exit 1
+            if (( ATTEMPTS > 0 )); then
+              echo "${IMAGE_REF}: ${#PENDING[@]} pending package updates, but a rebuild for them was already attempted (${KEY}), skipping"
+              echo "To retry, dispatch the workflow manually without 'only-if-updates' or re-run the failed jobs of that run"
+              return 1
+            fi
+
+            echo "${IMAGE_REF}: ${#PENDING[@]} pending package updates, rebuilding"
+            printf '  %s\n' "${PENDING[@]}"
+            ATTEMPT_KEY=${KEY}
+            ATTEMPT_PENDING="${PENDING[*]}"
+            return 0
+          }
+
           function next_rebuild() {
             local VERSION=${1#v} N=1 OUTPUT
             while true; do
@@ -97,6 +174,11 @@ jobs:
           RELEASES=$(gh release list --repo "${GITHUB_REPOSITORY}" --limit 200 --exclude-drafts --exclude-pre-releases --json tagName --jq '.[].tagName' \
             | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)
 
+          CHECK_UPDATES=false
+          if [[ ${EVENT_NAME} == schedule || ${INPUT_ONLY_IF_UPDATES} == true ]]; then
+            CHECK_UPDATES=true
+          fi
+
           ENTRIES=()
           for MAJOR in ${MAJORS}; do
             TAG=$(grep -E "^v${MAJOR}\." <<< "${RELEASES}" | tail -1 || true)
@@ -105,21 +187,66 @@ jobs:
               exit 1
             fi
 
+            # The floating `X.Y.Z` tag, which `needs_rebuild` checks, is the newest build of the release:
+            ATTEMPT_KEY='' ATTEMPT_PENDING=''
+            if [[ ${CHECK_UPDATES} == true ]] && ! needs_rebuild "${TAG}"; then
+              continue
+            fi
+
             REBUILD=$(next_rebuild "${TAG}")
 
             ENTRIES+=("$(jq -cn --arg tag "${TAG}" --arg major "${MAJOR}" --arg rebuild "${REBUILD}" \
-              '{tag: $tag, major: $major, rebuild: $rebuild}')")
+              --arg attempt "${ATTEMPT_KEY}" --arg pending "${ATTEMPT_PENDING}" \
+              '{tag: $tag, major: $major, rebuild: $rebuild, attempt: $attempt, pending: $pending}')")
           done
 
-          echo "matrix=$(printf '%s\n' "${ENTRIES[@]}" | jq -cs '{include: .}')" >>"${GITHUB_OUTPUT}"
+          # An empty matrix is an error in Actions, so the `rebuild` job is skipped instead:
+          if (( ${#ENTRIES[@]} == 0 )); then
+            echo 'No rebuild needed'
+            echo 'matrix={"include":[]}' >>"${GITHUB_OUTPUT}"
+            echo 'rebuild-needed=false' >>"${GITHUB_OUTPUT}"
+          else
+            echo "matrix=$(printf '%s\n' "${ENTRIES[@]}" | jq -cs '{include: .}')" >>"${GITHUB_OUTPUT}"
+            echo 'rebuild-needed=true' >>"${GITHUB_OUTPUT}"
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
           IMAGE: ${{ secrets.GHCR_REPOSITORY }}
           INPUT_MAJOR: ${{ inputs.major }}
+          INPUT_ONLY_IF_UPDATES: ${{ inputs.only-if-updates }}
+          EVENT_NAME: ${{ github.event_name }}
+
+  # A rebuild that fails publishes nothing, and an update may never clear. Without a record of the attempt, every
+  # scheduled run would start another full build. The artifact is looked up by `resolve` (see `needs_rebuild`).
+  # It runs in parallel to `rebuild` on purpose, so the attempt is recorded whatever the outcome is.
+  # The record expires after `retention-days`, which is when the same updates are attempted again.
+  record-attempt:
+    name: 'Record Attempt for ${{ matrix.tag }}'
+    needs: resolve
+    if: needs.resolve.outputs.rebuild-needed == 'true'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
+    steps:
+      - name: 'Write the pending updates'
+        if: matrix.attempt != ''
+        run: tr ' ' '\n' <<< "${PENDING}" >attempt.txt
+        env:
+          PENDING: ${{ matrix.pending }}
+
+      - name: 'Upload the record'
+        if: matrix.attempt != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.attempt }}
+          path: attempt.txt
+          retention-days: 7
 
   rebuild:
     name: 'Rebuild ${{ matrix.tag }}'
     needs: resolve
+    if: needs.resolve.outputs.rebuild-needed == 'true'
     strategy:
       # A failing line must not stop the others:
       fail-fast: false

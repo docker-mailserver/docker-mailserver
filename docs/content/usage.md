@@ -89,14 +89,15 @@ All workflows are using the tagging convention listed below. It is subsequently 
 |-------------------------|-------------------------------------------|
 | `push` on `master`      | `edge`                                    |
 | `push` a tag (`v1.2.3`) | `1.2.3`, `1.2`, `1`, `latest`, `1.2.3-r0` |
-| Weekly rebuild          | `1.2.3`, `1.2`, `1`, `latest`, `1.2.3-rN` |
+| Package updates         | `1.2.3`, `1.2`, `1`, `latest`, `1.2.3-rN` |
 
-!!! info "Weekly rebuilds of supported releases"
+!!! info "Rebuilds of supported releases on package updates"
 
-    Debian publishes security fixes continuously, but a release image is only built once. To pick those fixes up, the newest release of every supported major version (_currently `v16`_) is rebuilt every week without cached layers, tested, and published again:
+    Debian publishes security fixes continuously, but a release image is only built once. To pick those fixes up, the newest release of every supported major version (_currently `v16`_) is checked every day. If its published image has package updates pending (_from Debian_), it is rebuilt without cached layers, tested, and published again:
 
     - The tags `X.Y.Z`, `X.Y` and `X` of the rebuilt release are moved to the rebuilt image. `latest` is only moved when the rebuilt release is the newest overall. Older minor and patch releases within a major are not rebuilt and keep their last image.
     - Each build also receives an immutable `X.Y.Z-rN` tag (`-r0` is the original release build, rebuilds count up from `-r1`). Use it to pin an exact build or to roll back, or pin the image digest.
+    - A given set of pending updates is only attempted once, even if the rebuild fails or the updates stay pending afterwards. The next attempt happens when the set of pending updates changes, or after 7 days. To retry earlier, re-run the failed jobs of the workflow run or dispatch the workflow manually.
 
 [github-ci]: https://github.com/docker-mailserver/docker-mailserver/actions
 [dockerhub-image]: https://hub.docker.com/r/mailserver/docker-mailserver
