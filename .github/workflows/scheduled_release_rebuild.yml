@@ -9,7 +9,7 @@ name: 'Rebuild Supported Releases on Package Updates'
 #
 # Only the newest release of a major is rebuilt, as older ones must not move the floating tags.
 #
-# Scheduled runs (hourly) first check the published image: a major is only rebuilt if
+# Scheduled runs (daily) first check the published image: a major is only rebuilt if
 # `apt-get upgrade` would change something in it. There is no way to be notified of new Debian
 # packages, so this is as close to "as soon as an update is available" as it gets.
 # Manual runs always rebuild, unless `only-if-updates` is set.
@@ -32,8 +32,9 @@ on:
         type: boolean
         default: false
   schedule:
-    # Not at minute 0: GitHub delays or drops scheduled runs at the start of the hour, when load is highest.
-    - cron: 17 * * * *
+    # Not at minute 0: GitHub delays or drops scheduled runs
+    # at the start of the hour, when load is highest.
+    - cron: 35 4 * * *
 
 permissions:
   # Required to look up the artifacts that record rebuild attempts:
