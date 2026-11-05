@@ -34,7 +34,10 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Updated
 
-- **Swaks** is installed from the Debian package (same upstream version, `20240103.0`) instead of from a GitHub release download ([#4837](https://github.com/docker-mailserver/docker-mailserver/pull/4837)).
+- **Swaks**
+  - Swaks is now installed from the Debian package (same upstream version, `20240103.0`) instead of from a GitHub release download ([#4837](https://github.com/docker-mailserver/docker-mailserver/pull/4837)).
+- **Rspamd**
+  - Rspamd is pinned to 4.1.5, the version in Debian testing (forky), and installed from a checksum-verified `.deb` instead of the Rspamd apt repo. System package updates and image rebuilds no longer change the Rspamd version. To update it, change `RSPAMD_VERSION` and the checksums in `target/scripts/build/packages.sh` ([#4836](https://github.com/docker-mailserver/docker-mailserver/pull/4836)).
 
 ### Fixed
 
@@ -45,6 +48,8 @@ All notable changes to this project will be documented in this file. The format 
 - **Dovecot**
   - The `stats` service is no longer disabled: `/etc/dovecot/conf.d/60-stats.conf` was removed and `stats_writer_socket_path` is no longer emptied, so Dovecot's upstream defaults apply and `doveadm stats dump` / metrics work without overrides. `user-patches.sh` workarounds that delete `60-stats.conf` should use `rm -f` ([#4387](https://github.com/docker-mailserver/docker-mailserver/issues/4387))
   - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example. 
+  - Custom image builds with `DOVECOT_COMMUNITY_REPO=1` work again: the build no longer fails on the missing `90-fts-flatcurve.conf`, the Dovecot CE packages now use the config files from Debian's packages (_the CE layout left LMTP disabled, so mail was not delivered_), and `ssl-cert` is installed explicitly for the default snakeoil cert ([#4834](https://github.com/docker-mailserver/docker-mailserver/pull/4834))
+  - `mail_attachment_detection_options` is now explicitly empty, so builds with Dovecot 2.4.2+ (_`DOVECOT_COMMUNITY_REPO=1`_) behave the same as builds with Debian's 2.4.1. Dovecot 2.4.2 changed the default to `add-flags` for maildir, which adds `$HasAttachment` / `$HasNoAttachment` keywords and stores new mail in `cur/` instead of `new/`. To use the feature, set it in `dovecot.cf` ([#4834](https://github.com/docker-mailserver/docker-mailserver/pull/4834))
 - **LDAP**
   - ENV overrides for the Postfix and Dovecot LDAP configs now correctly handle values containing `#`, a trailing `=` (_e.g. base64 padded passwords_) or regex tokens. The original white-space between key and value is now retained ([#3526](https://github.com/docker-mailserver/docker-mailserver/pull/3526))
   - Postfix LDAP lookup tables that are not needed are no longer always configured, they are disabled by not setting their query filter ([#3519](https://github.com/docker-mailserver/docker-mailserver/issues/3519), [#3524](https://github.com/docker-mailserver/docker-mailserver/pull/3524))

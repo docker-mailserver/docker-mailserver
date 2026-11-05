@@ -108,8 +108,11 @@ function _install_packages() {
     libdate-manip-perl libldap-common libmail-spf-perl libnet-dns-perl
     locales logwatch netcat-openbsd
     nftables # primarily for Fail2Ban
-    perl-doc # required for `swaks --help` to work
-    rsyslog supervisor swaks
+    swaks perl-doc # required for `swaks --help` to work
+    rsyslog supervisor
+    # provides the default "snakeoil" cert for Dovecot and Postfix, Debian's `dovecot-core`
+    # depends on it but the Dovecot CE package does not:
+    ssl-cert
     uuid # used for file-locking
     whois
   )
@@ -146,7 +149,43 @@ function _install_packages() {
     "${COMMUNITY_PACKAGES[@]}"
 }
 
+# The Dovecot CE packages ship a minimal config layout that differs from Debian's
+# (no `15-lda.conf` or `90-fts.conf`, 2.3 syntax in `20-managesieve.conf`, no `local.conf` include, ...).
+# DMS is written against Debian's layout, so replace it with the config files from
+# Debian's own packages of the same release. Like Debian's postinst, this copies every
+# file from `/usr/share/dovecot/conf.d/` except `99-local.conf`. Debian's config sets
+# `dovecot_config_version = 2.4.0`, which newer 2.4.x releases read with the 2.4.0 defaults.
+function __install_dovecot_debian_config() {
+  local DEBIAN_PACKAGES=("${@}")
+  local DEBIAN_VERSION TMP_DIR PACKAGE
+
+  # Both repos use the `trixie` suite, so select Debian's packages by version.
+  # Exclude the CE repo instead of matching a Debian host, so that builds behind a mirror also work:
+  DEBIAN_VERSION=$(apt-cache madison dovecot-core \
+    | awk -F '|' '$3 !~ /repo\.dovecot\.org/ { gsub(/ /, "", $2); print $2 }' \
+    | sort --version-sort | tail -n 1)
+  if [[ -z ${DEBIAN_VERSION} ]]; then
+    _log 'error' 'Could not find the Debian version of dovecot-core'
+    exit 1
+  fi
+
+  _log 'debug' "Installing Dovecot config from Debian's packages (${DEBIAN_VERSION})"
+  TMP_DIR=$(mktemp -d)
+  chown _apt "${TMP_DIR}"
+  ( cd "${TMP_DIR}" && apt-get "${QUIET}" download "${DEBIAN_PACKAGES[@]/%/=${DEBIAN_VERSION}}" )
+  for PACKAGE in "${TMP_DIR}"/*.deb; do
+    dpkg-deb --extract "${PACKAGE}" "${TMP_DIR}/extracted"
+  done
+
+  rm -f /etc/dovecot/dovecot.conf /etc/dovecot/conf.d/*
+  cp "${TMP_DIR}/extracted/usr/share/dovecot/dovecot.conf" /etc/dovecot/
+  cp "${TMP_DIR}"/extracted/usr/share/dovecot/conf.d/* /etc/dovecot/conf.d/
+  rm /etc/dovecot/conf.d/99-local.conf
+  rm -r "${TMP_DIR}"
+}
+
 function _install_dovecot() {
+  local USE_DOVECOT_CE_REPO=0
   local DOVECOT_PACKAGES=(
     dovecot-core
     dovecot-lmtpd
@@ -181,6 +220,7 @@ Signed-By: /usr/share/keyrings/upstream-dovecot.gpg
 EOF
 
     apt-get "${QUIET}" update
+    USE_DOVECOT_CE_REPO=1
 
     # This repo instead provides `dovecot-auth-lua` as a transitional package to `dovecot-lua`,
     # thus this extra package is required to retain lua support:
@@ -190,31 +230,48 @@ EOF
   _log 'debug' 'Installing Dovecot'
   apt-get "${QUIET}" install --no-install-recommends "${DOVECOT_PACKAGES[@]}"
 
+  if [[ ${USE_DOVECOT_CE_REPO} -eq 1 ]]; then
+    __install_dovecot_debian_config dovecot-core dovecot-imapd dovecot-lmtpd dovecot-pop3d \
+      dovecot-sieve dovecot-managesieved dovecot-ldap
+  fi
+
   # We remove the enabled-by-default Flatcurve configuration to disable FTS by default
-  rm /etc/dovecot/conf.d/90-fts-flatcurve.conf
+  # (only Debian's package ships this file, the Dovecot CE package does not):
+  rm -f /etc/dovecot/conf.d/90-fts-flatcurve.conf
 }
 
 function _install_rspamd() {
-  # NOTE: DMS only supports the Rspamd package by using the
-  #       third-party repo maintained by Rspamd (AMD64 + ARM64)
+  # NOTE: DMS only supports the Rspamd package built by the Rspamd project (AMD64 + ARM64),
+  #       as the version in Debian stable is a major version behind.
   #
-  # REF: https://rspamd.com/apt-stable/dists/trixie/main/
+  # The release is pinned: the package index of the Rspamd apt repo only lists the newest
+  # release, so the `.deb` of the pinned release is downloaded from the repo's pool instead
+  # and verified. The apt repo is not added, so an upgrade of the system packages never
+  # replaces Rspamd. To update Rspamd, change the version and both checksums.
+  #
+  # REF: https://rspamd.com/apt-stable/pool/main/r/rspamd/
   #      https://rspamd.com/downloads.html#debian-and-ubuntu-linux
+  local RSPAMD_VERSION="4.1.5-1~9a291a4~${VERSION_CODENAME}"
 
-  _log 'trace' 'Adding third-party package repository (Rspamd)'
-  curl -fsSL https://rspamd.com/apt-stable/gpg.key \
-    | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
-  cat >/etc/apt/sources.list.d/upstream-rspamd.sources <<EOF
-Types: deb
-URIs: https://rspamd.com/apt-stable/
-Suites: ${VERSION_CODENAME}
-Components: main
-Signed-By: /usr/share/keyrings/upstream-rspamd.gpg
-EOF
+  local RSPAMD_ARCH RSPAMD_SHA256
+  RSPAMD_ARCH=$(dpkg --print-architecture)
+  case "${RSPAMD_ARCH}" in
+    ( 'amd64' ) RSPAMD_SHA256='0b2d7a53db33a76e5cbc53ad1ba99574ddeb6d1164bc628af9f4a5e2dd98b34e' ;;
+    ( 'arm64' ) RSPAMD_SHA256='ee0be0c9c97de320f23f56f865e3ed33ba6f30ddcc0ff20de5e16c366abb4de6' ;;
+    ( * )
+      _log 'error' "Unsupported arch: '${RSPAMD_ARCH}'"
+      return 1
+      ;;
+  esac
+
+  local RSPAMD_DEB="rspamd_${RSPAMD_VERSION}_${RSPAMD_ARCH}.deb"
 
   _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" update
-  apt-get "${QUIET}" install rspamd valkey-server
+  curl -fsSLo "/tmp/${RSPAMD_DEB}" "https://rspamd.com/apt-stable/pool/main/r/rspamd/${RSPAMD_DEB}"
+  echo "${RSPAMD_SHA256}  /tmp/${RSPAMD_DEB}" | sha256sum --check --quiet
+  apt-get "${QUIET}" install "/tmp/${RSPAMD_DEB}" valkey-server
+  rm "/tmp/${RSPAMD_DEB}"
 }
 
 function _install_fail2ban() {
