@@ -11,7 +11,7 @@ name: 'Rebuild Supported Releases on Package Updates'
 #
 # Scheduled runs (hourly) first check the published image: a major is only rebuilt if
 # `apt-get upgrade` would change something in it. There is no way to be notified of new Debian
-# (or Rspamd) packages, so this is as close to "as soon as an update is available" as it gets.
+# packages, so this is as close to "as soon as an update is available" as it gets.
 # Manual runs always rebuild, unless `only-if-updates` is set.
 
 on:
@@ -47,10 +47,12 @@ env:
   # Scheduled runs skip a major whose published image is younger than this. Limits how often the tags
   # change for people tracking them, and stops a rebuild loop if an update never clears.
   MIN_REBUILD_INTERVAL_HOURS: 3
-  # Packages that stay "upgradable" even after a rebuild, so they must not trigger one. v16 builds
-  # `dovecot-fts-xapian` from source as `1.9.1-1~bpo12+1`, which apt sorts below Debian's `1.9.1-1.1`.
-  # Space separated. Not needed for v17+, where Xapian was removed.
-  IGNORED_PENDING_PACKAGES: 'dovecot-fts-xapian'
+  # Packages that must not trigger a rebuild. Space separated.
+  # - `dovecot-fts-xapian` stays "upgradable" even after a rebuild: v16 builds it from source as
+  #   `1.9.1-1~bpo12+1`, which apt sorts below Debian's `1.9.1-1.1`. Not needed for v17+, where Xapian was removed.
+  # - `rspamd`: v16 installs it from the rspamd.com apt repository, so every upstream release would show up as
+  #   pending. Rebuilds should only pick up Debian updates. From v17 on, Rspamd is a pinned `.deb` (no apt repository).
+  IGNORED_PENDING_PACKAGES: 'dovecot-fts-xapian rspamd'
 
 # Two overlapping runs would probe the same rebuild number and the second push would overwrite the first.
 # GitHub keeps only one pending run per group, so a pending manual run can be replaced by a later scheduled one.
