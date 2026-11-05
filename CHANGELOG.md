@@ -2,20 +2,26 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v16.0.1...HEAD)
+## [Unreleased](https://github.com/docker-mailserver/docker-mailserver/compare/v17.0.0...HEAD)
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
+
+## [v17.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v17.0.0)
+
+> [!note]
+>
+> This release replaces Redis with Valkey for Rspamd, removes the Xapian FTS plugin, and reworks the Postfix LDAP configuration (_renamed ENV, no default query filters_). Review the breaking changes below before upgrading, especially when using `ACCOUNT_PROVISIONER=LDAP`, `ENABLE_RSPAMD_REDIS`, or Rspamd DKIM keys created by `setup config dkim`.
 
 ### Breaking
 
 - **Dovecot**
-  - The `dovecot-fts-xapian` plugin is no longer included in the image. Existing users must remove their Xapian configuration and migrate to Flatcurve; existing `xapian-indexes` cannot be reused by Flatcurve.
+  - The `dovecot-fts-xapian` plugin is no longer included in the image. Existing users must remove their Xapian configuration and migrate to Flatcurve; existing `xapian-indexes` cannot be reused by Flatcurve ([#4786](https://github.com/docker-mailserver/docker-mailserver/pull/4786))
 - **LDAP** ([#3524](https://github.com/docker-mailserver/docker-mailserver/pull/3524))
   - The Postfix LDAP configs are now generated at startup to `/etc/postfix/ldap/{users,groups,aliases,domains,senders}.cf` (previously `/etc/postfix/ldap-*.cf`). Custom configs `ldap-*.cf` in the DMS config volume are merged into them instead of replacing them, and `ldap-senders.cf` is now supported too.
   - `LDAP_QUERY_FILTER_{USER,GROUP,ALIAS,DOMAIN,SENDERS}` have been renamed to `POSTFIX_{USERS,GROUPS,ALIASES,DOMAINS,SENDERS}_QUERY_FILTER`. Any other Postfix LDAP table setting can be set per lookup table via `POSTFIX_<KIND>_<SETTING>` (_e.g. `POSTFIX_GROUPS_LEAF_RESULT_ATTRIBUTE`_).
   - There are no default query filters (_or placeholder values for `LDAP_SERVER_HOST` etc._) anymore. A lookup table without a `query_filter` is disabled.
 - **Rspamd**
-  - Redis has been replaced by Valkey ([#4001](https://github.com/docker-mailserver/docker-mailserver/issues/4001)). `ENABLE_RSPAMD_REDIS` has been renamed to `ENABLE_RSPAMD_VALKEY`, the `rspamd-redis` service to `rspamd-valkey`, and the config file is now `/etc/valkey/valkey.conf`. Existing state in `/var/mail-state/lib-redis` from Redis 7.2 or older (DMS v15 or older) is moved to `/var/mail-state/lib-valkey` automatically. State from DMS v16 (Redis 8, RDB format 12) cannot be loaded by Valkey: it is kept untouched in `lib-redis`, Valkey starts empty, and Rspamd data such as Bayes must be relearned.
+  - Redis has been replaced by Valkey ([#4001](https://github.com/docker-mailserver/docker-mailserver/issues/4001), [#4808](https://github.com/docker-mailserver/docker-mailserver/pull/4808)). `ENABLE_RSPAMD_REDIS` has been renamed to `ENABLE_RSPAMD_VALKEY`, the `rspamd-redis` service to `rspamd-valkey`, and the config file is now `/etc/valkey/valkey.conf`. Existing state in `/var/mail-state/lib-redis` from Redis 7.2 or older (DMS v15 or older) is moved to `/var/mail-state/lib-valkey` automatically. State from DMS v16 (Redis 8, RDB format 12) cannot be loaded by Valkey: it is kept untouched in `lib-redis`, Valkey starts empty, and Rspamd data such as Bayes must be relearned.
   - `setup config dkim` now writes keys as `<domain>-<selector>.private` (previously `<keytype>-<keysize>-<selector>-<domain>.private.txt`). The default `dkim_signing.conf` uses a `$domain-$selector` path template with `try_fallback = true`, so multiple domains share one config. Existing `dkim_signing.conf` files are not overwritten. Rename keys to the new layout if you regenerate them (OpenDKIM: `opendkim/keys/<domain>/<selector>.private` → `rspamd/dkim/<domain>-<selector>.private`). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
   - `setup config dkim` writes a persisted `dkim_selectors.map` for custom selectors. Documentation covers multi-domain setup, OpenDKIM migration, and Ed25519 + RSA fallback (distinct selectors plus a `selectors` array). ([#4653](https://github.com/docker-mailserver/docker-mailserver/pull/4653))
 
@@ -25,12 +31,6 @@ All notable changes to this project will be documented in this file. The format 
   - `setup fail2ban ignore <IP>` and `setup fail2ban consider <IP>` add an IP address or CIDR range to the ignore list of all jails or remove it again, and `setup fail2ban status` lists the ignored addresses of each jail ([#4828](https://github.com/docker-mailserver/docker-mailserver/pull/4828))
 - **Getmail**
   - `GETMAIL_PARALLEL` runs one getmail service per config, and `GETMAIL_IDLE` enables IMAP IDLE for selected (or all) IMAP configs ([#4675](https://github.com/docker-mailserver/docker-mailserver/pull/4675))
-
-### CI
-
-- A daily workflow rebuilds the newest release of each supported major version when its published image has package updates pending, and republishes its `X.Y.Z`, `X.Y` and `X` tags (and `latest` for the newest release), plus an immutable `X.Y.Z-rN` tag for rollbacks ([#4833](https://github.com/docker-mailserver/docker-mailserver/pull/4833), [#4839](https://github.com/docker-mailserver/docker-mailserver/pull/4839))
-- Moved `setup_cli.bats` to the serial test suite to prevent `setup.sh` from racing with teardown of another DMS test container ([#4701](https://github.com/docker-mailserver/docker-mailserver/issues/4701))
-- Excluded `saslauthd` from the process kill/restart assertion because its forked parent process is not reliably reaped by the test
 
 ### Updated
 
@@ -42,23 +42,29 @@ All notable changes to this project will be documented in this file. The format 
 ### Fixed
 
 - **ClamAV**
-  - `freshclam` now runs every 6 hours at a minute and hour offset chosen randomly at container startup, instead of at minute 0 of 00/06/12/18. The fixed schedule sent every DMS instance to the ClamAV CDN at the same moment, which got them rate limited (HTTP 429)
+  - `freshclam` now runs every 6 hours at a minute and hour offset chosen randomly at container startup, instead of at minute 0 of 00/06/12/18. The fixed schedule sent every DMS instance to the ClamAV CDN at the same moment, which got them rate limited (HTTP 429) ([#4824](https://github.com/docker-mailserver/docker-mailserver/pull/4824))
 - **setup**
-  - `setup.sh email list` works again when no DMS container is running, by defaulting to `ACCOUNT_PROVISIONER=FILE` ([#4812](https://github.com/docker-mailserver/docker-mailserver/issues/4812))
+  - `setup.sh email list` works again when no DMS container is running, by defaulting to `ACCOUNT_PROVISIONER=FILE` ([#4812](https://github.com/docker-mailserver/docker-mailserver/issues/4812), [#4816](https://github.com/docker-mailserver/docker-mailserver/pull/4816))
 - **Dovecot**
-  - The `stats` service is no longer disabled: `/etc/dovecot/conf.d/60-stats.conf` was removed and `stats_writer_socket_path` is no longer emptied, so Dovecot's upstream defaults apply and `doveadm stats dump` / metrics work without overrides. `user-patches.sh` workarounds that delete `60-stats.conf` should use `rm -f` ([#4387](https://github.com/docker-mailserver/docker-mailserver/issues/4387))
-  - FTS solr config: pinned to solr:10.0, explictly start solr in user managed mode and remove the attachment text extraction example. 
+  - The `stats` service is no longer disabled: `/etc/dovecot/conf.d/60-stats.conf` was removed and `stats_writer_socket_path` is no longer emptied, so Dovecot's upstream defaults apply and `doveadm stats dump` / metrics work without overrides. `user-patches.sh` workarounds that delete `60-stats.conf` should use `rm -f` ([#4387](https://github.com/docker-mailserver/docker-mailserver/issues/4387), [#4807](https://github.com/docker-mailserver/docker-mailserver/pull/4807))
   - Custom image builds with `DOVECOT_COMMUNITY_REPO=1` work again: the build no longer fails on the missing `90-fts-flatcurve.conf`, the Dovecot CE packages now use the config files from Debian's packages (_the CE layout left LMTP disabled, so mail was not delivered_), and `ssl-cert` is installed explicitly for the default snakeoil cert ([#4834](https://github.com/docker-mailserver/docker-mailserver/pull/4834))
   - `mail_attachment_detection_options` is now explicitly empty, so builds with Dovecot 2.4.2+ (_`DOVECOT_COMMUNITY_REPO=1`_) behave the same as builds with Debian's 2.4.1. Dovecot 2.4.2 changed the default to `add-flags` for maildir, which adds `$HasAttachment` / `$HasNoAttachment` keywords and stores new mail in `cur/` instead of `new/`. To use the feature, set it in `dovecot.cf` ([#4834](https://github.com/docker-mailserver/docker-mailserver/pull/4834))
 - **LDAP**
   - ENV overrides for the Postfix and Dovecot LDAP configs now correctly handle values containing `#`, a trailing `=` (_e.g. base64 padded passwords_) or regex tokens. The original white-space between key and value is now retained ([#3526](https://github.com/docker-mailserver/docker-mailserver/pull/3526))
   - Postfix LDAP lookup tables that are not needed are no longer always configured, they are disabled by not setting their query filter ([#3519](https://github.com/docker-mailserver/docker-mailserver/issues/3519), [#3524](https://github.com/docker-mailserver/docker-mailserver/pull/3524))
 - **TLS**
-  - Certificate changes detected at runtime no longer reset `TLS_LEVEL` ciphers and protocols, which discarded user overrides such as `postfix-main.cf` or `user-patches.sh` ([#4800](https://github.com/docker-mailserver/docker-mailserver/issues/4800))
+  - Certificate changes detected at runtime no longer reset `TLS_LEVEL` ciphers and protocols, which discarded user overrides such as `postfix-main.cf` or `user-patches.sh` ([#4800](https://github.com/docker-mailserver/docker-mailserver/issues/4800), [#4806](https://github.com/docker-mailserver/docker-mailserver/pull/4806))
 
 ### Documentation
 
 - Added a community guide for enabling Dovecot 2.4 mailbox compression ([#4578](https://github.com/docker-mailserver/docker-mailserver/pull/4578))
+- The Solr FTS example is pinned to `solr:10.0`, explicitly starts Solr in user-managed mode, and no longer includes the attachment text extraction example ([#4787](https://github.com/docker-mailserver/docker-mailserver/pull/4787))
+
+### CI
+
+- A daily workflow rebuilds the newest release of each supported major version when its published image has package updates pending, and republishes its `X.Y.Z`, `X.Y` and `X` tags (and `latest` for the newest release), plus an immutable `X.Y.Z-rN` tag for rollbacks ([#4833](https://github.com/docker-mailserver/docker-mailserver/pull/4833), [#4839](https://github.com/docker-mailserver/docker-mailserver/pull/4839))
+- Moved `setup_cli.bats` to the serial test suite to prevent `setup.sh` from racing with teardown of another DMS test container ([#4701](https://github.com/docker-mailserver/docker-mailserver/issues/4701), [#4785](https://github.com/docker-mailserver/docker-mailserver/pull/4785))
+- Excluded `saslauthd` from the process kill/restart assertion because its forked parent process is not reliably reaped by the test ([#4785](https://github.com/docker-mailserver/docker-mailserver/pull/4785))
 
 ## [v16.0.1](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v16.0.1)
 
