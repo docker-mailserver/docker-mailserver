@@ -249,26 +249,37 @@ EOF
 }
 
 function _install_rspamd() {
-  # NOTE: DMS only supports the Rspamd package by using the
-  #       third-party repo maintained by Rspamd (AMD64 + ARM64)
+  # NOTE: DMS only supports the Rspamd package built by the Rspamd project (AMD64 + ARM64),
+  #       as the version in Debian stable is a major version behind.
   #
-  # REF: https://rspamd.com/apt-stable/dists/trixie/main/
+  # The release is pinned: the package index of the Rspamd apt repo only lists the newest
+  # release, so the `.deb` of the pinned release is downloaded from the repo's pool instead
+  # and verified. The apt repo is not added, so an upgrade of the system packages never
+  # replaces Rspamd. To update Rspamd, change the version and both checksums.
+  #
+  # REF: https://rspamd.com/apt-stable/pool/main/r/rspamd/
   #      https://rspamd.com/downloads.html#debian-and-ubuntu-linux
+  local RSPAMD_VERSION="4.1.5-1~9a291a4~${VERSION_CODENAME}"
 
-  _log 'trace' 'Adding third-party package repository (Rspamd)'
-  curl -fsSL https://rspamd.com/apt-stable/gpg.key \
-    | gpg --dearmor > /usr/share/keyrings/upstream-rspamd.gpg
-  cat >/etc/apt/sources.list.d/upstream-rspamd.sources <<EOF
-Types: deb
-URIs: https://rspamd.com/apt-stable/
-Suites: ${VERSION_CODENAME}
-Components: main
-Signed-By: /usr/share/keyrings/upstream-rspamd.gpg
-EOF
+  local RSPAMD_ARCH RSPAMD_SHA256
+  RSPAMD_ARCH=$(dpkg --print-architecture)
+  case "${RSPAMD_ARCH}" in
+    ( 'amd64' ) RSPAMD_SHA256='0b2d7a53db33a76e5cbc53ad1ba99574ddeb6d1164bc628af9f4a5e2dd98b34e' ;;
+    ( 'arm64' ) RSPAMD_SHA256='ee0be0c9c97de320f23f56f865e3ed33ba6f30ddcc0ff20de5e16c366abb4de6' ;;
+    ( * )
+      _log 'error' "Unsupported arch: '${RSPAMD_ARCH}'"
+      return 1
+      ;;
+  esac
+
+  local RSPAMD_DEB="rspamd_${RSPAMD_VERSION}_${RSPAMD_ARCH}.deb"
 
   _log 'debug' 'Installing Rspamd'
   apt-get "${QUIET}" update
-  apt-get "${QUIET}" install rspamd valkey-server
+  curl -fsSLo "/tmp/${RSPAMD_DEB}" "https://rspamd.com/apt-stable/pool/main/r/rspamd/${RSPAMD_DEB}"
+  echo "${RSPAMD_SHA256}  /tmp/${RSPAMD_DEB}" | sha256sum --check --quiet
+  apt-get "${QUIET}" install "/tmp/${RSPAMD_DEB}" valkey-server
+  rm "/tmp/${RSPAMD_DEB}"
 }
 
 function _install_fail2ban() {
