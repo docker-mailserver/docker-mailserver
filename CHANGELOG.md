@@ -34,6 +34,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Updated
 
+- **Swaks**
+  - Swaks is now installed from the Debian package (same upstream version, `20240103.0`) instead of from a GitHub release download ([#4837](https://github.com/docker-mailserver/docker-mailserver/pull/4837)).
 - **Rspamd**
   - Rspamd is pinned to 4.1.5, the version in Debian testing (forky), and installed from a checksum-verified `.deb` instead of the Rspamd apt repo. System package updates and image rebuilds no longer change the Rspamd version. To update it, change `RSPAMD_VERSION` and the checksums in `target/scripts/build/packages.sh` ([#4836](https://github.com/docker-mailserver/docker-mailserver/pull/4836)).
 
