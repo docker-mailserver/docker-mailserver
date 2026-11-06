@@ -2996,7 +2996,7 @@ curl<span class="w"> </span>--silent<span class="w"> </span>--url<span class="w"
 <div class="admonition warning">
 <p class="admonition-title"><code>curl</code> bug with <code>XOAUTH2</code></p>
 <p><a href="https://github.com/curl/curl/issues/10259#issuecomment-1907192556">Older releases of <code>curl</code> have a bug with <code>XOAUTH2</code> support</a> since <code>7.80.0</code> (Nov 2021) but fixed from <code>8.6.0</code> (Jan 2024). It treats <code>XOAUTH2</code> as <code>OAUTHBEARER</code>.</p>
-<p>If you use <code>docker exec</code> to run <code>curl</code> from within DMS, the current DMS v14 release (<em>Debian 12 with curl <code>7.88.1</code></em>) is affected by this bug.</p>
+<p>If you use <code>docker exec</code> to run <code>curl</code> from within DMS, releases up to DMS v15 (<em>Debian 12 with curl <code>7.88.1</code></em>) are affected by this bug. Since DMS v16 (<em>Debian 13</em>), the bundled <code>curl</code> is not affected.</p>
 </div>
 </details>
 <h2 id="config-examples"><a class="toclink" href="#config-examples">Config Examples</a></h2>
