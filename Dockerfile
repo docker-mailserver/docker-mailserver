@@ -110,7 +110,7 @@ RUN <<EOF
   adduser amavis clamav
   # no syslog user in Debian compared to Ubuntu
   adduser --system syslog
-  useradd -u 5000 -d /home/docker -s /bin/bash -p "$(echo docker | openssl passwd -1 -stdin)" docker
+  adduser docker --system --uid 5000 --group
   echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab -
   chmod 644 /etc/amavis/conf.d/*
 EOF
