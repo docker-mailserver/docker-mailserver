@@ -63,7 +63,7 @@ EOF
     ( 'sdbox' | 'mdbox' )
       _log 'trace' "Dovecot ${DOVECOT_MAILBOX_FORMAT} format configured"
       sedfile -i -E \
-        's|^(mail_home =).*|\1 /var/mail/%{user | domain}/%{user | username}|' \
+        's#^(mail_home =).*#\1 /var/mail/%{user | domain}/%{user | username}#' \
         /etc/dovecot/conf.d/10-mail.conf
       sedfile -i -E \
         "s|^(mail_driver =).*|\1 ${DOVECOT_MAILBOX_FORMAT}|" \
