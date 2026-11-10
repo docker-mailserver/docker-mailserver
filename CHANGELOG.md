@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Fixed
+
+- **Dovecot**
+  - `DOVECOT_MAILBOX_FORMAT=sdbox` and `mdbox` now set `mail_home` to `/var/mail/<domain>/<user>` as intended. The `sed` expression used `|` as its delimiter, which collided with the Dovecot 2.4 filter syntax in the replacement (`%{user | domain}`), so it failed at startup with ``unknown option to `s'`` and left the default `mail_home` (`.../<user>/home`) in place.
+
 ## [v17.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v17.0.0)
 
 > [!note]

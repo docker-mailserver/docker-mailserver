@@ -34,6 +34,11 @@ function teardown() { _default_teardown ; }
   assert_line 'dovecot.index.log'
   assert_line 'u.1'
   assert_line 'dovecot.index.cache'
+
+  # Dovecot 2.4 filter syntax uses `|`, which must not collide with the sed delimiter:
+  _run_in_container doveconf -h mail_home
+  assert_success
+  assert_output '/var/mail/%{user | domain}/%{user | username}'
 }
 
 @test "(ENV DOVECOT_MAILBOX_FORMAT=mdbox) should store received mail at expected location" {
@@ -54,4 +59,9 @@ function teardown() { _default_teardown ; }
   _count_files_in_directory_in_container '/var/mail/localhost.localdomain/user1/storage' 2
   assert_line 'dovecot.map.index.log'
   assert_line 'm.1'
+
+  # Dovecot 2.4 filter syntax uses `|`, which must not collide with the sed delimiter:
+  _run_in_container doveconf -h mail_home
+  assert_success
+  assert_output '/var/mail/%{user | domain}/%{user | username}'
 }
