@@ -19,6 +19,16 @@ function setup_file() {
 
 function teardown_file() { _default_teardown ; }
 
+@test 'vmail user has the custom IDs and cannot log in' {
+  _run_in_container getent passwd docker
+  assert_success
+  assert_output 'docker:x:9042:9042::/nonexistent:/usr/sbin/nologin'
+
+  _run_in_container getent shadow docker
+  assert_success
+  assert_output --regexp '^docker:!:'
+}
+
 @test 'should successfully deliver mail' {
   _send_email --header 'Subject: Test Message existing-user1'
   _wait_for_empty_mail_queue_in_container

@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Fixed
 
 - **Dovecot**
+  - The vmail user `docker` (UID 5000) is now a system account with a locked password, the shell `/usr/sbin/nologin`, and the home `/nonexistent`. Previously it had the password `docker` and the shell `/bin/bash`, so any unprivileged process in the container could `su docker` and gain access to all mailboxes. Custom scripts that run commands as this user with `su docker -c '...'` must now pass a shell explicitly, e.g. `su -s /bin/sh -c '...' docker` ([#4842](https://github.com/docker-mailserver/docker-mailserver/pull/4842))
   - `DOVECOT_MAILBOX_FORMAT=sdbox` and `mdbox` now set `mail_home` to `/var/mail/<domain>/<user>` as intended. The `sed` expression used `|` as its delimiter, which collided with the Dovecot 2.4 filter syntax in the replacement (`%{user | domain}`), so it failed at startup with ``unknown option to `s'`` and left the default `mail_home` (`.../<user>/home`) in place.
 
 ## [v17.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v17.0.0)
