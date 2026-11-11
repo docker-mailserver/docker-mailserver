@@ -13,7 +13,7 @@ LOG_DSN='delivery status notification'
 function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     # Required only for delivery via nc (_send_email)
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
 
   export CONTAINER_NAME=${CONTAINER1_NAME}

@@ -12,7 +12,7 @@ function setup_file() {
     --env ENABLE_CLAMAV=0
     --env ENABLE_SPAMASSASSIN=0
     --env AMAVIS_LOGLEVEL=2
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'

@@ -42,7 +42,7 @@ services:
     environment:
       # WORKAROUND: Bypass security checks from the mail-client (dms-sender container)
       # (avoids needing expected DNS records to run this example)
-      - PERMIT_DOCKER=connected-networks
+      - DMS_TRUSTED_NETWORKS=subnet
       # TLS is required when relaying to dms-relay via ports 587 / 465
       # (dms-relay will then relay the mail to dms-destination over port 25)
       - SSL_TYPE=manual
@@ -68,7 +68,7 @@ services:
           - destination.test
     environment:
       # WORKAROUND: Same workaround as needed for dms-relay
-      - PERMIT_DOCKER=connected-networks
+      - DMS_TRUSTED_NETWORKS=subnet
     configs:
       - source: dms-accounts-destination
         target: /tmp/docker-mailserver/postfix-accounts.cf

@@ -5,7 +5,7 @@ setup_file() {
   docker network create --driver bridge "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}"
   docker network create --driver bridge "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2"
 
-  # use two networks (default ("bridge") and our custom network) to recreate problematic test case where PERMIT_DOCKER=host would not help
+  # use two networks (default ("bridge") and our custom network) to recreate problematic test case where trusting only the network of the first interface would not help
   # currently we cannot use --network in `docker run` multiple times, it will just use the last one
   # instead we need to use create, network connect and start (see https://success.docker.com/article/multiple-docker-networks)
   local PRIVATE_CONFIG
@@ -15,7 +15,7 @@ setup_file() {
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
-    -e PERMIT_DOCKER=connected-networks \
+    -e DMS_TRUSTED_NETWORKS=subnet \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
     --network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}" \
     -t "${NAME}"
@@ -28,7 +28,7 @@ setup_file() {
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
-    -e PERMIT_DOCKER=connected-networks \
+    -e DMS_TRUSTED_NETWORKS=subnet \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
     --network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2" \
     -t "${NAME}"
@@ -41,7 +41,7 @@ setup_file() {
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
-    -e PERMIT_DOCKER=none \
+    -e DMS_TRUSTED_NETWORKS=none \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
     -t "${NAME}"
 
@@ -55,7 +55,7 @@ teardown_file() {
   docker network rm "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}" "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2"
 }
 
-@test "checking PERMIT_DOCKER: connected-networks" {
+@test "checking DMS_TRUSTED_NETWORKS: subnet" {
   IPNET1=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network)
   IPNET2=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network2)
   run docker exec mail_smtponly_second_network /bin/sh -c "postconf | grep '^mynetworks ='"
@@ -73,7 +73,7 @@ teardown_file() {
   repeat_in_container_until_success_or_timeout 60 mail_smtponly_second_network /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
 }
 
-@test "checking PERMIT_DOCKER: none" {
+@test "checking DMS_TRUSTED_NETWORKS: none" {
   run docker exec mail_smtponly_force_authentication /bin/sh -c "postconf smtp_host_lookup=no"
   assert_success
 
@@ -85,7 +85,7 @@ teardown_file() {
   [[ ${status} -ge 0 ]]
 }
 
-@test "checking PERMIT_DOCKER=network: opendmarc/opendkim config" {
+@test "checking DMS_TRUSTED_NETWORKS=172.16.0.0/12: opendmarc/opendkim config" {
   skip 'TODO: this test was taken from mail_smtponly, where it did not actually belong to'
   run docker exec mail_smtponly /bin/sh -c "cat /etc/opendmarc/ignore.hosts | grep '172.16.0.0/12'"
   assert_success

@@ -8,7 +8,7 @@ function setup_file() {
   _init_with_defaults
 
   local CUSTOM_SETUP_ARGUMENTS=(
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
     --env DMS_VMAIL_UID=9042
     --env DMS_VMAIL_GID=9042
   )

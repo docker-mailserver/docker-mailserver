@@ -13,7 +13,6 @@ function _import_scripts() {
   source "${PATH_TO_SCRIPTS}/error.sh"
   source "${PATH_TO_SCRIPTS}/lock.sh"
   source "${PATH_TO_SCRIPTS}/log.sh"
-  source "${PATH_TO_SCRIPTS}/network.sh"
   source "${PATH_TO_SCRIPTS}/postfix.sh"
   source "${PATH_TO_SCRIPTS}/relay.sh"
   source "${PATH_TO_SCRIPTS}/rspamd.sh"

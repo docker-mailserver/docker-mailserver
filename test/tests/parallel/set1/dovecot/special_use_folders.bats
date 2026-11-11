@@ -6,7 +6,7 @@ CONTAINER_NAME='dms-test_special-use-folders'
 
 function setup_file() {
   _init_with_defaults
-  local CUSTOM_SETUP_ARGUMENTS=(--env PERMIT_DOCKER=host)
+  local CUSTOM_SETUP_ARGUMENTS=(--env DMS_TRUSTED_NETWORKS=subnet)
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_service dovecot
   _wait_for_smtp_port_in_container

@@ -171,10 +171,6 @@ docker compose ps
     Timezone=local
 
     Environment=SSL_TYPE=letsencrypt
-    # NOTE: You may need to adjust the default `NETWORK_INTERFACE`:
-    # https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#network_interface
-    #Environment=NETWORK_INTERFACE=enp1s0
-    #Environment=NETWORK_INTERFACE=tap0
     ```
 
 ??? info "Systemd specifiers"
@@ -301,7 +297,7 @@ In rootless mode, podman resolves all incoming IPs as localhost, which results i
 
 #### Enforce authentication from localhost
 
-The `PERMIT_DOCKER` variable in the `mailserver.env` file allows to specify trusted networks that do not need to authenticate. If the variable is left empty, only requests from localhost and the container IP are allowed, but in the case of rootless podman any IP will be resolved as localhost. Setting `PERMIT_DOCKER=none` enforces authentication also from localhost, which prevents sending unauthenticated emails.
+The `DMS_TRUSTED_NETWORKS` variable in the `mailserver.env` file allows to specify trusted networks that do not need to authenticate. In the case of rootless podman any IP will be resolved as localhost, so trusting localhost trusts every client. The default `DMS_TRUSTED_NETWORKS=none` enforces authentication also from localhost, which prevents sending unauthenticated emails.
 
 #### Use the `pasta` network driver
 
@@ -324,17 +320,13 @@ user defined networks which might be a problem depending on your setup.
 
 [Rootless Podman][rootless::podman] requires adding the value `slirp4netns:port_handler=slirp4netns` to the `--network` CLI option, or `network_mode` setting in your `compose.yaml`.
 
-You must also add the ENV `NETWORK_INTERFACE=tap0`, because Podman uses a [hard-coded interface name][rootless::podman::interface] for `slirp4netns`.
-
 !!! example
 
     ```yaml
     services:
       mailserver:
         network_mode: "slirp4netns:port_handler=slirp4netns"
-        environment:
-          - NETWORK_INTERFACE=tap0
-          ...
+        ...
     ```
 
 !!! note
@@ -367,7 +359,6 @@ Just map all the privilege port with non-privilege port you set in compose.yaml 
 [docs::fail2ban::rootless]: ../security/fail2ban.md#rootless-container
 
 [rootless::podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
-[rootless::podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264
 [network-driver::pasta]: https://passt.top/passt/about/#pasta
 [gh::podman::release-4.4]: https://github.com/containers/podman/releases/tag/v4.4.0
 [gh::podman::release-4.7]: https://github.com/containers/podman/releases/tag/v4.7.0

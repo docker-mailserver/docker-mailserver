@@ -7,12 +7,12 @@ CONTAINER_NAME='dms-test_clamav'
 function setup_file() {
   _init_with_defaults
 
-  # Comment for maintainers about `PERMIT_DOCKER=host`:
+  # Comment for maintainers about `DMS_TRUSTED_NETWORKS=subnet`:
   # https://github.com/docker-mailserver/docker-mailserver/pull/2815/files#r991087509
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_CLAMAV=1
     --env ENABLE_AMAVIS=1
-    --env PERMIT_DOCKER=host
+    --env DMS_TRUSTED_NETWORKS=subnet
     --env AMAVIS_LOGLEVEL=2
     --env CLAMAV_MESSAGE_SIZE_LIMIT=30M
     --env LOG_LEVEL=trace

@@ -30,7 +30,7 @@ function setup_file() {
     --env ENABLE_QUOTAS=1
     --env POSTFIX_MAILBOX_SIZE_LIMIT=4096000
     --env POSTFIX_MESSAGE_SIZE_LIMIT=2048000
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
   _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
 }

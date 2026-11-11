@@ -19,7 +19,7 @@ function teardown() { _default_teardown ; }
     --env ENABLE_AMAVIS=1
     --env ENABLE_SPAMASSASSIN=1
     --env SPAMASSASSIN_SPAM_TO_INBOX=0
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
@@ -37,7 +37,7 @@ function teardown() { _default_teardown ; }
     --env SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MOVE_SPAM_TO_JUNK=0
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
@@ -60,7 +60,7 @@ function teardown() { _default_teardown ; }
     --env SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MOVE_SPAM_TO_JUNK=1
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
 
   # Adjust 'Junk' mailbox name to verify delivery to Junk mailbox based on special-use flag instead of mailbox's name
@@ -85,7 +85,7 @@ function teardown() { _default_teardown ; }
     --env SPAM_SUBJECT="SPAM: "
     --env SPAMASSASSIN_SPAM_TO_INBOX=1
     --env MARK_SPAM_AS_READ=1
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'

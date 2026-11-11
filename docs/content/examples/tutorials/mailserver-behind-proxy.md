@@ -367,7 +367,7 @@ Software on the receiving end of the connection often supports configuring an IP
 
     Thus those settings cannot be used for restricting access to only trusted proxies, only to the actual clients.
 
-    A similar setting [`mynetworks`][postfix-docs::settings::mynetworks] / [`PERMIT_DOCKER`][docs::env::permit_docker] manages elevated trust for bypassing security restrictions. While it is intended for trusted clients, it has no relevance to trusting proxies for the same reasons.
+    A similar setting [`mynetworks`][postfix-docs::settings::mynetworks] / [`DMS_TRUSTED_NETWORKS`][docs::env::trusted_networks] manages elevated trust for bypassing security restrictions. While it is intended for trusted clients, it has no relevance to trusting proxies for the same reasons.
 
 ### Monitoring
 
@@ -391,7 +391,7 @@ While PROXY protocol works well with the reverse proxy, you may have some contai
 [docs::overrides::user-patches]: ../../config/advanced/override-defaults/user-patches.md
 [docs::ipv6::security-risks]: ../../config/advanced/ipv6.md#what-can-go-wrong
 [docs::tls::traefik]: ../../config/security/ssl.md#traefik
-[docs::env::permit_docker]: ../../config/environment.md#permit_docker
+[docs::env::trusted_networks]: ../../config/environment.md#dms_trusted_networks
 [gh-dms::dns-rewrite-example]: https://github.com/docker-mailserver/docker-mailserver/issues/3866#issuecomment-1928877236
 
 [nginx-docs::proxyprotocol]: https://docs.nginx.com/nginx/admin-guide/load-balancer/using-proxy-protocol

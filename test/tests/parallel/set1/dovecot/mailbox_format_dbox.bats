@@ -19,7 +19,7 @@ function teardown() { _default_teardown ; }
   export CONTAINER_NAME=${CONTAINER1_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     --env DOVECOT_MAILBOX_FORMAT=sdbox
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
 
   _init_with_defaults
@@ -45,7 +45,7 @@ function teardown() { _default_teardown ; }
   export CONTAINER_NAME=${CONTAINER2_NAME}
   local CUSTOM_SETUP_ARGUMENTS=(
     --env DOVECOT_MAILBOX_FORMAT=mdbox
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
 
   _init_with_defaults

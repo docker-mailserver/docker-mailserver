@@ -19,7 +19,7 @@ function setup_file() {
   _init_with_defaults
 
   local CONTAINER_ARGS_ENV_CUSTOM=(
-    --env PERMIT_DOCKER='container'
+    --env DMS_TRUSTED_NETWORKS='host'
     --env POSTFIX_DAGENT="${LMTP_URI}"
   )
 

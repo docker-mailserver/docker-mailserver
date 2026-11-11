@@ -41,6 +41,14 @@ function __environment_variables_backwards_compatibility() {
     _log 'error' "'ENABLE_RSPAMD_REDIS' has been renamed to 'ENABLE_RSPAMD_VALKEY' since DMS v17"
   fi
 
+  if [[ -n ${PERMIT_DOCKER:-} ]]; then
+    _log 'error' "'PERMIT_DOCKER' has been replaced by 'DMS_TRUSTED_NETWORKS' since DMS v18 (container => host, host / connected-networks => subnet, network => '172.16.0.0/12'); 'PERMIT_DOCKER' is ignored, so no client is trusted"
+  fi
+
+  if [[ -n ${NETWORK_INTERFACE:-} ]]; then
+    _log 'error' "'NETWORK_INTERFACE' has been removed since DMS v18, it is no longer needed"
+  fi
+
   local -A LDAP_QUERY_FILTER_RENAMES=(
     [LDAP_QUERY_FILTER_USER]='POSTFIX_USERS_QUERY_FILTER'
     [LDAP_QUERY_FILTER_GROUP]='POSTFIX_GROUPS_QUERY_FILTER'
@@ -138,7 +146,6 @@ function __environment_variables_general_setup() {
   # VARS[DMS_FQDN]="${DMS_FQDN:=}"
   # VARS[DMS_DOMAINNAME]="${DMS_DOMAINNAME:=}"
   # VARS[DMS_HOSTNAME]="${DMS_HOSTNAME:=}"
-  VARS[NETWORK_INTERFACE]="${NETWORK_INTERFACE:=eth0}"
   VARS[OVERRIDE_HOSTNAME]="${OVERRIDE_HOSTNAME:-}"
   VARS[RELAY_HOST]="${RELAY_HOST:=}"
   VARS[SSL_TYPE]="${SSL_TYPE:=}"
@@ -167,6 +174,7 @@ function __environment_variables_general_setup() {
 
   VARS[ACCOUNT_PROVISIONER]="${ACCOUNT_PROVISIONER:=FILE}"
   VARS[DMS_CONFIG_POLL]="${DMS_CONFIG_POLL:=2}"
+  VARS[DMS_TRUSTED_NETWORKS]="${DMS_TRUSTED_NETWORKS:=none}"
   VARS[FETCHMAIL_PARALLEL]="${FETCHMAIL_PARALLEL:=0}"
   VARS[FETCHMAIL_POLL]="${FETCHMAIL_POLL:=300}"
   VARS[GETMAIL_POLL]="${GETMAIL_POLL:=5}"
@@ -178,7 +186,6 @@ function __environment_variables_general_setup() {
   VARS[LOGWATCH_INTERVAL]="${LOGWATCH_INTERVAL:=none}"
   VARS[LOGWATCH_RECIPIENT]="${LOGWATCH_RECIPIENT:=${REPORT_RECIPIENT}}"
   VARS[LOGWATCH_SENDER]="${LOGWATCH_SENDER:=${REPORT_SENDER}}"
-  VARS[PERMIT_DOCKER]="${PERMIT_DOCKER:=none}"
   VARS[PFLOGSUMM_RECIPIENT]="${PFLOGSUMM_RECIPIENT:=${REPORT_RECIPIENT}}"
   VARS[PFLOGSUMM_SENDER]="${PFLOGSUMM_SENDER:=${REPORT_SENDER}}"
   VARS[PFLOGSUMM_TRIGGER]="${PFLOGSUMM_TRIGGER:=none}"

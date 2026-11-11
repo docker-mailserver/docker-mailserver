@@ -182,11 +182,9 @@ It is necessary for F2B to have access to the real source IP addresses in order 
             network_mode: "slirp4netns:port_handler=slirp4netns"
             environment:
               - ENABLE_FAIL2BAN=1
-              - NETWORK_INTERFACE=tap0
               ...
         ```
 
-    You must also add the ENV `NETWORK_INTERFACE=tap0`, because Podman uses a [hard-coded interface name][rootless::podman::interface] for `slirp4netns`. `slirp4netns` is not compatible with user-defined networks!
+    `slirp4netns` is not compatible with user-defined networks!
 
     [rootless::podman]: https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net
-    [rootless::podman::interface]: https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264

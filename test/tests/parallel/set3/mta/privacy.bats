@@ -10,7 +10,7 @@ function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_MANAGESIEVE=1
-    --env PERMIT_DOCKER=host
+    --env DMS_TRUSTED_NETWORKS=subnet
     --env SSL_TYPE='snakeoil'
   )
 
