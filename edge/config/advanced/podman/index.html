@@ -3332,10 +3332,6 @@ docker<span class="w"> </span>compose<span class="w"> </span>ps
 <span class="na">Timezone</span><span class="o">=</span><span class="s">local</span>
 
 <span class="na">Environment</span><span class="o">=</span><span class="s">SSL_TYPE=letsencrypt</span>
-<span class="c1"># NOTE: You may need to adjust the default `NETWORK_INTERFACE`:</span>
-<span class="c1"># https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#network_interface</span>
-<span class="c1">#Environment=NETWORK_INTERFACE=enp1s0</span>
-<span class="c1">#Environment=NETWORK_INTERFACE=tap0</span>
 </code></pre></div>
 </details>
 <details class="info">
@@ -3438,7 +3434,7 @@ systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> 
 <h3 id="security-in-rootless-mode"><a class="toclink" href="#security-in-rootless-mode">Security in Rootless Mode</a></h3>
 <p>In rootless mode, podman resolves all incoming IPs as localhost, which results in an open gateway in the default configuration. There are two workarounds to fix this problem, both of which have their own drawbacks.</p>
 <h4 id="enforce-authentication-from-localhost"><a class="toclink" href="#enforce-authentication-from-localhost">Enforce authentication from localhost</a></h4>
-<p>The <code>PERMIT_DOCKER</code> variable in the <code>mailserver.env</code> file allows to specify trusted networks that do not need to authenticate. If the variable is left empty, only requests from localhost and the container IP are allowed, but in the case of rootless podman any IP will be resolved as localhost. Setting <code>PERMIT_DOCKER=none</code> enforces authentication also from localhost, which prevents sending unauthenticated emails.</p>
+<p>The <code>DMS_TRUSTED_NETWORKS</code> variable in the <code>mailserver.env</code> file allows to specify trusted networks that do not need to authenticate. In the case of rootless podman any IP will be resolved as localhost, so trusting localhost trusts every client. The default <code>DMS_TRUSTED_NETWORKS=none</code> enforces authentication also from localhost, which prevents sending unauthenticated emails.</p>
 <h4 id="use-the-pasta-network-driver"><a class="toclink" href="#use-the-pasta-network-driver">Use the <code>pasta</code> network driver</a></h4>
 <p>Since <a href="https://github.com/containers/podman/releases/tag/v5.0.0">Podman 5.0</a> the default rootless network driver is now <code>pasta</code> instead of <code>slirp4netns</code>. These two drivers <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/building_running_and_managing_containers/assembly_communicating-among-containers_building-running-and-managing-containers#differences-between-slirp4netns-and-pasta_assembly_communicating-among-containers">have some differences</a>:</p>
 <blockquote>
@@ -3457,15 +3453,12 @@ As shown in the <a href="../../security/fail2ban/#rootless-container">fail2ban s
 This network driver enables podman to correctly resolve IP addresses but it is not compatible with
 user defined networks which might be a problem depending on your setup.</p>
 <p><a href="https://github.com/containers/podman/blob/v3.4.1/docs/source/markdown/podman-run.1.md#--networkmode---net">Rootless Podman</a> requires adding the value <code>slirp4netns:port_handler=slirp4netns</code> to the <code>--network</code> CLI option, or <code>network_mode</code> setting in your <code>compose.yaml</code>.</p>
-<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a <a href="https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264">hard-coded interface name</a> for <code>slirp4netns</code>.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">network_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slirp4netns:port_handler=slirp4netns&quot;</span>
-<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NETWORK_INTERFACE=tap0</span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
 </div>
 <div class="admonition note">

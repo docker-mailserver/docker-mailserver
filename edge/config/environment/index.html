@@ -731,10 +731,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#permit_docker" class="md-nav__link">
+  <a href="#dms_trusted_networks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PERMIT_DOCKER
+        DMS_TRUSTED_NETWORKS
       
     </span>
   </a>
@@ -933,17 +933,6 @@
     <span class="md-ellipsis">
       
         ENABLE_SRS
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#network_interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        NETWORK_INTERFACE
       
     </span>
   </a>
@@ -4597,10 +4586,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#permit_docker" class="md-nav__link">
+  <a href="#dms_trusted_networks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PERMIT_DOCKER
+        DMS_TRUSTED_NETWORKS
       
     </span>
   </a>
@@ -4799,17 +4788,6 @@
     <span class="md-ellipsis">
       
         ENABLE_SRS
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#network_interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        NETWORK_INTERFACE
       
     </span>
   </a>
@@ -6291,16 +6269,49 @@
 <li>LDAP =&gt; use LDAP authentication</li>
 </ul>
 <p>LDAP requires an external service (e.g. <a href="https://hub.docker.com/r/bitnami/openldap/"><code>bitnami/openldap</code></a>).</p>
-<h5 id="permit_docker"><a class="toclink" href="#permit_docker">PERMIT_DOCKER</a></h5>
-<p>Set different options for mynetworks option (can be overwrite in postfix-main.cf) <strong>WARNING</strong>: Adding the docker network's gateway to the list of trusted hosts, e.g. using the <code>network</code> or <code>connected-networks</code> option, can create an <a href="https://en.wikipedia.org/wiki/Open_mail_relay"><strong>open relay</strong></a>, for instance if IPv6 is enabled on the host machine but not in Docker.</p>
+<h5 id="dms_trusted_networks"><a class="toclink" href="#dms_trusted_networks">DMS_TRUSTED_NETWORKS</a></h5>
+<p>Configures which clients are trusted: they may send mail without authenticating. This sets the Postfix <a href="https://www.postfix.org/postconf.5.html#mynetworks"><code>mynetworks</code></a> option (which can be overridden in <code>postfix-main.cf</code>), and the same clients are trusted by OpenDKIM and OpenDMARC when they are enabled. Both IPv4 and IPv6 are supported.</p>
+<div class="admonition warning">
+<p class="admonition-title">Beware of creating an open relay</p>
+<p>Trusting a network that contains untrusted clients creates an <a href="https://en.wikipedia.org/wiki/Open_mail_relay"><strong>open relay</strong></a>. For example, the gateway of a container network may appear as the source of connections that were forwarded from the internet (e.g. when IPv6 is enabled on the host machine but not for the container network). This can happen with <code>subnet</code>, and with rootless Podman. Only trust what you must, and keep this set to <code>none</code> when in doubt.</p>
+</div>
 <ul>
-<li><strong>none</strong> =&gt; Explicitly force authentication</li>
-<li>container =&gt; Container IP address only.</li>
-<li>host =&gt; Add docker host (ipv4 only).</li>
-<li>network =&gt; Add the docker default bridge network (172.16.0.0/12); <strong>WARNING</strong>: <code>docker-compose</code> might use others (e.g. 192.168.0.0/16) use <code>PERMIT_DOCKER=connected-networks</code> in this case.</li>
-<li>connected-networks =&gt; Add all connected docker networks (ipv4 only).</li>
+<li><strong>none</strong> =&gt; Nobody is trusted (not even <code>localhost</code>), every client has to authenticate.</li>
+<li>host =&gt; Trust the loopback addresses and the addresses of this container's network interfaces.</li>
+<li>subnet =&gt; Trust the loopback addresses and every network that this container is directly connected to.</li>
+<li>A list of CIDR ranges, separated by spaces and / or commas (e.g. <code>172.16.0.0/12, fd00::/8</code>) =&gt; Trust these networks in addition to <code>localhost</code>.</li>
 </ul>
-<p>Note: you probably want to <a href="#postfix_inet_protocols">set <code>POSTFIX_INET_PROTOCOLS=ipv4</code></a> to make it work fine with Docker.</p>
+<p><code>host</code> and <code>subnet</code> follow the <a href="https://www.postfix.org/postconf.5.html#mynetworks_style"><code>mynetworks_style</code></a> of Postfix and are limited to the protocols enabled with <a href="#postfix_inet_protocols"><code>POSTFIX_INET_PROTOCOLS</code></a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Replaces <code>PERMIT_DOCKER</code></p>
+<table>
+<thead>
+<tr>
+<th>Before (<code>PERMIT_DOCKER</code>)</th>
+<th>Now (<code>DMS_TRUSTED_NETWORKS</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>none</code></td>
+<td><code>none</code></td>
+</tr>
+<tr>
+<td><code>container</code></td>
+<td><code>host</code></td>
+</tr>
+<tr>
+<td><code>host</code>, <code>connected-networks</code></td>
+<td><code>subnet</code></td>
+</tr>
+<tr>
+<td><code>network</code></td>
+<td><code>172.16.0.0/12</code></td>
+</tr>
+</tbody>
+</table>
+<p>The ENV <code>NETWORK_INTERFACE</code> is not needed anymore and has been removed.</p>
+</div>
 <h5 id="tz"><a class="toclink" href="#tz">TZ</a></h5>
 <p>Set the timezone. If this variable is unset, the container runtime will try to detect the time using <code>/etc/localtime</code>, which you can alternatively mount into the container. The value of this variable must follow the pattern <code>AREA/ZONE</code>, i.e. of you want to use Germany's time zone, use <code>Europe/Berlin</code>. You can lookup all available timezones <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List">here</a>.</p>
 <h5 id="enable_amavis"><a class="toclink" href="#enable_amavis">ENABLE_AMAVIS</a></h5>
@@ -6429,11 +6440,6 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <ul>
 <li><strong>0</strong> =&gt; Disabled</li>
 <li>1 =&gt; Enabled</li>
-</ul>
-<h5 id="network_interface"><a class="toclink" href="#network_interface">NETWORK_INTERFACE</a></h5>
-<p>In case your network interface differs from <code>eth0</code>, e.g. when you are using HostNetworking in Kubernetes, you can set this to whatever interface you want. This interface will then be used.</p>
-<ul>
-<li><strong>empty</strong> =&gt; <code>eth0</code></li>
 </ul>
 <h5 id="virusmails_delete_delay"><a class="toclink" href="#virusmails_delete_delay">VIRUSMAILS_DELETE_DELAY</a></h5>
 <p>Set how many days a virusmail will stay on the server before being deleted</p>

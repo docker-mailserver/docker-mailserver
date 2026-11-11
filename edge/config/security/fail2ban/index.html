@@ -3210,11 +3210,10 @@
 <span class="w">    </span><span class="nt">network_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slirp4netns:port_handler=slirp4netns&quot;</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NETWORK_INTERFACE=tap0</span>
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
 </div>
-<p>You must also add the ENV <code>NETWORK_INTERFACE=tap0</code>, because Podman uses a <a href="https://github.com/containers/podman/blob/v3.4.1/libpod/networking_slirp4netns.go#L264">hard-coded interface name</a> for <code>slirp4netns</code>. <code>slirp4netns</code> is not compatible with user-defined networks!</p>
+<p><code>slirp4netns</code> is not compatible with user-defined networks!</p>
 </div>
 </div>
 </div>

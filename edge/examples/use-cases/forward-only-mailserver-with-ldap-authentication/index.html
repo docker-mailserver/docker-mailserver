@@ -2923,7 +2923,7 @@
 <h2 id="building-a-forward-only-mail-server"><a class="toclink" href="#building-a-forward-only-mail-server">Building a Forward-Only Mail Server</a></h2>
 <p>A <strong>forward-only</strong> mail server does not have any local mailboxes. Instead, it has only aliases that forward emails to external email accounts (for example to a Gmail account). You can also send email from the localhost (the computer where DMS is installed), using as sender any of the alias addresses.</p>
 <p>The important settings for this setup (on <code>mailserver.env</code>) are these:</p>
-<div class="highlight"><pre><span></span><code><span class="na">PERMIT_DOCKER</span><span class="o">=</span><span class="s">host</span>
+<div class="highlight"><pre><span></span><code><span class="na">DMS_TRUSTED_NETWORKS</span><span class="o">=</span><span class="s">subnet</span>
 <span class="na">ENABLE_POP3</span><span class="o">=</span>
 <span class="na">ENABLE_CLAMAV</span><span class="o">=</span><span class="s">0</span>
 <span class="na">SMTP_ONLY</span><span class="o">=</span><span class="s">1</span>
