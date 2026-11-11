@@ -2954,6 +2954,7 @@
 <p>Global filters are applied to EVERY incoming mail for EVERY email address.</p>
 <ul>
 <li>To specify a global Sieve filter provide a <code>docker-data/dms/config/before.dovecot.sieve</code> or a <code>docker-data/dms/config/after.dovecot.sieve</code> file with your filter rules.</li>
+<li>To add more global filters, place compiled Sieve scripts (<code>sievec &lt;script&gt;.sieve</code>) into <code>/usr/lib/dovecot/sieve-global/before/</code> or <code>/usr/lib/dovecot/sieve-global/after/</code> in the container, for example from <a href="../override-defaults/user-patches/"><code>user-patches.sh</code></a>. Every <code>*.sieve</code> file in these directories runs in file name order, together with the scripts DMS creates itself (<code>50-before.dovecot.sieve</code>, <code>50-after.dovecot.sieve</code>, <code>60-spam_mark_as_read.sieve</code>, <code>70-spam_to_junk.sieve</code>, <code>spam_subject.sieve</code>). Choose a file name prefix that sorts your script to the position you want.</li>
 <li>If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters (e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)</li>
 </ul>
 <p>To specify a user-defined Sieve filter place a <code>.dovecot.sieve</code> file into a virtual user's mail folder (e.g. <code>/var/mail/example.com/user1/home/.dovecot.sieve</code>). If this file exists dovecot will apply the filtering rules.</p>
