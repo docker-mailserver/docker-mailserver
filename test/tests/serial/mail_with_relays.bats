@@ -14,7 +14,7 @@ function setup_file() {
     --env RELAY_PORT=2525
     --env RELAY_USER=smtp_user
     --env RELAY_PASSWORD=smtp_password
-    --env PERMIT_DOCKER=host
+    --env DMS_TRUSTED_NETWORKS=subnet
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'

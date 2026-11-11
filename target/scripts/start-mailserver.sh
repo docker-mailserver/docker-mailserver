@@ -86,7 +86,7 @@ function _register_functions() {
 
   _register_setup_function '_setup_tls_level'
   _register_setup_function '_setup_ssl'
-  _register_setup_function '_setup_docker_permit'
+  _register_setup_function '_setup_trusted_networks' # must come after `_setup_opendkim` and `_setup_opendmarc`
   _register_setup_function '_setup_mailname'
 
   _register_setup_function '_setup_postfix_early'

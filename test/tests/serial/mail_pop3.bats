@@ -9,7 +9,7 @@ function setup_file() {
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_POP3=1
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'

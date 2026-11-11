@@ -76,17 +76,31 @@ Configures the [provisioning source of user accounts][docs::account-management::
 
 LDAP requires an external service (e.g. [`bitnami/openldap`](https://hub.docker.com/r/bitnami/openldap/)).
 
-##### PERMIT_DOCKER
+##### DMS_TRUSTED_NETWORKS
 
-Set different options for mynetworks option (can be overwrite in postfix-main.cf) **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g. using the `network` or `connected-networks` option, can create an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance if IPv6 is enabled on the host machine but not in Docker.
+Configures which clients are trusted: they may send mail without authenticating. This sets the Postfix [`mynetworks`][postfix-docs::mynetworks] option (which can be overridden in `postfix-main.cf`), and the same clients are trusted by OpenDKIM and OpenDMARC when they are enabled. Both IPv4 and IPv6 are supported.
 
-- **none** => Explicitly force authentication
-- container => Container IP address only.
-- host => Add docker host (ipv4 only).
-- network => Add the docker default bridge network (172.16.0.0/12); **WARNING**: `docker-compose` might use others (e.g. 192.168.0.0/16) use `PERMIT_DOCKER=connected-networks` in this case.
-- connected-networks => Add all connected docker networks (ipv4 only).
+!!! warning "Beware of creating an open relay"
 
-Note: you probably want to [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_protocols) to make it work fine with Docker.
+    Trusting a network that contains untrusted clients creates an [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay). For example, the gateway of a container network may appear as the source of connections that were forwarded from the internet (e.g. when IPv6 is enabled on the host machine but not for the container network). This can happen with `subnet`, and with rootless Podman. Only trust what you must, and keep this set to `none` when in doubt.
+
+- **none** => Nobody is trusted (not even `localhost`), every client has to authenticate.
+- host => Trust the loopback addresses and the addresses of this container's network interfaces.
+- subnet => Trust the loopback addresses and every network that this container is directly connected to.
+- A list of CIDR ranges, separated by spaces and / or commas (e.g. `172.16.0.0/12, fd00::/8`) => Trust these networks in addition to `localhost`.
+
+`host` and `subnet` follow the [`mynetworks_style`][postfix-docs::mynetworks_style] of Postfix and are limited to the protocols enabled with [`POSTFIX_INET_PROTOCOLS`](#postfix_inet_protocols).
+
+!!! info "Replaces `PERMIT_DOCKER`"
+
+    | Before (`PERMIT_DOCKER`)         | Now (`DMS_TRUSTED_NETWORKS`) |
+    | -------------------------------- | ---------------------------- |
+    | `none`                           | `none`                       |
+    | `container`                      | `host`                       |
+    | `host`, `connected-networks`     | `subnet`                     |
+    | `network`                        | `172.16.0.0/12`              |
+
+    The ENV `NETWORK_INTERFACE` is not needed anymore and has been removed.
 
 ##### TZ
 
@@ -234,12 +248,6 @@ Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See
 
 - **0** => Disabled
 - 1 => Enabled
-
-##### NETWORK_INTERFACE
-
-In case your network interface differs from `eth0`, e.g. when you are using HostNetworking in Kubernetes, you can set this to whatever interface you want. This interface will then be used.
-
-- **empty** => `eth0`
 
 ##### VIRUSMAILS_DELETE_DELAY
 
@@ -1231,6 +1239,8 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
 [docs::account-management::overview]: ./account-management/overview.md
 [docs::relay-host]: ./advanced/mail-forwarding/relay-hosts.md
 [docs::dms-volumes-state]: ./advanced/optional-config.md#volumes-state
+[postfix-docs::mynetworks]: https://www.postfix.org/postconf.5.html#mynetworks
+[postfix-docs::mynetworks_style]: https://www.postfix.org/postconf.5.html#mynetworks_style
 [postfix-config::relayhost]: https://www.postfix.org/postconf.5.html#relayhost
 [postfix-config::relayhost_maps]: https://www.postfix.org/postconf.5.html#sender_dependent_relayhost_maps
 [postfix-config::sasl_passwd]: https://www.postfix.org/postconf.5.html#smtp_sasl_password_maps

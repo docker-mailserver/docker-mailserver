@@ -3,20 +3,6 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 BATS_TEST_NAME_PREFIX='[Scripts] (helper functions) '
 SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/scripts/helpers"
 
-@test '(network.sh) _sanitize_ipv4_to_subnet_cidr' {
-  # shellcheck source=../../../../../target/scripts/helpers/network.sh
-  source "${SOURCE_BASE_PATH}/network.sh"
-
-  run _sanitize_ipv4_to_subnet_cidr '255.255.255.255/0'
-  assert_output '0.0.0.0/0'
-
-  run _sanitize_ipv4_to_subnet_cidr '192.168.255.14/20'
-  assert_output '192.168.240.0/20'
-
-  run _sanitize_ipv4_to_subnet_cidr '192.168.255.14/32'
-  assert_output '192.168.255.14/32'
-}
-
 @test '(utils.sh) _env_var_expect_zero_or_one' {
   # shellcheck source=../../../../../target/scripts/helpers/log.sh
   source "${SOURCE_BASE_PATH}/log.sh"

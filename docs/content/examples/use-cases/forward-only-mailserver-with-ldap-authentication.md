@@ -9,7 +9,7 @@ A **forward-only** mail server does not have any local mailboxes. Instead, it ha
 The important settings for this setup (on `mailserver.env`) are these:
 
 ```env
-PERMIT_DOCKER=host
+DMS_TRUSTED_NETWORKS=subnet
 ENABLE_POP3=
 ENABLE_CLAMAV=0
 SMTP_ONLY=1

@@ -38,7 +38,7 @@ function _initial_setup() {
   local TARGET_DOMAIN=${TEST_FQDN}
   local CUSTOM_SETUP_ARGUMENTS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
-    --env PERMIT_DOCKER='container'
+    --env DMS_TRUSTED_NETWORKS='host'
     --env SSL_TYPE='letsencrypt'
   )
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
@@ -58,7 +58,7 @@ function _initial_setup() {
   local TARGET_DOMAIN='example.test'
   local CUSTOM_SETUP_ARGUMENTS=(
     --volume "${TEST_TMP_CONFIG}/letsencrypt/${TARGET_DOMAIN}/:/etc/letsencrypt/live/${TARGET_DOMAIN}/:ro"
-    --env PERMIT_DOCKER='container'
+    --env DMS_TRUSTED_NETWORKS='host'
     --env SSL_TYPE='letsencrypt'
   )
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
@@ -101,7 +101,7 @@ EOF
     local CUSTOM_SETUP_ARGUMENTS=(
       --volume "${TEST_TMP_CONFIG}/letsencrypt/acme.json:/etc/letsencrypt/acme.json:ro"
       --env LOG_LEVEL='trace'
-      --env PERMIT_DOCKER='container'
+      --env DMS_TRUSTED_NETWORKS='host'
       --env SSL_DOMAIN='*.example.test'
       --env SSL_TYPE='letsencrypt'
     )

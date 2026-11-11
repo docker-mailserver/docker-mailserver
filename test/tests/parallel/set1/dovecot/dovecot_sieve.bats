@@ -16,7 +16,7 @@ function setup_file() {
   local CONTAINER_ARGS_ENV_CUSTOM=(
     --env ENABLE_MANAGESIEVE=1
     # Required for mail delivery via nc:
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
     # Mount into home dir for user1 to treat as a user-sieve:
     # NOTE: Cannot use ':ro', 'start-mailserver.sh' attempts to 'chown -R' /var/mail:
     --volume "${TEST_TMP_CONFIG}/dovecot.sieve:/var/mail/localhost.localdomain/user1/home/.dovecot.sieve"

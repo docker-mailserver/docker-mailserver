@@ -9,7 +9,7 @@ function setup_file() {
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --env SMTP_ONLY=1
-    --env PERMIT_DOCKER=network
+    --env DMS_TRUSTED_NETWORKS=172.16.0.0/12
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'

@@ -18,7 +18,7 @@ function setup_file() {
     --env ENABLE_AMAVIS=1
     --env AMAVIS_LOGLEVEL=2
     --env ENABLE_SRS=1
-    --env PERMIT_DOCKER=host
+    --env DMS_TRUSTED_NETWORKS=subnet
     --env PFLOGSUMM_TRIGGER=logrotate
     --env REPORT_RECIPIENT=user1@localhost.localdomain
     --env REPORT_SENDER=report1@mail.example.test
@@ -240,17 +240,16 @@ EOF
 }
 
 #
-# PERMIT_DOCKER mynetworks
+# DMS_TRUSTED_NETWORKS mynetworks
 #
 
-@test "PERMIT_DOCKER: can get container ip" {
-  _run_in_container_bash "ip addr show eth0 | grep 'inet ' | sed 's/[^0-9\.\/]*//g' | cut -d '/' -f 1 | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}'"
-  assert_success
-}
+@test "DMS_TRUSTED_NETWORKS: 'subnet' trusts the network the container is connected to" {
+  local SUBNET
+  SUBNET=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Subnet}}')
 
-@test "PERMIT_DOCKER: my network value" {
-  _run_in_container_bash "postconf | grep '^mynetworks =' | egrep '[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.0\.0/16'"
+  _run_in_container postconf -h mynetworks
   assert_success
+  assert_output --partial "${SUBNET}"
 }
 
 #

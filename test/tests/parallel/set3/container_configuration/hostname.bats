@@ -21,7 +21,7 @@ function teardown() { _default_teardown ; }
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
     --env ENABLE_SRS=1
-    --env PERMIT_DOCKER='container'
+    --env DMS_TRUSTED_NETWORKS='host'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
   _init_with_defaults
@@ -43,7 +43,7 @@ function teardown() { _default_teardown ; }
     --hostname 'bare-domain.test'
     --env ENABLE_AMAVIS=1
     --env ENABLE_SRS=1
-    --env PERMIT_DOCKER='container'
+    --env DMS_TRUSTED_NETWORKS='host'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
   _init_with_defaults
@@ -67,7 +67,7 @@ function teardown() { _default_teardown ; }
     --env OVERRIDE_HOSTNAME='mail.override.test'
     --env ENABLE_AMAVIS=1
     --env ENABLE_SRS=1
-    --env PERMIT_DOCKER='container'
+    --env DMS_TRUSTED_NETWORKS='host'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
   _init_with_defaults
@@ -94,7 +94,7 @@ function teardown() { _default_teardown ; }
     --domainname 'example.test'
     --env ENABLE_AMAVIS=1
     --env ENABLE_SRS=1
-    --env PERMIT_DOCKER='container'
+    --env DMS_TRUSTED_NETWORKS='host'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
   _init_with_defaults
@@ -120,7 +120,7 @@ function teardown() { _default_teardown ; }
     --domainname 'example.test'
     --env ENABLE_SRS=1
     --env SRS_DOMAINNAME='srs.example.test'
-    --env PERMIT_DOCKER='container'
+    --env DMS_TRUSTED_NETWORKS='host'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
   )
   _init_with_defaults

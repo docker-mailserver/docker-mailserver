@@ -240,7 +240,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
           # <<< SASL LDAP Authentication
 
           - SSL_TYPE=letsencrypt
-          - PERMIT_DOCKER=host
+          - DMS_TRUSTED_NETWORKS=subnet
 
         cap_add:
           - NET_ADMIN
@@ -298,7 +298,7 @@ The changes on the configurations necessary to work with Active Directory (**onl
           # <<< Kopano Integration
 
           - SSL_TYPE=letsencrypt
-          - PERMIT_DOCKER=host
+          - DMS_TRUSTED_NETWORKS=subnet
 
         cap_add:
           - NET_ADMIN

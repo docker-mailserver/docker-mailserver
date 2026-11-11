@@ -7,7 +7,7 @@ CONTAINER_NAME='dms-test_postgrey_enabled'
 function setup_file() {
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_POSTGREY=1
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
     --env POSTGREY_AUTO_WHITELIST_CLIENTS=5
     --env POSTGREY_DELAY=3
     --env POSTGREY_MAX_AGE=35

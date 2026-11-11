@@ -6,8 +6,25 @@ All notable changes to this project will be documented in this file. The format 
 
 > **Note**: Changes and additions listed here are contained in the `:edge` image tag. These changes may not be as stable as released changes.
 
+### Breaking
+
+- **Environment Variables**
+  - `PERMIT_DOCKER` has been replaced by `DMS_TRUSTED_NETWORKS`. The old name implied that it only concerns Docker, and it was limited to IPv4. A still-set `PERMIT_DOCKER` is ignored and logs an error, so **no client is trusted until you migrate** ([#4634](https://github.com/docker-mailserver/docker-mailserver/issues/4634)):
+
+    | `PERMIT_DOCKER`                 | `DMS_TRUSTED_NETWORKS`                                                |
+    | :------------------------------ | :-------------------------------------------------------------------- |
+    | `none`                          | `none` (default, unchanged)                                           |
+    | `container`                     | `host`                                                                |
+    | `host`, `connected-networks`    | `subnet`                                                              |
+    | `network`                       | `172.16.0.0/12`, or the exact CIDR range(s) of your container network |
+
+  - `DMS_TRUSTED_NETWORKS` also accepts a list of CIDR ranges (IPv4 and IPv6, separated by spaces or commas). `host` and `subnet` now work for IPv6 too. The trusted networks are also exempted from OpenDKIM and OpenDMARC, as `PERMIT_DOCKER` did.
+  - `NETWORK_INTERFACE` has been removed and logs an error when set. It was only used to look up the IPv4 address of the container, which is no longer needed (_this includes the `NETWORK_INTERFACE=tap0` workaround for rootless Podman_).
+
 ### Fixed
 
+- **Networking**
+  - The container no longer fails to start with `Detecting the container IP address failed` when it has no IPv4 address at its network interface (_e.g. in an IPv6-only network_). The address was looked up even though the default `PERMIT_DOCKER=none` did not need it ([#4634](https://github.com/docker-mailserver/docker-mailserver/issues/4634))
 - **Dovecot**
   - The vmail user `docker` (UID 5000) is now a system account with a locked password, the shell `/usr/sbin/nologin`, and the home `/nonexistent`. Previously it had the password `docker` and the shell `/bin/bash`, so any unprivileged process in the container could `su docker` and gain access to all mailboxes. Custom scripts that run commands as this user with `su docker -c '...'` must now pass a shell explicitly, e.g. `su -s /bin/sh -c '...' docker` ([#4842](https://github.com/docker-mailserver/docker-mailserver/pull/4842))
   - `DOVECOT_MAILBOX_FORMAT=sdbox` and `mdbox` now set `mail_home` to `/var/mail/<domain>/<user>` as intended. The `sed` expression used `|` as its delimiter, which collided with the Dovecot 2.4 filter syntax in the replacement (`%{user | domain}`), so it failed at startup with ``unknown option to `s'`` and left the default `mail_home` (`.../<user>/home`) in place.

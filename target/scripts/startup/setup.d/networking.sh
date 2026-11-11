@@ -5,71 +5,81 @@ function _setup_mailname() {
   echo "${DOMAINNAME}" >/etc/mailname
 }
 
-function _setup_docker_permit() {
-  _log 'debug' 'Setting up PERMIT_DOCKER option'
+# Prints the IPv4 or IPv6 address / network given as `${1}` as a CIDR range in the text form that OpenDKIM and
+# OpenDMARC match client addresses against (lower case, compressed IPv6, host bits masked), e.g. `2001:DB8:0::5/32`
+# becomes `2001:db8::/32`. Fails for anything else. The regex keeps out IPv6 zone IDs, which `ipaddress` accepts.
+function __trusted_networks__normalize() {
+  [[ ${1} =~ ^[[:xdigit:]:.]+(/[[:digit:]]+)?$ ]] || return 1
+  python3 -c '
+import ipaddress, sys
+print(ipaddress.ip_network(sys.argv[1], strict=False))
+' "${1}" 2>/dev/null
+}
 
-  local CONTAINER_IP CONTAINER_NETWORK
+# Makes the OpenDKIM and OpenDMARC milters treat clients in the network `${1}` (CIDR, no brackets) as trusted.
+function __trusted_networks__add_to_milters() {
+  if [[ ${ENABLE_OPENDMARC} -eq 1 ]]; then echo "${1}" >>/etc/opendmarc/ignore.hosts; fi
+  if [[ ${ENABLE_OPENDKIM} -eq 1 ]]; then echo "${1}" >>/etc/opendkim/TrustedHosts; fi
+}
 
-  unset CONTAINER_NETWORKS
-  declare -a CONTAINER_NETWORKS
+# Postfix `mynetworks` defines the clients that are allowed to relay without authentication.
+# ref: https://www.postfix.org/postconf.5.html#mynetworks
+function _setup_trusted_networks() {
+  _log 'debug' "Setting up trusted networks (DMS_TRUSTED_NETWORKS='${DMS_TRUSTED_NETWORKS}')"
 
-  CONTAINER_IP=$(ip addr show "${NETWORK_INTERFACE}" | \
-    grep 'inet ' | sed 's|[^0-9\.\/]*||g' | cut -d '/' -f 1)
-  CONTAINER_NETWORK=$(echo "${CONTAINER_IP}" | cut -d '.' -f1-2).0.0
+  local ENTRY NETWORK
+  local -a NETWORKS=()
 
-  if [[ -z ${CONTAINER_IP} ]]; then
-    _log 'error' 'Detecting the container IP address failed'
-    _dms_panic__misconfigured 'NETWORK_INTERFACE' 'Network Setup [docker_permit]'
-  fi
-
-  while read -r IP; do
-    CONTAINER_NETWORKS+=("${IP}")
-  done < <(ip -o -4 addr show type veth | grep -E -o '[0-9\.]+/[0-9]+')
-
-  function __clear_postfix_mynetworks() {
-    _log 'trace' "Clearing Postfix's 'mynetworks'"
-    postconf "mynetworks ="
-  }
-
-  function __add_to_postfix_mynetworks() {
-    local NETWORK_TYPE=$1
-    local NETWORK=$2
-
-    _log 'trace' "Adding ${NETWORK_TYPE} (${NETWORK}) to Postfix 'main.cf:mynetworks'"
-    _adjust_mtime_for_postfix_maincf
-    postconf "$(postconf | grep '^mynetworks =') ${NETWORK}"
-    [[ ${ENABLE_OPENDMARC} -eq 1 ]] && echo "${NETWORK}" >>/etc/opendmarc/ignore.hosts
-    [[ ${ENABLE_OPENDKIM} -eq 1 ]] && echo "${NETWORK}" >>/etc/opendkim/TrustedHosts
-  }
-
-  case "${PERMIT_DOCKER}" in
+  case "${DMS_TRUSTED_NETWORKS}" in
     ( 'none' )
-      __clear_postfix_mynetworks
+      _log 'trace' "Clearing Postfix's 'mynetworks'"
+      postconf 'mynetworks ='
       ;;
 
-    ( 'connected-networks' )
-      for CONTAINER_NETWORK in "${CONTAINER_NETWORKS[@]}"; do
-        CONTAINER_NETWORK=$(_sanitize_ipv4_to_subnet_cidr "${CONTAINER_NETWORK}")
-        __add_to_postfix_mynetworks 'Docker Network' "${CONTAINER_NETWORK}"
+    ( 'host' | 'subnet' )
+      _log 'trace' "Letting Postfix derive 'mynetworks' from the interface addresses (mynetworks_style=${DMS_TRUSTED_NETWORKS})"
+      _adjust_mtime_for_postfix_maincf
+      postconf -X mynetworks
+      postconf "mynetworks_style = ${DMS_TRUSTED_NETWORKS}"
+
+      # The warnings (e.g. IPv6 being unavailable) are not relevant here, Postfix repeats them when it starts.
+      read -r -a NETWORKS < <(postconf -h mynetworks 2>/dev/null)
+      for ENTRY in "${NETWORKS[@]}"; do
+        if NETWORK=$(__trusted_networks__normalize "${ENTRY//[\[\]]/}"); then
+          __trusted_networks__add_to_milters "${NETWORK}"
+        else
+          _log 'warn' "Trusted network '${ENTRY}' (derived by Postfix) is not understood and was not added to OpenDKIM / OpenDMARC"
+        fi
       done
       ;;
 
-    ( 'container' )
-      __add_to_postfix_mynetworks 'Container IP address' "${CONTAINER_IP}/32"
-      ;;
+    ( * ) # A list of CIDR ranges, separated by spaces and / or commas. The ranges extend Postfix's default `mynetworks`.
+      local POSTFIX_MYNETWORKS
+      POSTFIX_MYNETWORKS=$(postconf -h mynetworks)
 
-    ( 'host' )
-      __add_to_postfix_mynetworks 'Host Network' "${CONTAINER_NETWORK}/16"
-      ;;
+      local -a ENTRIES
+      IFS=', ' read -r -a ENTRIES <<< "${DMS_TRUSTED_NETWORKS}"
+      for ENTRY in "${ENTRIES[@]}"; do
+        [[ -z ${ENTRY} ]] && continue
+        NETWORK=$(__trusted_networks__normalize "${ENTRY}") || _dms_panic__invalid_value "DMS_TRUSTED_NETWORKS ('${ENTRY}' is neither 'none', 'host', 'subnet' nor a CIDR range)" 'Network Setup [trusted_networks]'
 
-    ( 'network' )
-      __add_to_postfix_mynetworks 'Docker IPv4 Subnet' '172.16.0.0/12'
-      ;;
+        NETWORKS+=("${NETWORK}")
+        # Postfix expects IPv6 addresses in square brackets:
+        if [[ ${NETWORK} == *:* ]]; then
+          POSTFIX_MYNETWORKS+=" [${NETWORK%/*}]/${NETWORK#*/}"
+        else
+          POSTFIX_MYNETWORKS+=" ${NETWORK}"
+        fi
+      done
 
-    ( * )
-      _log 'warn' "Invalid value for PERMIT_DOCKER: '${PERMIT_DOCKER}'"
-      __clear_postfix_mynetworks
-      ;;
+      [[ ${#NETWORKS[@]} -eq 0 ]] && _dms_panic__invalid_value "DMS_TRUSTED_NETWORKS ('${DMS_TRUSTED_NETWORKS}' contains no CIDR range)" 'Network Setup [trusted_networks]'
 
+      _log 'trace' "Adding '${NETWORKS[*]}' to Postfix 'main.cf:mynetworks'"
+      _adjust_mtime_for_postfix_maincf
+      postconf "mynetworks = ${POSTFIX_MYNETWORKS}"
+      for NETWORK in "${NETWORKS[@]}"; do
+        __trusted_networks__add_to_milters "${NETWORK}"
+      done
+      ;;
   esac
 }

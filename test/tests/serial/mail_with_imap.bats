@@ -11,7 +11,7 @@ function setup_file() {
     --env ENABLE_SASLAUTHD=1
     --env SASLAUTHD_MECH_OPTIONS=127.0.0.1
     --env SASLAUTHD_MECHANISMS=rimap
-    --env PERMIT_DOCKER=container
+    --env DMS_TRUSTED_NETWORKS=host
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'

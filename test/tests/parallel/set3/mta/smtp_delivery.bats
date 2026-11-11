@@ -14,9 +14,9 @@ function setup_file() {
     # Required not only for authentication, but delivery in these tests (via nc):
     # TODO: Properly test with DNS records configured and separate container for
     #       handling delivery (without nc). This would remove the need for this ENV:
-    --env PERMIT_DOCKER=container
-    # NOTE: Authentication is rejected due to default POSTSCREEN_ACTION=enforce and PERMIT_DOCKER=none
-    # Non-issue when PERMIT_DOCKER is not the default `none` for these nc 0.0.0.0 tests:
+    --env DMS_TRUSTED_NETWORKS=host
+    # NOTE: Authentication is rejected due to default POSTSCREEN_ACTION=enforce and DMS_TRUSTED_NETWORKS=none
+    # Non-issue when DMS_TRUSTED_NETWORKS is not the default `none` for these nc 0.0.0.0 tests:
     # --env POSTSCREEN_ACTION=ignore
 
     # Required for test 'rejects spam':

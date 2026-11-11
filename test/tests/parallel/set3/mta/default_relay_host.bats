@@ -9,7 +9,7 @@ function setup_file() {
 
   local CUSTOM_SETUP_ARGUMENTS=(
     --env DEFAULT_RELAY_HOST=default.relay.host.invalid:25
-    --env PERMIT_DOCKER=host
+    --env DMS_TRUSTED_NETWORKS=subnet
   )
 
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'

@@ -122,8 +122,8 @@ In this setup DMS is not intended to receive email from the outside world, so no
               # Using letsencrypt for SSL/TLS certificates:
               - SSL_TYPE=letsencrypt
               # Allow sending emails from other docker containers:
-              # Beware creating an Open Relay: https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#permit_docker
-              - PERMIT_DOCKER=network
+              # Beware creating an Open Relay: https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#dms_trusted_networks
+              - DMS_TRUSTED_NETWORKS=172.16.0.0/12
               # You may want to enable this: https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#spoof_protection
               # See step 6 below, which demonstrates setup with enabled/disabled SPOOF_PROTECTION:
               - SPOOF_PROTECTION=0

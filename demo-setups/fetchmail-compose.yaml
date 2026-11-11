@@ -30,9 +30,9 @@ services:
     hostname: mail.remote.test
     environment:
       # Allows for us send a test mail easily by trusting any mail client run within this container (`swaks`):
-      PERMIT_DOCKER: container
+      DMS_TRUSTED_NETWORKS: host
       # Alternatively, trust and accept any mail received from clients in same subnet of dms-fetch:
-      #PERMIT_DOCKER: connected-networks
+      #DMS_TRUSTED_NETWORKS: subnet
     configs:
       - source: dms-accounts-remote
         target: /tmp/docker-mailserver/postfix-accounts.cf
