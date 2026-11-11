@@ -19,6 +19,7 @@ title: 'Advanced | Email Filtering with Sieve'
 Global filters are applied to EVERY incoming mail for EVERY email address.
 
 - To specify a global Sieve filter provide a `docker-data/dms/config/before.dovecot.sieve` or a `docker-data/dms/config/after.dovecot.sieve` file with your filter rules.
+- To add more global filters, place compiled Sieve scripts (`sievec <script>.sieve`) into `/usr/lib/dovecot/sieve-global/before/` or `/usr/lib/dovecot/sieve-global/after/` in the container, for example from [`user-patches.sh`][docs::user-patches]. Every `*.sieve` file in these directories runs in file name order, together with the scripts DMS creates itself (`50-before.dovecot.sieve`, `50-after.dovecot.sieve`, `60-spam_mark_as_read.sieve`, `70-spam_to_junk.sieve`, `spam_subject.sieve`). Choose a file name prefix that sorts your script to the position you want.
 - If any filter in this filtering chain discards an incoming mail, the delivery process will stop as well and the mail will not reach any following filters (e.g. global-before stops an incoming spam mail: The mail will get discarded and a user-specific filter won't get applied.)
 
 To specify a user-defined Sieve filter place a `.dovecot.sieve` file into a virtual user's mail folder (e.g. `/var/mail/example.com/user1/home/.dovecot.sieve`). If this file exists dovecot will apply the filtering rules.
@@ -177,6 +178,7 @@ The extension is known to work with the following ManageSieve clients:
 - **[Kmail](https://kontact.kde.org/components/kmail/)**  the mail client of [KDE](https://kde.org/)'s Kontact Suite.
 
 [docs::accounts-subaddressing]: ../account-management/overview.md#sub-addressing
+[docs::user-patches]: ./override-defaults/user-patches.md
 
 [dovecot-docs::namespace]: https://doc.dovecot.org/configuration_manual/namespace/
 [dovecot-docs::mailbox-names]: https://doc.dovecot.org/configuration_manual/sieve/usage/#mailbox-names

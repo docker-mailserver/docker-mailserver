@@ -130,26 +130,12 @@ function _setup_dovecot_sieve() {
       /tmp/docker-mailserver/before.dovecot.sieve \
       /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
     sievec /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
-    cat >>/etc/dovecot/conf.d/90-sieve.conf <<"EOF"
-
-sieve_script user_before {
-    type = before
-    path = /usr/lib/dovecot/sieve-global/before/50-before.dovecot.sieve
-}
-EOF
   fi
   if [[ -f /tmp/docker-mailserver/after.dovecot.sieve ]]; then
     cp \
       /tmp/docker-mailserver/after.dovecot.sieve \
       /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
     sievec /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
-    cat >>/etc/dovecot/conf.d/90-sieve.conf <<"EOF"
-
-sieve_script global_after {
-    type = after
-    path = /usr/lib/dovecot/sieve-global/after/50-after.dovecot.sieve
-}
-EOF
   fi
 
   chown dovecot:root -R /usr/lib/dovecot/sieve-*

@@ -46,6 +46,12 @@ function teardown_file() { _default_teardown ; }
   assert_success
 }
 
+# dovecot-sieve/user-patches.sh
+# Regression test for https://github.com/docker-mailserver/docker-mailserver/issues/4847
+@test "Global Sieve - should run additional scripts added to the 'sieve-global/before' directory" {
+  _count_files_in_directory_in_container /var/mail/localhost.localdomain/user1/.INBOX.drop-in/new 1
+}
+
 # dovecot-sieve/sieve-pipe + dovecot-sieve/user2@otherdomain.tld.dovecot.sieve
 @test "Sieve Pipe - should pipe mail received for user2 into '/tmp/pipe-test.out'" {
   _run_in_container_bash '[[ -f /tmp/pipe-test.out ]]'

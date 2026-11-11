@@ -295,14 +295,6 @@ EOF
 
     sievec "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}.sieve"
     chown dovecot:root "${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}."{sieve,svbin}
-
-    cat >>/etc/dovecot/conf.d/90-sieve.conf <<EOF
-
-sieve_script spam_subject {
-    type = before
-    path = ${DOVECOT_SIEVE_GLOBAL_BEFORE_DIR}/${DOVECOT_SIEVE_FILE}.sieve
-}
-EOF
   fi
 }
 
@@ -321,15 +313,6 @@ if anyof (header :contains "X-Spam-Flag" "YES",
 EOF
     sievec /usr/lib/dovecot/sieve-global/after/70-spam_to_junk.sieve
     chown dovecot:root /usr/lib/dovecot/sieve-global/after/70-spam_to_junk.{sieve,svbin}
-
-    cat >>/etc/dovecot/conf.d/90-sieve.conf <<"EOF"
-
-# Moves e-mails marked with spam headers into Junk
-sieve_script spam_to_junk {
-    type = after
-    path = /usr/lib/dovecot/sieve-global/after/70-spam_to_junk.sieve
-}
-EOF
 
     if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
       _log 'warn' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MOVE_SPAM_TO_JUNK=1' to work"
@@ -355,15 +338,6 @@ if anyof (header :contains "X-Spam-Flag" "YES",
 EOF
     sievec /usr/lib/dovecot/sieve-global/after/60-spam_mark_as_read.sieve
     chown dovecot:root /usr/lib/dovecot/sieve-global/after/60-spam_mark_as_read.{sieve,svbin}
-
-    cat >>/etc/dovecot/conf.d/90-sieve.conf <<"EOF"
-
-# Moves e-mails marked with spam headers into Junk
-sieve_script spam_mark_as_read {
-    type = after
-    path = /usr/lib/dovecot/sieve-global/after/60-spam_mark_as_read.sieve
-}
-EOF
 
     if [[ ${ENABLE_SPAMASSASSIN} -eq 1 ]] && [[ ${SPAMASSASSIN_SPAM_TO_INBOX} -eq 0 ]]; then
       _log 'warn' "'SPAMASSASSIN_SPAM_TO_INBOX=0' but it is required to be 1 for 'MARK_SPAM_AS_READ=1' to work"
