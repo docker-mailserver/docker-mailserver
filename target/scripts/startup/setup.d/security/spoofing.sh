@@ -6,7 +6,7 @@ function _setup_spoof_protection() {
 
     if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]; then
       # Only LDAP configs with a `query_filter` exist (`setup.d/ldap.sh:_create_config_postfix()`):
-      local QUERY_KIND SENDER_LOGIN_MAPS=()
+      local QUERY_KIND SENDER_LOGIN_MAPS=('pcre:/etc/postfix/maps/sender_login_maps.pcre')
       if [[ -f /etc/postfix/ldap/senders.cf ]]; then
         SENDER_LOGIN_MAPS=('ldap:/etc/postfix/ldap/senders.cf')
       else
