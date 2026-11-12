@@ -6,10 +6,6 @@ hide:
 
 This feature is useful for administrative tasks like hot backups.
 
-!!! note
-
-    This feature is presently [not supported with `ACCOUNT_PROVISIONER=LDAP`][dms::feature::dovecot-master-accounts::caveat-ldap].
-
 !!! info
 
     A _Master Account_:
