@@ -7,7 +7,4 @@ passdb passdb-master {
   auth_username_format    = %{user | lower}
   default_password_scheme = SHA512-CRYPT
   result_success          = continue
-
-  # Required for LDAP
-  #auth_bind = yes
 }

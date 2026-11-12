@@ -122,7 +122,11 @@ function _postfix_dovecot_changes() {
   || [[ ${CHANGED} =~ ${DMS_DIR}/dovecot-masters.cf  ]]
   then
     _log 'trace' 'Regenerating accounts (Dovecot + Postfix)'
-    [[ ${SMTP_ONLY} -ne 1 ]] && _create_accounts
+    if [[ ${SMTP_ONLY} -ne 1 ]]
+    then
+      _create_accounts
+      _create_masters
+    fi
   fi
 
   # Regenerate relay config via `helpers/relay.sh`:
