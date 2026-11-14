@@ -2,7 +2,7 @@ name: Other
 description: Miscellaneous questions and reports for the project (not support)
 title: 'other: '
 labels:
-  - meta/help wanted
+  - meta::help wanted
 
 body:
   - type: dropdown

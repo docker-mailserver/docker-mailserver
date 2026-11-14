@@ -1,9 +1,11 @@
 name: Bug Report
 description: Submit a bug report to help us improve
+type: Bug Report
 title: 'bug report: '
 labels:
-  - kind/bug/report
-  - meta/needs triage
+  - meta::needs triage
+projects:
+  - DMS Tasks
 
 body:
   - type: checkboxes

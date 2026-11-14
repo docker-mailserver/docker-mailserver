@@ -5,15 +5,11 @@ updates:
     schedule:
       interval: "weekly"
     labels:
-      - "area/ci"
-      - "kind/update"
-      - "priority/low"
+      - "area::ci"
 
   - package-ecosystem: "docker"
     directory: /
     schedule:
       interval: "weekly"
     labels:
-      - "area/ci"
-      - "kind/update"
-      - "priority/medium"
+      - "area::ci"

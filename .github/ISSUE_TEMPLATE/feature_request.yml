@@ -1,11 +1,11 @@
 name: Feature Request
 description: Suggest an idea for this project
+type: Feature Request
 title: 'feature request: '
 labels:
-  - kind/new feature
-  - meta/needs triage
+  - meta::needs triage
 projects:
-  - DMS Core Backlog
+  - DMS Tasks
 
 body:
   - type: markdown
