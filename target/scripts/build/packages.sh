@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# -e          :: exit on error (do this in functions as well)
-# -E          :: inherit the ERR trap to functions, command substitutions and sub-shells
-# -u          :: show (and exit) when using unset variables
-# -o pipefail :: exit on error in pipes
 set -eE -u -o pipefail
 shopt -s inherit_errexit
 
@@ -49,24 +45,21 @@ function _pre_installation_steps() {
 
 # Install third-party commands to /usr/local/bin
 function _install_utils() {
-  # NOTE: `*.tar.gz` releases tend to forget to reset UID/GID
-  #       ownership when archiving. When extracting with `tar`
-  #       as `root` the archived UID/GID is kept, unless using
-  #       `--no-same-owner`. Likewise when the binary is in a
-  #       nested location the full archived path must be
-  #       provided + `--strip-components` to extract the file
-  #       to the target directory. Doing this avoids the need
-  #       for (`mv` + `rm`) or (`--to-stdout` + `chmod +x`)
+  # ? `*.tar.gz` releases tend to forget to reset UID/GID ownership when archiving. When extracting
+  #   with `tar` as `root` the archived UID/GID is kept, unless using `--no-same-owner`. Likewise,
+  #   when the binary is in a nested location the full archived path must be provided, and
+  #   `--strip-components` to extract the file to the target directory. Doing this avoids the need
+  #   for (`mv` + `rm`) or (`--to-stdout` + `chmod +x`)
   _log 'debug' 'Installing utilities from Github'
 
   _log 'trace' 'Installing jaq'
-  local JAQ_VERSION='v3.1.1'
+  local JAQ_VERSION='v3.1.2'
   curl -sSfL -o /usr/local/bin/jaq \
     "https://github.com/01mf02/jaq/releases/download/${JAQ_VERSION}/jaq-${ARCH_UNAME}-unknown-linux-gnu"
   chmod +x /usr/local/bin/jaq
 
   _log 'trace' 'Installing step'
-  local STEP_CLI_VERSION='0.30.6'
+  local STEP_CLI_VERSION='0.31.0'
   curl -sSfL -o /tmp/step-cli.deb \
     "https://github.com/smallstep/cli/releases/download/v${STEP_CLI_VERSION}/step-cli_${ARCH_DPKG}.deb"
   dpkg -i /tmp/step-cli.deb
