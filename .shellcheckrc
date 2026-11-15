@@ -1,0 +1,8 @@
+enable=all
+color=auto
+severity=style
+disable=SC2030,SC2031,SC2034,SC2155,SC2154,SC2310,SC2311,SC2312
+external-sources=true
+check-sourced=true
+source-path=SCRIPTDIR
+wiki-link-count=5
