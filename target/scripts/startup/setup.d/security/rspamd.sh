@@ -251,8 +251,21 @@ require ["vnd.dovecot.pipe", "copy", "imapsieve"];
 pipe :copy "rspamc" ["-h", "127.0.0.1:11334", "learn_spam"];
 EOF
 
-    cat >"${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve" << EOF
-require ["vnd.dovecot.pipe", "copy", "imapsieve"];
+    # The `imapsieve_from Junk` trigger fires for every copy out of `Junk`, wherever it goes. We
+    # do not learn messages as ham that are deleted (moved to Trash) or copied within `Junk` itself.
+    # The quoted heredoc keeps Bash from expanding the Sieve variables and the backslash.
+    # ref: https://doc.dovecot.org/2.4.5/core/config/spam_reporting.html
+    cat >"${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve" << "EOF"
+require ["vnd.dovecot.pipe", "copy", "imapsieve", "environment", "variables", "special-use"];
+
+if environment :matches "imap.mailbox" "*" {
+  set "mailbox" "${1}";
+}
+
+if anyof (string "${mailbox}" "Junk", specialuse_exists "${mailbox}" "\\Trash") {
+  stop;
+}
+
 pipe :copy "rspamc" ["-h", "127.0.0.1:11334", "learn_ham"];
 EOF
 

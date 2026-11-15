@@ -341,6 +341,17 @@ function teardown_file() { _default_teardown ; }
   for LINE in "${LEARN_HAM_LINES[@]}"; do
     assert_output --partial "${LINE}"
   done
+
+  # Move the remaining email from "Junk" to "Trash" (i.e., delete it). The learn-ham script
+  # runs again, but must not learn this email as ham: no third email is piped to `rspamc`.
+  _send_raw_transaction 'nc/rspamd_imap_move_to_trash.txt' '127.0.0.1 143'
+  _repeat_in_container_until_success_or_timeout 20 "${CONTAINER_NAME}" \
+    grep -F --quiet 'Mailbox Trash: imapsieve: storage learn_ham' /var/log/mail/mail.log
+
+  # one email learned as spam (INBOX -> Junk), one as ham (Junk -> INBOX)
+  _filter_service_log 'mail' "pipe action: piped message to program 'rspamc'" --fixed-strings
+  assert_success
+  _should_output_number_of_lines 2
 }
 
 @test 'greylisting is enabled' {

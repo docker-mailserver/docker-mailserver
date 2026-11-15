@@ -473,7 +473,7 @@ When enabled,
 1. the "[autolearning][rspamd-autolearn]" feature is turned on;
 2. the Bayes classifier will be trained (with the help of Sieve scripts) when moving mails
     1. from anywhere to the `Junk` folder (learning this email as spam);
-    2. from the `Junk` folder into the `INBOX` (learning this email as ham).
+    2. from the `Junk` folder into any other folder except `Trash` (learning this email as ham). Deleting an email from `Junk` does not train the classifier.
 
 !!! warning "Attention"
 
