@@ -21,6 +21,11 @@ All notable changes to this project will be documented in this file. The format 
   - `DMS_TRUSTED_NETWORKS` also accepts a list of CIDR ranges (IPv4 and IPv6, separated by spaces or commas). `host` and `subnet` now work for IPv6 too. The trusted networks are also exempted from OpenDKIM and OpenDMARC, as `PERMIT_DOCKER` did.
   - `NETWORK_INTERFACE` has been removed and logs an error when set. It was only used to look up the IPv4 address of the container, which is no longer needed (_this includes the `NETWORK_INTERFACE=tap0` workaround for rootless Podman_).
 
+### Updated
+
+- **Rspamd**
+  - Rspamd has been updated from 4.1.5 to 4.3.0 ([#4854](https://github.com/docker-mailserver/docker-mailserver/pull/4854))
+
 ### Fixed
 
 - **Networking**
