@@ -62,13 +62,13 @@ function _install_utils() {
   _log 'trace' 'Installing jaq'
   local JAQ_VERSION='v3.1.1'
   curl -sSfL -o /usr/local/bin/jaq \
-    "https://github.com/01mf02/jaq/releases/download/${JAQ_VERSION}/jaq-${ARCH_A}-unknown-linux-gnu"
+    "https://github.com/01mf02/jaq/releases/download/${JAQ_VERSION}/jaq-${ARCH_UNAME}-unknown-linux-gnu"
   chmod +x /usr/local/bin/jaq
 
   _log 'trace' 'Installing step'
   local STEP_CLI_VERSION='0.30.6'
   curl -sSfL -o /tmp/step-cli.deb \
-    "https://github.com/smallstep/cli/releases/download/v${STEP_CLI_VERSION}/step-cli_${ARCH_B}.deb"
+    "https://github.com/smallstep/cli/releases/download/v${STEP_CLI_VERSION}/step-cli_${ARCH_DPKG}.deb"
   dpkg -i /tmp/step-cli.deb
   rm /tmp/step-cli.deb
 }
