@@ -5,8 +5,12 @@
 # -u          :: show (and exit) when using unset variables
 # -o pipefail :: exit on error in pipes
 set -eE -u -o pipefail
+shopt -s inherit_errexit
 
 VERSION_CODENAME='trixie'
+ARCH_UNAME=$(uname --machine)
+ARCH_DPKG=$(dpkg --print-architecture)
+readonly VERSION_CODENAME ARCH_UNAME ARCH_DPKG
 
 # shellcheck source=../helpers/log.sh
 source /usr/local/bin/helpers/log.sh
@@ -45,20 +49,6 @@ function _pre_installation_steps() {
 
 # Install third-party commands to /usr/local/bin
 function _install_utils() {
-  local ARCH_A
-  ARCH_A=$(uname --machine)
-  # Alternate naming convention support: x86_64 (amd64) / aarch64 (arm64)
-  # https://en.wikipedia.org/wiki/X86-64#Industry_naming_conventions
-  local ARCH_B
-  case "${ARCH_A}" in
-    ( 'x86_64'  ) ARCH_B='amd64' ;;
-    ( 'aarch64' ) ARCH_B='arm64' ;;
-    ( * )
-      _log 'error' "Unsupported arch: '${ARCH_A}'"
-      return 1
-      ;;
-  esac
-
   # NOTE: `*.tar.gz` releases tend to forget to reset UID/GID
   #       ownership when archiving. When extracting with `tar`
   #       as `root` the archived UID/GID is kept, unless using
@@ -240,24 +230,24 @@ EOF
   rm -f /etc/dovecot/conf.d/90-fts-flatcurve.conf
 }
 
+# ? DMS only supports the Rspamd package built by the Rspamd project (AMD64 + ARM64),
+#   as the version in Debian stable is a major version behind.
+#
+#   The release is pinned: The package index of the Rspamd APT repo only lists the newest
+#   release, so the `.deb` of the pinned release is downloaded from the repo's pool instead
+#   and verified. The apt repo is not added, so an upgrade of the system packages never
+#   replaces Rspamd. To update Rspamd, change the version and both checksums.
+#
+# > https://rspamd.com/apt-stable/pool/main/r/rspamd/
+#   https://rspamd.com/downloads.html#debian-and-ubuntu-linux
 function _install_rspamd() {
-  # NOTE: DMS only supports the Rspamd package built by the Rspamd project (AMD64 + ARM64),
-  #       as the version in Debian stable is a major version behind.
-  #
-  # The release is pinned: the package index of the Rspamd apt repo only lists the newest
-  # release, so the `.deb` of the pinned release is downloaded from the repo's pool instead
-  # and verified. The apt repo is not added, so an upgrade of the system packages never
-  # replaces Rspamd. To update Rspamd, change the version and both checksums.
-  #
-  # REF: https://rspamd.com/apt-stable/pool/main/r/rspamd/
-  #      https://rspamd.com/downloads.html#debian-and-ubuntu-linux
-  local RSPAMD_VERSION="4.1.5-1~9a291a4~${VERSION_CODENAME}"
-
+  local RSPAMD_VERSION="4.3.0-1~25c9ecc~${VERSION_CODENAME}"
   local RSPAMD_ARCH RSPAMD_SHA256
+
   RSPAMD_ARCH=$(dpkg --print-architecture)
   case "${RSPAMD_ARCH}" in
-    ( 'amd64' ) RSPAMD_SHA256='0b2d7a53db33a76e5cbc53ad1ba99574ddeb6d1164bc628af9f4a5e2dd98b34e' ;;
-    ( 'arm64' ) RSPAMD_SHA256='ee0be0c9c97de320f23f56f865e3ed33ba6f30ddcc0ff20de5e16c366abb4de6' ;;
+    ( 'amd64' ) RSPAMD_SHA256='f188cc4a2500ac3b14f5ee0da21143556daf4a23c323d17893291e47009453ac' ;;
+    ( 'arm64' ) RSPAMD_SHA256='834b597d49ce0bd78dae7bb4502b494ca48323d416f1f3b1f6c623aee9c21843' ;;
     ( * )
       _log 'error' "Unsupported arch: '${RSPAMD_ARCH}'"
       return 1
