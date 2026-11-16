@@ -6626,7 +6626,7 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 <li>the "<a href="https://rspamd.com/doc/configuration/statistic.html#autolearning">autolearning</a>" feature is turned on;</li>
 <li>the Bayes classifier will be trained (with the help of Sieve scripts) when moving mails<ol>
 <li>from anywhere to the <code>Junk</code> folder (learning this email as spam);</li>
-<li>from the <code>Junk</code> folder into the <code>INBOX</code> (learning this email as ham).</li>
+<li>from the <code>Junk</code> folder into any other folder except <code>Trash</code> (learning this email as ham). Deleting an email from <code>Junk</code> does not train the classifier.</li>
 </ol>
 </li>
 </ol>
