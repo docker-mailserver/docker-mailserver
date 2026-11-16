@@ -36,6 +36,8 @@ All notable changes to this project will be documented in this file. The format 
   - Every `*.sieve` file in `/usr/lib/dovecot/sieve-global/before/` and `/usr/lib/dovecot/sieve-global/after/` runs again, in file name order, as it did up to v15. Since v16 (the Dovecot 2.4 migration), DMS only registered its own scripts one by one, so any other script placed there (e.g. by `user-patches.sh`) compiled but was silently ignored ([#4847](https://github.com/docker-mailserver/docker-mailserver/issues/4847))
     - If you worked around this with your own `sieve_script` block that points to a file in one of these directories, remove it, otherwise the script runs twice.
     - Scripts that have been sitting unused in these directories since v16 will run again. Scripts you add yourself must be compiled with `sievec`.
+- **Rspamd**
+  - With `RSPAMD_LEARN=1`, messages deleted from the `Junk` folder (_moved to `Trash`_) are no longer learned as ham. Since v16 (the Dovecot 2.4 migration), every message moved out of `Junk` was learned as ham, whatever its destination. Now, ham is learned when a message is moved from `Junk` to any folder except `Trash` (_before v16, only moves to `INBOX` were learned_) ([#4831](https://github.com/docker-mailserver/docker-mailserver/issues/4831))
 
 ## [v17.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v17.0.0)
 
