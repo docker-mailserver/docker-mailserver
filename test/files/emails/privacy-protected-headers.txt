@@ -1,0 +1,34 @@
+From: Some User <user1@localhost.localdomain>
+To: Some User <user2@otherdomain.tld>
+Subject: Test protected headers inside a signed message
+Message-ID: <protected-headers@localhost.localdomain>
+User-Agent: Outer
+X-Mailer: Outer
+MIME-Version: 1.0 (outer)
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="SIGNED"
+
+--SIGNED
+Content-Type: multipart/mixed; boundary="MIXED"; protected-headers="v1"
+From: Some User <user1@localhost.localdomain>
+To: Some User <user2@otherdomain.tld>
+Subject: Test protected headers inside a signed message
+Message-ID: <protected-headers@localhost.localdomain>
+User-Agent: Inner
+X-Mailer: Inner
+MIME-Version: 1.0 (inner)
+
+--MIXED
+Content-Type: text/plain; charset=UTF-8
+
+This is a test mail.
+--MIXED--
+
+--SIGNED
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+ZHVtbXkgc2lnbmF0dXJl
+-----END PGP SIGNATURE-----
+--SIGNED--
