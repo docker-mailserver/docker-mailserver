@@ -6,7 +6,7 @@ User-Agent: Outer
 X-Mailer: Outer
 MIME-Version: 1.0 (outer)
 Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="SIGNED"
+  protocol="application/pgp-signature"; boundary="SIGNED"
 
 --SIGNED
 Content-Type: multipart/mixed; boundary="MIXED"; protected-headers="v1"
