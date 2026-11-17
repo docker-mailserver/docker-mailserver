@@ -197,6 +197,34 @@ function teardown_file() { _default_teardown ; }
   assert_failure
 }
 
+# The `setup` CLI refuses to create an alias and an account with the same address.
+# DMS itself adds the alias to itself that accounts on a catch-all domain need (see `catch_all.bats`):
+@test "alias add (rejects an address that is already an account)" {
+  run ./setup.sh -c "${CONTAINER_NAME}" alias add user1@localhost.localdomain target1@forward.com
+  assert_failure
+  assert_output --partial "'user1@localhost.localdomain' is already defined as an account"
+}
+
+@test "email add (rejects an address that is already an alias)" {
+  run ./setup.sh -c "${CONTAINER_NAME}" email add alias1@localhost.localdomain test_password
+  assert_failure
+  assert_output --partial "'alias1@localhost.localdomain' is already defined as an alias"
+}
+
+# Regression test for https://github.com/docker-mailserver/docker-mailserver/issues/4856
+# The overlap check must not match an address that is only a prefix of another one:
+@test "alias add + email add (accepts an address that is only a prefix of an existing one)" {
+  # Prefix of the account `user1@localhost.localdomain`:
+  run ./setup.sh -c "${CONTAINER_NAME}" alias add user1@localhost.localdomai target1@forward.com
+  assert_success
+  ./setup.sh -c "${CONTAINER_NAME}" alias del user1@localhost.localdomai target1@forward.com
+
+  # Prefix of the alias `alias1@localhost.localdomain`:
+  run ./setup.sh -c "${CONTAINER_NAME}" email add alias1@localhost.localdomai test_password
+  assert_success
+  ./setup.sh -c "${CONTAINER_NAME}" email del -y alias1@localhost.localdomai
+}
+
 # quota
 @test "setquota" {
   ./setup.sh -c "${CONTAINER_NAME}" email add quota_user@example.com test_password
