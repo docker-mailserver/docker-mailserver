@@ -3165,6 +3165,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <p>When DMS uses this configuration, it will by default also detect mail domains (<em>from accounts added via <code>setup email add</code></em>), generating additional DKIM keys.</p>
 </div>
 </details>
+<p>Both OpenDKIM and Rspamd sign with <code>relaxed/relaxed</code> canonicalization, so whitespace changes made by forwarding servers do not invalidate the signature.</p>
 <p>DKIM is currently supported by either OpenDKIM or Rspamd:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="opendkim" name="__tabbed_1" type="radio" /><input id="rspamd" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="opendkim">OpenDKIM</label><label for="rspamd">Rspamd</label></div>
 <div class="tabbed-content">
