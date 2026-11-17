@@ -112,6 +112,8 @@ You should have:
 
         When DMS uses this configuration, it will by default also detect mail domains (_from accounts added via `setup email add`_), generating additional DKIM keys.
 
+Both OpenDKIM and Rspamd sign with `relaxed/relaxed` canonicalization, so whitespace changes made by forwarding servers do not invalidate the signature.
+
 DKIM is currently supported by either OpenDKIM or Rspamd:
 
 === "OpenDKIM"
