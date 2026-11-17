@@ -48,6 +48,11 @@ All notable changes to this project will be documented in this file. The format 
 - **Rspamd**
   - With `RSPAMD_LEARN=1`, messages deleted from the `Junk` folder (_moved to `Trash`_) are no longer learned as ham. Since v16 (the Dovecot 2.4 migration), every message moved out of `Junk` was learned as ham, whatever its destination. Now, ham is learned when a message is moved from `Junk` to any folder except `Trash` (_before v16, only moves to `INBOX` were learned_) ([#4831](https://github.com/docker-mailserver/docker-mailserver/issues/4831))
 
+### Documentation
+
+- **OAuth2**
+  - Documented how to authenticate against an RFC 7662 `/introspect` endpoint that requires client credentials (_via a `dovecot.cf` override with `introspection_mode = post`_). The page now also explains that `OAUTH2_INTROSPECTION_URL` is the Dovecot `introspection_url` setting, which by default queries a `/userinfo` endpoint ([#4081](https://github.com/docker-mailserver/docker-mailserver/issues/4081))
+
 ## [v17.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v17.0.0)
 
 > [!note]

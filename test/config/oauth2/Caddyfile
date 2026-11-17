@@ -38,6 +38,34 @@
   }
 }
 
+# /introspect
+# Mocked RFC 7662 token introspection endpoint. Unlike `/userinfo`, it requires client credentials.
+# Dovecot is configured with `introspection_mode = post`, and the credentials in the URL (`http://dms-dovecot:hunter2@auth.example.test/introspect`).
+# It then makes a POST request with the token as content, and the credentials as an `Authorization: Basic` header.
+(route-introspect) {
+  # Base64 encoded `client_id:client_secret` (`dms-dovecot:hunter2`):
+  vars credentials "ZG1zLWRvdmVjb3Q6aHVudGVyMg=="
+
+  @auth {
+    method POST
+    header Authorization "Basic {vars.credentials}"
+  }
+
+  # `active` is what Dovecot checks with `active_attribute` + `active_value`, `email` is the default `username_attribute`:
+  handle @auth {
+    respond <<EOF
+    {
+      "active": true,
+      "email": "user1@localhost.localdomain"
+    }
+    EOF
+  }
+
+  respond 401 {
+    close
+  }
+}
+
 # NOTE: This portion of config is only relevant for understanding what happens seamlesssly,
 # DMS tests no longer use raw IMAP commands with netcat, thus none of this is relevant beyond reference for troubleshooting.
 #
@@ -82,6 +110,12 @@
   # Example: curl http://auth.example.test/userinfo -H 'Authorization: Bearer DMS_YWNjZXNzX3Rva2Vu'
   handle_path /userinfo {
     import route-userinfo
+  }
+
+  # The `/introspect` endpoint that Dovecot connects to with `introspection_mode = post` (see `dovecot.cf` in the OAuth2 docs).
+  # Example: curl http://auth.example.test/introspect -u dms-dovecot:hunter2 -d 'token=DMS_YWNjZXNzX3Rva2Vu'
+  handle_path /introspect {
+    import route-introspect
   }
 
   # An additional endpoint for maintainers to generate `test/files/auth/imap-oauth2-auth.txt`

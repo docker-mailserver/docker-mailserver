@@ -21,6 +21,18 @@ This feature enables support for delegating DMS account authentication through t
     3. DMS (Dovecot) will then check the validity of that token against the Authentication Service it was configured with.
     4. If the response returned is valid for the user account, authentication is successful.
 
+    Dovecot does not authenticate the user itself. It sends the token to the configured URL and only checks that a field of the JSON response (_`email` by default, see `username_attribute`_) matches the login username. Authentication is delegated to the service that issued the token.
+
+    !!! note "`OAUTH2_INTROSPECTION_URL` is not limited to `/introspect` endpoints"
+
+        `OAUTH2_INTROSPECTION_URL` sets the Dovecot [`introspection_url`][dovecot::docs::oauth2] setting. Despite the name, it is not tied to the [RFC 7662][rfc::7662] token introspection endpoint (`/introspect`), which requires client credentials.
+
+        Dovecot's default `introspection_mode = auth` sends a `GET` request with the token as an `Authorization: Bearer` header. That fits the OIDC `/userinfo` endpoint, which needs no client credentials, as used by the [Authentik](#authentik-with-roundcube) example below. To query an `/introspect` endpoint instead, see [this example](#token-introspection-endpoint-with-client-credentials).
+
+    !!! tip "Keycloak"
+
+        Use the `/userinfo` endpoint of your realm: `OAUTH2_INTROSPECTION_URL=https://keycloak.example.com/realms/<realm>/protocol/openid-connect/userinfo`
+
     [**XOAUTH2**][google::xoauth2-docs] (_Googles widely adopted implementation_) and **OAUTHBEARER** (_the newer variant standardized by [RFC 7628][rfc::7628] in 2015_) are supported as standards for verifying that a OAuth Bearer Token (_[RFC 6750][rfc::6750] from 2012_) is valid at the identity provider that created the token. The token itself in both cases is expected to be can an opaque _Access Token_, but it is possible to use a JWT _ID Token_ (_which encodes additional information into the token itself_).
 
     A mail client like Thunderbird has limited OAuth2 / OIDC support. The software maintains a hard-coded list of providers supported. Roundcube is a webmail client that does have support for generic providers, allowing you to integrate with a broader range of IdP services.
@@ -95,7 +107,7 @@ This example assumes you have already set up:
             env:
               # Enable the feature:
               - ENABLE_OAUTH2=1
-              # Specify the user info endpoint URL of the oauth2 server for token inspection:
+              # The `/userinfo` endpoint of the OAuth2 server. Dovecot requests it with the token to look up the user:
               - OAUTH2_INTROSPECTION_URL=https://authentik.example.com/application/o/userinfo/
         ```
 
@@ -129,14 +141,43 @@ This example assumes you have already set up:
         $config['oauth_login_redirect'] = false;
         ```
 
+### Token introspection endpoint with client credentials
+
+An IdP can offer an [RFC 7662][rfc::7662] `/introspect` endpoint. Unlike `/userinfo`, it requires client credentials (_the client ID and secret you issued to DMS_) via HTTP Basic authentication, and expects a `POST` request with the token.
+
+`OAUTH2_INTROSPECTION_URL` cannot switch Dovecot to `POST` requests, and anyone who can inspect the container can read a secret from its ENV. Configure the `oauth2` settings with a [`dovecot.cf`][docs::override-dovecot] override instead:
+
+```cf title="docker-data/dms/config/dovecot.cf"
+oauth2 {
+  introspection_mode = post
+  introspection_url = https://dms-dovecot:hunter2@auth.example.com/oauth2/introspect
+  # Reject tokens that the IdP reports as no longer valid:
+  active_attribute = active
+  active_value = true
+}
+```
+
+- Keep `ENABLE_OAUTH2=1`, but leave `OAUTH2_INTROSPECTION_URL` unset. The `oauth2` block above overrides the DMS defaults.
+- `dms-dovecot:hunter2` is the `client_id:client_secret` pair. Dovecot sends it as the `Authorization: Basic` header.
+- The `username_attribute` (_default `email`_) must be a field of the `/introspect` response. Not every IdP returns `email` there, so adjust the setting to a field that is returned (_RFC 7662 defines `username`_).
+
+!!! warning "Credentials only work as part of the URL"
+
+    The Dovecot settings `client_id` and `client_secret` are not sent with `introspection_mode = post` requests (_Dovecot 2.4, checked up to `2.4.3`_).
+
+    The credentials must be in the URL as shown above. Percent-encode reserved characters in them (_`:`, `@`, `/`, `%`_), for example `p@ss` becomes `p%40ss`.
+
 [dms-feature::oauth2-pr]: https://github.com/docker-mailserver/docker-mailserver/pull/3480
 [dms-feature::oidc-issues]: https://github.com/docker-mailserver/docker-mailserver/issues?q=label%3Afeature%2Fauth-oidc
 [docs::env::account-provisioner]: ../../environment.md#account_provisioner
+[docs::override-dovecot]: ../../advanced/override-defaults/dovecot.md
 [dms-feature-request::scim-api]: https://github.com/docker-mailserver/docker-mailserver/issues/4090
 
+[dovecot::docs::oauth2]: https://doc.dovecot.org/2.4.1/core/config/auth/databases/oauth2.html
 [google::xoauth2-docs]: https://developers.google.com/gmail/imap/xoauth2-protocol#the_sasl_xoauth2_mechanism
 [rfc::6750]: https://datatracker.ietf.org/doc/html/rfc6750
 [rfc::7628]: https://datatracker.ietf.org/doc/html/rfc7628
+[rfc::7662]: https://datatracker.ietf.org/doc/html/rfc7662
 [gh-issue::curl::xoauth2-bug]: https://github.com/curl/curl/issues/10259#issuecomment-1907192556
 
 [authentik::docs::install]: https://goauthentik.io/docs/installation/

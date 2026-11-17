@@ -4,6 +4,7 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 BATS_TEST_NAME_PREFIX='[OAuth2] '
 CONTAINER1_NAME='dms-test_oauth2'
 CONTAINER2_NAME='dms-test_oauth2_provider'
+CONTAINER3_NAME='dms-test_oauth2_introspect'
 
 function setup_file() {
   export DMS_TEST_NETWORK='test-network-oauth2'
@@ -46,15 +47,43 @@ function setup_file() {
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
   _wait_for_tcp_port_in_container 143
 
-  # Set default implicit container fallback for helpers:
-  export CONTAINER_NAME=${CONTAINER1_NAME}
-
   # An initial connection needs to be made first, otherwise the auth attempts fail
   _run_in_container_bash 'nc -vz 0.0.0.0 143'
+
+  #
+  # Setup a second DMS container that queries the `/introspect` endpoint with client credentials, as documented
+  # for OAuth2. This cannot be configured via ENV, so Dovecot is configured with a `dovecot.cf` override instead.
+  #
+
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+  _init_with_defaults
+
+  cat >"${TEST_TMP_CONFIG}/dovecot.cf" <<EOF
+oauth2 {
+  introspection_mode = post
+  introspection_url = http://dms-dovecot:hunter2@${FQDN_OAUTH2}/introspect
+  active_attribute = active
+  active_value = true
+}
+EOF
+
+  local CUSTOM_SETUP_ARGUMENTS_INTROSPECT=(
+    --env ENABLE_OAUTH2=1
+
+    --hostname "${FQDN_MAIL}"
+    --network "${DMS_TEST_NETWORK}"
+  )
+
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS_INTROSPECT'
+  _wait_for_tcp_port_in_container 143
+  _run_in_container_bash 'nc -vz 0.0.0.0 143'
+
+  # Set default implicit container fallback for helpers:
+  export CONTAINER_NAME=${CONTAINER1_NAME}
 }
 
 function teardown_file() {
-  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}"
+  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}"
   docker network rm "${DMS_TEST_NETWORK}"
 }
 
@@ -63,6 +92,17 @@ function teardown_file() {
 }
 
 @test "should authenticate with OAUTHBEARER" {
+  __should_login_successfully_with 'OAUTHBEARER'
+}
+
+# The `/introspect` endpoint only accepts a POST request with the client credentials as HTTP Basic auth:
+@test "should authenticate with XOAUTH2 via /introspect with client credentials" {
+  local CONTAINER_NAME=${CONTAINER3_NAME}
+  __should_login_successfully_with 'XOAUTH2'
+}
+
+@test "should authenticate with OAUTHBEARER via /introspect with client credentials" {
+  local CONTAINER_NAME=${CONTAINER3_NAME}
   __should_login_successfully_with 'OAUTHBEARER'
 }
 
