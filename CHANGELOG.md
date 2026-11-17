@@ -26,6 +26,11 @@ All notable changes to this project will be documented in this file. The format 
 - **Rspamd**
   - Rspamd has been updated from 4.1.5 to 4.3.0 ([#4854](https://github.com/docker-mailserver/docker-mailserver/pull/4854))
 
+### Changed
+
+- **OpenDKIM**
+  - Outgoing mail is now signed with `relaxed/relaxed` canonicalization instead of `relaxed/simple`, as Rspamd already does. The signature now survives whitespace changes to the body by forwarding servers (_e.g. stripped trailing spaces_) ([#4751](https://github.com/docker-mailserver/docker-mailserver/issues/4751))
+
 ### Fixed
 
 - **Networking**
