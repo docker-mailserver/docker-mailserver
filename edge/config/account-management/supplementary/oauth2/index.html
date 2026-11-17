@@ -985,6 +985,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#token-introspection-endpoint-with-client-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token introspection endpoint with client credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2900,6 +2911,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#token-introspection-endpoint-with-client-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token introspection endpoint with client credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2955,6 +2977,16 @@
 <li>DMS (Dovecot) will then check the validity of that token against the Authentication Service it was configured with.</li>
 <li>If the response returned is valid for the user account, authentication is successful.</li>
 </ol>
+<p>Dovecot does not authenticate the user itself. It sends the token to the configured URL and only checks that a field of the JSON response (<em><code>email</code> by default, see <code>username_attribute</code></em>) matches the login username. Authentication is delegated to the service that issued the token.</p>
+<div class="admonition note">
+<p class="admonition-title"><code>OAUTH2_INTROSPECTION_URL</code> is not limited to <code>/introspect</code> endpoints</p>
+<p><code>OAUTH2_INTROSPECTION_URL</code> sets the Dovecot <a href="https://doc.dovecot.org/2.4.1/core/config/auth/databases/oauth2.html"><code>introspection_url</code></a> setting. Despite the name, it is not tied to the <a href="https://datatracker.ietf.org/doc/html/rfc7662">RFC 7662</a> token introspection endpoint (<code>/introspect</code>), which requires client credentials.</p>
+<p>Dovecot's default <code>introspection_mode = auth</code> sends a <code>GET</code> request with the token as an <code>Authorization: Bearer</code> header. That fits the OIDC <code>/userinfo</code> endpoint, which needs no client credentials, as used by the <a href="#authentik-with-roundcube">Authentik</a> example below. To query an <code>/introspect</code> endpoint instead, see <a href="#token-introspection-endpoint-with-client-credentials">this example</a>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Keycloak</p>
+<p>Use the <code>/userinfo</code> endpoint of your realm: <code>OAUTH2_INTROSPECTION_URL=https://keycloak.example.com/realms/&lt;realm&gt;/protocol/openid-connect/userinfo</code></p>
+</div>
 <p><a href="https://developers.google.com/gmail/imap/xoauth2-protocol#the_sasl_xoauth2_mechanism"><strong>XOAUTH2</strong></a> (<em>Googles widely adopted implementation</em>) and <strong>OAUTHBEARER</strong> (<em>the newer variant standardized by <a href="https://datatracker.ietf.org/doc/html/rfc7628">RFC 7628</a> in 2015</em>) are supported as standards for verifying that a OAuth Bearer Token (<em><a href="https://datatracker.ietf.org/doc/html/rfc6750">RFC 6750</a> from 2012</em>) is valid at the identity provider that created the token. The token itself in both cases is expected to be can an opaque <em>Access Token</em>, but it is possible to use a JWT <em>ID Token</em> (<em>which encodes additional information into the token itself</em>).</p>
 <p>A mail client like Thunderbird has limited OAuth2 / OIDC support. The software maintains a hard-coded list of providers supported. Roundcube is a webmail client that does have support for generic providers, allowing you to integrate with a broader range of IdP services.</p>
 <hr />
@@ -3018,7 +3050,7 @@ curl<span class="w"> </span>--silent<span class="w"> </span>--url<span class="w"
 <span class="w">    </span><span class="na">env</span><span class="o">:</span>
 <span class="w">      </span><span class="c1"># Enable the feature:</span>
 <span class="w">      </span><span class="na">-</span><span class="w"> </span><span class="s">ENABLE_OAUTH2=1</span>
-<span class="w">      </span><span class="c1"># Specify the user info endpoint URL of the oauth2 server for token inspection:</span>
+<span class="w">      </span><span class="c1"># The `/userinfo` endpoint of the OAuth2 server. Dovecot requests it with the token to look up the user:</span>
 <span class="w">      </span><span class="na">-</span><span class="w"> </span><span class="s">OAUTH2_INTROSPECTION_URL=https://authentik.example.com/application/o/userinfo/</span>
 </code></pre></div>
 </div>
@@ -3052,6 +3084,27 @@ curl<span class="w"> </span>--silent<span class="w"> </span>--url<span class="w"
 </div>
 </div>
 </div>
+</div>
+<h3 id="token-introspection-endpoint-with-client-credentials"><a class="toclink" href="#token-introspection-endpoint-with-client-credentials">Token introspection endpoint with client credentials</a></h3>
+<p>An IdP can offer an <a href="https://datatracker.ietf.org/doc/html/rfc7662">RFC 7662</a> <code>/introspect</code> endpoint. Unlike <code>/userinfo</code>, it requires client credentials (<em>the client ID and secret you issued to DMS</em>) via HTTP Basic authentication, and expects a <code>POST</code> request with the token.</p>
+<p><code>OAUTH2_INTROSPECTION_URL</code> cannot switch Dovecot to <code>POST</code> requests, and anyone who can inspect the container can read a secret from its ENV. Configure the <code>oauth2</code> settings with a <a href="../../../advanced/override-defaults/dovecot/"><code>dovecot.cf</code></a> override instead:</p>
+<div class="highlight"><span class="filename">docker-data/dms/config/dovecot.cf</span><pre><span></span><code><span class="na">oauth2 {</span>
+<span class="w">  </span><span class="na">introspection_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">post</span>
+<span class="w">  </span><span class="na">introspection_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">https://dms-dovecot:hunter2@auth.example.com/oauth2/introspect</span>
+<span class="w">  </span><span class="c1"># Reject tokens that the IdP reports as no longer valid:</span>
+<span class="w">  </span><span class="na">active_attribute</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">active</span>
+<span class="w">  </span><span class="na">active_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">}</span>
+</code></pre></div>
+<ul>
+<li>Keep <code>ENABLE_OAUTH2=1</code>, but leave <code>OAUTH2_INTROSPECTION_URL</code> unset. The <code>oauth2</code> block above overrides the DMS defaults.</li>
+<li><code>dms-dovecot:hunter2</code> is the <code>client_id:client_secret</code> pair. Dovecot sends it as the <code>Authorization: Basic</code> header.</li>
+<li>The <code>username_attribute</code> (<em>default <code>email</code></em>) must be a field of the <code>/introspect</code> response. Not every IdP returns <code>email</code> there, so adjust the setting to a field that is returned (<em>RFC 7662 defines <code>username</code></em>).</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Credentials only work as part of the URL</p>
+<p>The Dovecot settings <code>client_id</code> and <code>client_secret</code> are not sent with <code>introspection_mode = post</code> requests (<em>Dovecot 2.4, checked up to <code>2.4.3</code></em>).</p>
+<p>The credentials must be in the URL as shown above. Percent-encode reserved characters in them (<em><code>:</code>, <code>@</code>, <code>/</code>, <code>%</code></em>), for example <code>p@ss</code> becomes <code>p%40ss</code>.</p>
 </div>
 
 
