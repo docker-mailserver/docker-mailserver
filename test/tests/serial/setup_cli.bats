@@ -222,6 +222,8 @@ function teardown_file() { _default_teardown ; }
   # Prefix of the alias `alias1@localhost.localdomain`:
   run ./setup.sh -c "${CONTAINER_NAME}" email add alias1@localhost.localdomai test_password
   assert_success
+  # The maildir is created by the change detector, `email del -y` fails without it:
+  _wait_until_account_maildir_exists 'alias1@localhost.localdomai'
   ./setup.sh -c "${CONTAINER_NAME}" email del -y alias1@localhost.localdomai
 }
 
