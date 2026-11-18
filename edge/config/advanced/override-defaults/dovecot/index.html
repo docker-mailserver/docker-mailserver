@@ -2963,7 +2963,7 @@
   <h1>Dovecot</h1>
 
 <h2 id="add-configuration"><a class="toclink" href="#add-configuration">Add Configuration</a></h2>
-<p>The Dovecot default configuration can easily be extended providing a <code>docker-data/dms/config/dovecot.cf</code> file.
+<p>The Dovecot configuration of DMS can easily be extended providing a <code>docker-data/dms/config/dovecot.cf</code> file.
 <a href="https://doc.dovecot.org/configuration_manual/">Dovecot documentation</a> remains the best place to find configuration options.</p>
 <p>Your DMS folder structure should look like this example:</p>
 <div class="highlight"><pre><span></span><code>├── docker-data/dms/config
@@ -2979,16 +2979,27 @@
 <p>Another important option is the <code>default_process_limit</code> (defaults to <code>100</code>). If high-security mode is enabled you'll need to make sure this count is higher than the maximum number of users that can be logged in simultaneously.</p>
 <p>This limit is quickly reached if users connect to DMS with multiple end devices.</p>
 <h2 id="override-configuration"><a class="toclink" href="#override-configuration">Override Configuration</a></h2>
-<p>For major configuration changes it’s best to override the dovecot configuration files. For each configuration file you want to override, add a list entry under the <code>volumes</code> key.</p>
+<p>DMS ships its own, self-contained Dovecot configuration. It does not depend on the configuration files that Debian or the Dovecot Community Edition (CE) packages provide. The main file <code>/etc/dovecot/dovecot.conf</code> is read by Dovecot in this order:</p>
+<ol>
+<li>The settings of DMS itself (<em><code>/etc/dovecot/dovecot.conf</code>, some of them are adjusted at startup according to ENV</em>)</li>
+<li>All <code>*.conf</code> files in <code>/etc/dovecot/features.d/</code> (<em>features that DMS enabled</em>)</li>
+<li>All <code>*.conf</code> files in <code>/etc/dovecot/conf.d/</code> (<em>your own files</em>)</li>
+<li><code>/etc/dovecot/local.conf</code> (<em>your <code>dovecot.cf</code></em>)</li>
+</ol>
+<p>Settings that are read later override earlier ones, while sections like <code>namespace</code> or <code>mailbox</code> and boolean lists like <code>mail_plugins</code> are merged. Thus you rarely need to replace a file: add your own file to <code>/etc/dovecot/conf.d/</code> instead. It overrides the features, regardless of its file name. For each file you want to add, add a list entry under the <code>volumes</code> key:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/mail-data/:/var/mail/</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/10-master.conf:/etc/dovecot/conf.d/10-master.conf</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/90-custom.conf:/etc/dovecot/conf.d/90-custom.conf:ro</span>
 </code></pre></div>
-<p>You will first need to obtain the configuration from the running container (<em>where <code>mailserver</code> is the container name</em>):</p>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>./docker-data/dms/config/dovecot
-docker<span class="w"> </span>cp<span class="w"> </span>mailserver:/etc/dovecot/conf.d/10-master.conf<span class="w"> </span>./docker-data/dms/config/dovecot/10-master.conf
+<div class="admonition note">
+<p class="admonition-title">Features</p>
+<p>DMS copies the optional features it enables from <code>/etc/dovecot/features/</code> to <code>/etc/dovecot/features.d/</code> during startup (<em><code>auth-passwdfile.conf</code>, <code>auth-ldap.conf</code>, <code>auth-oauth2.conf</code>, <code>quota.conf</code> and <code>rspamd-learn.conf</code></em>). Any file in <code>conf.d/</code> overrides them.</p>
+<p>To adjust a feature, override its settings in your own file or in <code>dovecot.cf</code>. To inspect it, run <code>docker exec mailserver cat /etc/dovecot/features/&lt;NAME&gt;.conf</code>.</p>
+</div>
+<p>You can obtain the configuration of DMS from the running container (<em>where <code>mailserver</code> is the container name</em>), to see which settings you can override:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>mailserver<span class="w"> </span>cat<span class="w"> </span>/etc/dovecot/dovecot.conf
 </code></pre></div>
 <h2 id="statistics"><a class="toclink" href="#statistics">Statistics</a></h2>
 <p>DMS keeps Dovecot's upstream defaults for the <code>stats</code> service. To verify it works, run:</p>

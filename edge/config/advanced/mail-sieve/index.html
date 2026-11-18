@@ -3055,7 +3055,7 @@
 <ul>
 <li>If you omit the <code>INBOX.</code> prefix from the sieve script above, the mailbox (folder) for that tag is created at the top-level alongside your Trash and Junk folders.</li>
 <li>The <code>.</code> between <code>INBOX</code> and <code>${tag}</code> is important as a <a href="https://doc.dovecot.org/configuration_manual/sieve/usage/#mailbox-names">separator to distinguish mailbox names</a>. This can vary by mailbox format or configuration. DMS uses <a href="https://doc.dovecot.org/admin_manual/mailbox_formats/maildir/#maildir-mbox-format"><code>Maildir</code></a> by default, which uses <code>.</code> as the separator.</li>
-<li><a href="https://doc.dovecot.org/settings/core/#core_setting-lmtp_save_to_detail_mailbox"><code>lmtp_save_to_detail_mailbox = yes</code></a> can be set in <code>/etc/dovecot/conf.d/20-lmtp.conf</code>:<ul>
+<li><a href="https://doc.dovecot.org/settings/core/#core_setting-lmtp_save_to_detail_mailbox"><code>lmtp_save_to_detail_mailbox = yes</code></a> can be set in your <a href="../override-defaults/dovecot/#add-configuration"><code>dovecot.cf</code></a>:<ul>
 <li>This implements the feature globally, except for the tag normalization and <code>INBOX.</code> prefix parts of the example script.</li>
 <li>However, if the sieve script is also present, the script has precedence and will handle this task instead when the condition is successful, otherwise falling back to the global feature.</li>
 </ul>

@@ -3019,8 +3019,6 @@
 <summary>Add to DMS volumes in <code>compose.yaml</code></summary>
 <div class="highlight"><pre><span></span><code><span class="w">    </span><span class="c1"># All new volumes are marked :ro to configure them as read-only, since their contents are not changed from inside the container</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
-<span class="w">      </span><span class="c1"># Configuration override to disable LDAP authentication</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/auth-ldap.conf.ext:/etc/dovecot/conf.d/auth-ldap.conf.ext:ro</span>
 <span class="w">      </span><span class="c1"># Configuration addition to enable Lua authentication</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/dovecot/auth-lua-httpbasic.conf:/etc/dovecot/conf.d/auth-lua-httpbasic.conf:ro</span>
 <span class="w">      </span><span class="c1"># Directory containing Lua scripts</span>
@@ -3030,11 +3028,16 @@
 <p>Create a directory for Lua scripts:
 <div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>./docker-data/dms/config/dovecot/lua
 </code></pre></div></p>
-<p>Create configuration file <code>./docker-data/dms/config/dovecot/auth-ldap.conf.ext</code> for LDAP user provisioning:
+<p>Create configuration file <code>./docker-data/dms/config/dovecot/auth-ldap.conf</code> for LDAP user provisioning:
 <div class="highlight"><pre><span></span><code>userdb {
   driver = ldap
   args = /etc/dovecot/dovecot-ldap.conf.ext
 }
+</code></pre></div></p>
+<p>DMS creates <code>/etc/dovecot/features.d/auth-ldap.conf</code> during startup (including LDAP authentication) when using LDAP for account provisioning. To replace it with the configuration above, which only provisions users, add a <code>user-patches.sh</code> to <code>./docker-data/dms/config/</code>:
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+
+cp<span class="w"> </span>/tmp/docker-mailserver/dovecot/auth-ldap.conf<span class="w"> </span>/etc/dovecot/features.d/auth-ldap.conf
 </code></pre></div></p>
 <p>Create configuration file <code>./docker-data/dms/config/dovecot/auth-lua-httpbasic.conf</code> for Lua user authentication:
 <div class="highlight"><pre><span></span><code>passdb {
