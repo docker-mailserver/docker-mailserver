@@ -235,7 +235,7 @@ Both device registration and notifications send a username to the daemon to look
 The format of that username is specified by the `auth_username_format` Dovecot setting. If you are not using mail addresses as Dovecot usernames - e.g. when using LDAP - you can either change the `auth_username_format` or add the mail address as property to the user account and use the lookup feature (see below).
 
 ```sh title="user-patches.sh"
-sed -i -r "s|^#?(auth_username_format =).*|\1 %Ln|" /etc/dovecot/conf.d/10-auth.conf
+echo 'auth_username_format = %{user | username | lower}' >/etc/dovecot/conf.d/90-xaps-username.conf
 ```
 
 You can also use notifications for Dovecot alias mailboxes. Depending on your server configuration, this might require to add the original Dovecot username as [Dovecot attribute](https://doc.dovecot.org/configuration_manual/authentication/user_database_extra_fields/) to the login user as well as changing the `user_lookup=theattribute` in `95-xaps.conf` to perform the lookup of that attribute.

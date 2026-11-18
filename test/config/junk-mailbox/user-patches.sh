@@ -6,7 +6,7 @@
 
 echo "[user-patches.sh] Adjusting 'Junk' mailbox name to verify delivery to Junk mailbox based on special-use flag instead of mailbox's name"
 
-sed -i -e 's/mailbox Junk/mailbox Spam/' /etc/dovecot/conf.d/15-mailboxes.conf
+sed -i -e 's/mailbox Junk/mailbox Spam/' /etc/dovecot/dovecot.conf
 
 ### Before / After ###
 

@@ -260,7 +260,7 @@ function _setup_spam_subject() {
     _log 'debug' "Spam subject is set - the prefix '${SPAM_SUBJECT}' will be added to spam e-mails"
 
     _log 'trace' "Enabling Sieve extension 'editheader'"
-    sedfile -i -E 's|^( *editheader =).*|\1 yes|g' /etc/dovecot/conf.d/90-sieve.conf
+    sedfile -i -E 's|^( *editheader =).*|\1 yes|g' /etc/dovecot/dovecot.conf
 
     _log 'trace' "Adding global (before) Sieve script for subject rewrite"
     # This directory contains Sieve scripts that are executed before user-defined Sieve

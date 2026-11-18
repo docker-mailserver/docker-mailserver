@@ -25,9 +25,6 @@ function _create_accounts() {
     chown dovecot:dovecot "${DOVECOT_USERDB_FILE}"
     chmod 640 "${DOVECOT_USERDB_FILE}"
 
-    sed -i -e '/\!include auth-ldap\.conf\.ext/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
-    sed -i -e '/\!include auth-passwdfile\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
-
     # creating users ; 'pass' is encrypted
     # comments and empty lines are ignored
     local LOGIN PASS USER_ATTRIBUTES
@@ -149,7 +146,7 @@ function _create_dovecot_alias_dummy_accounts() {
 }
 
 # Support Dovecot master user: https://doc.dovecot.org/configuration_manual/authentication/master_users/
-# Supporting LDAP users requires `passdb_ldap_bind = yes` in `auth-ldap.conf.ext`, see docker-mailserver/docker-mailserver/pull/2535 for details
+# Supporting LDAP users requires `passdb_ldap_bind = yes` in `auth-ldap.conf`, see docker-mailserver/docker-mailserver/pull/2535 for details
 function _create_masters() {
   : >"${DOVECOT_MASTERDB_FILE}"
 
@@ -159,8 +156,6 @@ function _create_masters() {
 
     chown dovecot:dovecot "${DOVECOT_MASTERDB_FILE}"
     chmod 640 "${DOVECOT_MASTERDB_FILE}"
-
-    sed -i -e '/\!include auth-master\.inc/s/^#//' /etc/dovecot/conf.d/10-auth.conf
 
     # creating users ; 'pass' is encrypted
     # comments and empty lines are ignored

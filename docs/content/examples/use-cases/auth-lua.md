@@ -47,8 +47,6 @@ While it is possible to extend the authentication methods which Nextcloud can fa
     ```yaml
         # All new volumes are marked :ro to configure them as read-only, since their contents are not changed from inside the container
         volumes:
-          # Configuration override to disable LDAP authentication
-          - ./docker-data/dms/config/dovecot/auth-ldap.conf.ext:/etc/dovecot/conf.d/auth-ldap.conf.ext:ro
           # Configuration addition to enable Lua authentication
           - ./docker-data/dms/config/dovecot/auth-lua-httpbasic.conf:/etc/dovecot/conf.d/auth-lua-httpbasic.conf:ro
           # Directory containing Lua scripts
@@ -60,12 +58,19 @@ Create a directory for Lua scripts:
 mkdir -p ./docker-data/dms/config/dovecot/lua
 ```
 
-Create configuration file `./docker-data/dms/config/dovecot/auth-ldap.conf.ext` for LDAP user provisioning:
+Create configuration file `./docker-data/dms/config/dovecot/auth-ldap.conf` for LDAP user provisioning:
 ```
 userdb {
   driver = ldap
   args = /etc/dovecot/dovecot-ldap.conf.ext
 }
+```
+
+DMS creates `/etc/dovecot/features.d/auth-ldap.conf` during startup (including LDAP authentication) when using LDAP for account provisioning. To replace it with the configuration above, which only provisions users, add a `user-patches.sh` to `./docker-data/dms/config/`:
+```bash
+#!/bin/bash
+
+cp /tmp/docker-mailserver/dovecot/auth-ldap.conf /etc/dovecot/features.d/auth-ldap.conf
 ```
 
 Create configuration file `./docker-data/dms/config/dovecot/auth-lua-httpbasic.conf` for Lua user authentication:

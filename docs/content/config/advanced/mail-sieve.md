@@ -149,7 +149,7 @@ When mail is delivered to your account, it is possible to organize storing mail 
 
     - If you omit the `INBOX.` prefix from the sieve script above, the mailbox (folder) for that tag is created at the top-level alongside your Trash and Junk folders.
     - The `.` between `INBOX` and `${tag}` is important as a [separator to distinguish mailbox names][dovecot-docs::mailbox-names]. This can vary by mailbox format or configuration. DMS uses [`Maildir`][dovecot-docs::mailbox-formats::maildir] by default, which uses `.` as the separator.
-    - [`lmtp_save_to_detail_mailbox = yes`][dovecot-docs::config::lmtp_save_to_detail_mailbox] can be set in `/etc/dovecot/conf.d/20-lmtp.conf`:
+    - [`lmtp_save_to_detail_mailbox = yes`][dovecot-docs::config::lmtp_save_to_detail_mailbox] can be set in your [`dovecot.cf`][docs::override-dovecot]:
         - This implements the feature globally, except for the tag normalization and `INBOX.` prefix parts of the example script.
         - However, if the sieve script is also present, the script has precedence and will handle this task instead when the condition is successful, otherwise falling back to the global feature.
 
@@ -179,6 +179,7 @@ The extension is known to work with the following ManageSieve clients:
 
 [docs::accounts-subaddressing]: ../account-management/overview.md#sub-addressing
 [docs::user-patches]: ./override-defaults/user-patches.md
+[docs::override-dovecot]: ./override-defaults/dovecot.md#add-configuration
 
 [dovecot-docs::namespace]: https://doc.dovecot.org/configuration_manual/namespace/
 [dovecot-docs::mailbox-names]: https://doc.dovecot.org/configuration_manual/sieve/usage/#mailbox-names

@@ -150,6 +150,22 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial 'action=DUNNO'
 }
 
+# The enabled feature is read from `features.d/` before `conf.d/`, so the file name of a user supplied file does not matter:
+@test 'should let a user supplied config in conf.d override the quota feature' {
+  _run_in_container doveconf -h quota_storage_grace
+  assert_output '10M'
+
+  _run_in_container_bash "echo 'quota_storage_grace = 1M' >/etc/dovecot/conf.d/90-override.conf"
+  assert_success
+
+  _run_in_container doveconf -h quota_storage_grace
+  assert_output '1M'
+
+  # Cleanup
+  _run_in_container rm /etc/dovecot/conf.d/90-override.conf
+  assert_success
+}
+
 @test '(ENV POSTFIX_MAILBOX_SIZE_LIMIT) should be configured for both Postfix and Dovecot' {
   _run_in_container postconf -h mailbox_size_limit
   assert_output 4096000

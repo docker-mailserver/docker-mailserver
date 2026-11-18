@@ -6,21 +6,30 @@ hide:
 
 # Mailboxes (_aka IMAP Folders_)
 
-`INBOX` is setup as the private [`inbox` namespace][dovecot-docs-namespaces]. By default [`target/dovecot/15-mailboxes.conf`][github-config-dovecot-mailboxes] configures the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash` to be automatically created and subscribed. They are all assigned to the private [`inbox` namespace][dovecot-docs-namespaces] (_which implicitly provides the `INBOX` folder_).
+`INBOX` is setup as the private [`inbox` namespace][dovecot-docs-namespaces]. By default the `namespace inbox` section of [`target/dovecot/dovecot.conf`][github-config-dovecot-mailboxes] configures the special IMAP folders `Drafts`, `Sent`, `Junk` and `Trash` to be automatically created and subscribed. They are all assigned to the private [`inbox` namespace][dovecot-docs-namespaces] (_which implicitly provides the `INBOX` folder_).
 
 These IMAP folders are considered special because they add a [_"SPECIAL-USE"_ attribute][rfc-6154], which is a standardized way to communicate to mail clients that the folder serves a purpose like storing spam/junk mail (`\Junk`) or deleted mail (`\Trash`). This differentiates them from regular mail folders that you may use for organizing.
 
 ## Adding a mailbox folder
 
-See [`target/dovecot/15-mailboxes.conf`][github-config-dovecot-mailboxes] for existing mailbox folders which you can modify or uncomment to enable some other common mailboxes. For more information try the [official Dovecot documentation][dovecot-docs-mailboxes].
+See the `namespace inbox` section of [`target/dovecot/dovecot.conf`][github-config-dovecot-mailboxes] for the existing mailbox folders. For more information try the [official Dovecot documentation][dovecot-docs-mailboxes].
 
-The `Archive` special IMAP folder may be useful to enable. To do so, make a copy of [`target/dovecot/15-mailboxes.conf`][github-config-dovecot-mailboxes] and uncomment the `Archive` mailbox definition. Mail clients should understand that this folder is intended for archiving mail due to the [`\Archive` _"SPECIAL-USE"_ attribute][rfc-6154].
+The `Archive` special IMAP folder may be useful to enable. To do so, add the `Archive` mailbox definition in a Dovecot config file of your own. Mail clients should understand that this folder is intended for archiving mail due to the [`\Archive` _"SPECIAL-USE"_ attribute][rfc-6154].
 
-With the provided [compose.yaml][github-config-dockercompose] example, a volume bind mounts the host directory `docker-data/dms/config/` to the container location `/tmp/docker-mailserver/`. Config file overrides should instead be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]:
+```cf title="docker-data/dms/config/dovecot/90-mailboxes.conf"
+namespace inbox {
+  mailbox Archive {
+    auto = subscribe
+    special_use = \Archive
+  }
+}
+```
+
+With the provided [compose.yaml][github-config-dockercompose] example, a volume bind mounts the host directory `docker-data/dms/config/` to the container location `/tmp/docker-mailserver/`. Your Dovecot config file should instead be mounted to a different location as described in [Overriding Configuration for Dovecot][docs-config-overrides-dovecot]. Alternatively, add the same content to [`dovecot.cf`][docs-config-overrides-dovecot].
 
 ```yaml
 volumes:
-  - ./docker-data/dms/config/dovecot/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
+  - ./docker-data/dms/config/dovecot/90-mailboxes.conf:/etc/dovecot/conf.d/90-mailboxes.conf:ro
 ```
 
 ## Caution
@@ -66,7 +75,7 @@ Take care to test localized names work well as well.
 
 [docs-config-overrides-dovecot]: ../../config/advanced/override-defaults/dovecot.md#override-configuration
 [github-config-dockercompose]: https://github.com/docker-mailserver/docker-mailserver/blob/master/compose.yaml
-[github-config-dovecot-mailboxes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/15-mailboxes.conf
+[github-config-dovecot-mailboxes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/dovecot/dovecot.conf
 [dovecot-docs-namespaces]: https://doc.dovecot.org/configuration_manual/namespace/#namespace-inbox
 [dovecot-docs-mailboxes]: https://doc.dovecot.org/configuration_manual/namespace/#mailbox-settings
 [rfc-6154]: https://datatracker.ietf.org/doc/html/rfc6154

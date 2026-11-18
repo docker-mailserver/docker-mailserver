@@ -23,7 +23,7 @@ function setup_file() {
     --env POSTFIX_DAGENT="${LMTP_URI}"
   )
 
-  # Configure LMTP service listener in `/etc/dovecot/conf.d/10-master.conf` to instead listen on TCP port 24:
+  # Add a TCP listener on port 24 to the LMTP service, via a Dovecot config drop-in (`/etc/dovecot/conf.d/`):
   mv "${TEST_TMP_CONFIG}/dovecot-lmtp/user-patches.sh" "${TEST_TMP_CONFIG}/"
 
   _common_container_setup 'CONTAINER_ARGS_ENV_CUSTOM'
