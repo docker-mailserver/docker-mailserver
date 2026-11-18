@@ -18,7 +18,7 @@ function teardown_file() { _default_teardown ; }
   assert_success
   refute_output --partial 'quota'
 
-  _file_does_not_exist_in_container /etc/dovecot/conf.d/quota.conf
+  _file_does_not_exist_in_container /etc/dovecot/features.d/quota.conf
 }
 
 @test "(Postfix) Dovecot quota absent in postconf" {

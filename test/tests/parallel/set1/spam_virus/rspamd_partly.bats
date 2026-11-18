@@ -69,7 +69,7 @@ function teardown_file() { _default_teardown ; }
     _file_does_not_exist_in_container "/usr/lib/dovecot/sieve-pipe/${FILE}"
   done
 
-  _file_does_not_exist_in_container /etc/dovecot/conf.d/rspamd-learn.conf
+  _file_does_not_exist_in_container /etc/dovecot/features.d/rspamd-learn.conf
   _run_in_container doveconf -n
   assert_success
   refute_output --partial 'imap_sieve = yes'

@@ -106,18 +106,18 @@ function _setup_dovecot_quota() {
     return 0
   fi
 
-  cp /etc/dovecot/features/quota.conf /etc/dovecot/conf.d/quota.conf
+  cp /etc/dovecot/features/quota.conf /etc/dovecot/features.d/quota.conf
 
   local MESSAGE_SIZE_LIMIT_MB=$((POSTFIX_MESSAGE_SIZE_LIMIT / 1000000))
   local MAILBOX_LIMIT_MB=$((POSTFIX_MAILBOX_SIZE_LIMIT / 1000000))
 
   sedfile -i \
     "s|quota_mail_size =.*|quota_mail_size = ${MESSAGE_SIZE_LIMIT_MB}$([[ ${MESSAGE_SIZE_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
-    /etc/dovecot/conf.d/quota.conf
+    /etc/dovecot/features.d/quota.conf
 
   sedfile -i \
     "s|quota_storage_size = .*|quota_storage_size = ${MAILBOX_LIMIT_MB}$([[ ${MAILBOX_LIMIT_MB} -eq 0 ]] && echo "" || echo "M")|g" \
-    /etc/dovecot/conf.d/quota.conf
+    /etc/dovecot/features.d/quota.conf
 
   if [[ -d /tmp/docker-mailserver ]] && [[ ! -f /tmp/docker-mailserver/dovecot-quotas.cf ]]; then
     _log 'trace' "'/tmp/docker-mailserver/dovecot-quotas.cf' is not provided. Using default quotas."
@@ -136,7 +136,7 @@ function _setup_dovecot_local_user() {
 
   _log 'debug' 'Setting up Dovecot Local User'
 
-  cp /etc/dovecot/features/auth-passwdfile.conf /etc/dovecot/conf.d/auth-passwdfile.conf
+  cp /etc/dovecot/features/auth-passwdfile.conf /etc/dovecot/features.d/auth-passwdfile.conf
 
   if [[ ! -f /tmp/docker-mailserver/postfix-accounts.cf ]]; then
     _log 'trace' "No mail accounts to create - '/tmp/docker-mailserver/postfix-accounts.cf' is missing"

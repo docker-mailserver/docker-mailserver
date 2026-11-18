@@ -59,13 +59,14 @@ EOF
 # -----------------------------------------------
 
 # DMS owns the complete Dovecot config (`packages.sh` removed the one packaged by Debian / Dovecot CE):
-# - `dovecot.conf` includes `conf.d/*.conf`, which is empty until features are enabled (copied from `features/`) at startup.
+# - `features/` holds the optional parts that are available. Startup copies the enabled ones to `features.d/`, which is empty until then.
+# - `dovecot.conf` includes `features.d/*.conf` first and `conf.d/*.conf` afterwards, so user supplied files in `conf.d/` can override the features.
 # - `masterdb` is the (empty) passdb of Dovecot master users, it is always included by `dovecot.conf`.
 COPY target/dovecot/dovecot.conf /etc/dovecot/dovecot.conf
 COPY target/dovecot/features/ /etc/dovecot/features/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
 RUN <<EOF
-  mkdir /etc/dovecot/conf.d
+  mkdir /etc/dovecot/conf.d /etc/dovecot/features.d
   install --mode 640 --owner dovecot --group dovecot /dev/null /etc/dovecot/masterdb
   chmod 0 /etc/cron.d/dovecot-purge.disabled
 EOF

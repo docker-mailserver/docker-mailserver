@@ -66,11 +66,11 @@ userdb {
 }
 ```
 
-DMS creates `/etc/dovecot/conf.d/auth-ldap.conf` during startup (including LDAP authentication) when using LDAP for account provisioning. To replace it with the configuration above, which only provisions users, add a `user-patches.sh` to `./docker-data/dms/config/`:
+DMS creates `/etc/dovecot/features.d/auth-ldap.conf` during startup (including LDAP authentication) when using LDAP for account provisioning. To replace it with the configuration above, which only provisions users, add a `user-patches.sh` to `./docker-data/dms/config/`:
 ```bash
 #!/bin/bash
 
-cp /tmp/docker-mailserver/dovecot/auth-ldap.conf /etc/dovecot/conf.d/auth-ldap.conf
+cp /tmp/docker-mailserver/dovecot/auth-ldap.conf /etc/dovecot/features.d/auth-ldap.conf
 ```
 
 Create configuration file `./docker-data/dms/config/dovecot/auth-lua-httpbasic.conf` for Lua user authentication:

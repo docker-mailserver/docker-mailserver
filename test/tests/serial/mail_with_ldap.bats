@@ -238,22 +238,27 @@ function teardown() {
   assert_success
   assert_output '/etc/postfix/vhost'
 
-  _run_in_container grep '^passdb_ldap_bind = yes$' /etc/dovecot/conf.d/auth-ldap.conf
+  _run_in_container grep '^passdb_ldap_bind = yes$' /etc/dovecot/features.d/auth-ldap.conf
   assert_success
-  _run_in_container grep '^    user = %{ldap:userID}$' /etc/dovecot/conf.d/auth-ldap.conf
+  _run_in_container grep '^    user = %{ldap:userID}$' /etc/dovecot/features.d/auth-ldap.conf
   assert_success
-  _run_in_container grep '^    uid = 5000$' /etc/dovecot/conf.d/auth-ldap.conf
+  _run_in_container grep '^    uid = 5000$' /etc/dovecot/features.d/auth-ldap.conf
   assert_success
-  _run_in_container grep '^    gid = 5000$' /etc/dovecot/conf.d/auth-ldap.conf
+  _run_in_container grep '^    gid = 5000$' /etc/dovecot/features.d/auth-ldap.conf
   assert_success
-  _run_in_container grep '^    home = /var/mail/%{user | domain | lower}/%{user | username | lower}$' /etc/dovecot/conf.d/auth-ldap.conf
+  _run_in_container grep '^    home = /var/mail/%{user | domain | lower}/%{user | username | lower}$' /etc/dovecot/features.d/auth-ldap.conf
   assert_success
-  _run_in_container grep '^    mail_path = ~/Maildir$' /etc/dovecot/conf.d/auth-ldap.conf
+  _run_in_container grep '^    mail_path = ~/Maildir$' /etc/dovecot/features.d/auth-ldap.conf
   assert_success
-  _run_in_container grep '^    password = ' /etc/dovecot/conf.d/auth-ldap.conf
+  _run_in_container grep '^    password = ' /etc/dovecot/features.d/auth-ldap.conf
   assert_failure
-  _run_in_container grep '^    mail = ' /etc/dovecot/conf.d/auth-ldap.conf
+  _run_in_container grep '^    mail = ' /etc/dovecot/features.d/auth-ldap.conf
   assert_failure
+
+  # The file contains the LDAP bind password, so it must not be world-readable:
+  _run_in_container stat -c '%a %G' /etc/dovecot/features.d/auth-ldap.conf
+  assert_success
+  assert_output '640 dovecot'
 }
 
 @test "dovecot: ldap authentication bind works" {
@@ -312,7 +317,7 @@ function teardown() {
   )
 
   for LDAP_SETTING in "${LDAP_SETTINGS_DOVECOT[@]}"; do
-    _should_have_matching_setting "${LDAP_SETTING}" /etc/dovecot/conf.d/auth-ldap.conf
+    _should_have_matching_setting "${LDAP_SETTING}" /etc/dovecot/features.d/auth-ldap.conf
   done
 }
 
@@ -330,8 +335,8 @@ function teardown() {
   assert_success
   refute_output --partial 'quota'
 
-  # Dovecot Quota config is not enabled (copied to `conf.d/`):
-  _file_does_not_exist_in_container /etc/dovecot/conf.d/quota.conf
+  # Dovecot Quota config is not enabled (copied to `features.d/`):
+  _file_does_not_exist_in_container /etc/dovecot/features.d/quota.conf
 
   # Postfix quotas policy service not configured in `main.cf`:
   _run_in_container postconf smtpd_recipient_restrictions

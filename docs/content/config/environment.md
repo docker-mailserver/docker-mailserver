@@ -898,7 +898,7 @@ Spaces are not trimmed, so `user1, user2` does not select `user2`.
 
 #### Dovecot
 
-The following variables overwrite the default values for ```/etc/dovecot/conf.d/auth-ldap.conf```.
+The following variables overwrite the default values for ```/etc/dovecot/features.d/auth-ldap.conf```.
 
 ##### DOVECOT_BASE
 

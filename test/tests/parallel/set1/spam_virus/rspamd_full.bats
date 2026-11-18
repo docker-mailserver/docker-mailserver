@@ -291,7 +291,7 @@ function teardown_file() { _default_teardown ; }
     _file_exists_in_container "/usr/lib/dovecot/sieve-pipe/${FILE}"
   done
 
-  _run_in_container grep -F 'imap_sieve = yes' /etc/dovecot/conf.d/rspamd-learn.conf
+  _run_in_container grep -F 'imap_sieve = yes' /etc/dovecot/features.d/rspamd-learn.conf
   assert_success
   local SIEVE_CONFIG_FILE='/etc/dovecot/dovecot.conf'
   _run_in_container grep 'sieve_imapsieve = yes' "${SIEVE_CONFIG_FILE}"

@@ -223,7 +223,7 @@ function __rspamd__setup_learning() {
     readonly SIEVE_PIPE_BIN_DIR
     ln -s "$(type -f -P rspamc)" "${SIEVE_PIPE_BIN_DIR}/rspamc"
 
-    cp /etc/dovecot/features/rspamd-learn.conf /etc/dovecot/conf.d/rspamd-learn.conf
+    cp /etc/dovecot/features/rspamd-learn.conf /etc/dovecot/features.d/rspamd-learn.conf
 
     cat >"${SIEVE_PIPE_BIN_DIR}/learn-spam.sieve" << EOF
 require ["vnd.dovecot.pipe", "copy", "imapsieve"];
