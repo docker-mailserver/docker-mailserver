@@ -58,9 +58,17 @@ EOF
 # --- Dovecot -----------------------------------
 # -----------------------------------------------
 
-COPY target/dovecot/*.inc target/dovecot/*.conf /etc/dovecot/conf.d/
+# DMS owns the complete Dovecot config (`packages.sh` removed the one packaged by Debian / Dovecot CE):
+# - `dovecot.conf` includes `conf.d/*.conf`, which is empty until features are enabled (copied from `features/`) at startup.
+# - `masterdb` is the (empty) passdb of Dovecot master users, it is always included by `dovecot.conf`.
+COPY target/dovecot/dovecot.conf /etc/dovecot/dovecot.conf
+COPY target/dovecot/features/ /etc/dovecot/features/
 COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
-RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
+RUN <<EOF
+  mkdir /etc/dovecot/conf.d
+  install --mode 640 --owner dovecot --group dovecot /dev/null /etc/dovecot/masterdb
+  chmod 0 /etc/cron.d/dovecot-purge.disabled
+EOF
 
 # -----------------------------------------------
 # --- Rspamd ------------------------------------
@@ -69,16 +77,8 @@ RUN chmod 0 /etc/cron.d/dovecot-purge.disabled
 COPY target/rspamd/local.d/ /etc/rspamd/local.d/
 
 # -----------------------------------------------
-# --- OAUTH2 ------------------------------------
+# --- SpamAssassin's Cron -----------------------
 # -----------------------------------------------
-
-COPY target/dovecot/auth-oauth2.conf.ext /etc/dovecot/conf.d
-
-# -----------------------------------------------
-# --- LDAP & SpamAssassin's Cron ----------------
-# -----------------------------------------------
-
-COPY target/dovecot/auth-ldap.conf.ext /etc/dovecot/conf.d
 
 # hadolint ignore=SC2016
 RUN <<EOF

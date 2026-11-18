@@ -223,28 +223,7 @@ function __rspamd__setup_learning() {
     readonly SIEVE_PIPE_BIN_DIR
     ln -s "$(type -f -P rspamc)" "${SIEVE_PIPE_BIN_DIR}/rspamc"
 
-    sedfile -i -E 's|^( *imap_sieve =).*|\1 yes|g' /etc/dovecot/conf.d/20-imap.conf
-    cat >>/etc/dovecot/conf.d/90-sieve.conf << EOF
-
-mailbox Junk {
-  sieve_script learn_spam {
-    cause = append copy
-    driver = file
-    name = Learn Spam
-    path = ${SIEVE_PIPE_BIN_DIR}/learn-spam.sieve
-    type = before
-  }
-}
-
-imapsieve_from Junk {
-  sieve_script learn_ham {
-    cause = append copy
-    name = Learn Ham
-    path = ${SIEVE_PIPE_BIN_DIR}/learn-ham.sieve
-    type = before
-  }
-}
-EOF
+    cp /etc/dovecot/features/rspamd-learn.conf /etc/dovecot/conf.d/rspamd-learn.conf
 
     cat >"${SIEVE_PIPE_BIN_DIR}/learn-spam.sieve" << EOF
 require ["vnd.dovecot.pipe", "copy", "imapsieve"];

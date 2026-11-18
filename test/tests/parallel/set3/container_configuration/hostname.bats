@@ -162,7 +162,7 @@ function _should_be_configured_to_domainname() {
   assert_success
 
   # Dovecot
-  _run_in_container grep '^postmaster_address' /etc/dovecot/conf.d/15-lda.conf
+  _run_in_container grep '^postmaster_address' /etc/dovecot/dovecot.conf
   assert_output "postmaster_address = postmaster@${EXPECTED_DOMAIN}"
   assert_success
 }

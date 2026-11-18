@@ -214,32 +214,30 @@ function _setup_ldap() {
     export "${VAR}=${DOVECOT_LDAP_MAPPING[${VAR}]}"
   done
 
-  _replace_by_env_in_file 'DOVECOT_' /etc/dovecot/conf.d/auth-ldap.conf.ext
+  _log 'trace' 'Enabling Dovecot LDAP authentication'
+
+  cp /etc/dovecot/features/auth-ldap.conf /etc/dovecot/conf.d/auth-ldap.conf
+  _replace_by_env_in_file 'DOVECOT_' /etc/dovecot/conf.d/auth-ldap.conf
 
   if [[ -n ${DOVECOT_PASS_ATTRS:-} ]]; then
     _dovecot_ldap_replace_fields \
       '    # DOVECOT_PASSDB_FIELDS' \
       "${DOVECOT_PASS_ATTRS}" \
-      /etc/dovecot/conf.d/auth-ldap.conf.ext \
+      /etc/dovecot/conf.d/auth-ldap.conf \
       "${DOVECOT_PASSDB_LDAP_BIND}"
   fi
   if [[ -n ${DOVECOT_USER_ATTRS:-} ]]; then
     _dovecot_ldap_replace_fields \
       '    # DOVECOT_USERDB_FIELDS' \
       "${DOVECOT_USER_ATTRS}" \
-      /etc/dovecot/conf.d/auth-ldap.conf.ext
+      /etc/dovecot/conf.d/auth-ldap.conf
   fi
 
   if [[ ${DOVECOT_PASSDB_LDAP_BIND,,} == yes ]]; then
     # Password fields are omitted by `_dovecot_ldap_replace_fields()` for custom mappings.
     # The default mapping needs the same treatment when authentication binds are enabled.
-    sed -i '/^    password = /d' /etc/dovecot/conf.d/auth-ldap.conf.ext
+    sed -i '/^    password = /d' /etc/dovecot/conf.d/auth-ldap.conf
   fi
-
-  _log 'trace' 'Enabling Dovecot LDAP authentication'
-
-  sed -i -e '/\!include auth-ldap\.conf\.ext/s/^#//' /etc/dovecot/conf.d/10-auth.conf
-  sed -i -e '/\!include auth-passwdfile\.inc/s/^/#/' /etc/dovecot/conf.d/10-auth.conf
 
   # shellcheck disable=SC2016
   sed -i 's|mydestination = \$myhostname, |mydestination = |' /etc/postfix/main.cf

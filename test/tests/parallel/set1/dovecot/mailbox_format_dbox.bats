@@ -2,7 +2,7 @@ load "${REPOSITORY_ROOT}/test/helper/common"
 load "${REPOSITORY_ROOT}/test/helper/setup"
 
 # Feature (ENV DOVECOT_MAILBOX_FORMAT) - Logic in `setup-stack:_setup_dovecot()`
-# - Configures mail_location in 10-mail.conf to a supported dbox type
+# - Configures mail_location in dovecot.conf to a supported dbox type
 # - Then adds a cron task to purge dbox for freeing disk space (see upstream docs)
 
 # PR: https://github.com/docker-mailserver/docker-mailserver/pull/1314

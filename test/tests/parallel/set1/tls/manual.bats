@@ -53,7 +53,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "manual configuration is correct" {
-  local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
+  local DOVECOT_CONFIG_SSL='/etc/dovecot/dovecot.conf'
 
   _run_in_container grep '^smtpd_tls_chain_files =' '/etc/postfix/main.cf'
   assert_success
@@ -111,7 +111,7 @@ function teardown_file() { _default_teardown ; }
   local CUSTOM_CIPHERS='ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384'
   _run_in_container postconf "tls_high_cipherlist=${CUSTOM_CIPHERS}"
   assert_success
-  _run_in_container sed -i -r "s|^(ssl_cipher_list =).*|\1 ${CUSTOM_CIPHERS}|" '/etc/dovecot/conf.d/10-ssl.conf'
+  _run_in_container sed -i -r "s|^(ssl_cipher_list =).*|\1 ${CUSTOM_CIPHERS}|" '/etc/dovecot/dovecot.conf'
   assert_success
 
   printf '%s' 'someThingsChangedHere' \
@@ -125,6 +125,6 @@ function teardown_file() { _default_teardown ; }
 
   _run_in_container postconf -h tls_high_cipherlist
   assert_output "${CUSTOM_CIPHERS}"
-  _run_in_container grep '^ssl_cipher_list =' '/etc/dovecot/conf.d/10-ssl.conf'
+  _run_in_container grep '^ssl_cipher_list =' '/etc/dovecot/dovecot.conf'
   assert_output "ssl_cipher_list = ${CUSTOM_CIPHERS}"
 }

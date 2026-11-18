@@ -64,3 +64,21 @@ function teardown_file() { _default_teardown ; }
   _run_in_container nc -z 0.0.0.0 4190
   assert_success
 }
+
+# Debian's packaged config added a deprecated listener on port 2000, DMS ships its own `dovecot.conf` instead:
+@test "ENV 'ENABLE_MANAGESIEVE' - should not have a service on the deprecated port 2000" {
+  _run_in_container nc -z 0.0.0.0 2000
+  assert_failure
+}
+
+@test "Dovecot config - should be valid and enable the protocols according to ENV" {
+  _run_in_container doveconf -n
+  assert_success
+
+  _run_in_container_bash "doveconf -n | sed -n '/^protocols {/,/^}/p'"
+  assert_success
+  assert_line --partial 'lmtp = yes'
+  assert_line --partial 'imap = yes'
+  assert_line --partial 'pop3 = no'
+  assert_line --partial 'sieve = yes'
+}

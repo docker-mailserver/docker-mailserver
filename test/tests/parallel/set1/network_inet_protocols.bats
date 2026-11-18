@@ -28,9 +28,9 @@ function teardown() { _default_teardown ; }
   _init_with_defaults
   _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
-  _run_in_container grep '^#listen =' /etc/dovecot/dovecot.conf
+  _run_in_container grep '^listen =' /etc/dovecot/dovecot.conf
   assert_success
-  assert_output '#listen = *, ::'
+  assert_output 'listen = *, ::'
 
   _run_in_container postconf inet_protocols
   assert_success

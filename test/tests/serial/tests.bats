@@ -276,7 +276,7 @@ EOF
 # postfix
 
 @test "dovecot: postmaster address" {
-  _run_in_container_bash "grep 'postmaster_address = postmaster@example.test' /etc/dovecot/conf.d/15-lda.conf"
+  _run_in_container_bash "grep 'postmaster_address = postmaster@example.test' /etc/dovecot/dovecot.conf"
   assert_success
 }
 

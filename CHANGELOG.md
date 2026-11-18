@@ -20,6 +20,18 @@ All notable changes to this project will be documented in this file. The format 
 
   - `DMS_TRUSTED_NETWORKS` also accepts a list of CIDR ranges (IPv4 and IPv6, separated by spaces or commas). `host` and `subnet` now work for IPv6 too. The trusted networks are also exempted from OpenDKIM and OpenDMARC, as `PERMIT_DOCKER` did.
   - `NETWORK_INTERFACE` has been removed and logs an error when set. It was only used to look up the IPv4 address of the container, which is no longer needed (_this includes the `NETWORK_INTERFACE=tap0` workaround for rootless Podman_).
+- **Dovecot**
+  - DMS now ships its own, self-contained Dovecot configuration. It no longer depends on the config files of the Debian or the Dovecot Community Edition (CE) packages. Dovecot's built-in defaults apply to everything that DMS does not set ([#4841](https://github.com/docker-mailserver/docker-mailserver/issues/4841)). Most of the Dovecot files in `/etc/dovecot/conf.d/` are gone, so **bind mounts and `user-patches.sh` scripts that replace or edit these files must be migrated**:
+
+    | Before                                                                                                                                                       | Now                                                                                              |
+    | :----------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
+    | `10-auth.conf`, `10-logging.conf`, `10-mail.conf`, `10-master.conf`, `10-ssl.conf`, `15-lda.conf`, `15-mailboxes.conf`, `20-imap.conf`, `20-lmtp.conf`, `90-sieve.conf`, `auth-master.inc`, `chroot.inc`, `lmtp-master.inc` | The settings are part of `/etc/dovecot/dovecot.conf`                                               |
+    | `auth-passwdfile.inc`, `auth-ldap.conf.ext`, `auth-oauth2.conf.ext`, `90-quota.conf`                                                                           | `conf.d/auth-passwdfile.conf`, `conf.d/auth-ldap.conf`, `conf.d/auth-oauth2.conf`, `conf.d/quota.conf`. They only exist when the feature is enabled (_a copy from `/etc/dovecot/features/`_) |
+    | The other files of Debian's package (_`10-metrics.conf`, `20-managesieve.conf`, `20-pop3.conf`, `30-dict-server.conf`, `90-acl.conf`, `90-fts.conf`, `90-sieve-extprograms.conf`, ..._)                          | Removed                                                                                          |
+
+  - To change or add settings, use [`dovecot.cf`](https://docker-mailserver.github.io/docker-mailserver/edge/config/advanced/override-defaults/dovecot/) or add a file with your own settings to `/etc/dovecot/conf.d/`. The files in `conf.d/` are read after `dovecot.conf`, followed by `local.conf` (_your `dovecot.cf`_). Do not use the file names of the features in `conf.d/` for your own files, as DMS overwrites them.
+  - ManageSieve (`ENABLE_MANAGESIEVE=1`) no longer opens the deprecated listener on port `2000` that Debian's config added (_it was not exposed by DMS_). Only port `4190` remains.
+  - The `fts_autoindex = yes`, `fts_autoindex_max_recent_msgs = 999` and `fts_search_add_missing = yes` defaults that Debian's `90-fts.conf` set are gone. They had no effect without an FTS plugin. If you configured one (_Flatcurve or Solr_) and relied on them, add the settings to your FTS configuration.
 
 ### Updated
 
@@ -28,6 +40,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
+- **Dovecot**
+  - With the build argument `DOVECOT_COMMUNITY_REPO=1`, the build no longer downloads the packages of Debian's Dovecot to extract their config, as DMS provides the complete config itself ([#4841](https://github.com/docker-mailserver/docker-mailserver/issues/4841))
 - **OpenDKIM**
   - Outgoing mail is now signed with `relaxed/relaxed` canonicalization instead of `relaxed/simple`, as Rspamd already does. The signature now survives whitespace changes to the body by forwarding servers (_e.g. stripped trailing spaces_) ([#4751](https://github.com/docker-mailserver/docker-mailserver/issues/4751))
 
@@ -53,6 +67,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Documentation
 
+- **Dovecot**
+  - The page about overriding the Dovecot defaults describes how the configuration is read (`dovecot.conf`, `conf.d/`, `local.conf`) and how to add your own files. The pages about mailbox folders, Lua authentication, the iOS push support, and the LDAP ENV were adjusted to the new layout ([#4841](https://github.com/docker-mailserver/docker-mailserver/issues/4841))
 - **OAuth2**
   - Documented how to authenticate against an RFC 7662 `/introspect` endpoint that requires client credentials (_via a `dovecot.cf` override with `introspection_mode = post`_). The page now also explains that `OAUTH2_INTROSPECTION_URL` is the Dovecot `introspection_url` setting, which by default queries a `/userinfo` endpoint ([#4081](https://github.com/docker-mailserver/docker-mailserver/issues/4081))
 

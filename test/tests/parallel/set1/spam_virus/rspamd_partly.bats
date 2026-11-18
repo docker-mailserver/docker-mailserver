@@ -69,13 +69,11 @@ function teardown_file() { _default_teardown ; }
     _file_does_not_exist_in_container "/usr/lib/dovecot/sieve-pipe/${FILE}"
   done
 
-  _run_in_container grep 'mail_plugins.*imap_sieve' /etc/dovecot/conf.d/20-imap.conf
-  assert_failure
-  local SIEVE_CONFIG_FILE='/etc/dovecot/conf.d/90-sieve.conf'
-  _run_in_container grep -F 'imapsieve_mailbox1_name = Junk' "${SIEVE_CONFIG_FILE}"
-  assert_failure
-  _run_in_container grep -F 'imapsieve_mailbox1_causes = COPY' "${SIEVE_CONFIG_FILE}"
-  assert_failure
+  _file_does_not_exist_in_container /etc/dovecot/conf.d/rspamd-learn.conf
+  _run_in_container doveconf -n
+  assert_success
+  refute_output --partial 'imap_sieve = yes'
+  refute_output --partial 'imapsieve_from Junk'
 }
 
 @test 'greylisting is properly disabled' {

@@ -4,7 +4,7 @@
 # Re-applying it during change detection would discard user overrides (eg: `postfix-main.cf`, `user-patches.sh`).
 function _setup_tls_level() {
   local POSTFIX_CONFIG_MAIN='/etc/postfix/main.cf'
-  local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
+  local DOVECOT_CONFIG='/etc/dovecot/dovecot.conf'
 
   function _apply_tls_level() {
     local TLS_CIPHERS_ALLOW=$1
@@ -22,7 +22,7 @@ function _setup_tls_level() {
     sed -i -r \
       -e "s|^(ssl_min_protocol =).*|\1 ${TLS_PROTOCOL_MINIMUM}|" \
       -e "s|^(ssl_cipher_list =).*|\1 ${TLS_CIPHERS_ALLOW}|" \
-      "${DOVECOT_CONFIG_SSL}"
+      "${DOVECOT_CONFIG}"
   }
 
   # TLS strength/level configuration
@@ -59,7 +59,7 @@ function _setup_ssl() {
 
   local POSTFIX_CONFIG_MAIN='/etc/postfix/main.cf'
   local POSTFIX_CONFIG_MASTER='/etc/postfix/master.cf'
-  local DOVECOT_CONFIG_SSL='/etc/dovecot/conf.d/10-ssl.conf'
+  local DOVECOT_CONFIG='/etc/dovecot/dovecot.conf'
 
   local TMP_DMS_TLS_PATH='/tmp/docker-mailserver/ssl' # config volume
   local DMS_TLS_PATH='/etc/dms/tls'
@@ -90,7 +90,7 @@ function _setup_ssl() {
     sedfile -i -r \
       -e "s|^(ssl_server_key_file =).*|\1 ${DOVECOT_KEY}|" \
       -e "s|^(ssl_server_cert_file =).*|\1 ${DOVECOT_CERT}|" \
-      "${DOVECOT_CONFIG_SSL}"
+      "${DOVECOT_CONFIG}"
   }
 
   # Enables supporting two certificate types such as ECDSA with an RSA fallback
@@ -118,7 +118,7 @@ function _setup_ssl() {
     sedfile -i -r \
       -e "s|^#?(ssl_server_alt_key_file =).*|\1 ${PRIVATE_KEY_ALT}|" \
       -e "s|^#?(ssl_server_alt_cert_file =).*|\1 ${CERT_CHAIN_ALT}|" \
-      "${DOVECOT_CONFIG_SSL}"
+      "${DOVECOT_CONFIG}"
   }
 
   # 2020 feature intended for Traefik v2 support only:
@@ -249,7 +249,7 @@ function _setup_ssl() {
           sed -i -r \
             -e 's|^(ssl_server_alt_key_file =).*|#\1 /path/to/alternative/key.pem|' \
             -e 's|^(ssl_server_alt_cert_file =).*|#\1 /path/to/alternative/cert.pem|' \
-            "${DOVECOT_CONFIG_SSL}"
+            "${DOVECOT_CONFIG}"
         fi
 
         _log 'trace' "SSL configured with 'Manual' certificates"
@@ -354,10 +354,10 @@ function _setup_ssl() {
       # https://doc.dovecot.org/2.4.1/core/config/ssl.html#secured-connections
 
       # Allow cleartext auth (mechanisms that don't protect secrets) without requiring an encrypted connection
-      sed -i -r "s|^#?(auth_allow_cleartext =).*|\1 yes|" /etc/dovecot/conf.d/10-auth.conf
+      sed -i -r "s|^(auth_allow_cleartext =).*|\1 yes|" "${DOVECOT_CONFIG}"
 
       # Disable TLS listeners on ports (`ssl=no`), unencrypted traffic only
-      sed -i -r "s|^(ssl =).*|\1 no|" "${DOVECOT_CONFIG_SSL}"
+      sed -i -r "s|^(ssl =).*|\1 no|" "${DOVECOT_CONFIG}"
       ;;
 
     ( 'snakeoil' ) # This is a temporary workaround for testing only, using the insecure snakeoil cert.

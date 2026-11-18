@@ -8,7 +8,7 @@ BATS_TEST_NAME_PREFIX='[Dovecot LDAP config] '
 
 function setup() {
   TMP_CONFIG_FILE=$(mktemp)
-  cp "${REPOSITORY_ROOT}/target/dovecot/auth-ldap.conf.ext" "${TMP_CONFIG_FILE}"
+  cp "${REPOSITORY_ROOT}/target/dovecot/features/auth-ldap.conf" "${TMP_CONFIG_FILE}"
 }
 
 function teardown() {
