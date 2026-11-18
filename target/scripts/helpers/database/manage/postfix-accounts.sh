@@ -81,7 +81,7 @@ function _arg_check_mail_account() {
 
 function _account_should_not_exist_yet() {
   __account_already_exists && _exit_with_error "'${MAIL_ACCOUNT}' already exists"
-  if [[ -f ${DATABASE_VIRTUAL} ]] && grep -q "^${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"; then
+  if _db_has_entry_with_key "${MAIL_ACCOUNT}" "${DATABASE_VIRTUAL}"; then
     _exit_with_error "'${MAIL_ACCOUNT}' is already defined as an alias"
   fi
 }

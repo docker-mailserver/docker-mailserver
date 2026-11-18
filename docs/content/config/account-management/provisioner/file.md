@@ -134,7 +134,7 @@ These config files belong to the [Config Volume][docs::volumes::config].
 
     While this type of alias without a local-part is supported, you must keep in mind that aliases in Postfix have a higher precedence than a real address associated to a DMS account.
 
-    As a result, the wildcard is matched first and will direct mail for that entire domain to the alias target address. To work around this, [you will need an alias for each non-alias address of that domain][gh-issue::bugs::wildcard-catchall].
+    As a result, the wildcard would be matched first and direct mail for that entire domain to the alias target address, including the mail of your accounts. DMS prevents this: for each account in `postfix-accounts.cf` on a domain with a wildcard alias, it adds an alias to itself (`hello@example.com hello@example.com`) to the Postfix config it generates from `postfix-virtual.cf`. You do not need to add these aliases yourself, and `postfix-virtual.cf` is not modified. An alias for an account that you added manually is kept as it is.
 
     Additionally, Postfix will read the alias config and choose the alias value that matches the recipient address first. Ensure your more specific aliases for the domain are declared above the wildcard alias in the config file.
 
@@ -201,6 +201,5 @@ These config files belong to the [Config Volume][docs::volumes::config].
 [gh-issue::feature-request::allow-account-alias-overlap]: https://github.com/docker-mailserver/docker-mailserver/issues/3528
 [gh-issue::bugs::account-alias-overlap-problem]: https://github.com/docker-mailserver/docker-mailserver/issues/3350#issuecomment-1550528898
 [gh-issue::bugs::account-alias-overlap]: https://github.com/docker-mailserver/docker-mailserver/issues/3022#issuecomment-1807816689
-[gh-issue::bugs::wildcard-catchall]: https://github.com/docker-mailserver/docker-mailserver/issues/3022#issuecomment-1610452561
 [gh-issue::bugs::alias-nested]: https://github.com/docker-mailserver/docker-mailserver/issues/3622#issuecomment-1794504849
 [gh-discussions::no-support::alias-multiple-targets]: https://github.com/orgs/docker-mailserver/discussions/3805#discussioncomment-8215417

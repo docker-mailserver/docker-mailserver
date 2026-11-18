@@ -192,6 +192,8 @@ Considering you want to redirect all incoming e-mails for the domain `example.co
 @example.com user1@example.com
 ```
 
+Accounts of that domain (`setup email add`) keep receiving their own mail, only mail to the other addresses of the domain is redirected.
+
 ### How can I delete all the emails for a specific user?
 
 First of all, create a special alias named `devnull` by editing `docker-data/dms/config/postfix-aliases.cf`:
