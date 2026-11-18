@@ -3134,7 +3134,7 @@ alias2<span class="s">@example.com external-account@gmail.com</span>
 <hr />
 <p><strong>Wildcard catch-all support (<code>@example.com</code>):</strong></p>
 <p>While this type of alias without a local-part is supported, you must keep in mind that aliases in Postfix have a higher precedence than a real address associated to a DMS account.</p>
-<p>As a result, the wildcard is matched first and will direct mail for that entire domain to the alias target address. To work around this, <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3022#issuecomment-1610452561">you will need an alias for each non-alias address of that domain</a>.</p>
+<p>As a result, the wildcard would be matched first and direct mail for that entire domain to the alias target address, including the mail of your accounts. DMS prevents this: for each account in <code>postfix-accounts.cf</code> on a domain with a wildcard alias, it adds an alias to itself (<code>hello@example.com hello@example.com</code>) to the Postfix config it generates from <code>postfix-virtual.cf</code>. You do not need to add these aliases yourself, and <code>postfix-virtual.cf</code> is not modified. An alias for an account that you added manually is kept as it is.</p>
 <p>Additionally, Postfix will read the alias config and choose the alias value that matches the recipient address first. Ensure your more specific aliases for the domain are declared above the wildcard alias in the config file.</p>
 <hr />
 <p><strong>Aliasing to another alias or multiple recipients:</strong></p>

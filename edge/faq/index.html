@@ -3904,6 +3904,7 @@ find<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</s
 <p>Considering you want to redirect all incoming e-mails for the domain <code>example.com</code> to <code>user1@example.com</code>, add the following line to <code>docker-data/dms/config/postfix-virtual.cf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">@example.com user1@example.com</span>
 </code></pre></div>
+<p>Accounts of that domain (<code>setup email add</code>) keep receiving their own mail, only mail to the other addresses of the domain is redirected.</p>
 <h3 id="how-can-i-delete-all-the-emails-for-a-specific-user"><a class="toclink" href="#how-can-i-delete-all-the-emails-for-a-specific-user">How can I delete all the emails for a specific user?</a></h3>
 <p>First of all, create a special alias named <code>devnull</code> by editing <code>docker-data/dms/config/postfix-aliases.cf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">devnull</span><span class="o">:</span><span class="w"> </span><span class="s">/dev/null</span>
