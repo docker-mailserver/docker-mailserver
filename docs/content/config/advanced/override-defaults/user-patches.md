@@ -4,9 +4,7 @@ title: 'Custom User Changes & Patches | Scripting'
 
 If you'd like to change, patch or alter files or behavior of DMS, you can use a script.
 
-In case you cloned this repository, you can copy the file [`user-patches.sh.dist` (_under `config/`_)][github-file-userpatches] with `#!sh cp config/user-patches.sh.dist docker-data/dms/config/user-patches.sh` in order to create the `user-patches.sh` script.
-
-If you are managing your directory structure yourself, create a `docker-data/dms/config/` directory and add the `user-patches.sh` file yourself.
+Create a `docker-data/dms/config/` directory and add the `user-patches.sh` file to it.
 
 ``` sh
 # 1. Either create the docker-data/dms/config/ directory yourself
@@ -38,6 +36,8 @@ END
 And you're done. The user patches script runs right before starting daemons. That means, all the other configuration is in place, so the script can make final adjustments.
 
 !!! note
-    Many "patches" can already be done with the Docker Compose-/Stack-file. Adding hostnames to `/etc/hosts` is done with the `#!yaml extra_hosts:` section, `sysctl` commands can be managed with the `#!yaml sysctls:` section, etc.
+Many "patches" can already be done with the Docker Compose-/Stack-file. Adding hostnames to `/etc/hosts` is done with the `#!yaml extra_hosts:` section, `sysctl` commands can be managed with the `#!yaml sysctls:` section, etc.
 
-[github-file-userpatches]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/user-patches.sh
+!!! tip "Patching the supervisord configuration"
+
+    If the script modifies any supervisord configuration, run `supervisorctl update` or `supervisorctl reload` at the end of it.
