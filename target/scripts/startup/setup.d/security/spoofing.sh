@@ -6,15 +6,16 @@ function _setup_spoof_protection() {
 
     if [[ ${ACCOUNT_PROVISIONER} == 'LDAP' ]]; then
       # Only LDAP configs with a `query_filter` exist (`setup.d/ldap.sh:_create_config_postfix()`):
-      local QUERY_KIND SENDER_LOGIN_MAPS=()
+      local QUERY_KIND SENDER_LOGIN_MAPS='unionmap:{ pcre:/etc/postfix/maps/sender_login_maps.pcre'
       if [[ -f /etc/postfix/ldap/senders.cf ]]; then
-        SENDER_LOGIN_MAPS=('ldap:/etc/postfix/ldap/senders.cf')
+        SENDER_LOGIN_MAPS+=', ldap:/etc/postfix/ldap/senders.cf'
       else
         for QUERY_KIND in 'users' 'aliases' 'groups'; do
-          [[ -f /etc/postfix/ldap/${QUERY_KIND}.cf ]] && SENDER_LOGIN_MAPS+=("ldap:/etc/postfix/ldap/${QUERY_KIND}.cf")
+          [[ -f /etc/postfix/ldap/${QUERY_KIND}.cf ]] && SENDER_LOGIN_MAPS+=", ldap:/etc/postfix/ldap/${QUERY_KIND}.cf"
         done
       fi
-      postconf "smtpd_sender_login_maps = ${SENDER_LOGIN_MAPS[*]}"
+      SENDER_LOGIN_MAPS+=' }'
+      postconf "smtpd_sender_login_maps = ${SENDER_LOGIN_MAPS}"
     else
       # NOTE: This file is always created at startup, it potentially has content added.
       # TODO: From section: "SPOOF_PROTECTION=1 handling for smtpd_sender_login_maps"

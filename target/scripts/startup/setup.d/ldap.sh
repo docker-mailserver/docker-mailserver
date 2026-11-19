@@ -243,5 +243,11 @@ function _setup_ldap() {
   # shellcheck disable=SC2016
   sed -i 's|mydestination = \$myhostname, |mydestination = |' /etc/postfix/main.cf
 
+  if [[ ${SMTP_ONLY} -ne 1 ]]
+  then
+    _log 'debug' 'Setting up Dovecot Master User'
+    _create_masters
+  fi
+
   return 0
 }
