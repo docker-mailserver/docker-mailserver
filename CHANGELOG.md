@@ -72,6 +72,8 @@ All notable changes to this project will be documented in this file. The format 
   - The page about overriding the Dovecot defaults describes how the configuration is read (`dovecot.conf`, `features.d/`, `conf.d/`, `local.conf`) and how to add your own files. The pages about mailbox folders, Lua authentication, the iOS push support, and the LDAP ENV were adjusted to the new layout ([#4861](https://github.com/docker-mailserver/docker-mailserver/pull/4861))
 - **OAuth2**
   - Documented how to authenticate against an RFC 7662 `/introspect` endpoint that requires client credentials (_via a `dovecot.cf` override with `introspection_mode = post`_). The page now also explains that `OAUTH2_INTROSPECTION_URL` is the Dovecot `introspection_url` setting, which by default queries a `/userinfo` endpoint ([#4081](https://github.com/docker-mailserver/docker-mailserver/issues/4081))
+- **Examples**
+  - The repository directories `config-examples/` and `demo-setups/` were removed. The `compose.yaml` demos for Fetchmail and Relay Hosts are now part of their documentation pages, together with the commands to verify them. The Fail2Ban page describes how to view the defaults inside the container instead of linking to outdated copies, and the page about user patches no longer references a non-existent `user-patches.sh.dist`. All other example files only repeated what the documentation already shows
 
 ## [v17.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v17.0.0)
 

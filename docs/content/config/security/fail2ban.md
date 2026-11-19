@@ -49,7 +49,7 @@ Enabling Fail2Ban support can be done via ENV, but also requires granting at lea
 
     DMS configures F2B to use [NFTables][network::nftables], not [IPTables (legacy)][network::iptables-legacy].
 
-    We have observed that older systems (for example NAS systems), do not support the modern NFTables rules. You will need to configure F2B to use legacy IPTables again, for example with the [`fail2ban-jail.cf`][github-file-f2bjail], see the [section on configuration further down below](#custom-files).
+    We have observed that older systems (for example NAS systems), do not support the modern NFTables rules. You will need to configure F2B to use legacy IPTables again, for example by changing `banaction` in `fail2ban-jail.cf`, see the [section on configuration further down below](#custom-files).
 
 [security::cap-net-admin]: https://0xn3va.gitbook.io/cheat-sheets/container/escaping/excessive-capabilities#cap_net_admin
 [security::cap-net-raw]: https://0xn3va.gitbook.io/cheat-sheets/container/escaping/excessive-capabilities#cap_net_raw
@@ -69,14 +69,26 @@ This following configuration files inside the `docker-data/dms/config/` volume w
 
 1. `fail2ban-jail.cf` is copied to `/etc/fail2ban/jail.d/user-jail.local`
     - with this file, you can adjust the configuration of individual jails and their defaults
-    - there is an example provided [in our repository on GitHub][github-file-f2bjail]
+    - the DMS defaults are in `/etc/fail2ban/jail.local`
 2. `fail2ban-fail2ban.cf` is copied to `/etc/fail2ban/fail2ban.local`
     - with this file, you can adjust F2B behavior in general
-    - there is an example provided [in our repository on GitHub][github-file-f2bconfig]
+    - the F2B defaults are in `/etc/fail2ban/fail2ban.conf`
+
+Both files are applied on top of the defaults, so they only need the settings you want to change. To view the defaults:
+
+```bash
+docker exec <CONTAINER NAME> cat /etc/fail2ban/jail.local
+docker exec <CONTAINER NAME> cat /etc/fail2ban/fail2ban.conf
+```
+
+!!! example "Increase the log level of F2B"
+
+    ```ini title="docker-data/dms/config/fail2ban-fail2ban.cf"
+    [DEFAULT]
+    loglevel = DEBUG
+    ```
 
 [docs::dms-volumes-config]: ../advanced/optional-config.md#volumes-config
-[github-file-f2bjail]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf
-[github-file-f2bconfig]: https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf
 
 ### SASL
 

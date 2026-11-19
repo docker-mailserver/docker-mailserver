@@ -142,11 +142,85 @@ docker exec -it dms-container-name setup debug fetchmail
     fetchmail: normal termination, status 1
     ```
 
-!!! tip "Troubleshoot with this reference `compose.yaml`"
+??? tip "Troubleshoot with this reference `compose.yaml`"
 
-    [A minimal `compose.yaml` example][fetchmail-compose-example] demonstrates how to run two instances of DMS locally, with one instance configured with `fetchmail.cf` and the other to simulate a remote mail server to fetch from.
+    This `compose.yaml` runs two instances of DMS locally. `dms-fetch` is configured with `fetchmail.cf`, `dms-remote` simulates the remote mail server to fetch from. No DNS records are needed.
+
+    ```yaml title="compose.yaml"
+    services:
+      dms-fetch:
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
+        hostname: mail.example.test
+        environment:
+          ENABLE_FETCHMAIL: 1
+          # Shortened for quicker testing:
+          FETCHMAIL_POLL: 10
+        # Resolve `remote.test` (the domain of the `@remote.test` address) to the `dms-remote` container.
+        # This is a Docker internal DNS feature, only needed because no real DNS service is configured:
+        links:
+          - "dms-remote:remote.test"
+        # Only publish ports if you want to verify with your own mail client:
+        #ports:
+        #  - "465:465"  # ESMTP (implicit TLS)
+        #  - "993:993"  # IMAP4 (implicit TLS)
+        # You would normally use `volumes`, all config is part of `compose.yaml` for simplicity:
+        configs:
+          - source: dms-accounts-fetch
+            target: /tmp/docker-mailserver/postfix-accounts.cf
+          - source: fetchmail
+            target: /tmp/docker-mailserver/fetchmail.cf
+
+      dms-remote:
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
+        hostname: mail.remote.test
+        environment:
+          # Trust any mail client run within this container (`swaks`), to send a test mail easily:
+          DMS_TRUSTED_NETWORKS: host
+        configs:
+          - source: dms-accounts-remote
+            target: /tmp/docker-mailserver/postfix-accounts.cf
+
+    # Requires Docker Compose v2.23.1 (Nov 2023) or newer:
+    # https://github.com/compose-spec/compose-spec/pull/446
+    configs:
+      fetchmail:
+        content: |
+          poll 'mail.remote.test' proto imap
+            user 'jane.doe@remote.test'
+            pass 'secret'
+            is 'john.doe@example.test'
+            no sslcertck
+
+      # DMS requires an account to complete setup, configure one for each instance.
+      # Both accounts use the password `secret` (SHA512-CRYPT hashed).
+      # NOTE: `$` is repeated to escape it, which opts out of `compose.yaml` variable interpolation.
+      dms-accounts-fetch:
+        content: |
+          john.doe@example.test|{SHA512-CRYPT}$$6$$sbgFRCmQ.KWS5ryb$$EsWrlYosiadgdUOxCBHY0DQ3qFbeudDhNMqHs6jZt.8gmxUwiLVy738knqkHD4zj4amkb296HFqQ3yDq4UXt8.
+
+      dms-accounts-remote:
+        content: |
+          jane.doe@remote.test|{SHA512-CRYPT}$$6$$sbgFRCmQ.KWS5ryb$$EsWrlYosiadgdUOxCBHY0DQ3qFbeudDhNMqHs6jZt.8gmxUwiLVy738knqkHD4zj4amkb296HFqQ3yDq4UXt8.
+    ```
+
+    Start both containers and send a test mail to the remote account `jane.doe@remote.test`:
+
+    ```sh
+    docker compose up -d
+
+    docker compose exec dms-remote swaks --server localhost \
+      --from sender@remote.test --to jane.doe@remote.test
+    ```
+
+    Within `FETCHMAIL_POLL` seconds, `dms-fetch` retrieves the mail and delivers it to `john.doe@example.test`:
+
+    ```sh
+    docker compose logs dms-fetch | grep 'fetchmail\['
+    docker compose exec dms-fetch find /var/mail/example.test/john.doe -type f -path '*/new/*'
+    ```
+
+    Polls that happen before `dms-remote` is ready log connection errors, which is expected.
 
 [fetchmail-website]: https://www.fetchmail.info
 [fetchmail-docs-config]: https://www.fetchmail.info/fetchmail-man.html#the-run-control-file
 [fetchmail-config-examples]: https://www.fetchmail.info/fetchmail-man.html#configuration-examples
-[fetchmail-compose-example]: https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570
