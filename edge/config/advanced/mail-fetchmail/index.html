@@ -3042,10 +3042,76 @@ poll &#39;mail.somewhere-else.com&#39; with proto pop3 wants:
 <span class="go">fetchmail: normal termination, status 1</span>
 </code></pre></div>
 </details>
-<div class="admonition tip">
-<p class="admonition-title">Troubleshoot with this reference <code>compose.yaml</code></p>
-<p><a href="https://github.com/orgs/docker-mailserver/discussions/3994#discussioncomment-9290570">A minimal <code>compose.yaml</code> example</a> demonstrates how to run two instances of DMS locally, with one instance configured with <code>fetchmail.cf</code> and the other to simulate a remote mail server to fetch from.</p>
-</div>
+<details class="tip">
+<summary>Troubleshoot with this reference <code>compose.yaml</code></summary>
+<p>This <code>compose.yaml</code> runs two instances of DMS locally. <code>dms-fetch</code> is configured with <code>fetchmail.cf</code>, <code>dms-remote</code> simulates the remote mail server to fetch from. No DNS records are needed.</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dms-fetch</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.test</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">ENABLE_FETCHMAIL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="c1"># Shortened for quicker testing:</span>
+<span class="w">      </span><span class="nt">FETCHMAIL_POLL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">    </span><span class="c1"># Resolve `remote.test` (the domain of the `@remote.test` address) to the `dms-remote` container.</span>
+<span class="w">    </span><span class="c1"># This is a Docker internal DNS feature, only needed because no real DNS service is configured:</span>
+<span class="w">    </span><span class="nt">links</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;dms-remote:remote.test&quot;</span>
+<span class="w">    </span><span class="c1"># Only publish ports if you want to verify with your own mail client:</span>
+<span class="w">    </span><span class="c1">#ports:</span>
+<span class="w">    </span><span class="c1">#  - &quot;465:465&quot;  # ESMTP (implicit TLS)</span>
+<span class="w">    </span><span class="c1">#  - &quot;993:993&quot;  # IMAP4 (implicit TLS)</span>
+<span class="w">    </span><span class="c1"># You would normally use `volumes`, all config is part of `compose.yaml` for simplicity:</span>
+<span class="w">    </span><span class="nt">configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-accounts-fetch</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-accounts.cf</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fetchmail</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/fetchmail.cf</span>
+
+<span class="w">  </span><span class="nt">dms-remote</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.remote.test</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># Trust any mail client run within this container (`swaks`), to send a test mail easily:</span>
+<span class="w">      </span><span class="nt">DMS_TRUSTED_NETWORKS</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">    </span><span class="nt">configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-accounts-remote</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-accounts.cf</span>
+
+<span class="c1"># Requires Docker Compose v2.23.1 (Nov 2023) or newer:</span>
+<span class="c1"># https://github.com/compose-spec/compose-spec/pull/446</span>
+<span class="nt">configs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">fetchmail</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">poll &#39;mail.remote.test&#39; proto imap</span>
+<span class="w">        </span><span class="no">user &#39;jane.doe@remote.test&#39;</span>
+<span class="w">        </span><span class="no">pass &#39;secret&#39;</span>
+<span class="w">        </span><span class="no">is &#39;john.doe@example.test&#39;</span>
+<span class="w">        </span><span class="no">no sslcertck</span>
+
+<span class="w">  </span><span class="c1"># DMS requires an account to complete setup, configure one for each instance.</span>
+<span class="w">  </span><span class="c1"># Both accounts use the password `secret` (SHA512-CRYPT hashed).</span>
+<span class="w">  </span><span class="c1"># NOTE: `$` is repeated to escape it, which opts out of `compose.yaml` variable interpolation.</span>
+<span class="w">  </span><span class="nt">dms-accounts-fetch</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">john.doe@example.test|{SHA512-CRYPT}$$6$$sbgFRCmQ.KWS5ryb$$EsWrlYosiadgdUOxCBHY0DQ3qFbeudDhNMqHs6jZt.8gmxUwiLVy738knqkHD4zj4amkb296HFqQ3yDq4UXt8.</span>
+
+<span class="w">  </span><span class="nt">dms-accounts-remote</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">jane.doe@remote.test|{SHA512-CRYPT}$$6$$sbgFRCmQ.KWS5ryb$$EsWrlYosiadgdUOxCBHY0DQ3qFbeudDhNMqHs6jZt.8gmxUwiLVy738knqkHD4zj4amkb296HFqQ3yDq4UXt8.</span>
+</code></pre></div>
+<p>Start both containers and send a test mail to the remote account <code>jane.doe@remote.test</code>:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dms-remote<span class="w"> </span>swaks<span class="w"> </span>--server<span class="w"> </span>localhost<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from<span class="w"> </span>sender@remote.test<span class="w"> </span>--to<span class="w"> </span>jane.doe@remote.test
+</code></pre></div>
+<p>Within <code>FETCHMAIL_POLL</code> seconds, <code>dms-fetch</code> retrieves the mail and delivers it to <code>john.doe@example.test</code>:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>dms-fetch<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;fetchmail\[&#39;</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dms-fetch<span class="w"> </span>find<span class="w"> </span>/var/mail/example.test/john.doe<span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-path<span class="w"> </span><span class="s1">&#39;*/new/*&#39;</span>
+</code></pre></div>
+<p>Polls that happen before <code>dms-remote</code> is ready log connection errors, which is expected.</p>
+</details>
 
 
 

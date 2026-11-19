@@ -3128,7 +3128,7 @@
 <div class="admonition bug">
 <p class="admonition-title">Running Fail2Ban on Older Kernels</p>
 <p>DMS configures F2B to use <a href="https://en.wikipedia.org/wiki/Nftables">NFTables</a>, not <a href="https://developers.redhat.com/blog/2020/08/18/iptables-the-two-variants-and-their-relationship-with-nftables#two_variants_of_the_iptables_command">IPTables (legacy)</a>.</p>
-<p>We have observed that older systems (for example NAS systems), do not support the modern NFTables rules. You will need to configure F2B to use legacy IPTables again, for example with the <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf"><code>fail2ban-jail.cf</code></a>, see the <a href="#custom-files">section on configuration further down below</a>.</p>
+<p>We have observed that older systems (for example NAS systems), do not support the modern NFTables rules. You will need to configure F2B to use legacy IPTables again, for example by changing <code>banaction</code> in <code>fail2ban-jail.cf</code>, see the <a href="#custom-files">section on configuration further down below</a>.</p>
 </div>
 <h3 id="dms-defaults"><a class="toclink" href="#dms-defaults">DMS Defaults</a></h3>
 <p>DMS will automatically ban IP addresses of hosts that have generated 6 failed attempts over the course of the last week. The bans themselves last for one week. The Postfix jail is configured to use <code>mode = extra</code> in DMS.</p>
@@ -3140,15 +3140,25 @@
 <ol>
 <li><code>fail2ban-jail.cf</code> is copied to <code>/etc/fail2ban/jail.d/user-jail.local</code><ul>
 <li>with this file, you can adjust the configuration of individual jails and their defaults</li>
-<li>there is an example provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf">in our repository on GitHub</a></li>
+<li>the DMS defaults are in <code>/etc/fail2ban/jail.local</code></li>
 </ul>
 </li>
 <li><code>fail2ban-fail2ban.cf</code> is copied to <code>/etc/fail2ban/fail2ban.local</code><ul>
 <li>with this file, you can adjust F2B behavior in general</li>
-<li>there is an example provided <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf">in our repository on GitHub</a></li>
+<li>the F2B defaults are in <code>/etc/fail2ban/fail2ban.conf</code></li>
 </ul>
 </li>
 </ol>
+<p>Both files are applied on top of the defaults, so they only need the settings you want to change. To view the defaults:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>cat<span class="w"> </span>/etc/fail2ban/jail.local
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;CONTAINER<span class="w"> </span>NAME&gt;<span class="w"> </span>cat<span class="w"> </span>/etc/fail2ban/fail2ban.conf
+</code></pre></div>
+<div class="admonition example">
+<p class="admonition-title">Increase the log level of F2B</p>
+<div class="highlight"><span class="filename">docker-data/dms/config/fail2ban-fail2ban.cf</span><pre><span></span><code><span class="k">[DEFAULT]</span>
+<span class="na">loglevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">DEBUG</span>
+</code></pre></div>
+</div>
 <h3 id="sasl"><a class="toclink" href="#sasl">SASL</a></h3>
 <p>The <code>postfix</code> jail comes with <code>mode=extra</code> by default, which covers SASL login errors for our default SASL provider. Hence, the <code>postfix-sasl</code> jail has been disabled. If you switch to another SASL provider (e.g., SASLauthd), you may want to turn the <code>postfix-sasl</code> jail back on:</p>
 <div class="highlight"><span class="filename">docker-data/dms/config/fail2ban-jail.cf</span><pre><span></span><code><span class="k">[postfix-sasl]</span>

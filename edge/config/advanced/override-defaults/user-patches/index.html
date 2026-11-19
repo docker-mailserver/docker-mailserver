@@ -2827,8 +2827,7 @@
   <h1>Modifications via Script</h1>
 
 <p>If you'd like to change, patch or alter files or behavior of DMS, you can use a script.</p>
-<p>In case you cloned this repository, you can copy the file <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/user-patches.sh"><code>user-patches.sh.dist</code> (<em>under <code>config/</code></em>)</a> with <code class="highlight">cp<span class="w"> </span>config/user-patches.sh.dist<span class="w"> </span>docker-data/dms/config/user-patches.sh</code> in order to create the <code>user-patches.sh</code> script.</p>
-<p>If you are managing your directory structure yourself, create a <code>docker-data/dms/config/</code> directory and add the <code>user-patches.sh</code> file yourself.</p>
+<p>Create a <code>docker-data/dms/config/</code> directory and add the <code>user-patches.sh</code> file to it.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. Either create the docker-data/dms/config/ directory yourself</span>
 <span class="c1">#    or let docker-mailserver create it on initial startup</span>
 /tmp<span class="w"> </span>$<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>docker-data/dms/config/<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>docker-data/dms/config/
@@ -2853,7 +2852,11 @@ END
 <p>And you're done. The user patches script runs right before starting daemons. That means, all the other configuration is in place, so the script can make final adjustments.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
+</div>
 <p>Many "patches" can already be done with the Docker Compose-/Stack-file. Adding hostnames to <code>/etc/hosts</code> is done with the <code class="highlight"><span class="nt">extra_hosts</span><span class="p">:</span></code> section, <code>sysctl</code> commands can be managed with the <code class="highlight"><span class="nt">sysctls</span><span class="p">:</span></code> section, etc.</p>
+<div class="admonition tip">
+<p class="admonition-title">Patching the supervisord configuration</p>
+<p>If the script modifies any supervisord configuration, run <code>supervisorctl update</code> or <code>supervisorctl reload</code> at the end of it.</p>
 </div>
 
 

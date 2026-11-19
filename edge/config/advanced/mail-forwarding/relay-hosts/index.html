@@ -3072,9 +3072,177 @@ setup relay exclude-domain <span class="s">&lt;domain&gt;</span>
 <h3 id="technical-details"><a class="toclink" href="#technical-details">Technical Details</a></h3>
 <ul>
 <li>Both the supported ENV and config files for this feature have additional details covered in our ENV docs <a href="../../../environment/#relay-host">Relay Host section</a>.</li>
-<li>For troubleshooting, a <a href="https://github.com/docker-mailserver/docker-mailserver/issues/3842#issuecomment-1913380639">minimal <code>compose.yaml</code> config with several DMS instances</a> demonstrates this feature for local testing.</li>
 <li><a href="https://github.com/docker-mailserver/docker-mailserver/issues/3607">Subscribe to this tracking issue</a> for future improvements intended for this feature.</li>
 </ul>
+<details class="example">
+<summary>Local test setup with several DMS instances</summary>
+<p>This <code>compose.yaml</code> runs three DMS instances locally to demonstrate the relay feature, without any DNS records or external services:</p>
+<ul>
+<li><code>dms-sender</code> is your DMS, configured to relay all outbound mail.</li>
+<li><code>dms-relay</code> simulates the third-party relay service.</li>
+<li><code>dms-destination</code> simulates the mail server of the recipient.</li>
+</ul>
+<p>The TLS certificates use the <code>.test</code> TLD, which avoids accidental external DNS requests. Everything is part of one file (<em>via the <code>configs</code> feature</em>), copy and paste is all you need.</p>
+<div class="highlight"><span class="filename">compose.yaml</span><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># This would represent your actual DMS container:</span>
+<span class="w">  </span><span class="nt">dms-sender</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.example.test</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># All outbound mail will be relayed through this host</span>
+<span class="w">      </span><span class="c1"># (change the port to 587 if you do not want the postfix-main.cf override)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEFAULT_RELAY_HOST=[smtp.relay-service.test]:465</span>
+<span class="w">      </span><span class="c1"># Your relay host credentials.</span>
+<span class="w">      </span><span class="c1"># (since the relay in the example is DMS, the relay account username is a full email address)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RELAY_USER=relay-user@relay-service.test</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RELAY_PASSWORD=secret</span>
+<span class="w">      </span><span class="c1"># The mail client (swaks) needs to connect with TLS:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=manual</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_KEY_PATH=/tmp/tls/key.pem</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_CERT_PATH=/tmp/tls/cert.pem</span>
+<span class="w">    </span><span class="c1"># You would usually have `volumes` instead of this `configs`:</span>
+<span class="w">    </span><span class="nt">configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-main</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-main.cf</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-accounts</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-accounts.cf</span>
+<span class="w">      </span><span class="c1"># Authenticating on port 587 or 465 enforces TLS requirement:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tls-cert</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/tls/cert.pem</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tls-key</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/tls/key.pem</span>
+<span class="w">      </span><span class="c1"># This is only needed if you want to verify the TLS cert chain with swaks</span>
+<span class="w">      </span><span class="c1"># (normally with public CA providers like LetsEncrypt this file is already available to a mail client)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tls-ca-cert</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/tls/ca-cert.pem</span>
+
+<span class="w">  </span><span class="c1"># Pretend this is your third-party relay service:</span>
+<span class="w">  </span><span class="nt">dms-relay</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">smtp.relay-service.test</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># WORKAROUND: Bypass security checks from the mail-client (dms-sender container)</span>
+<span class="w">      </span><span class="c1"># (avoids needing expected DNS records to run this example)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DMS_TRUSTED_NETWORKS=subnet</span>
+<span class="w">      </span><span class="c1"># TLS is required when relaying to dms-relay via ports 587 / 465</span>
+<span class="w">      </span><span class="c1"># (dms-relay will then relay the mail to dms-destination over port 25)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_TYPE=manual</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_KEY_PATH=/tmp/tls/key.pem</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SSL_CERT_PATH=/tmp/tls/cert.pem</span>
+<span class="w">    </span><span class="nt">configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-accounts-relay</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-accounts.cf</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tls-cert</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/tls/cert.pem</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tls-key</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/tls/key.pem</span>
+
+<span class="w">  </span><span class="c1"># Pretend this is another mail server that your target recipient belongs to (like Gmail):</span>
+<span class="w">  </span><span class="nt">dms-destination</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/docker-mailserver/docker-mailserver:latest</span>
+<span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mail.destination.test</span>
+<span class="w">    </span><span class="c1"># WORKAROUND: dms-relay must be able to resolve DNS for `@destination.test` to the IP of this container:</span>
+<span class="w">    </span><span class="c1"># Normally a MX record would direct mail to the MTA (eg: `mail.destination.test`)</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">aliases</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">destination.test</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># WORKAROUND: Same workaround as needed for dms-relay</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DMS_TRUSTED_NETWORKS=subnet</span>
+<span class="w">    </span><span class="nt">configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dms-accounts-destination</span>
+<span class="w">        </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/docker-mailserver/postfix-accounts.cf</span>
+
+<span class="c1"># Using the Docker Compose `configs.content` feature instead of volume mounting separate files.</span>
+<span class="c1"># NOTE: This feature requires Docker Compose v2.23.1 (Nov 2023) or newer:</span>
+<span class="c1"># https://github.com/compose-spec/compose-spec/pull/446</span>
+<span class="nt">configs</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># `postfix-main.cf`, a single line change to make all outbound SMTP connections over implicit TLS instead of the default explicit TLS (StartTLS).</span>
+<span class="w">  </span><span class="c1"># NOTE: If you need to only selectively relay mail, you would need to instead adjust this on the relay service in `/etc/postfix/master.cf`,</span>
+<span class="w">  </span><span class="c1"># However DMS presently modifies this when using the DMS Relay Host feature support, which may override `postfix-master.cf` or `user-patches.sh` due to `check-for-changes.sh`.</span>
+<span class="w">  </span><span class="nt">dms-main</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">smtp_tls_wrappermode=yes</span>
+
+<span class="w">  </span><span class="c1"># DMS expects an account to be configured to run, this example provides accounts already created.</span>
+<span class="w">  </span><span class="c1"># Login credentials:</span>
+<span class="w">  </span><span class="c1"># user: &quot;john.doe@example.test&quot; password: &quot;secret&quot;</span>
+<span class="w">  </span><span class="c1"># user: &quot;relay-user@relay-service.test&quot; password: &quot;secret&quot;</span>
+<span class="w">  </span><span class="c1"># user: &quot;jane.doe@destination.test&quot; password: &quot;secret&quot;</span>
+<span class="w">  </span><span class="nt">dms-accounts</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># NOTE: `$` needed to be repeated to escape it,</span>
+<span class="w">    </span><span class="c1"># which opts out of the `compose.yaml` variable interpolation feature.</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">john.doe@example.test|{SHA512-CRYPT}$$6$$sbgFRCmQ.KWS5ryb$$EsWrlYosiadgdUOxCBHY0DQ3qFbeudDhNMqHs6jZt.8gmxUwiLVy738knqkHD4zj4amkb296HFqQ3yDq4UXt8.</span>
+
+<span class="w">  </span><span class="nt">dms-accounts-relay</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">relay-user@relay-service.test|{SHA512-CRYPT}$$6$$o65y1ZXC4ooOPLwZ$$7TF1nYowEtNJpH6BwJBgdj2pPAxaCvhIKQA6ww5zdHm/AA7aemY9eoHC91DOgYNaKj1HLxSeWNDdvrp6mbtUY.</span>
+
+<span class="w">  </span><span class="nt">dms-accounts-destination</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">jane.doe@destination.test|{SHA512-CRYPT}$$6$$o65y1ZXC4ooOPLwZ$$7TF1nYowEtNJpH6BwJBgdj2pPAxaCvhIKQA6ww5zdHm/AA7aemY9eoHC91DOgYNaKj1HLxSeWNDdvrp6mbtUY.</span>
+
+<span class="w">  </span><span class="c1"># TLS files:</span>
+<span class="w">  </span><span class="c1"># - Use an ECDSA cert that&#39;s been signed by a self-signed CA for TLS cert verification.</span>
+<span class="w">  </span><span class="c1"># - This cert is only valid for mail.example.test, mail.destination.test, smtp.relay-service.test</span>
+
+<span class="w">  </span><span class="c1"># `swaks` run in the container will need to reference this CA cert file for successful verification (optional).</span>
+<span class="w">  </span><span class="nt">tls-ca-cert</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">-----BEGIN CERTIFICATE-----</span>
+<span class="w">      </span><span class="no">MIIBfTCCASKgAwIBAgIRAMAZttlRlkcuSun0yV0z4RwwCgYIKoZIzj0EAwIwHDEa</span>
+<span class="w">      </span><span class="no">MBgGA1UEAxMRU21hbGxzdGVwIFJvb3QgQ0EwHhcNMjEwMTAxMDAwMDAwWhcNMzEw</span>
+<span class="w">      </span><span class="no">MTAxMDAwMDAwWjAcMRowGAYDVQQDExFTbWFsbHN0ZXAgUm9vdCBDQTBZMBMGByqG</span>
+<span class="w">      </span><span class="no">SM49AgEGCCqGSM49AwEHA0IABJX2hCtoK3+bM5I3rmyApXLJ1gOcVhtoSSwM8XXR</span>
+<span class="w">      </span><span class="no">SEl25Kkc0n6mINuMK8UrBkiBUgexf6CYayx3xVr9TmMkg4KjRTBDMA4GA1UdDwEB</span>
+<span class="w">      </span><span class="no">/wQEAwIBBjASBgNVHRMBAf8ECDAGAQH/AgEBMB0GA1UdDgQWBBQD8sBrApbyYyqU</span>
+<span class="w">      </span><span class="no">y+/TlwGynx2V5jAKBggqhkjOPQQDAgNJADBGAiEAi8N2eOETI+6hY3+G+kzNMd3K</span>
+<span class="w">      </span><span class="no">Sd3Ke8b++/nlwr5Fb/sCIQDYAjpKp/MpTDWICeHC2tcB5ptxoTdWkTBuG4rKcktA</span>
+<span class="w">      </span><span class="no">0w==</span>
+<span class="w">      </span><span class="no">-----END CERTIFICATE-----</span>
+
+<span class="w">  </span><span class="nt">tls-key</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">-----BEGIN EC PRIVATE KEY-----</span>
+<span class="w">      </span><span class="no">MHcCAQEEIOc6wqZmSDmT336K4O26dMk1RCVc0+cmnsO2eK4P5K5yoAoGCCqGSM49</span>
+<span class="w">      </span><span class="no">AwEHoUQDQgAEFOWNgekKKvUZE89vJ7henUYxODYIvCiHitRc2ylwttjqt1KUY1cp</span>
+<span class="w">      </span><span class="no">q3jof2fhURHfBUH3dHPXLHig5V9Jw5gqeg==</span>
+<span class="w">      </span><span class="no">-----END EC PRIVATE KEY-----</span>
+
+<span class="w">  </span><span class="nt">tls-cert</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">-----BEGIN CERTIFICATE-----</span>
+<span class="w">      </span><span class="no">MIIB9DCCAZqgAwIBAgIQE53a/y2c//YXRsz2kLm6gDAKBggqhkjOPQQDAjAcMRow</span>
+<span class="w">      </span><span class="no">GAYDVQQDExFTbWFsbHN0ZXAgUm9vdCBDQTAeFw0yMTAxMDEwMDAwMDBaFw0zMTAx</span>
+<span class="w">      </span><span class="no">MDEwMDAwMDBaMBkxFzAVBgNVBAMTDlNtYWxsc3RlcCBMZWFmMFkwEwYHKoZIzj0C</span>
+<span class="w">      </span><span class="no">AQYIKoZIzj0DAQcDQgAEFOWNgekKKvUZE89vJ7henUYxODYIvCiHitRc2ylwttjq</span>
+<span class="w">      </span><span class="no">t1KUY1cpq3jof2fhURHfBUH3dHPXLHig5V9Jw5gqeqOBwDCBvTAOBgNVHQ8BAf8E</span>
+<span class="w">      </span><span class="no">BAMCB4AwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMB0GA1UdDgQWBBSz</span>
+<span class="w">      </span><span class="no">w74g+O6dcBbwienD70D8A9ESmDAfBgNVHSMEGDAWgBQD8sBrApbyYyqUy+/TlwGy</span>
+<span class="w">      </span><span class="no">nx2V5jBMBgNVHREERTBDghFtYWlsLmV4YW1wbGUudGVzdIIVbWFpbC5kZXN0aW5h</span>
+<span class="w">      </span><span class="no">dGlvbi50ZXN0ghdzbXRwLnJlbGF5LXNlcnZpY2UudGVzdDAKBggqhkjOPQQDAgNI</span>
+<span class="w">      </span><span class="no">ADBFAiEAoety5oClZtuBMkvlUIWRmWlyg1VIOZ544LSEbplsIhcCIHb6awMwNdXP</span>
+<span class="w">      </span><span class="no">m/xHjFkuwH1+UjDDRW53Ih7KZoLrQ6Cp</span>
+<span class="w">      </span><span class="no">-----END CERTIFICATE-----</span>
+</code></pre></div>
+<p>Start all containers and send a test mail from <code>dms-sender</code> to <code>dms-destination</code> via <code>dms-relay</code>. <code>swaks</code> acts as your mail client here:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--force-recreate
+
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dms-sender<span class="w"> </span>swaks<span class="w"> </span>--ehlo<span class="w"> </span>mail.example.test<span class="w"> </span>--server<span class="w"> </span>mail.example.test<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--port<span class="w"> </span><span class="m">587</span><span class="w"> </span>-tls<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--auth<span class="w"> </span>PLAIN<span class="w"> </span>--auth-user<span class="w"> </span>john.doe@example.test<span class="w"> </span>--auth-password<span class="w"> </span>secret<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from<span class="w"> </span>john.doe@example.test<span class="w"> </span>--to<span class="w"> </span>jane.doe@destination.test
+
+<span class="c1"># The logs show that the mail was sent, relayed and delivered:</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs
+</code></pre></div>
+<ul>
+<li>Authenticate on port 465 instead with <code>--port 465 -tlsc</code> (<em>the additional <code>c</code> is not a typo</em>).</li>
+<li>To verify the TLS certificate chain, add <code>--tls-ca-path /tmp/tls/ca-cert.pem</code>.</li>
+</ul>
+</details>
 <div class="admonition abstract">
 <p class="admonition-title">Postfix Settings</p>
 <p>Internally this feature is implemented in DMS by <a href="https://github.com/docker-mailserver/docker-mailserver/blob/v17.0.0/target/scripts/helpers/relay.sh"><code>relay.sh</code></a>.</p>
