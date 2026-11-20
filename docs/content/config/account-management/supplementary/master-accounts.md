@@ -6,10 +6,6 @@ hide:
 
 This feature is useful for administrative tasks like hot backups.
 
-!!! note
-
-    This feature is presently [not supported with `ACCOUNT_PROVISIONER=LDAP`][dms::feature::dovecot-master-accounts::caveat-ldap].
-
 !!! info
 
     A _Master Account_:
@@ -64,7 +60,6 @@ This feature is useful for administrative tasks like hot backups.
     Alternatively, any mail client should be able to login the equivalent credentials.
 
 [dms::feature::dovecot-master-accounts]: https://github.com/docker-mailserver/docker-mailserver/pull/2535
-[dms::feature::dovecot-master-accounts::caveat-ldap]: https://github.com/docker-mailserver/docker-mailserver/pull/2535#issuecomment-1118056745
 [dovecot-docs::auth::master-users]: https://doc.dovecot.org/configuration_manual/authentication/master_users/
 [dovecot-docs::config::auth-master-user-separator]: https://doc.dovecot.org/settings/core/#core_setting-auth_master_user_separator
 [docs::account-management::file::accounts]: ../provisioner/file.md#accounts

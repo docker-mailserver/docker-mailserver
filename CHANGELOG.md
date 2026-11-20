@@ -81,6 +81,11 @@ All notable changes to this project will be documented in this file. The format 
 - **Setup**
   - The check of `setup alias add` and `setup email add` for an address that already exists as an account or alias no longer treats an address as taken when it is only a prefix of another one (_e.g. the alias `user@example.com` was rejected when the account `user@example.com.au` existed_). The check now compares the whole address, case-insensitively ([#4856](https://github.com/docker-mailserver/docker-mailserver/issues/4856))
 
+### Added
+
+- **LDAP**
+  - Add master account support with LDAP to permit admin account to connect on any user account.
+
 ### Documentation
 
 - **Dovecot**
