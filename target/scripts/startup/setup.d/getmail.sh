@@ -50,7 +50,6 @@ function _setup_getmail() {
           COUNTER=$(( COUNTER + 1 ))
           cat >"/etc/supervisor/conf.d/getmail-${COUNTER}.conf" << EOF
 [program:getmail-${COUNTER}]
-startsecs=0
 stopwaitsecs=55
 autostart=false
 autorestart=true

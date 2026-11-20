@@ -191,7 +191,6 @@ Both components will be built using Docker and included into a custom `docker-ma
         ```txt title="xapsd.conf"
 
         [program:xapsd]
-        startsecs=0
         autostart=false
         autorestart=true
         stdout_logfile=/var/log/supervisor/%(program_name)s.log
