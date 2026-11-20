@@ -6,20 +6,20 @@ title: 'Security | Rspamd'
 
 Rspamd is a ["fast, free and open-source spam filtering system"][rspamd-web]. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd. If you want to take a look at the default configuration files for Rspamd that DMS adds, navigate to [`target/rspamd/` inside the repository][dms-repo::default-rspamd-configuration].
 
-### Enable Rspamd
+### Rspamd and the Legacy Services
 
-Rspamd is presently opt-in for DMS, but intended to become the default anti-spam service in a future release.
+Rspamd is the default anti-spam service in DMS since v18, it does not need to be enabled.
 
 DMS offers two anti-spam solutions:
 
-- Legacy (_Amavis, SpamAssassin, OpenDKIM, OpenDMARC_)
 - Rspamd (_Provides equivalent features of software from the legacy solution_)
+- Legacy (_Amavis, SpamAssassin, OpenDKIM, OpenDMARC, policyd-spf_)
 
 While you could configure Rspamd to only replace some of the legacy services, it is advised to only use Rspamd with the legacy services disabled.
 
 !!! example "Switch to Rspamd"
 
-    To use Rspamd add the following ENV config changes:
+    These ENV values are the defaults. Set them explicitly if you keep your configuration from before v18 (_`mailserver.env` and `compose.yaml` of older releases enable the legacy services_):
     
     ```env
     ENABLE_RSPAMD=1
@@ -36,6 +36,21 @@ While you could configure Rspamd to only replace some of the legacy services, it
     
     # Optional: Add anti-virus support with ClamAV (compatible with Rspamd):
     ENABLE_CLAMAV=1
+    ```
+
+!!! example "Keep using the legacy services"
+
+    The legacy services are disabled by default, enable each of them explicitly:
+
+    ```env
+    ENABLE_RSPAMD=0
+
+    ENABLE_AMAVIS=1
+    ENABLE_OPENDKIM=1
+    ENABLE_OPENDMARC=1
+    ENABLE_POLICYD_SPF=1
+    # Optional, requires ENABLE_AMAVIS=1:
+    ENABLE_SPAMASSASSIN=1
     ```
 
 !!! info "Relevant Environment Variables"

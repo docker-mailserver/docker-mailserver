@@ -20,6 +20,21 @@ All notable changes to this project will be documented in this file. The format 
 
   - `DMS_TRUSTED_NETWORKS` also accepts a list of CIDR ranges (IPv4 and IPv6, separated by spaces or commas). `host` and `subnet` now work for IPv6 too. The trusted networks are also exempted from OpenDKIM and OpenDMARC, as `PERMIT_DOCKER` did.
   - `NETWORK_INTERFACE` has been removed and logs an error when set. It was only used to look up the IPv4 address of the container, which is no longer needed (_this includes the `NETWORK_INTERFACE=tap0` workaround for rootless Podman_).
+- **Rspamd**
+  - Rspamd is now the default anti-spam service. The legacy services that Rspamd replaces are disabled by default ([#4364](https://github.com/docker-mailserver/docker-mailserver/issues/4364)):
+
+    | ENV                  | Before | Now |
+    | :------------------- | :----- | :-- |
+    | `ENABLE_RSPAMD`      | `0`    | `1` |
+    | `ENABLE_AMAVIS`      | `1`    | `0` |
+    | `ENABLE_OPENDKIM`    | `1`    | `0` |
+    | `ENABLE_OPENDMARC`   | `1`    | `0` |
+    | `ENABLE_POLICYD_SPF` | `1`    | `0` |
+
+    `ENABLE_RSPAMD_VALKEY` follows `ENABLE_RSPAMD`, so an internal Valkey instance is now started by default. `ENABLE_SPAMASSASSIN`, `ENABLE_CLAMAV` and `ENABLE_POSTGREY` remain disabled by default.
+  - **To keep the legacy services**, set `ENABLE_RSPAMD=0` and enable each of them explicitly (_`ENABLE_AMAVIS=1`, `ENABLE_OPENDKIM=1`, `ENABLE_OPENDMARC=1`, `ENABLE_POLICYD_SPF=1`, and `ENABLE_SPAMASSASSIN=1` if you use it_). Your `mailserver.env` or `compose.yaml` from an older release already sets some of these explicitly, check that it covers all of them.
+  - `ENABLE_SPAMASSASSIN=1` requires `ENABLE_AMAVIS=1`. Without Amavis, DMS logs a warning and disables SpamAssassin.
+  - DMS refuses to start when `ENABLE_OPENDKIM` is not set and OpenDKIM keys exist in `docker-data/dms/config/opendkim/`. Otherwise outbound mail would silently stop being signed with these keys. Set `ENABLE_OPENDKIM=1` (_together with `ENABLE_RSPAMD=0`_) to keep OpenDKIM, or set `ENABLE_OPENDKIM=0` and [migrate your DKIM keys to Rspamd](https://docker-mailserver.github.io/docker-mailserver/edge/config/best-practices/dkim_dmarc_spf/#dkim).
 - **Dovecot**
   - DMS now ships its own, self-contained Dovecot configuration. It no longer depends on the config files of the Debian or the Dovecot Community Edition (CE) packages. Dovecot's built-in defaults apply to everything that DMS does not set ([#4861](https://github.com/docker-mailserver/docker-mailserver/pull/4861)). Most of the Dovecot files in `/etc/dovecot/conf.d/` are gone, so **bind mounts and `user-patches.sh` scripts that replace or edit these files must be migrated**:
 

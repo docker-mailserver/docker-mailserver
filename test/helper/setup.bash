@@ -157,6 +157,7 @@ function _common_container_create() {
     --volume "${TEST_FILES_VOLUME}" \
     --volume "${TEST_CONFIG_VOLUME}" \
     --env ENABLE_AMAVIS=0 \
+    --env ENABLE_RSPAMD=0 \
     --env ENABLE_CLAMAV=0 \
     --env ENABLE_UPDATE_CHECK=0 \
     --env ENABLE_SPAMASSASSIN=0 \

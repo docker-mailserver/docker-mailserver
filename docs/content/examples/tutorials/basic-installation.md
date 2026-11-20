@@ -25,7 +25,6 @@ services:
       - ./docker-data/dms/config/:/tmp/docker-mailserver/
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - ENABLE_RSPAMD=1
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
     cap_add:
@@ -170,7 +169,7 @@ In this setup DMS is not intended to receive email from the outside world, so no
 
 3. [Generate DKIM keys][docs-dkim] for your domain via `setup config dkim`.
 
-    Copy the content of the file `docker-data/dms/config/opendkim/keys/example.com/mail.txt` and add it to your DNS records as a TXT like SPF was handled above.
+    Copy the content of the file `docker-data/dms/config/rspamd/dkim/example.com-mail.public.dns.txt` and add it to your DNS records as a TXT like SPF was handled above.
 
     I use [bind9](https://github.com/docker-scripts/bind9) for managing my domains, so I just paste it on `example.com.db`:
 

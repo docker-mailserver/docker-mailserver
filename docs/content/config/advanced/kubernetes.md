@@ -52,13 +52,10 @@ If using our Helm chart is not viable for you, here is some guidance to start wi
               ENABLE_CLAMAV: '1'
               ENABLE_POSTGREY: '0'
               ENABLE_FAIL2BAN: '1'
-              AMAVIS_LOGLEVEL: '-1'
               SPOOF_PROTECTION: '1'
               MOVE_SPAM_TO_JUNK: '1'
               ENABLE_UPDATE_CHECK: '1'
-              ENABLE_SPAMASSASSIN: '1'
               SUPERVISOR_LOGLEVEL: warn
-              SPAMASSASSIN_SPAM_TO_INBOX: '1'
 
               # here, we provide an example for the SSL configuration
               SSL_TYPE: manual
