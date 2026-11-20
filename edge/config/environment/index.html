@@ -6445,6 +6445,18 @@ FAIL2BAN_BLOCKTYPE=drop</li>
 <li><strong>0</strong> =&gt; Disabled</li>
 <li>1 =&gt; Enabled</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">PostSRSd does not listen with a very high <code>nofile</code> limit (DMS v17 and earlier)</p>
+<p>PostSRSd closes every file descriptor up to the container's limit of open files (<code>nofile</code>) before it binds its ports. Recent Docker and containerd releases default to a limit of around 1 billion or more, so PostSRSd never finishes starting. Postfix then logs <code>connect to TCP map localhost:10001: Connection refused</code> and <code>sender_canonical_maps map lookup problem</code>, and defers all mail.</p>
+<p>DMS v18 and later lower the limit for PostSRSd itself. With an earlier version, set a lower limit for the container (<a href="https://github.com/docker-mailserver/docker-mailserver/issues/4864">issue #4864</a>):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mailserver</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ulimits</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">nofile</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">soft</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">65536</span>
+<span class="w">        </span><span class="nt">hard</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">65536</span>
+</code></pre></div>
+</div>
 <h5 id="virusmails_delete_delay"><a class="toclink" href="#virusmails_delete_delay">VIRUSMAILS_DELETE_DELAY</a></h5>
 <p>Set how many days a virusmail will stay on the server before being deleted</p>
 <ul>
