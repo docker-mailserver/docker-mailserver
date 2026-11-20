@@ -33,9 +33,12 @@ function teardown() { _default_teardown ; }
 @test "providing config volume should setup /etc/opendkim" {
   export CONTAINER_NAME=${CONTAINER1_NAME}
 
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_OPENDKIM=1
+  )
   _init_with_defaults
   mv "${TEST_TMP_CONFIG}/example-opendkim/" "${TEST_TMP_CONFIG}/opendkim/"
-  _common_container_setup
+  _common_container_setup 'CUSTOM_SETUP_ARGUMENTS'
 
   _run_in_container cat '/etc/opendkim/KeyTable'
   assert_success
@@ -151,10 +154,13 @@ function teardown() { _default_teardown ; }
 }
 
 function __init_container_without_waiting {
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_OPENDKIM=1
+  )
   _init_with_defaults
   # Override the default config volume:
   [[ -n ${1} ]] && TEST_CONFIG_VOLUME="${1}"
-  _common_container_create
+  _common_container_create 'CUSTOM_SETUP_ARGUMENTS'
   _common_container_start
 }
 

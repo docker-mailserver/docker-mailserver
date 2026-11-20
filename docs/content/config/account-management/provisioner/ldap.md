@@ -208,7 +208,6 @@ The changes on the configurations necessary to work with Active Directory (**onl
           - /etc/localtime:/etc/localtime:ro
 
         environment:
-          - ENABLE_SPAMASSASSIN=1
           - ENABLE_CLAMAV=1
           - ENABLE_FAIL2BAN=1
           - ENABLE_POSTGREY=1
@@ -269,7 +268,6 @@ The changes on the configurations necessary to work with Active Directory (**onl
         environment:
           # We are not using dovecot here
           - SMTP_ONLY=1
-          - ENABLE_SPAMASSASSIN=1
           - ENABLE_CLAMAV=1
           - ENABLE_FAIL2BAN=1
           - ENABLE_POSTGREY=1

@@ -49,6 +49,13 @@ function __environment_variables_backwards_compatibility() {
     _log 'error' "'NETWORK_INTERFACE' has been removed since DMS v18, it is no longer needed"
   fi
 
+  # Rspamd replaces OpenDKIM by default since DMS v18. Without this check, a setup that relied on the old
+  # default would silently stop signing outbound mail with the existing keys. Only an unset (or empty)
+  # `ENABLE_OPENDKIM` is caught, as it is evaluated before `__environment_variables_general_setup` applies the default.
+  if [[ -z ${ENABLE_OPENDKIM:-} ]] && [[ -f /tmp/docker-mailserver/opendkim/KeyTable ]]; then
+    _dms_panic__general "OpenDKIM keys exist in '/tmp/docker-mailserver/opendkim/', but OpenDKIM is disabled by default since DMS v18 (Rspamd replaces it). Set 'ENABLE_OPENDKIM=1' (and 'ENABLE_RSPAMD=0') to keep using OpenDKIM, or set 'ENABLE_OPENDKIM=0' to confirm using Rspamd, which requires migrating your keys (see the DKIM documentation)"
+  fi
+
   local -A LDAP_QUERY_FILTER_RENAMES=(
     [LDAP_QUERY_FILTER_USER]='POSTFIX_USERS_QUERY_FILTER'
     [LDAP_QUERY_FILTER_GROUP]='POSTFIX_GROUPS_QUERY_FILTER'
@@ -117,7 +124,7 @@ function __environment_variables_general_setup() {
 
   _log 'trace' 'Setting service-enabling environment variables'
 
-  VARS[ENABLE_AMAVIS]="${ENABLE_AMAVIS:=1}"
+  VARS[ENABLE_AMAVIS]="${ENABLE_AMAVIS:=0}"
   VARS[ENABLE_CLAMAV]="${ENABLE_CLAMAV:=0}"
   VARS[ENABLE_DNSBL]="${ENABLE_DNSBL:=0}"
   VARS[ENABLE_FAIL2BAN]="${ENABLE_FAIL2BAN:=0}"
@@ -126,13 +133,13 @@ function __environment_variables_general_setup() {
   VARS[ENABLE_MANAGESIEVE]="${ENABLE_MANAGESIEVE:=0}"
   VARS[ENABLE_MTA_STS]="${ENABLE_MTA_STS:=0}"
   VARS[ENABLE_OAUTH2]="${ENABLE_OAUTH2:=0}"
-  VARS[ENABLE_OPENDKIM]="${ENABLE_OPENDKIM:=1}"
-  VARS[ENABLE_OPENDMARC]="${ENABLE_OPENDMARC:=1}"
-  VARS[ENABLE_POLICYD_SPF]="${ENABLE_POLICYD_SPF:=1}"
+  VARS[ENABLE_OPENDKIM]="${ENABLE_OPENDKIM:=0}"
+  VARS[ENABLE_OPENDMARC]="${ENABLE_OPENDMARC:=0}"
+  VARS[ENABLE_POLICYD_SPF]="${ENABLE_POLICYD_SPF:=0}"
   VARS[ENABLE_POP3]="${ENABLE_POP3:=0}"
   VARS[ENABLE_IMAP]="${ENABLE_IMAP:=1}"
   VARS[ENABLE_POSTGREY]="${ENABLE_POSTGREY:=0}"
-  VARS[ENABLE_RSPAMD]="${ENABLE_RSPAMD:=0}"
+  VARS[ENABLE_RSPAMD]="${ENABLE_RSPAMD:=1}"
   VARS[ENABLE_RSPAMD_VALKEY]="${ENABLE_RSPAMD_VALKEY:=${ENABLE_RSPAMD}}"
   VARS[ENABLE_SASLAUTHD]="${ENABLE_SASLAUTHD:=0}"
   VARS[ENABLE_SPAMASSASSIN]="${ENABLE_SPAMASSASSIN:=0}"

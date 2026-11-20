@@ -108,10 +108,10 @@ Set the timezone. If this variable is unset, the container runtime will try to d
 
 ##### ENABLE_AMAVIS
 
-Amavis content filter (used for ClamAV & SpamAssassin)
+Amavis content filter (used for ClamAV & SpamAssassin). [Rspamd][docs-rspamd] (`ENABLE_RSPAMD=1`) provides these features instead.
 
-- 0     => Amavis is disabled
-- **1** => Amavis is enabled
+- **0** => Amavis is disabled
+- 1     => Amavis is enabled
 
 ##### AMAVIS_LOGLEVEL
 
@@ -146,24 +146,28 @@ See [MTA-STS](best-practices/mta-sts.md) for further explanation.
 
 ##### ENABLE_OPENDKIM
 
-Enables the OpenDKIM service.
+Enables the OpenDKIM service. [Rspamd](#enable_rspamd) provides DKIM verification and signing instead.
 
-- **1** => Enabled
-- 0 => Disabled
+- **0** => Disabled
+- 1 => Enabled
+
+!!! warning "OpenDKIM keys in the config volume"
+
+    DMS refuses to start when `ENABLE_OPENDKIM` is not set and OpenDKIM keys exist in `docker-data/dms/config/opendkim/`, as they would silently stop being used. Set the variable explicitly. See [DKIM, DMARC & SPF][docs-dkim-dmarc-spf] for how to migrate the keys to Rspamd.
 
 ##### ENABLE_OPENDMARC
 
-Enables the OpenDMARC service.
+Enables the OpenDMARC service. [Rspamd](#enable_rspamd) provides DMARC verification instead.
 
-- **1** => Enabled
-- 0 => Disabled
+- **0** => Disabled
+- 1 => Enabled
 
 ##### ENABLE_POLICYD_SPF
 
-Enabled `policyd-spf` in Postfix's configuration. You will likely want to set this to `0` in case you're using Rspamd ([`ENABLE_RSPAMD=1`](#enable_rspamd)).
+Enables `policyd-spf` in Postfix's configuration. [Rspamd](#enable_rspamd) provides SPF verification instead.
 
-- 0 => Disabled
-- **1** => Enabled
+- **0** => Disabled
+- 1 => Enabled
 
 ##### ENABLE_POP3
 
@@ -419,10 +423,14 @@ Defines how often DMS polls [monitored config files][gh::monitored-configs] for 
 
 ##### ENABLE_RSPAMD
 
-Enable or disable [Rspamd][docs-rspamd].
+Enable or disable [Rspamd][docs-rspamd]. Rspamd replaces the legacy services Amavis, SpamAssassin, OpenDKIM, OpenDMARC and policyd-spf.
 
-- **0** => disabled
-- 1 => enabled
+- 0 => disabled
+- **1** => enabled
+
+!!! tip "Using the legacy services"
+
+    Set `ENABLE_RSPAMD=0` and enable the services you want explicitly: [`ENABLE_AMAVIS=1`](#enable_amavis), [`ENABLE_OPENDKIM=1`](#enable_opendkim), [`ENABLE_OPENDMARC=1`](#enable_opendmarc), [`ENABLE_POLICYD_SPF=1`](#enable_policyd_spf) and, if wanted, [`ENABLE_SPAMASSASSIN=1`](#enable_spamassassin).
 
 ##### ENABLE_RSPAMD_VALKEY
 
@@ -607,6 +615,10 @@ Defines how many files are kept by logrotate.
 
 - **0** => SpamAssassin is disabled
 - 1 => SpamAssassin is enabled
+
+!!! warning "SpamAssassin requires Amavis"
+
+    DMS runs SpamAssassin through Amavis. As [`ENABLE_AMAVIS`](#enable_amavis) is disabled by default, SpamAssassin does not work (_DMS logs a warning and disables it_) unless you also set `ENABLE_AMAVIS=1`. We recommend [Rspamd](#enable_rspamd) instead.
 
 ??? info "SpamAssassin analyzes incoming mail and assigns a spam score"
 
@@ -1231,6 +1243,7 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
 [gh-issue::vmail-uid-cannot-be-root]: https://github.com/docker-mailserver/docker-mailserver/issues/4098#issuecomment-2257201025
 
 [docs-rspamd]: ./security/rspamd.md
+[docs-dkim-dmarc-spf]: ./best-practices/dkim_dmarc_spf.md
 [docs-tls]: ./security/ssl.md
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates

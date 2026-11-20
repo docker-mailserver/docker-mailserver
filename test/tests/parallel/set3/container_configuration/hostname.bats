@@ -20,6 +20,9 @@ function teardown() { _default_teardown ; }
   # Should be using the default `--hostname mail.example.test`
   local CUSTOM_SETUP_ARGUMENTS=(
     --env ENABLE_AMAVIS=1
+    --env ENABLE_OPENDKIM=1
+    --env ENABLE_OPENDMARC=1
+    --env ENABLE_POLICYD_SPF=1
     --env ENABLE_SRS=1
     --env DMS_TRUSTED_NETWORKS='host'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
@@ -42,6 +45,9 @@ function teardown() { _default_teardown ; }
   local CUSTOM_SETUP_ARGUMENTS=(
     --hostname 'bare-domain.test'
     --env ENABLE_AMAVIS=1
+    --env ENABLE_OPENDKIM=1
+    --env ENABLE_OPENDMARC=1
+    --env ENABLE_POLICYD_SPF=1
     --env ENABLE_SRS=1
     --env DMS_TRUSTED_NETWORKS='host'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
@@ -66,6 +72,9 @@ function teardown() { _default_teardown ; }
     --hostname 'original.example.test'
     --env OVERRIDE_HOSTNAME='mail.override.test'
     --env ENABLE_AMAVIS=1
+    --env ENABLE_OPENDKIM=1
+    --env ENABLE_OPENDMARC=1
+    --env ENABLE_POLICYD_SPF=1
     --env ENABLE_SRS=1
     --env DMS_TRUSTED_NETWORKS='host'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"
@@ -93,6 +102,9 @@ function teardown() { _default_teardown ; }
     --hostname 'mail'
     --domainname 'example.test'
     --env ENABLE_AMAVIS=1
+    --env ENABLE_OPENDKIM=1
+    --env ENABLE_OPENDMARC=1
+    --env ENABLE_POLICYD_SPF=1
     --env ENABLE_SRS=1
     --env DMS_TRUSTED_NETWORKS='host'
     --ulimit "nofile=$(ulimit -Sn):$(ulimit -Hn)"

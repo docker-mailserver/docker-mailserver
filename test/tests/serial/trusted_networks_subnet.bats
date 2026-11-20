@@ -1,6 +1,8 @@
 load "${REPOSITORY_ROOT}/test/test_helper/common"
 
 NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME=non-default-docker-mail-network
+# The mail log assertions rely on the Amavis hand-off, Rspamd would classify the test mail as spam.
+# Pin the services to what used to be the default stack:
 setup_file() {
   docker network create --driver bridge "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}"
   docker network create --driver bridge "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2"
@@ -16,6 +18,8 @@ setup_file() {
     -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
     -e DMS_TRUSTED_NETWORKS=subnet \
+    -e ENABLE_AMAVIS=1 \
+    -e ENABLE_RSPAMD=0 \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
     --network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}" \
     -t "${NAME}"
@@ -29,6 +33,8 @@ setup_file() {
     -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
     -e DMS_TRUSTED_NETWORKS=subnet \
+    -e ENABLE_AMAVIS=1 \
+    -e ENABLE_RSPAMD=0 \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
     --network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2" \
     -t "${NAME}"
@@ -42,6 +48,8 @@ setup_file() {
     -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
     -e SMTP_ONLY=1 \
     -e DMS_TRUSTED_NETWORKS=none \
+    -e ENABLE_AMAVIS=1 \
+    -e ENABLE_RSPAMD=0 \
     -e OVERRIDE_HOSTNAME=mail.my-domain.com \
     -t "${NAME}"
 
