@@ -104,9 +104,11 @@ BATS_TEST_NAME_PREFIX='test helper functions:'
   local PRIVATE_CONFIG
   PRIVATE_CONFIG=$(duplicate_config_for_container .)
 
+  # Without IPv6 on the host, Dovecot fails to start with the default `all`, and so does DMS (`_common_container_create` pins this too):
   CONTAINER_NAME=$(docker run -d --rm \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -h mail.my-domain.com \
+    -e DOVECOT_INET_PROTOCOLS=ipv4 \
     -t "${NAME}")
 
   teardown() { docker rm -f "${CONTAINER_NAME}"; }
@@ -137,9 +139,11 @@ BATS_TEST_NAME_PREFIX='test helper functions:'
   PRIVATE_CONFIG=$(duplicate_config_for_container .)
 
   # variable not local to make visible to teardown
+  # Without IPv6 on the host, Dovecot fails to start with the default `all`, and so does DMS (`_common_container_create` pins this too):
   CONTAINER_NAME=$(docker run -d --rm \
     -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
     -h mail.my-domain.com \
+    -e DOVECOT_INET_PROTOCOLS=ipv4 \
     -t "${NAME}")
 
   teardown() { docker rm -f "${CONTAINER_NAME}"; }

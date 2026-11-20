@@ -48,6 +48,11 @@ All notable changes to this project will be documented in this file. The format 
   - The Dovecot master user (_`dovecot-masters.cf`_) passdb and `auth_master_user_separator = *` are now always part of the configuration, not only when `dovecot-masters.cf` exists. Without master users, the passdb is empty.
   - ManageSieve (`ENABLE_MANAGESIEVE=1`) no longer opens the deprecated listener on port `2000` that Debian's config added (_it was not exposed by DMS_). Only port `4190` remains.
   - The `fts_autoindex = yes`, `fts_autoindex_max_recent_msgs = 999` and `fts_search_add_missing = yes` defaults that Debian's `90-fts.conf` set are gone. They had no effect without an FTS plugin. If you configured one (_Flatcurve or Solr_) and relied on them, add the settings to your FTS configuration.
+- **Supervisor**
+  - A service now has to stay up for 1 second (`startsecs=1`, supervisor's default) to count as started. DMS set `startsecs=0` since 2017, so a service that crashed right away was `RUNNING` again after every restart. It was restarted forever without anybody noticing (_and `dms-healthcheck` reported the container as healthy_). Now supervisor retries such a service three times, marks it `FATAL`, and **DMS fails to start** when one of its own services ends up like this ([#4708](https://github.com/docker-mailserver/docker-mailserver/issues/4708)).
+  - Starting DMS takes about 5 seconds longer by default. Services that do not depend on each other start concurrently.
+  - `ENABLE_GETMAIL=1` without a Getmail configuration now fails to start. The `getmail` service stops itself without a configuration, and DMS v17 and earlier started anyway.
+  - If you copied `startsecs=0` into the supervisor configuration of your own service (_e.g. `xapsd` from the iOS push support example_), remove it to get the same behavior.
 
 ### Updated
 

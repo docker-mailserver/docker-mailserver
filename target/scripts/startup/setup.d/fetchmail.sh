@@ -93,7 +93,6 @@ function _setup_fetchmail_parallel() {
       COUNTER=$(( COUNTER + 1 ))
       cat >"/etc/supervisor/conf.d/fetchmail-${COUNTER}.conf" << EOF
 [program:fetchmail-${COUNTER}]
-startsecs=0
 autostart=false
 autorestart=true
 stdout_logfile=/var/log/supervisor/%(program_name)s.log
