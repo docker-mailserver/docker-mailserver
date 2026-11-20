@@ -253,6 +253,21 @@ Enables the Sender Rewriting Scheme. SRS is needed if DMS acts as forwarder. See
 - **0** => Disabled
 - 1 => Enabled
 
+!!! note "PostSRSd does not listen with a very high `nofile` limit (DMS v17 and earlier)"
+
+    PostSRSd closes every file descriptor up to the container's limit of open files (`nofile`) before it binds its ports. Recent Docker and containerd releases default to a limit of around 1 billion or more, so PostSRSd never finishes starting. Postfix then logs `connect to TCP map localhost:10001: Connection refused` and `sender_canonical_maps map lookup problem`, and defers all mail.
+
+    DMS v18 and later lower the limit for PostSRSd itself. With an earlier version, set a lower limit for the container ([issue #4864][gh-issue::postsrsd-nofile]):
+
+    ```yaml
+    services:
+      mailserver:
+        ulimits:
+          nofile:
+            soft: 65536
+            hard: 65536
+    ```
+
 ##### VIRUSMAILS_DELETE_DELAY
 
 Set how many days a virusmail will stay on the server before being deleted
@@ -1260,3 +1275,4 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
 [gh-issue::tls-legacy-workaround]: https://github.com/docker-mailserver/docker-mailserver/pull/2945#issuecomment-1949907964
 [gh-issue::hostname-compatibility]: https://github.com/docker-mailserver/docker-mailserver-helm/issues/168#issuecomment-2911782106
 [gh-issue::dms-fqdn]: https://github.com/docker-mailserver/docker-mailserver/issues/3520#issuecomment-1700191973
+[gh-issue::postsrsd-nofile]: https://github.com/docker-mailserver/docker-mailserver/issues/4864
