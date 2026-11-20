@@ -1321,10 +1321,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#enable-rspamd" class="md-nav__link">
+  <a href="#rspamd-and-the-legacy-services" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Enable Rspamd
+        Rspamd and the Legacy Services
       
     </span>
   </a>
@@ -3091,10 +3091,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#enable-rspamd" class="md-nav__link">
+  <a href="#rspamd-and-the-legacy-services" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Enable Rspamd
+        Rspamd and the Legacy Services
       
     </span>
   </a>
@@ -3354,17 +3354,17 @@
 
 <h2 id="about"><a class="toclink" href="#about">About</a></h2>
 <p>Rspamd is a <a href="https://rspamd.com/">"fast, free and open-source spam filtering system"</a>. DMS integrates Rspamd like any other service. We provide a basic but easy to maintain setup of Rspamd. If you want to take a look at the default configuration files for Rspamd that DMS adds, navigate to <a href="https://github.com/docker-mailserver/docker-mailserver/tree/v17.0.0/target/rspamd"><code>target/rspamd/</code> inside the repository</a>.</p>
-<h3 id="enable-rspamd"><a class="toclink" href="#enable-rspamd">Enable Rspamd</a></h3>
-<p>Rspamd is presently opt-in for DMS, but intended to become the default anti-spam service in a future release.</p>
+<h3 id="rspamd-and-the-legacy-services"><a class="toclink" href="#rspamd-and-the-legacy-services">Rspamd and the Legacy Services</a></h3>
+<p>Rspamd is the default anti-spam service in DMS since v18, it does not need to be enabled.</p>
 <p>DMS offers two anti-spam solutions:</p>
 <ul>
-<li>Legacy (<em>Amavis, SpamAssassin, OpenDKIM, OpenDMARC</em>)</li>
 <li>Rspamd (<em>Provides equivalent features of software from the legacy solution</em>)</li>
+<li>Legacy (<em>Amavis, SpamAssassin, OpenDKIM, OpenDMARC, policyd-spf</em>)</li>
 </ul>
 <p>While you could configure Rspamd to only replace some of the legacy services, it is advised to only use Rspamd with the legacy services disabled.</p>
 <div class="admonition example">
 <p class="admonition-title">Switch to Rspamd</p>
-<p>To use Rspamd add the following ENV config changes:</p>
+<p>These ENV values are the defaults. Set them explicitly if you keep your configuration from before v18 (<em><code>mailserver.env</code> and <code>compose.yaml</code> of older releases enable the legacy services</em>):</p>
 <div class="highlight"><pre><span></span><code><span class="na">ENABLE_RSPAMD</span><span class="o">=</span><span class="s">1</span>
 
 <span class="c1"># Rspamd replaces the functionality of all these anti-spam services, disable them:</span>
@@ -3379,6 +3379,19 @@
 
 <span class="c1"># Optional: Add anti-virus support with ClamAV (compatible with Rspamd):</span>
 <span class="na">ENABLE_CLAMAV</span><span class="o">=</span><span class="s">1</span>
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">Keep using the legacy services</p>
+<p>The legacy services are disabled by default, enable each of them explicitly:</p>
+<div class="highlight"><pre><span></span><code><span class="na">ENABLE_RSPAMD</span><span class="o">=</span><span class="s">0</span>
+
+<span class="na">ENABLE_AMAVIS</span><span class="o">=</span><span class="s">1</span>
+<span class="na">ENABLE_OPENDKIM</span><span class="o">=</span><span class="s">1</span>
+<span class="na">ENABLE_OPENDMARC</span><span class="o">=</span><span class="s">1</span>
+<span class="na">ENABLE_POLICYD_SPF</span><span class="o">=</span><span class="s">1</span>
+<span class="c1"># Optional, requires ENABLE_AMAVIS=1:</span>
+<span class="na">ENABLE_SPAMASSASSIN</span><span class="o">=</span><span class="s">1</span>
 </code></pre></div>
 </div>
 <div class="admonition info">

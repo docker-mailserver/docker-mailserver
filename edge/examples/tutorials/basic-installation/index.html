@@ -2962,7 +2962,6 @@
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./docker-data/dms/config/:/tmp/docker-mailserver/</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/localtime:/etc/localtime:ro</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_RSPAMD=1</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_CLAMAV=1</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_FAIL2BAN=1</span>
 <span class="w">    </span><span class="nt">cap_add</span><span class="p">:</span>
@@ -3093,7 +3092,7 @@ mail  IN  A      192.0.2.3
 </li>
 <li>
 <p><a href="../../../config/best-practices/dkim_dmarc_spf/#dkim">Generate DKIM keys</a> for your domain via <code>setup config dkim</code>.</p>
-<p>Copy the content of the file <code>docker-data/dms/config/opendkim/keys/example.com/mail.txt</code> and add it to your DNS records as a TXT like SPF was handled above.</p>
+<p>Copy the content of the file <code>docker-data/dms/config/rspamd/dkim/example.com-mail.public.dns.txt</code> and add it to your DNS records as a TXT like SPF was handled above.</p>
 <p>I use <a href="https://github.com/docker-scripts/bind9">bind9</a> for managing my domains, so I just paste it on <code>example.com.db</code>:</p>
 <div class="highlight"><pre><span></span><code>mail._domainkey IN      TXT     ( &quot;v=DKIM1; h=sha256; k=rsa; &quot;
         &quot;p=MIIBIjANBgkqhkiG9w0BAQEFACAQ8AMIIBCgKCAQEAaH5KuPYPSF3Ppkt466BDMAFGOA4mgqn4oPjZ5BbFlYA9l5jU3bgzRj3l6/Q1n5a9lQs5fNZ7A/HtY0aMvs3nGE4oi+LTejt1jblMhV/OfJyRCunQBIGp0s8G9kIUBzyKJpDayk2+KJSJt/lxL9Iiy0DE5hIv62ZPP6AaTdHBAsJosLFeAzuLFHQ6USyQRojefqFQtgYqWQ2JiZQ3&quot;

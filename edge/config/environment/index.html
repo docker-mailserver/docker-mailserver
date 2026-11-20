@@ -6315,10 +6315,10 @@
 <h5 id="tz"><a class="toclink" href="#tz">TZ</a></h5>
 <p>Set the timezone. If this variable is unset, the container runtime will try to detect the time using <code>/etc/localtime</code>, which you can alternatively mount into the container. The value of this variable must follow the pattern <code>AREA/ZONE</code>, i.e. of you want to use Germany's time zone, use <code>Europe/Berlin</code>. You can lookup all available timezones <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List">here</a>.</p>
 <h5 id="enable_amavis"><a class="toclink" href="#enable_amavis">ENABLE_AMAVIS</a></h5>
-<p>Amavis content filter (used for ClamAV &amp; SpamAssassin)</p>
+<p>Amavis content filter (used for ClamAV &amp; SpamAssassin). <a href="../security/rspamd/">Rspamd</a> (<code>ENABLE_RSPAMD=1</code>) provides these features instead.</p>
 <ul>
-<li>0     =&gt; Amavis is disabled</li>
-<li><strong>1</strong> =&gt; Amavis is enabled</li>
+<li><strong>0</strong> =&gt; Amavis is disabled</li>
+<li>1     =&gt; Amavis is enabled</li>
 </ul>
 <h5 id="amavis_loglevel"><a class="toclink" href="#amavis_loglevel">AMAVIS_LOGLEVEL</a></h5>
 <p><a href="https://lists.amavis.org/pipermail/amavis-users/2011-March/000158.html">This page</a> provides information on Amavis' logging statistics.</p>
@@ -6347,22 +6347,26 @@
 </ul>
 <p>See <a href="../best-practices/mta-sts/">MTA-STS</a> for further explanation.</p>
 <h5 id="enable_opendkim"><a class="toclink" href="#enable_opendkim">ENABLE_OPENDKIM</a></h5>
-<p>Enables the OpenDKIM service.</p>
+<p>Enables the OpenDKIM service. <a href="#enable_rspamd">Rspamd</a> provides DKIM verification and signing instead.</p>
 <ul>
-<li><strong>1</strong> =&gt; Enabled</li>
-<li>0 =&gt; Disabled</li>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">OpenDKIM keys in the config volume</p>
+<p>DMS refuses to start when <code>ENABLE_OPENDKIM</code> is not set and OpenDKIM keys exist in <code>docker-data/dms/config/opendkim/</code>, as they would silently stop being used. Set the variable explicitly. See <a href="../best-practices/dkim_dmarc_spf/">DKIM, DMARC &amp; SPF</a> for how to migrate the keys to Rspamd.</p>
+</div>
 <h5 id="enable_opendmarc"><a class="toclink" href="#enable_opendmarc">ENABLE_OPENDMARC</a></h5>
-<p>Enables the OpenDMARC service.</p>
+<p>Enables the OpenDMARC service. <a href="#enable_rspamd">Rspamd</a> provides DMARC verification instead.</p>
 <ul>
-<li><strong>1</strong> =&gt; Enabled</li>
-<li>0 =&gt; Disabled</li>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
 </ul>
 <h5 id="enable_policyd_spf"><a class="toclink" href="#enable_policyd_spf">ENABLE_POLICYD_SPF</a></h5>
-<p>Enabled <code>policyd-spf</code> in Postfix's configuration. You will likely want to set this to <code>0</code> in case you're using Rspamd (<a href="#enable_rspamd"><code>ENABLE_RSPAMD=1</code></a>).</p>
+<p>Enables <code>policyd-spf</code> in Postfix's configuration. <a href="#enable_rspamd">Rspamd</a> provides SPF verification instead.</p>
 <ul>
-<li>0 =&gt; Disabled</li>
-<li><strong>1</strong> =&gt; Enabled</li>
+<li><strong>0</strong> =&gt; Disabled</li>
+<li>1 =&gt; Enabled</li>
 </ul>
 <h5 id="enable_pop3"><a class="toclink" href="#enable_pop3">ENABLE_POP3</a></h5>
 <ul>
@@ -6586,11 +6590,15 @@ ClamAV must be enabled (ENABLE_CLAMAV=1) for this.</p>
 </div>
 <h4 id="rspamd"><a class="toclink" href="#rspamd">Rspamd</a></h4>
 <h5 id="enable_rspamd"><a class="toclink" href="#enable_rspamd">ENABLE_RSPAMD</a></h5>
-<p>Enable or disable <a href="../security/rspamd/">Rspamd</a>.</p>
+<p>Enable or disable <a href="../security/rspamd/">Rspamd</a>. Rspamd replaces the legacy services Amavis, SpamAssassin, OpenDKIM, OpenDMARC and policyd-spf.</p>
 <ul>
-<li><strong>0</strong> =&gt; disabled</li>
-<li>1 =&gt; enabled</li>
+<li>0 =&gt; disabled</li>
+<li><strong>1</strong> =&gt; enabled</li>
 </ul>
+<div class="admonition tip">
+<p class="admonition-title">Using the legacy services</p>
+<p>Set <code>ENABLE_RSPAMD=0</code> and enable the services you want explicitly: <a href="#enable_amavis"><code>ENABLE_AMAVIS=1</code></a>, <a href="#enable_opendkim"><code>ENABLE_OPENDKIM=1</code></a>, <a href="#enable_opendmarc"><code>ENABLE_OPENDMARC=1</code></a>, <a href="#enable_policyd_spf"><code>ENABLE_POLICYD_SPF=1</code></a> and, if wanted, <a href="#enable_spamassassin"><code>ENABLE_SPAMASSASSIN=1</code></a>.</p>
+</div>
 <h5 id="enable_rspamd_valkey"><a class="toclink" href="#enable_rspamd_valkey">ENABLE_RSPAMD_VALKEY</a></h5>
 <p>Explicit control over running a Valkey instance within the container. By default, this value will match what is set for <a href="#enable_rspamd"><code>ENABLE_RSPAMD</code></a>.</p>
 <p>The purpose of this setting is to opt-out of starting an internal Valkey instance when enabling Rspamd, replacing it with your own external instance.</p>
@@ -6736,6 +6744,10 @@ If this is not set and reports are enabled with the old options, logrotate will 
 <li><strong>0</strong> =&gt; SpamAssassin is disabled</li>
 <li>1 =&gt; SpamAssassin is enabled</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">SpamAssassin requires Amavis</p>
+<p>DMS runs SpamAssassin through Amavis. As <a href="#enable_amavis"><code>ENABLE_AMAVIS</code></a> is disabled by default, SpamAssassin does not work (<em>DMS logs a warning and disables it</em>) unless you also set <code>ENABLE_AMAVIS=1</code>. We recommend <a href="#enable_rspamd">Rspamd</a> instead.</p>
+</div>
 <details class="info">
 <summary>SpamAssassin analyzes incoming mail and assigns a spam score</summary>
 <p>Integration with Amavis involves processing mail based on the assigned spam score via <a href="https://www.ijs.si/software/amavisd/amavisd-new-docs.html#tagkill"><code>SA_TAG</code>, <code>SA_TAG2</code> and <code>SA_KILL</code></a>.</p>

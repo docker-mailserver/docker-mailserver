@@ -3082,14 +3082,13 @@
 <p>Cloudflare has written an <a href="https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/">article about DKIM, DMARC and SPF</a> that we highly recommend you to read to get acquainted with the topic.</p>
 <div class="admonition note">
 <p class="admonition-title">Rspamd vs Individual validators</p>
-<p>With v12.0.0, Rspamd was integrated into DMS. It can perform validations for DKIM, DMARC and SPF as part of the <code>spam-score-calculation</code> for an email. DMS provides individual alternatives for each validation that can be used instead of deferring to Rspamd:</p>
+<p>Since v18, Rspamd is the default for these validations. It performs validations for DKIM, DMARC and SPF as part of the <code>spam-score-calculation</code> for an email. DMS provides individual alternatives for each validation that can be used instead of deferring to Rspamd (<em>they are disabled by default, and require <code>ENABLE_RSPAMD=0</code></em>):</p>
 <ul>
-<li>DKIM: <code>opendkim</code> is used as a milter (like Rspamd)</li>
-<li>DMARC: <code>opendmarc</code> is used as a milter (like Rspamd)</li>
-<li>SPF: <code>policyd-spf</code> is used in Postfix's <code>smtpd_recipient_restrictions</code></li>
+<li>DKIM: <code>opendkim</code> (<code>ENABLE_OPENDKIM=1</code>) is used as a milter (like Rspamd)</li>
+<li>DMARC: <code>opendmarc</code> (<code>ENABLE_OPENDMARC=1</code>) is used as a milter (like Rspamd)</li>
+<li>SPF: <code>policyd-spf</code> (<code>ENABLE_POLICYD_SPF=1</code>) is used in Postfix's <code>smtpd_recipient_restrictions</code></li>
 </ul>
-<p>In a future release Rspamd will become the default for these validations, with a deprecation notice issued prior to the removal of the above alternatives.</p>
-<p>We encourage everyone to prefer Rspamd via <code>ENABLE_RSPAMD=1</code>.</p>
+<p>These alternatives are legacy services. A deprecation notice will be issued prior to their removal.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">DNS Caches &amp; Propagation</p>
@@ -3153,12 +3152,12 @@
 <p><code>setup config dkim</code> will generate DKIM keys for what is assumed as the primary mail domain (<em>derived from the FQDN assigned to DMS, minus any subdomain</em>).</p>
 <p>When the DMS FQDN is <code>mail.example.com</code> or <code>example.com</code>, by default this command will generate DKIM keys for <code>example.com</code> as the primary domain for your users mail accounts (eg: <code>hello@example.com</code>).</p>
 <p>The DKIM generation does not have support to query LDAP for additional mail domains it should know about. If the primary mail domain is not sufficient, then you must explicitly specify any extra domains via the <code>domain</code> option:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># ENABLE_OPENDKIM=1 (default):</span>
-setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span>domain<span class="w"> </span><span class="s1">&#39;example.com,another-example.com&#39;</span>
-
-<span class="c1"># ENABLE_RSPAMD=1 + ENABLE_OPENDKIM=0:</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># ENABLE_RSPAMD=1 (default):</span>
 setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span>domain<span class="w"> </span>example.com
 setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span>domain<span class="w"> </span>another-example.com
+
+<span class="c1"># ENABLE_RSPAMD=0 + ENABLE_OPENDKIM=1:</span>
+setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> </span>domain<span class="w"> </span><span class="s1">&#39;example.com,another-example.com&#39;</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">OpenDKIM with <code>ACCOUNT_PROVISIONER=FILE</code></p>
@@ -3167,18 +3166,10 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 </details>
 <p>Both OpenDKIM and Rspamd sign with <code>relaxed/relaxed</code> canonicalization, so whitespace changes made by forwarding servers do not invalidate the signature.</p>
 <p>DKIM is currently supported by either OpenDKIM or Rspamd:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="opendkim" name="__tabbed_1" type="radio" /><input id="rspamd" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="opendkim">OpenDKIM</label><label for="rspamd">Rspamd</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="rspamd" name="__tabbed_1" type="radio" /><input id="opendkim" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="rspamd">Rspamd</label><label for="opendkim">OpenDKIM</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>OpenDKIM is currently <a href="../../environment/#enable_opendkim">enabled by default</a>.</p>
-<p>After running <code>setup config dkim</code>, your new DKIM key files (<em>and OpenDKIM config</em>) have been added to <code>/tmp/docker-mailserver/opendkim/</code>.</p>
-<div class="admonition info">
-<p class="admonition-title">Restart required</p>
-<p>After restarting DMS (<code>docker compose up --force-recreate</code>), outgoing mail will now be signed with your new DKIM key(s) <img alt="🎉" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f389.svg" title=":tada:" /></p>
-</div>
-</div>
-<div class="tabbed-block">
-<p>Requires opt-in via <a href="../../environment/#enable_rspamd"><code>ENABLE_RSPAMD=1</code></a> (<em>and disable the default OpenDKIM: <code>ENABLE_OPENDKIM=0</code></em>).</p>
+<p>Enabled by default via <a href="../../environment/#enable_rspamd"><code>ENABLE_RSPAMD=1</code></a> (<em>OpenDKIM is disabled by default: <code>ENABLE_OPENDKIM=0</code></em>).</p>
 <p>Rspamd provides DKIM support through two separate modules:</p>
 <ol>
 <li><a href="https://www.rspamd.com/doc/modules/dkim.html">Verifying DKIM signatures from inbound mail</a> is enabled by default.</li>
@@ -3187,6 +3178,15 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <p>After running <code>setup config dkim</code>, the key files for your primary domain will be located in <code>/tmp/docker-mailserver/rspamd/dkim/</code> using the <code>&lt;domain&gt;-&lt;selector&gt;.private</code> naming convention (default: <code>example.com-mail.private</code>). A basic signing configuration is created in <code>/tmp/docker-mailserver/rspamd/override.d/dkim_signing.conf</code>. You can modify this configuration manually if you have advanced needs.</p>
 <p>If you have multiple domains, run <code>setup config dkim domain &lt;DOMAIN&gt;</code> for each one to create additional keys. The default config uses a <code>$domain-$selector</code> path template, so one <code>dkim_signing.conf</code> covers every domain that has a matching key file. Custom selectors are recorded in <code>/tmp/docker-mailserver/rspamd/dkim_selectors.map</code>.</p>
 <p>To migrate keys from OpenDKIM, copy <code>/tmp/docker-mailserver/opendkim/keys/&lt;domain&gt;/&lt;selector&gt;.private</code> to <code>/tmp/docker-mailserver/rspamd/dkim/&lt;domain&gt;-&lt;selector&gt;.private</code>. Keys generated by earlier DMS Rspamd releases were named <code>&lt;keytype&gt;-&lt;keysize&gt;-&lt;selector&gt;-&lt;domain&gt;.private.txt</code> (for example <code>rsa-2048-mail-example.com.private.txt</code>) and must be renamed to the new layout.</p>
+<div class="admonition warning">
+<p class="admonition-title">Upgrading with existing OpenDKIM keys</p>
+<p>DMS refuses to start when OpenDKIM keys exist in <code>docker-data/dms/config/opendkim/</code> and <code>ENABLE_OPENDKIM</code> is not set, as they would silently stop being used. Set the variable explicitly:</p>
+<ul>
+<li>To keep OpenDKIM, set <code>ENABLE_OPENDKIM=1</code> and <code>ENABLE_RSPAMD=0</code> (<em>plus any other <a href="../../security/rspamd/#rspamd-and-the-legacy-services">legacy service</a> you use</em>).</li>
+<li>To switch to Rspamd, set <code>ENABLE_OPENDKIM=0</code> and migrate your keys as described above.</li>
+</ul>
+<p>Rspamd needs a signing configuration, which <code>setup config dkim</code> creates. The command does not overwrite existing key files, so run it before copying an OpenDKIM key to the target location, or choose a different selector.</p>
+</div>
 <details class="warning">
 <summary>Support for DKIM Keys using ED25519</summary>
 <p>This modern elliptic curve is supported by Rspamd, but support by third-parties for <a href="https://serverfault.com/questions/1023674/is-ed25519-well-supported-for-the-dkim-validation/1074545#1074545">verifying Ed25519 DKIM signatures is unreliable</a>.</p>
@@ -3211,13 +3211,21 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 </code></pre></div>
 </details>
 </div>
+<div class="tabbed-block">
+<p>OpenDKIM is disabled by default. It requires <a href="../../environment/#enable_opendkim"><code>ENABLE_OPENDKIM=1</code></a> and <code>ENABLE_RSPAMD=0</code>.</p>
+<p>After running <code>setup config dkim</code>, your new DKIM key files (<em>and OpenDKIM config</em>) have been added to <code>/tmp/docker-mailserver/opendkim/</code>.</p>
+<div class="admonition info">
+<p class="admonition-title">Restart required</p>
+<p>After restarting DMS (<code>docker compose up --force-recreate</code>), outgoing mail will now be signed with your new DKIM key(s) <img alt="🎉" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f389.svg" title=":tada:" /></p>
+</div>
+</div>
 </div>
 </div>
 <h3 id="dkim-dns"><a class="toclink" href="#dkim-dns">DNS Record</a></h3>
 <p>When mail signed with your DKIM key is sent from your mail server, the receiver needs to check a DNS <code>TXT</code> record to verify the DKIM signature is trustworthy.</p>
 <div class="admonition example">
 <p class="admonition-title">Configuring DNS - DKIM record</p>
-<p>When you generated your key in the previous step, the DNS data was saved into a file <code>&lt;selector&gt;.txt</code> (default: <code>mail.txt</code>). Use this content to update your <a href="https://www.vultr.com/docs/introduction-to-vultr-dns/">DNS via Web Interface</a> or directly edit your <a href="https://en.wikipedia.org/wiki/Zone_file">DNS Zone file</a>:</p>
+<p>When you generated your key in the previous step, the DNS data was saved into a file. With Rspamd, that is <code>rspamd/dkim/&lt;domain&gt;-&lt;selector&gt;.public.dns.txt</code> (default: <code>example.com-mail.public.dns.txt</code>), with OpenDKIM <code>opendkim/keys/&lt;domain&gt;/&lt;selector&gt;.txt</code> (default: <code>mail.txt</code>). Use this content to update your <a href="https://www.vultr.com/docs/introduction-to-vultr-dns/">DNS via Web Interface</a> or directly edit your <a href="https://en.wikipedia.org/wiki/Zone_file">DNS Zone file</a>:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="web-interface" name="__tabbed_2" type="radio" /><input id="dns-zone-file" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="web-interface">Web Interface</label><label for="dns-zone-file">DNS Zone file</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -3280,7 +3288,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <p><a href="https://mxtoolbox.com/dkim.aspx">MxToolbox has a DKIM Verifier</a> that you can use to check your DKIM DNS record(s). <a href="https://uchecker.net/dkim-checker">uChecker has a DKIM checker</a> that you can use to check your DKIM DNS record.</p>
 <p>When using Rspamd, we recommend you turn on <code>check_pubkey = true;</code> in <code>dkim_signing.conf</code>. Rspamd will then check whether your private key matches your public key, and you can check possible mismatches by looking at <code>/var/log/mail/rspamd.log</code>.</p>
 <h2 id="dmarc"><a class="toclink" href="#dmarc">DMARC</a></h2>
-<p>With DMS, DMARC is pre-configured out of the box. You may disable extra and excessive DMARC checks when using Rspamd via <code>ENABLE_OPENDMARC=0</code>.</p>
+<p>With DMS, DMARC is pre-configured out of the box, Rspamd performs the DMARC checks. The legacy OpenDMARC service is disabled by default (<a href="../../environment/#enable_opendmarc"><code>ENABLE_OPENDMARC=0</code></a>).</p>
 <p>The only thing you need to do in order to enable DMARC on a "DNS-level" is to add new <code>TXT</code>. In contrast to <a href="#dkim">DKIM</a>, DMARC DNS entries do not require any keys, but merely setting the <a href="https://github.com/internetstandards/toolbox-wiki/blob/master/DMARC-how-to.md#overview-of-dmarc-configuration-tags">configuration values</a>. You can either handcraft the entry by yourself or use one of available generators (like <a href="https://dmarcguide.globalcyberalliance.org">this one</a>).</p>
 <p>Typically something like this should be good to start with:</p>
 <div class="highlight"><pre><span></span><code>_dmarc.example.com. IN TXT &quot;v=DMARC1; p=none; sp=none; fo=0; adkim=r; aspf=r; pct=100; rf=afrf; ri=86400; rua=mailto:dmarc.report@example.com; ruf=mailto:dmarc.report@example.com&quot;
@@ -3296,8 +3304,8 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <p><a href="https://en.wikipedia.org/wiki/Sender_Policy_Framework">Source</a></p>
 </div>
 <div class="admonition tip">
-<p class="admonition-title">Disabling the default SPF service <code>policy-spf</code></p>
-<p>Set <a href="../../environment/#enable_policyd_spf"><code>ENABLE_POLICYD_SPF=0</code></a> to opt-out of the default SPF service. Advised when Rspamd is configured to handle SPF instead.</p>
+<p class="admonition-title">Using the legacy SPF service <code>policyd-spf</code></p>
+<p>Rspamd handles SPF by default. Set <a href="../../environment/#enable_policyd_spf"><code>ENABLE_POLICYD_SPF=1</code></a> (<em>and <code>ENABLE_RSPAMD=0</code></em>) to use the legacy SPF service instead.</p>
 </div>
 <h3 id="adding-an-spf-record"><a class="toclink" href="#adding-an-spf-record">Adding an SPF Record</a></h3>
 <p>To add a SPF record in your DNS, insert the following line in your DNS zone:</p>
@@ -3307,7 +3315,7 @@ setup<span class="w"> </span>config<span class="w"> </span>dkim<span class="w"> 
 <p>After verification, you <em>might</em> want to change your SPF record to <code>v=spf1 mx -all</code> so as to enforce the <em>HardFail</em> policy. See <a href="http://www.open-spf.org/SPF_Record_Syntax">http://www.open-spf.org/SPF_Record_Syntax</a> for more details about SPF policies.</p>
 <p>In any case, increment the SPF record's TTL to its final value.</p>
 <h3 id="backup-mx-secondary-mx-for-policyd-spf"><a class="toclink" href="#backup-mx-secondary-mx-for-policyd-spf">Backup MX &amp; Secondary MX for <code>policyd-spf</code></a></h3>
-<p>For whitelisting an IP Address from the SPF test, you can create a config file (see <a href="https://www.linuxcertif.com/man/5/policyd-spf.conf"><code>policyd-spf.conf</code></a>) and mount that file into <code>/etc/postfix-policyd-spf-python/policyd-spf.conf</code>.</p>
+<p>When using the legacy SPF service (<code>ENABLE_POLICYD_SPF=1</code>), for whitelisting an IP Address from the SPF test, you can create a config file (see <a href="https://www.linuxcertif.com/man/5/policyd-spf.conf"><code>policyd-spf.conf</code></a>) and mount that file into <code>/etc/postfix-policyd-spf-python/policyd-spf.conf</code>.</p>
 <p><strong>Example:</strong> Create and edit a <code>policyd-spf.conf</code> file at <code>docker-data/dms/config/postfix-policyd-spf.conf</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="na">debugLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 <span class="c1">#0(only errors)-4(complete data received)</span>
