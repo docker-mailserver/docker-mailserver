@@ -80,6 +80,8 @@ All notable changes to this project will be documented in this file. The format 
   - With `RSPAMD_LEARN=1`, messages deleted from the `Junk` folder (_moved to `Trash`_) are no longer learned as ham. Since v16 (the Dovecot 2.4 migration), every message moved out of `Junk` was learned as ham, whatever its destination. Now, ham is learned when a message is moved from `Junk` to any folder except `Trash` (_before v16, only moves to `INBOX` were learned_) ([#4831](https://github.com/docker-mailserver/docker-mailserver/issues/4831))
 - **Setup**
   - The check of `setup alias add` and `setup email add` for an address that already exists as an account or alias no longer treats an address as taken when it is only a prefix of another one (_e.g. the alias `user@example.com` was rejected when the account `user@example.com.au` existed_). The check now compares the whole address, case-insensitively ([#4856](https://github.com/docker-mailserver/docker-mailserver/issues/4856))
+- **SRS**
+  - PostSRSd (`ENABLE_SRS=1`) no longer fails to listen on ports `10001` and `10002` when the container has a very high limit of open files (`nofile`), as recent Docker and containerd releases set by default. PostSRSd closes every file descriptor up to this limit before it binds its ports, so it never finished and Postfix deferred all mail with `Connection refused` on `localhost:10001`. DMS now lowers the soft limit to `65536` for PostSRSd only, so the `ulimits` workaround is no longer needed ([#4864](https://github.com/docker-mailserver/docker-mailserver/issues/4864))
 
 ### Documentation
 
