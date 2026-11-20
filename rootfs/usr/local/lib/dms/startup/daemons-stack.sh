@@ -1,6 +1,7 @@
 #!/bin/bash
 
 declare -a DAEMONS_START
+declare -A DAEMONS_STARTING # PID of the pending `supervisorctl start` => service name
 
 function _register_start_daemon() {
   DAEMONS_START+=("${1}")
@@ -13,19 +14,36 @@ function _start_daemons() {
   for FUNCTION in "${DAEMONS_START[@]}"; do
     ${FUNCTION}
   done
+
+  _wait_for_daemons
 }
 
+# Docs: https://github.com/docker-mailserver/docker-mailserver/issues/4708
+# A service has to stay up for `startsecs` (1 second) for `supervisorctl start` to succeed, which is why the calls run in
+# the background. Services registered between two `_wait_for_daemons` (a barrier) therefore start concurrently, and
+# may only depend on services that were registered before the previous barrier.
 function _default_start_daemon() {
   _log 'debug' "Starting ${1:?}"
 
-  local RESULT
-  RESULT=$(supervisorctl start "${1}" 2>&1)
+  (
+    local RESULT
+    if ! RESULT=$(supervisorctl start "${1}" 2>&1); then
+      _log 'error' "${RESULT}"
+      exit 1
+    fi
+  ) &
 
-  # shellcheck disable=SC2181
-  if [[ ${?} -ne 0 ]]; then
-    _log 'error' "${RESULT}"
-    _dms_panic__fail_init "${1}"
-  fi
+  DAEMONS_STARTING["${!}"]="${1}"
+}
+
+function _wait_for_daemons() {
+  local PID
+
+  for PID in "${!DAEMONS_STARTING[@]}"; do
+    wait "${PID}" || _dms_panic__fail_init "${DAEMONS_STARTING[${PID}]}"
+  done
+
+  DAEMONS_STARTING=()
 }
 
 function _start_daemon_amavis         { _default_start_daemon 'amavis'         ; }
