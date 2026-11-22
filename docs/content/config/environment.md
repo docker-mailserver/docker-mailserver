@@ -814,7 +814,7 @@ Enable or disable `getmail`.
 
 !!! note "A configuration is required"
 
-    With `ENABLE_GETMAIL=1`, DMS fails to start when there is no [Getmail configuration][docs-getmail] (_the `getmail` service stops itself without one_). DMS v17 and earlier started anyway, without a running `getmail` service.
+    With `ENABLE_GETMAIL=1`, DMS fails to start when there is no valid [Getmail configuration][docs-getmail]. With [`GETMAIL_PARALLEL=1`](#getmail_parallel), a configuration whose name contains unsupported characters is skipped and does not count. DMS v17 and earlier started anyway, without a running `getmail` service.
 
 ##### GETMAIL_POLL
 

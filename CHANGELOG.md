@@ -63,7 +63,7 @@ All notable changes to this project will be documented in this file. The format 
 - **Supervisor**
   - A service now has to stay up for 1 second (`startsecs=1`, supervisor's default) to count as started. DMS set `startsecs=0` since 2017, so a service that crashed right away was `RUNNING` again after every restart. It was restarted forever without anybody noticing (_and `dms-healthcheck` reported the container as healthy_). Now supervisor retries such a service three times, marks it `FATAL`, and **DMS fails to start** when one of its own services ends up like this ([#4708](https://github.com/docker-mailserver/docker-mailserver/issues/4708)).
   - Starting DMS takes about 5 seconds longer by default. Services that do not depend on each other start concurrently.
-  - `ENABLE_GETMAIL=1` without a Getmail configuration now fails to start. The `getmail` service stops itself without a configuration, and DMS v17 and earlier started anyway.
+  - `ENABLE_GETMAIL=1` without a valid Getmail configuration now fails to start. With `GETMAIL_PARALLEL=1`, a configuration whose name contains unsupported characters is skipped and does not count. DMS v17 and earlier started anyway, without a running `getmail` service.
   - If you copied `startsecs=0` into the supervisor configuration of your own service (_e.g. `xapsd` from the iOS push support example_), remove it to get the same behavior.
 
 - **Image**

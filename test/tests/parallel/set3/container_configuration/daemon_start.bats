@@ -54,6 +54,22 @@ function _wait_for_failed_startup() {
   _common_container_create 'CUSTOM_SETUP_ARGUMENTS'
   _common_container_start
 
-  # The getmail service stops itself without a configuration, which supervisor reports as an abnormal termination:
-  _wait_for_failed_startup 'getmail: ERROR (abnormal termination)'
+  _wait_for_failed_startup 'there is no valid Getmail configuration'
+}
+
+@test "should fail the startup when getmail is enabled in parallel mode without a valid configuration" {
+  export CONTAINER_NAME='dms-test_daemon-start_getmail-parallel'
+
+  local CUSTOM_SETUP_ARGUMENTS=(
+    --env ENABLE_GETMAIL=1
+    --env GETMAIL_PARALLEL=1
+  )
+  _init_with_defaults
+  # Parallel mode creates one service per configuration, and skips names with characters other than `A-Z a-z 0-9 . _ -`
+  # (the name `user%7` is skipped), so no service exists at all:
+  find "${TEST_TMP_CONFIG}/getmail" -type f ! -name 'user%7.cf' -delete
+  _common_container_create 'CUSTOM_SETUP_ARGUMENTS'
+  _common_container_start
+
+  _wait_for_failed_startup 'there is no valid Getmail configuration'
 }

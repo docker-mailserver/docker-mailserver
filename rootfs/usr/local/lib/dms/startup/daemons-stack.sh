@@ -84,6 +84,12 @@ function _start_daemon_fetchmail() {
 }
 
 function _start_daemon_getmail() {
+  # `_setup_getmail` generates one file per valid configuration, and skips the invalid ones (with `GETMAIL_PARALLEL=1`).
+  # Without any, there is nothing to run: the sequential service stops itself, and the parallel mode has no services at all.
+  if ! compgen -G '/etc/getmailrc.d/*' >/dev/null; then
+    _dms_panic__general "ENABLE_GETMAIL=1, but there is no valid Getmail configuration in '/tmp/docker-mailserver/getmail/'"
+  fi
+
   if [[ ${GETMAIL_PARALLEL} -eq 1 ]]; then
     local SERVICE_CONF
     # Setup is skipped on container restarts, so `nullglob` cannot be relied upon here.
