@@ -161,6 +161,7 @@ nav:
     - 'About setup.sh': config/setup.sh.md
     - 'Advanced Configuration':
         - 'Optional Configuration': config/advanced/optional-config.md
+        - 'Change Detection': config/advanced/change-detection.md
         - 'Maintenance':
           - 'Update and Cleanup': config/advanced/maintenance/update-and-cleanup.md
         - 'Override the Default Configs':

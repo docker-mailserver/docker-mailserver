@@ -429,8 +429,9 @@ Defines how often DMS polls [monitored config files][gh::monitored-configs] for 
 
 !!! info
 
-    When using `ACCOUNT_PROVISIONER=LDAP`, the change detection feature is presently disabled.
+    When using `ACCOUNT_PROVISIONER=LDAP`, only changes to TLS certificates and the Rspamd config are handled. The [change detection page][docs::change-detection] lists the monitored files and what is applied for each of them.
 
+[docs::change-detection]: ./advanced/change-detection.md
 [gh::check-for-changes]: https://github.com/docker-mailserver/docker-mailserver/blob/v17.0.0/target/scripts/check-for-changes.sh#L211
 [gh::monitored-configs]: https://github.com/docker-mailserver/docker-mailserver/blob/v17.0.0/target/scripts/helpers/change-detection.sh#L30-L42
 

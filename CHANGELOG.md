@@ -91,6 +91,8 @@ All notable changes to this project will be documented in this file. The format 
   - Documented how to authenticate against an RFC 7662 `/introspect` endpoint that requires client credentials (_via a `dovecot.cf` override with `introspection_mode = post`_). The page now also explains that `OAUTH2_INTROSPECTION_URL` is the Dovecot `introspection_url` setting, which by default queries a `/userinfo` endpoint ([#4081](https://github.com/docker-mailserver/docker-mailserver/issues/4081))
 - **Examples**
   - The repository directories `config-examples/` and `demo-setups/` were removed. The `compose.yaml` demos for Fetchmail and Relay Hosts are now part of their documentation pages, together with the commands to verify them. The Fail2Ban page describes how to view the defaults inside the container instead of linking to outdated copies, and the page about user patches no longer references a non-existent `user-patches.sh.dist`. All other example files only repeated what the documentation already shows
+- **Change Detection**
+  - Added a page about the change detection service: the monitored files, what is applied for each of them, how the logs and `DMS_CONFIG_POLL` fit in, and the limitations. The note at `DMS_CONFIG_POLL` that change detection is disabled with `ACCOUNT_PROVISIONER=LDAP` was outdated, it now describes what is handled ([#3631](https://github.com/docker-mailserver/docker-mailserver/issues/3631))
 
 ## [v17.0.0](https://github.com/docker-mailserver/docker-mailserver/releases/tag/v17.0.0)
 
