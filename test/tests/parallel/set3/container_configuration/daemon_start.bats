@@ -45,6 +45,19 @@ function _wait_for_failed_startup() {
   _wait_for_failed_startup 'opendkim: ERROR (spawn error)'
 }
 
+@test "should fail the startup when Postfix exits right after it was started" {
+  export CONTAINER_NAME='dms-test_daemon-start_postfix'
+
+  _init_with_defaults
+  # Postfix exits with a fatal error on a line in `main.cf` that is not a `key = value` pair
+  # (the `pidproxy` wrapper of Postfix only notices that after its polling interval, which has to stay below `startsecs`):
+  printf '#!/bin/bash\necho "invalid" >>/etc/postfix/main.cf\n' >"${TEST_TMP_CONFIG}/user-patches.sh"
+  _common_container_create
+  _common_container_start
+
+  _wait_for_failed_startup 'postfix: ERROR (spawn error)'
+}
+
 @test "should fail the startup when getmail is enabled without a configuration" {
   export CONTAINER_NAME='dms-test_daemon-start_getmail'
 

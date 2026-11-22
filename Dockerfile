@@ -150,6 +150,9 @@ RUN <<EOF
   printf '\n%s\n' '/usr/bin/supervisorctl signal hup rsyslog >/dev/null' >>/usr/lib/rsyslog/rsyslog-rotate
 EOF
 
+# `pidproxy` (used for Postfix) checks only every 5 seconds whether its child exited, which outlasts `startsecs`:
+RUN sedfile -i 's/time.sleep(5)/time.sleep(0.2)/' /usr/lib/python3/dist-packages/supervisor/pidproxy.py
+
 # -----------------------------------------------
 # --- Configuration -----------------------------
 # -----------------------------------------------
