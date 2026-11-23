@@ -193,7 +193,8 @@ function _rspamd_changes() {
     fi
 
     # "${RSPAMD_DMS_D}/custom-commands.conf"
-    if [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]]; then
+    # The commands write into "${RSPAMD_OVERRIDE_D}", which was just replaced when "${RSPAMD_DMS_OVERRIDE_D}" changed.
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]] || [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]]; then
       _log 'trace' 'Rspamd - Generating new configuration from custom commands'
       _rspamd_handle_user_modules_adjustments
     fi
