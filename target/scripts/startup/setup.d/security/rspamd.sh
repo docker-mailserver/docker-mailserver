@@ -33,43 +33,6 @@ function _setup_rspamd() {
   fi
 }
 
-# Just a helper to prepend the log messages with `(Rspamd setup)` so
-# users know exactly where the message originated from.
-#
-# @param ${1} = log level
-# @param ${2} = message
-function __rspamd__log { _log "${1:-}" "(Rspamd setup) ${2:-}" ; }
-
-# Helper for explicitly enabling or disabling a specific module.
-#
-# @param ${1} = module name
-# @param ${2} = `true` when you want to enable the module (default),
-#               `false` when you want to disable the module [OPTIONAL]
-# @param ${3} = whether to use `local` (default) or `override` [OPTIONAL]
-function __rspamd__helper__enable_disable_module() {
-  local MODULE=${1:?Module name must be provided}
-  local ENABLE_MODULE=${2:-true}
-  local LOCAL_OR_OVERRIDE=${3:-local}
-  local MESSAGE='Enabling'
-
-  readonly MODULE ENABLE_MODULE LOCAL_OR_OVERRIDE
-
-  if [[ ! ${ENABLE_MODULE} =~ ^(true|false)$ ]]; then
-    __rspamd__log 'warn' "__rspamd__helper__enable_disable_module got non-boolean argument for deciding whether module should be enabled or not"
-    return 1
-  fi
-
-  [[ ${ENABLE_MODULE} == true ]] || MESSAGE='Disabling'
-
-  __rspamd__log 'trace' "${MESSAGE} module '${MODULE}'"
-  cat >"/etc/rspamd/${LOCAL_OR_OVERRIDE}.d/${MODULE}.conf" << EOF
-# documentation: https://rspamd.com/doc/modules/${MODULE}.html
-
-enabled = ${ENABLE_MODULE};
-
-EOF
-}
-
 # Run miscellaneous early setup tasks and checks, such as creating files needed at runtime
 # or checking for other anti-spam/anti-virus software.
 function __rspamd__run_early_setup_and_checks() {

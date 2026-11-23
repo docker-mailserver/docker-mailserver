@@ -2,6 +2,44 @@
 
 # shellcheck disable=SC2034 # VAR appears unused.
 
+# Just a helper to prepend the log messages with `(Rspamd setup)` so
+# users know exactly where the message originated from. It lives in this helper
+# because the change detection service applies `custom-commands.conf` as well.
+#
+# @param ${1} = log level
+# @param ${2} = message
+function __rspamd__log { _log "${1:-}" "(Rspamd setup) ${2:-}" ; }
+
+# Helper for explicitly enabling or disabling a specific module.
+#
+# @param ${1} = module name
+# @param ${2} = `true` when you want to enable the module (default),
+#               `false` when you want to disable the module [OPTIONAL]
+# @param ${3} = whether to use `local` (default) or `override` [OPTIONAL]
+function __rspamd__helper__enable_disable_module() {
+  local MODULE=${1:?Module name must be provided}
+  local ENABLE_MODULE=${2:-true}
+  local LOCAL_OR_OVERRIDE=${3:-local}
+  local MESSAGE='Enabling'
+
+  readonly MODULE ENABLE_MODULE LOCAL_OR_OVERRIDE
+
+  if [[ ! ${ENABLE_MODULE} =~ ^(true|false)$ ]]; then
+    __rspamd__log 'warn' "__rspamd__helper__enable_disable_module got non-boolean argument for deciding whether module should be enabled or not"
+    return 1
+  fi
+
+  [[ ${ENABLE_MODULE} == true ]] || MESSAGE='Disabling'
+
+  __rspamd__log 'trace' "${MESSAGE} module '${MODULE}'"
+  cat >"/etc/rspamd/${LOCAL_OR_OVERRIDE}.d/${MODULE}.conf" << EOF
+# documentation: https://rspamd.com/doc/modules/${MODULE}.html
+
+enabled = ${ENABLE_MODULE};
+
+EOF
+}
+
 # Perform a specific command as the Rspamd user (`_rspamd`). This is useful
 # in case you want to have correct permissions on newly created files or if
 # you want to check whether Rspamd can perform a specific action.
