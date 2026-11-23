@@ -275,6 +275,20 @@ function teardown() {
   assert_success
 }
 
+@test "dovecot: ldap authentication with master account works" {
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+
+  _run_in_container doveconf -n
+  assert_success
+  assert_output --partial 'bind = yes'
+
+  _run_in_container_bash "doveadm auth test 'some.user@${FQDN_LOCALHOST_A}*masterusername' masterpassword | grep 'auth succeeded'"
+  assert_success
+
+  _run_in_container_bash "doveadm auth test 'some.user@${FQDN_LOCALHOST_A}*masterusername' wrongpassword | grep 'auth failed'"
+  assert_success
+}
+
 @test "postfix: ldap config overwrites success" {
   local LDAP_SETTINGS_POSTFIX=(
     "server_host = ldap://${FQDN_LDAP}"
@@ -293,6 +307,11 @@ function teardown() {
 # dovecot
 @test "dovecot: ldap imap connection and authentication works" {
   _send_raw_transaction 'auth/imap-ldap-auth.txt' '-w 1 0.0.0.0 143'
+  assert_success
+}
+
+@test "dovecot: ldap imap connection and authentication with master account works" {
+  _send_raw_transaction 'auth/imap-ldap-master-account-auth.txt' '-w 1 0.0.0.0 143'
   assert_success
 }
 

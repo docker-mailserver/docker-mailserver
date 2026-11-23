@@ -71,9 +71,7 @@ function _handle_changes() {
 
   _ssl_changes
   # TODO: Consider support relay host config change support for other provisioners
-  if [[ ${ACCOUNT_PROVISIONER} == 'FILE' ]]; then
-    _postfix_dovecot_changes
-  fi
+  _postfix_dovecot_changes
 
   _rspamd_changes
 

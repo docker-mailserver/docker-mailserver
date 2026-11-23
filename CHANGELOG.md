@@ -87,6 +87,11 @@ All notable changes to this project will be documented in this file. The format 
 - **SRS**
   - PostSRSd (`ENABLE_SRS=1`) no longer fails to listen on ports `10001` and `10002` when the container has a very high limit of open files (`nofile`), as recent Docker and containerd releases set by default. PostSRSd closes every file descriptor up to this limit before it binds its ports, so it never finished and Postfix deferred all mail with `Connection refused` on `localhost:10001`. DMS now lowers the soft limit to `65536` for PostSRSd only, so the `ulimits` workaround is no longer needed ([#4864](https://github.com/docker-mailserver/docker-mailserver/issues/4864))
 
+### Added
+
+- **LDAP**
+  - Add master account support with LDAP to permit admin account to connect on any user account.
+
 ### Documentation
 
 - **Dovecot**
