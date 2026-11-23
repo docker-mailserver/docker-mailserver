@@ -64,7 +64,7 @@ function teardown_file() {
 
   _run_in_container_bash '[[ -f /usr/local/bin/debug-getmail ]]'
   assert_success
-  _run_in_container_bash '[[ -f /usr/local/bin/getmail-service.sh ]]'
+  _run_in_container_bash '[[ -f /usr/local/lib/dms/getmail-service.sh ]]'
   assert_success
 }
 

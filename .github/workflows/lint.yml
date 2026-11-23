@@ -1,0 +1,36 @@
+---
+name: Lint
+run-name: Lint
+
+on: # yamllint disable-line rule:truthy
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ '**' ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Run Linter
+        uses: georglauterbach/linter@v0.4.5
+        with:
+          enable_yamllint: 'false'
+          enable_zizmor: 'false'
+          hadolint_config: .github/linter/hadolint.yaml
+          shellcheck_config: .shellcheckrc

@@ -1,8 +1,8 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-source "${REPOSITORY_ROOT}/target/scripts/helpers/log.sh"
-source "${REPOSITORY_ROOT}/target/scripts/helpers/utils.sh"
-source "${REPOSITORY_ROOT}/target/scripts/startup/setup.d/ldap.sh"
+source "${REPOSITORY_ROOT}/scripts/lib/helpers/log.sh"
+source "${REPOSITORY_ROOT}/scripts/lib/helpers/utils.sh"
+source "${REPOSITORY_ROOT}/scripts/lib/startup/setup.d/ldap.sh"
 
 BATS_TEST_NAME_PREFIX='[Postfix LDAP config] '
 

@@ -18,7 +18,7 @@ function teardown() { _default_teardown ; }
 # dovecot (/usr/sbin/dovecot)
 # fetchmail (/usr/bin/fetchmail)
 # fail2ban-server (/usr/bin/python3 /usr/bin/fail2ban-server) - NOTE: python3 is due to the shebang
-# getmail (/bin/bash /usr/local/bin/getmail-service.sh)
+# getmail (/bin/bash /usr/local/lib/dms/getmail-service.sh)
 # mta-sts-daemon (/usr/bin/bin/python3 /usr/bin/mta-sts-daemon)
 # postgrey (postgrey) - NOTE: This process command uses perl via shebang, but unlike python3 the context is missing
 # postsrsd (/usr/sbin/postsrsd)

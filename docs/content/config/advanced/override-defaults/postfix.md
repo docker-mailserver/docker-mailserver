@@ -2,7 +2,7 @@
 title: 'Override the Default Configs | Postfix'
 ---
 
-[Our default Postfix configuration](https://github.com/docker-mailserver/docker-mailserver/blob/master/target/postfix/main.cf) can easily be extended to add parameters or modify existing ones by providing a `docker-data/dms/config/postfix-main.cf`. This file uses the same format as Postfix `main.cf` does ([See official docs](http://www.postfix.org/postconf.5.html) for all parameters and syntax rules).
+[Our default Postfix configuration](https://github.com/docker-mailserver/docker-mailserver/blob/master/etc/postfix/main.cf) can easily be extended to add parameters or modify existing ones by providing a `docker-data/dms/config/postfix-main.cf`. This file uses the same format as Postfix `main.cf` does ([See official docs](http://www.postfix.org/postconf.5.html) for all parameters and syntax rules).
 
 !!! example "Example"
 

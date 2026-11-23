@@ -19,7 +19,7 @@ function teardown_file() { _default_teardown ; }
 # @param ${1} = new value (appended or prepended)
 # @param ${2} = action "append" (default) or "prepend" [OPTIONAL]
 function _modify_postfix_main_config() {
-  _run_in_container_bash "source /usr/local/bin/helpers/{postfix,utils}.sh && _add_to_or_update_postfix_main relayhost '${1}' '${2}'"
+  _run_in_container_bash "source /usr/local/lib/dms/helpers/{postfix,utils}.sh && _add_to_or_update_postfix_main relayhost '${1}' '${2}'"
   _run_in_container grep '^relayhost' '/etc/postfix/main.cf'
 }
 @test "check if initial value is empty" {

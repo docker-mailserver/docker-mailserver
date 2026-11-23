@@ -21,7 +21,7 @@ on:
         required: false
         type: string
         default: ''
-      # Ignore cached layers so `apt-get upgrade` in `packages.sh` runs again:
+      # Ignore cached layers so `apt-get upgrade` in `build.sh` runs again:
       no-cache:
         required: false
         type: boolean

@@ -190,7 +190,7 @@ function compare_cipherlist() {
   assert_output "${EXPECTED_CIPHERLIST}"
 }
 
-# Expected cipher lists. Should match `TLS_LEVEL` cipher lists set in `scripts/helpers/ssl.sh`.
+# Expected cipher lists. Should match `TLS_LEVEL` cipher lists set in `scripts/lib/helpers/ssl.sh`.
 # Excluding Port 25 which uses defaults from Postfix after applying `smtpd_tls_exclude_ciphers` rules.
 # NOTE: If a test fails, look at the `check_ports` params, then update the corresponding associative key's value
 # with the `actual` error value (assuming an update needs to be made, and not a valid security issue to look into).

@@ -37,25 +37,19 @@ LICENSE             text
 
 ## SOURCE CODE
 *.sh                text eol=lf
-### acme.json extractor (target/bin/)
+### acme.json extractor (scripts/bin/)
 *.py                text eol=lf
 ### Only contain scripts (glob for extensionless)
-target/bin/**       text eol=lf
+scripts/bin/**      text eol=lf
 
 #################################################
 ###  Config  ####################################
 #################################################
 
 ## CONFIG
-### Contains all text files (glob for extensionless)
-target/amavis/**    text
-target/fetchmail/** text
-target/getmail/**   text
-target/opendkim/**  text
-target/opendmarc/** text
-target/postgrey/**  text
-target/postsrsd/**  text
-### Generic target/ + test/config/
+### Contains only text files (glob for extensionless)
+etc/**              text
+### Generic etc/ + test/config/
 *.cf                text
 *.conf              text
 ### Dovecot
