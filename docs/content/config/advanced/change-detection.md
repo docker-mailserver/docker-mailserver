@@ -45,7 +45,7 @@ At the end of the container setup, DMS stores the hash of each monitored file. A
 | `postfix-regexp.cf`                               | The regexp aliases                                                                                               |
 | `dovecot-quotas.cf`, `dovecot-masters.cf`         | The Dovecot and Postfix accounts                                                                                 |
 | `postfix-relaymap.cf`, `postfix-sasl-password.cf` | The relay config                                                                                                 |
-| Files in `rspamd/`                                | A change in `override.d/` replaces the contents of `/etc/rspamd/override.d/` with that directory and applies `custom-commands.conf` again, a changed `custom-commands.conf` is applied, and Rspamd is reloaded |
+| Files in `rspamd/`                                | A change in `override.d/` or to `custom-commands.conf` rebuilds `/etc/rspamd/override.d/`: its contents are replaced with `override.d/`, and `custom-commands.conf` is applied on top. Then Rspamd is reloaded |
 | Certificate files of `SSL_TYPE=manual`            | The certificates are copied to the directory that Postfix and Dovecot use                                        |
 | `acme.json`                                       | The certificate is extracted from it                                                                             |
 

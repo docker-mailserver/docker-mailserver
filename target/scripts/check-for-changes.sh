@@ -185,16 +185,19 @@ function _rspamd_changes() {
   # RSPAMD_DMS_D='/tmp/docker-mailserver/rspamd'
   if [[ ${CHANGED} =~ ${RSPAMD_DMS_D}/.* ]]; then
 
-    # "${RSPAMD_DMS_D}/override.d"
-    if [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]]; then
-      _log 'trace' 'Rspamd - Copying configuration overrides'
-      rm "${RSPAMD_OVERRIDE_D}"/*
-      cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
-    fi
+    # "${RSPAMD_DMS_D}/override.d" and "${RSPAMD_DMS_D}/custom-commands.conf"
+    # Both are sources of "${RSPAMD_OVERRIDE_D}", so it is rebuilt from scratch when either of them changed.
+    # Applying the commands on top of the existing files would append `add-line` lines again and keep the
+    # files of removed commands. `rm -f`, as `nullglob` is set by `_monitored_files_checksums`.
+    if [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]] || [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]]; then
+      _log 'trace' 'Rspamd - Rebuilding configuration overrides'
+      rm -f "${RSPAMD_OVERRIDE_D}"/*
 
-    # "${RSPAMD_DMS_D}/custom-commands.conf"
-    # The commands write into "${RSPAMD_OVERRIDE_D}", which was just replaced when "${RSPAMD_DMS_OVERRIDE_D}" changed.
-    if [[ ${CHANGED} =~ ${RSPAMD_DMS_CUSTOM_COMMANDS_F} ]] || [[ ${CHANGED} =~ ${RSPAMD_DMS_OVERRIDE_D}/.* ]]; then
+      # Same check as at startup (`__rspamd__run_early_setup_and_checks`): copy if the directory exists and is not empty
+      if [[ -d ${RSPAMD_DMS_OVERRIDE_D} ]] && [[ -z $(find "${RSPAMD_DMS_OVERRIDE_D}" -maxdepth 0 -empty) ]]; then
+        cp "${RSPAMD_DMS_OVERRIDE_D}"/* "${RSPAMD_OVERRIDE_D}"
+      fi
+
       _log 'trace' 'Rspamd - Generating new configuration from custom commands'
       _rspamd_handle_user_modules_adjustments
     fi
