@@ -2882,7 +2882,7 @@
 
   <h1>Postfix</h1>
 
-<p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/target/postfix/main.cf">Our default Postfix configuration</a> can easily be extended to add parameters or modify existing ones by providing a <code>docker-data/dms/config/postfix-main.cf</code>. This file uses the same format as Postfix <code>main.cf</code> does (<a href="http://www.postfix.org/postconf.5.html">See official docs</a> for all parameters and syntax rules).</p>
+<p><a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/etc/postfix/main.cf">Our default Postfix configuration</a> can easily be extended to add parameters or modify existing ones by providing a <code>docker-data/dms/config/postfix-main.cf</code>. This file uses the same format as Postfix <code>main.cf</code> does (<a href="http://www.postfix.org/postconf.5.html">See official docs</a> for all parameters and syntax rules).</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
 <p>One can easily increase the <a href="http://www.postfix.org/postconf.5.html#compatibility_level">backwards-compatibility level</a> and set new Postscreen options:</p>
