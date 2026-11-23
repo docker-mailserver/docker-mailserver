@@ -1,12 +1,12 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
 
 BATS_TEST_NAME_PREFIX='[Scripts] (helper functions) '
-SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/scripts/helpers"
+SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/scripts/lib/helpers"
 
 @test '(utils.sh) _env_var_expect_zero_or_one' {
-  # shellcheck source=../../../../../target/scripts/helpers/log.sh
+  # shellcheck source=../../../../../scripts/lib/helpers/log.sh
   source "${SOURCE_BASE_PATH}/log.sh"
-  # shellcheck source=../../../../../target/scripts/helpers/utils.sh
+  # shellcheck source=../../../../../scripts/lib/helpers/utils.sh
   source "${SOURCE_BASE_PATH}/utils.sh"
 
   ZERO=0
@@ -33,9 +33,9 @@ SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/
 }
 
 @test '(utils.sh) _env_var_expect_integer' {
-  # shellcheck source=../../../../../target/scripts/helpers/log.sh
+  # shellcheck source=../../../../../scripts/lib/helpers/log.sh
   source "${SOURCE_BASE_PATH}/log.sh"
-  # shellcheck source=../../../../../target/scripts/helpers/utils.sh
+  # shellcheck source=../../../../../scripts/lib/helpers/utils.sh
   source "${SOURCE_BASE_PATH}/utils.sh"
 
   INTEGER=1234
@@ -58,9 +58,9 @@ SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/
 }
 
 @test '(utils.sh) _convert_crlf_to_lf_if_necessary' {
-  # shellcheck source=../../../../../target/scripts/helpers/log.sh
+  # shellcheck source=../../../../../scripts/lib/helpers/log.sh
   source "${SOURCE_BASE_PATH}/log.sh"
-  # shellcheck source=../../../../../target/scripts/helpers/utils.sh
+  # shellcheck source=../../../../../scripts/lib/helpers/utils.sh
   source "${SOURCE_BASE_PATH}/utils.sh"
 
   # Create a temporary file in the BATS test-case folder:
@@ -79,9 +79,9 @@ SOURCE_BASE_PATH="${REPOSITORY_ROOT:?Expected REPOSITORY_ROOT to be set}/target/
 }
 
 @test '(utils.sh) _append_final_newline_if_missing' {
-  # shellcheck source=../../../../../target/scripts/helpers/log.sh
+  # shellcheck source=../../../../../scripts/lib/helpers/log.sh
   source "${SOURCE_BASE_PATH}/log.sh"
-  # shellcheck source=../../../../../target/scripts/helpers/utils.sh
+  # shellcheck source=../../../../../scripts/lib/helpers/utils.sh
   source "${SOURCE_BASE_PATH}/utils.sh"
 
   # Create a temporary file in the BATS test-case folder:

@@ -83,5 +83,5 @@ docker exec <CONTAINER NAME> tail -f /var/log/supervisor/changedetector.log
 
 [docs::env::dms-config-poll]: ../environment.md#dms_config_poll
 [docs::optional-config::volumes-config]: ./optional-config.md#volumes-config
-[gh::check-for-changes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/scripts/check-for-changes.sh
-[gh::monitored-configs]: https://github.com/docker-mailserver/docker-mailserver/blob/master/target/scripts/helpers/change-detection.sh
+[gh::check-for-changes]: https://github.com/docker-mailserver/docker-mailserver/blob/master/scripts/lib/check-for-changes.sh
+[gh::monitored-configs]: https://github.com/docker-mailserver/docker-mailserver/blob/master/scripts/lib/helpers/change-detection.sh

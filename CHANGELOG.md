@@ -48,6 +48,18 @@ All notable changes to this project will be documented in this file. The format 
   - The Dovecot master user (_`dovecot-masters.cf`_) passdb and `auth_master_user_separator = *` are now always part of the configuration, not only when `dovecot-masters.cf` exists. Without master users, the passdb is empty.
   - ManageSieve (`ENABLE_MANAGESIEVE=1`) no longer opens the deprecated listener on port `2000` that Debian's config added (_it was not exposed by DMS_). Only port `4190` remains.
   - The `fts_autoindex = yes`, `fts_autoindex_max_recent_msgs = 999` and `fts_search_add_missing = yes` defaults that Debian's `90-fts.conf` set are gone. They had no effect without an FTS plugin. If you configured one (_Flatcurve or Solr_) and relied on them, add the settings to your FTS configuration.
+- **Internal scripts**
+  - The scripts that DMS uses internally have moved from `/usr/local/bin/` to `/usr/local/lib/dms/`. **`user-patches.sh` scripts and bind mounts that source, replace or call them must be migrated**. The commands (_`setup`, `sedfile`, `dms-healthcheck`, `virus-wiper`, ..._) remain in `/usr/local/bin/`, as does everything that is in your `PATH`:
+
+    | Before                                                    | Now                                                                   |
+    | :-------------------------------------------------------- | :-------------------------------------------------------------------- |
+    | `/usr/local/bin/helpers/`                                 | `/usr/local/lib/dms/helpers/`                                         |
+    | `/usr/local/bin/setup.d/`                                 | `/usr/local/lib/dms/startup/setup.d/`                                 |
+    | `/usr/local/bin/{variables,check,setup,daemons}-stack.sh` | `/usr/local/lib/dms/startup/{variables,check,setup,daemons}-stack.sh` |
+    | `/usr/local/bin/start-mailserver.sh`                      | `/usr/local/lib/dms/start-mailserver.sh`                              |
+    | `/usr/local/bin/check-for-changes.sh`                     | `/usr/local/lib/dms/check-for-changes.sh`                             |
+    | `/usr/local/bin/update-check.sh`                          | `/usr/local/lib/dms/update-check.sh`                                  |
+    | `/usr/local/bin/getmail-service.sh`                       | `/usr/local/lib/dms/getmail-service.sh`                               |
 
 ### Updated
 

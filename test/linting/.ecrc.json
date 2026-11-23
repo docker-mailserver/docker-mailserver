@@ -1,9 +1,0 @@
-{
-  "IgnoreDefaults": false,
-  "Exclude": [
-    "^test/bats/",
-    "^test/test_helper/bats-(assert|support)",
-    "\\.git/",
-    "CONTRIBUTORS\\.md"
-  ]
-}

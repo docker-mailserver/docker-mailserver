@@ -20,10 +20,6 @@ all: lint build generate-accounts tests clean
 build: ALWAYS_RUN
 	@ docker build --tag $(IMAGE_NAME) .
 
-generate-accounts: ALWAYS_RUN
-	@ cp test/config/templates/postfix-accounts.cf test/config/postfix-accounts.cf
-	@ cp test/config/templates/dovecot-masters.cf test/config/dovecot-masters.cf
-
 # `docker ps`:  Remove any lingering test containers
 # `.gitignore`: Remove `test/duplicate_configs` and files copied via `make generate-accounts`
 clean: ALWAYS_RUN
@@ -33,7 +29,7 @@ clean: ALWAYS_RUN
 		docker run --rm -v "$(REPOSITORY_ROOT)/test/:/mnt" alpine ash -c "rm -rf $${FILES[@]}"
 
 run-local-instance: ALWAYS_RUN
-	bash -c 'sleep 8 ; ./setup.sh email add postmaster@example.test 123' &
+	bash -c 'sleep 8s ; ./setup.sh email add postmaster@example.test 123' &
 	docker run --rm --interactive --tty --name dms-test_example \
 		--env OVERRIDE_HOSTNAME=mail.example.test \
 		--env POSTFIX_INET_PROTOCOLS=ipv4 \
@@ -51,6 +47,10 @@ run-local-instance: ALWAYS_RUN
 # -----------------------------------------------
 # --- Tests  ------------------------------------
 # -----------------------------------------------
+
+generate-accounts: ALWAYS_RUN
+	@ cp test/config/templates/postfix-accounts.cf test/config/postfix-accounts.cf
+	@ cp test/config/templates/dovecot-masters.cf test/config/dovecot-masters.cf
 
 tests: ALWAYS_RUN
 # See https://github.com/docker-mailserver/docker-mailserver/pull/2857#issuecomment-1312724303
@@ -73,16 +73,19 @@ test/%: ALWAYS_RUN
 # --- Lints -------------------------------------
 # -----------------------------------------------
 
-lint: ALWAYS_RUN eclint hadolint bashcheck shellcheck
-
-hadolint: ALWAYS_RUN
-	@ ./test/linting/lint.sh hadolint
-
-bashcheck: ALWAYS_RUN
-	@ ./test/linting/lint.sh bashcheck
-
-shellcheck: ALWAYS_RUN
-	@ ./test/linting/lint.sh shellcheck
-
-eclint: ALWAYS_RUN
-	@ ./test/linting/lint.sh eclint
+lint: ALWAYS_RUN
+	@ docker run --rm -v "$${REPOSITORY_ROOT}:/tmp:ro" \
+		--tmpfs /tmp/docs/site \
+		--tmpfs /tmp/.git \
+		--tmpfs /tmp/test/bats \
+		--tmpfs /tmp/test/duplicate_configs \
+		--tmpfs /tmp/test/test_helper \
+		-e "ENABLE_ACTIONLINT=$${ENABLE_ACTIONLINT:-true}" \
+		-e "ENABLE_EDITORCONFIG_CHECKER=$${ENABLE_EDITORCONFIG_CHECKER:-true}" \
+		-e "ENABLE_HADOLINT=$${ENABLE_HADOLINT:-true}" \
+		-e "ENABLE_SHELLCHECK=$${ENABLE_SHELLCHECK:-true}" \
+		-e "ENABLE_YAMLLINT=$${ENABLE_YAMLLINT:-false}" \
+		-e "ENABLE_ZIZMOR=$${ENABLE_ZIZMOR:-false}" \
+		-e "HADOLINT_CONFIG=/tmp/.github/linter/hadolint.yaml" \
+		-e "SHELLCHECK_CONFIG=/tmp/.shellcheckrc" \
+		ghcr.io/georglauterbach/linter:0.4.5

@@ -19,11 +19,11 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # --- Install Basic Software --------------------
 # -----------------------------------------------
 
-COPY --chmod=+x target/bin/sedfile /usr/local/bin/sedfile
-COPY target/scripts/build/packages.sh /build/
-COPY target/scripts/helpers/log.sh /usr/local/bin/helpers/log.sh
+COPY --chmod=+x scripts/bin/sedfile /usr/local/bin/sedfile
+COPY scripts/build.sh /build/
+COPY scripts/lib/helpers/log.sh /usr/local/lib/dms/helpers/log.sh
 
-RUN /bin/bash /build/packages.sh && rm -r /build
+RUN /bin/bash /build/build.sh && rm -r /build
 
 #
 # main stage provides all packages, config, and adds scripts
@@ -55,29 +55,6 @@ RUN <<EOF
 EOF
 
 # -----------------------------------------------
-# --- Dovecot -----------------------------------
-# -----------------------------------------------
-
-# DMS owns the complete Dovecot config (`packages.sh` removed the one packaged by Debian / Dovecot CE):
-# - `features/` holds the optional parts that are available. Startup copies the enabled ones to `features.d/`, which is empty until then.
-# - `dovecot.conf` includes `features.d/*.conf` first and `conf.d/*.conf` afterwards, so user supplied files in `conf.d/` can override the features.
-# - `masterdb` is the (empty) passdb of Dovecot master users, it is always included by `dovecot.conf`.
-COPY target/dovecot/dovecot.conf /etc/dovecot/dovecot.conf
-COPY target/dovecot/features/ /etc/dovecot/features/
-COPY target/dovecot/dovecot-purge.cron /etc/cron.d/dovecot-purge.disabled
-RUN <<EOF
-  mkdir /etc/dovecot/conf.d /etc/dovecot/features.d
-  install --mode 640 --owner dovecot --group dovecot /dev/null /etc/dovecot/masterdb
-  chmod 0 /etc/cron.d/dovecot-purge.disabled
-EOF
-
-# -----------------------------------------------
-# --- Rspamd ------------------------------------
-# -----------------------------------------------
-
-COPY target/rspamd/local.d/ /etc/rspamd/local.d/
-
-# -----------------------------------------------
 # --- SpamAssassin's Cron -----------------------
 # -----------------------------------------------
 
@@ -94,16 +71,12 @@ EOF
 # --- PostSRSD, Postgrey & Amavis ---------------
 # -----------------------------------------------
 
-COPY target/postsrsd/postsrsd /etc/default/postsrsd
-COPY target/postgrey/postgrey /etc/default/postgrey
 RUN <<EOF
   mkdir /var/run/postgrey
   chown postgrey:postgrey /var/run/postgrey
   curl -Lsfo /etc/postgrey/whitelist_clients https://raw.githubusercontent.com/schweikert/postgrey/master/postgrey_whitelist_clients
 EOF
 
-COPY target/amavis/conf.d/* /etc/amavis/conf.d/
-COPY target/amavis/postfix-amavis.cf /etc/dms/postfix/master.d/
 RUN <<EOF
   sedfile -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
   # add users clamav and amavis to each others group
@@ -113,31 +86,20 @@ RUN <<EOF
   adduser --system syslog
   adduser docker --system --uid 5000 --group
   echo "0 4 * * * /usr/local/bin/virus-wiper" | crontab -
-  chmod 644 /etc/amavis/conf.d/*
 EOF
 
 # -----------------------------------------------
 # --- Fail2Ban, DKIM & DMARC --------------------
 # -----------------------------------------------
 
-COPY target/fail2ban/jail.local /etc/fail2ban/jail.local
-COPY target/fail2ban/fail2ban.d/fixes.local /etc/fail2ban/fail2ban.d/fixes.local
 RUN <<EOF
   ln -s  /var/log/mail/mail.log     /var/log/mail.log
   ln -sf /var/log/mail/fail2ban.log /var/log/fail2ban.log
 EOF
 
-COPY target/opendkim/opendkim.conf /etc/opendkim.conf
-COPY target/opendkim/default-opendkim /etc/default/opendkim
-
-COPY target/opendmarc/opendmarc.conf /etc/opendmarc.conf
-COPY target/opendmarc/default-opendmarc /etc/default/opendmarc
-COPY target/opendmarc/ignore.hosts /etc/opendmarc/ignore.hosts
-
 # --------------------------------------------------
 # --- postfix-mta-sts-daemon -----------------------
 # --------------------------------------------------
-COPY target/mta-sts-daemon/mta-sts-daemon.yml /etc/mta-sts-daemon.yml
 RUN <<EOF
   mkdir /var/run/mta-sts
   chown -R _mta-sts:root /var/run/mta-sts
@@ -150,17 +112,6 @@ EOF
 # Remove invalid URL from SPF message
 # https://bugs.launchpad.net/spf-engine/+bug/1896912
 RUN echo 'Reason_Message = Message {rejectdefer} due to: {spf}.' >>/etc/postfix-policyd-spf-python/policyd-spf.conf
-
-COPY target/fetchmail/fetchmailrc /etc/fetchmailrc_general
-COPY target/getmail/getmailrc_general /etc/getmailrc_general
-COPY target/getmail/getmail-service.sh /usr/local/bin/
-COPY target/postfix/main.cf target/postfix/master.cf /etc/postfix/
-
-COPY \
-  target/postfix/header_checks.pcre \
-  target/postfix/sender_header_filter.pcre \
-  target/postfix/sender_login_maps.pcre \
-  /etc/postfix/maps/
 
 RUN <<EOF
   : >/etc/aliases
@@ -202,18 +153,23 @@ RUN <<EOF
 EOF
 
 # -----------------------------------------------
-# --- Logwatch ----------------------------------
+# --- Configuration -----------------------------
 # -----------------------------------------------
 
-COPY target/logwatch/maillog.conf /etc/logwatch/conf/logfiles/maillog.conf
-COPY target/logwatch/ignore.conf /etc/logwatch/conf/ignore.conf
-
-# -----------------------------------------------
-# --- Supervisord & Start -----------------------
-# -----------------------------------------------
-
-COPY target/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
-COPY target/supervisor/conf.d/* /etc/supervisor/conf.d/
+# `etc/` mirrors `/etc` of the container: every file is copied to the same path it has in the image.
+# It is copied after the `RUN` instructions above, which only modify files shipped by the packages.
+#
+# DMS owns the complete Dovecot config (`build.sh` removed the one packaged by Debian / Dovecot CE):
+# - `features/` holds the optional parts that are available. Startup copies the enabled ones to `features.d/`, which is empty until then.
+# - `dovecot.conf` includes `features.d/*.conf` first and `conf.d/*.conf` afterwards, so user supplied files in `conf.d/` can override the features.
+# - `masterdb` is the (empty) passdb of Dovecot master users, it is always included by `dovecot.conf`.
+COPY etc/ /etc/
+RUN <<EOF
+  mkdir /etc/dovecot/conf.d /etc/dovecot/features.d
+  install --mode 640 --owner dovecot --group dovecot /dev/null /etc/dovecot/masterdb
+  chmod 0 /etc/cron.d/dovecot-purge.disabled
+  chmod 644 /etc/amavis/conf.d/*
+EOF
 
 # -----------------------------------------------
 # --- Scripts & Miscellaneous--------------------
@@ -226,16 +182,9 @@ RUN <<EOF
   update-locale
 EOF
 
-COPY \
-  target/bin/* \
-  target/scripts/*.sh \
-  target/scripts/startup/*.sh \
-  /usr/local/bin/
-
-RUN chmod +x /usr/local/bin/*
-
-COPY target/scripts/helpers /usr/local/bin/helpers
-COPY target/scripts/startup/setup.d /usr/local/bin/setup.d
+# `scripts/bin/` holds the commands (in `PATH`), `scripts/lib/` holds everything they and the startup sequence `source`.
+COPY --chmod=755 scripts/bin/ /usr/local/bin/
+COPY --chmod=755 scripts/lib/ /usr/local/lib/dms/
 
 #
 # Final stage focuses only on image config
@@ -250,7 +199,7 @@ EXPOSE 25 587 143 465 993 110 995 4190
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
-# These ENVs are referenced in target/supervisor/conf.d/saslauth.conf
+# These ENVs are referenced in etc/supervisor/conf.d/saslauth.conf
 # and must be present when supervisord starts. Introduced by PR:
 # https://github.com/docker-mailserver/docker-mailserver/pull/676
 # These ENV are also configured with the same defaults at:
@@ -271,7 +220,7 @@ LABEL org.opencontainers.image.title="docker-mailserver"
 LABEL org.opencontainers.image.vendor="The Docker Mailserver Organization"
 LABEL org.opencontainers.image.authors="The Docker Mailserver Organization on GitHub"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.description="A fullstack but simple mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.). Only configuration files, no SQL database."
+LABEL org.opencontainers.image.description="A production-ready fullstack but simple containerized mail server that uses only configuration files, no SQL database."
 LABEL org.opencontainers.image.url="https://github.com/docker-mailserver"
 LABEL org.opencontainers.image.documentation="https://github.com/docker-mailserver/docker-mailserver/blob/master/README.md"
 LABEL org.opencontainers.image.source="https://github.com/docker-mailserver/docker-mailserver"

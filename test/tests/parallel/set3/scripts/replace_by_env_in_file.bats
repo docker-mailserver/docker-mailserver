@@ -1,6 +1,6 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
-source "${REPOSITORY_ROOT}/target/scripts/helpers/log.sh"
-source "${REPOSITORY_ROOT}/target/scripts/helpers/utils.sh"
+source "${REPOSITORY_ROOT}/scripts/lib/helpers/log.sh"
+source "${REPOSITORY_ROOT}/scripts/lib/helpers/utils.sh"
 
 BATS_TEST_NAME_PREFIX='[Helper function] (_replace_by_env_in_file) '
 
