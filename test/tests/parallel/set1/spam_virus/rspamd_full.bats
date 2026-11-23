@@ -380,3 +380,33 @@ function teardown_file() { _default_teardown ; }
   assert_output --partial 'authenticated = yes;'
   assert_output --partial 'groups_enabled = [dkim];'
 }
+
+@test "a change in 'override.d/' does not drop the settings from 'custom-commands.conf'" {
+  local MODULE_PATH='/etc/rspamd/override.d/testmodule_complicated.conf'
+  _run_in_container grep -F '    anOption = anotherValue;' "${MODULE_PATH}"
+  assert_success
+
+  # The change detection service replaces '/etc/rspamd/override.d/' with the directory from the config volume:
+  echo '# changed' >>"${TEST_TMP_CONFIG}/rspamd/override.d/testmodule_complicated.conf"
+  _repeat_in_container_until_success_or_timeout 30 "${CONTAINER_NAME}" grep -F '# changed' "${MODULE_PATH}"
+
+  # The commands from 'custom-commands.conf' have to be applied to the new files again:
+  _repeat_in_container_until_success_or_timeout 30 "${CONTAINER_NAME}" grep -F '    anOption = anotherValue;' "${MODULE_PATH}"
+
+  # 'disable-module' needs the helper functions in the change detection service, only it creates this file:
+  _repeat_in_container_until_success_or_timeout 30 "${CONTAINER_NAME}" grep -F 'enabled = false;' '/etc/rspamd/override.d/testmodule1.conf'
+}
+
+@test "a change in 'custom-commands.conf' rebuilds '/etc/rspamd/override.d/' instead of applying the commands twice" {
+  # Applied at startup, and again by the previous test, but still only once:
+  local ADD_LINE_PATH='/etc/rspamd/override.d/testmodule4.something'
+  _run_in_container grep -c -F 'and! ano. ther &line' "${ADD_LINE_PATH}"
+  assert_output 1
+
+  echo 'add-line testmodule5.something dms-test-marker' >>"${TEST_TMP_CONFIG}/rspamd/custom-commands.conf"
+  _repeat_in_container_until_success_or_timeout 30 "${CONTAINER_NAME}" grep -F 'dms-test-marker' '/etc/rspamd/override.d/testmodule5.something'
+
+  # The marker is written last, so the `add-line` commands before it have been applied again by now:
+  _run_in_container grep -c -F 'and! ano. ther &line' "${ADD_LINE_PATH}"
+  assert_output 1
+}
