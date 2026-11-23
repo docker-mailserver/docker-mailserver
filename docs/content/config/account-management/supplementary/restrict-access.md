@@ -17,7 +17,7 @@ The `setup email restrict` command makes Postfix reject mail **from** specific s
 
     ---
 
-    - `send` is the list for the **sender** of a mail. It is checked against the envelope sender (`MAIL FROM`, not the `From:` header) with [`check_sender_access`][postfix-docs::check-sender-access] in `smtpd_sender_restrictions`.
+    - `send` is the list for the **sender** of a mail. It is checked against the envelope sender (`MAIL FROM`, not the `From:` header) with [`check_sender_access`][postfix-docs::check-sender-access] in `dms_smtpd_sender_restrictions`, which applies to mail arriving on ports 25, 587 and 465.
     - `receive` is the list for the **recipient** of a mail. It is checked against the envelope recipient (`RCPT TO`) with [`check_recipient_access`][postfix-docs::check-recipient-access] in `smtpd_recipient_restrictions`.
 
     Both checks come before the `permit` rules that DMS configures, so they also apply to authenticated users and to clients from trusted networks.
@@ -65,19 +65,15 @@ spammer@example.com    REJECT
 
 You can edit these files yourself instead of using the command. The command only writes `REJECT`, but Postfix accepts any other `access(5)` result in these files too. As the checks come before the other restrictions that DMS configures, use such results with care.
 
+!!! warning "Do not delete the files"
+
+    Once the check is part of `/etc/postfix/main.cf`, it stays there across container restarts (_DMS skips its setup_), even when the file is gone. Postfix then cannot open the table, and according to its documented behavior it defers the mail on the affected ports with a temporary lookup error (`451 4.3.0`). To lift all restrictions of a list, empty its file instead of deleting it, or recreate the container (_for example with `docker compose up -d --force-recreate`_).
+
 ## When Does a Change Take Effect?
 
-- **The first `add` for a list** on a running container adds the check to the front of the Postfix restriction list in `/etc/postfix/main.cf` and reloads Postfix. The restriction is active right away.
+- **The first `add` for a list** on a running container adds the check to the front of the Postfix restriction list in `/etc/postfix/main.cf` and reloads Postfix. The restriction is active right away on ports 25, 587 and 465.
 - **Later `add` and `del` commands** and **manual edits** of the files only change the file, Postfix is not reloaded. Postfix reads such a file ([`texthash:`][postfix-docs::lookup-table-changes]) once when a process starts, so an `smtpd` process that is already running keeps the old content until it exits. By default, that happens after 100 seconds without a connection or after 100 connections ([`max_idle`][postfix-docs::max-idle], [`max_use`][postfix-docs::max-use]). To apply a change right away, run `docker exec <CONTAINER NAME> postfix reload`.
 - **When a new container starts**, DMS adds the checks to the Postfix configuration for each file that exists in the config volume. The change detection service does not monitor these two files.
-
-!!! warning "A `send` restriction needs a new container for mail submission"
-
-    On a running container, `add send` changes `smtpd_sender_restrictions`, which is only used for mail arriving on port 25. Clients that submit mail on ports 587 and 465 use `mua_sender_restrictions` instead, and it only contains the check after DMS has added it to `dms_smtpd_sender_restrictions` (_used by all three ports_) at container startup.
-
-    Until then, an account can still send from the restricted address through ports 587 and 465. To apply the restriction there, recreate the container (_for example with `docker compose up -d --force-recreate`_). Restarting the same container is not enough, because DMS skips its setup and keeps the existing `main.cf`.
-
-    `receive` is not affected, `smtpd_recipient_restrictions` is the same for all ports.
 
 ## Limitations
 
