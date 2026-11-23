@@ -148,6 +148,12 @@ function teardown_file() { _default_teardown ; }
   run ./setup.sh -c "${CONTAINER_NAME}" email restrict list send
   assert_output --regexp "^lorem@impsum.org.*REJECT"
 
+  # Mail submitted on ports 587 and 465 uses `mua_sender_restrictions`, which only
+  # contains the check when it was added to `dms_smtpd_sender_restrictions`:
+  run docker exec "${CONTAINER_NAME}" postconf -x mua_sender_restrictions
+  assert_success
+  assert_output --partial 'check_sender_access texthash:/tmp/docker-mailserver/postfix-send-access.cf'
+
   run ./setup.sh -c "${CONTAINER_NAME}" email restrict del send lorem@impsum.org
   assert_success
   run ./setup.sh -c "${CONTAINER_NAME}" email restrict list send

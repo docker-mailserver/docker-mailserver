@@ -146,6 +146,7 @@ nav:
       - 'Supplementary':
         - 'Master Accounts': config/account-management/supplementary/master-accounts.md
         - 'OAuth2 Authentication': config/account-management/supplementary/oauth2.md
+        - 'Restrict Senders and Recipients': config/account-management/supplementary/restrict-access.md
     - 'Best Practices':
       - 'Auto-discovery': config/best-practices/autodiscover.md
       - 'DKIM, DMARC & SPF': config/best-practices/dkim_dmarc_spf.md

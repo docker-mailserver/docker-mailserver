@@ -74,8 +74,8 @@ This is a list of all configuration files and directories which are optional, au
 - **postfix-main.cf:** Every line will be added to the postfix main configuration. (Docs: [Override Postfix Defaults][docs-override-postfix])
 - **postfix-master.cf:** Every line will be passed through `postconf -P`, it is **not** appended as a whole. (Docs: [Override Postfix Defaults][docs-override-postfix])
 - **postfix-accounts.cf:** User accounts file. Modify via the [`setup.sh email`][docs-setupsh] script.
-- **postfix-send-access.cf:** List of users denied sending. Modify via [`setup.sh email restrict`][docs-setupsh].
-- **postfix-receive-access.cf:** List of users denied receiving. Modify via [`setup.sh email restrict`][docs-setupsh].
+- **postfix-send-access.cf:** List of users denied sending. Modify via [`setup.sh email restrict`][docs-setupsh]. (Docs: [Restrict Senders and Recipients][docs-restrict-access])
+- **postfix-receive-access.cf:** List of users denied receiving. Modify via [`setup.sh email restrict`][docs-setupsh]. (Docs: [Restrict Senders and Recipients][docs-restrict-access])
 - **postfix-virtual.cf:** Alias configuration file. Modify via [`setup.sh alias`][docs-setupsh].
 - **postfix-sasl-password.cf:** listing of relayed domains with their respective `<username>:<password>`. Modify via `setup.sh relay add-auth <domain> <username> [<password>]`. (Docs: [Relay-Hosts Auth][docs::relay-hosts::advanced])
 - **postfix-relaymap.cf:** domain-specific relays and exclusions. Modify via `setup.sh relay add-domain` and `setup.sh relay exclude-domain`. (Docs: [Relay-Hosts Senders][docs::relay-hosts::advanced])
@@ -101,6 +101,7 @@ This is a list of all configuration files and directories which are optional, au
 [docs-faq-spamrules]: ../../faq.md#how-can-i-manage-my-custom-spamassassin-rules
 [docs-faq-userpatches]: ../../faq.md#how-to-adjust-settings-with-the-user-patchessh-script
 [docs-override-postfix]: ./override-defaults/postfix.md
+[docs-restrict-access]: ../../config/account-management/supplementary/restrict-access.md
 [docs-override-dovecot]: ./override-defaults/dovecot.md
 [docs::relay-hosts::advanced]: ./mail-forwarding/relay-hosts.md#advanced-configuration
 [docs-sieve]: ./mail-sieve.md

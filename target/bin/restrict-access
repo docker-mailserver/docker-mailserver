@@ -33,7 +33,8 @@ case "${COMMAND}" in
 
     if [[ ${DIRECTION} == 'send' ]]; then
       CHECK='check_sender_access'
-      POSTFIX_OPTION='smtpd_sender_restrictions'
+      # The same parameter that `_setup_postfix_late` prepends to at startup, it applies to ports 25, 587 and 465.
+      POSTFIX_OPTION='dms_smtpd_sender_restrictions'
     else
       CHECK='check_recipient_access'
       POSTFIX_OPTION='smtpd_recipient_restrictions'
