@@ -5,7 +5,7 @@ BATS_TEST_NAME_PREFIX='[Security] (TLS) (SSL_TYPE=manual) '
 CONTAINER_NAME='dms-test_tls-manual'
 
 function setup_file() {
-  # Internal copies made by `scripts/lib/helpers/ssl.sh`:
+  # Internal copies made by `rootfs/usr/local/lib/dms/helpers/ssl.sh`:
   export PRIMARY_KEY='/etc/dms/tls/key'
   export PRIMARY_CERT='/etc/dms/tls/cert'
   export FALLBACK_KEY='/etc/dms/tls/fallback_key'

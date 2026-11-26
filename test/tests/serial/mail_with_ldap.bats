@@ -94,7 +94,7 @@ function setup_file() {
     --env ACCOUNT_PROVISIONER=LDAP
 
     # Common LDAP ENV:
-    # NOTE: `scripts/lib/startup/setup.d/ldap.sh:_setup_ldap()` uses `_replace_by_env_in_file()` to configure settings (stripping `DOVECOT_` / `LDAP_` prefixes):
+    # NOTE: `rootfs/usr/local/lib/dms/startup/setup.d/ldap.sh:_setup_ldap()` uses `_replace_by_env_in_file()` to configure settings (stripping `DOVECOT_` / `LDAP_` prefixes):
     --env LDAP_SERVER_HOST="ldap://${FQDN_LDAP}"
     --env LDAP_SEARCH_BASE='ou=users,dc=example,dc=test'
     --env LDAP_START_TLS=no
@@ -328,7 +328,7 @@ function teardown() {
   assert_success
 }
 
-# NOTE: `scripts/lib/startup/setup.d/dovecot.sh` should prevent enabling the quotas feature when using LDAP:
+# NOTE: `rootfs/usr/local/lib/dms/startup/setup.d/dovecot.sh` should prevent enabling the quotas feature when using LDAP:
 @test "dovecot: quota plugin is disabled" {
   # Dovecot configs have not enabled the quota plugins or services:
   _run_in_container doveconf -n

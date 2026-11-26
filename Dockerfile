@@ -19,9 +19,9 @@ SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
 # --- Install Basic Software --------------------
 # -----------------------------------------------
 
-COPY --chmod=+x scripts/bin/sedfile /usr/local/bin/sedfile
-COPY scripts/build.sh /build/
-COPY scripts/lib/helpers/log.sh /usr/local/lib/dms/helpers/log.sh
+COPY --chmod=+x rootfs/usr/local/bin/sedfile /usr/local/bin/sedfile
+COPY build.sh /build/
+COPY rootfs/usr/local/lib/dms/helpers/log.sh /usr/local/lib/dms/helpers/log.sh
 
 RUN /bin/bash /build/build.sh && rm -r /build
 
@@ -156,14 +156,14 @@ EOF
 # --- Configuration -----------------------------
 # -----------------------------------------------
 
-# `etc/` mirrors `/etc` of the container: every file is copied to the same path it has in the image.
+# `rootfs/` mirrors the filesystem of the container: every file is copied to the same path it has in the image (minus the `rootfs/` prefix).
 # It is copied after the `RUN` instructions above, which only modify files shipped by the packages.
 #
 # DMS owns the complete Dovecot config (`build.sh` removed the one packaged by Debian / Dovecot CE):
 # - `features/` holds the optional parts that are available. Startup copies the enabled ones to `features.d/`, which is empty until then.
 # - `dovecot.conf` includes `features.d/*.conf` first and `conf.d/*.conf` afterwards, so user supplied files in `conf.d/` can override the features.
 # - `masterdb` is the (empty) passdb of Dovecot master users, it is always included by `dovecot.conf`.
-COPY etc/ /etc/
+COPY rootfs/etc/ /etc/
 RUN <<EOF
   mkdir /etc/dovecot/conf.d /etc/dovecot/features.d
   install --mode 640 --owner dovecot --group dovecot /dev/null /etc/dovecot/masterdb
@@ -182,9 +182,8 @@ RUN <<EOF
   update-locale
 EOF
 
-# `scripts/bin/` holds the commands (in `PATH`), `scripts/lib/` holds everything they and the startup sequence `source`.
-COPY --chmod=755 scripts/bin/ /usr/local/bin/
-COPY --chmod=755 scripts/lib/ /usr/local/lib/dms/
+# `rootfs/usr/local/bin/` holds the commands (in `PATH`), `rootfs/usr/local/lib/dms/` holds everything they and the startup sequence `source`.
+COPY --chmod=755 rootfs/usr/local/ /usr/local/
 
 #
 # Final stage focuses only on image config
@@ -199,7 +198,7 @@ EXPOSE 25 587 143 465 993 110 995 4190
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
-# These ENVs are referenced in etc/supervisor/conf.d/saslauth.conf
+# These ENVs are referenced in rootfs/etc/supervisor/conf.d/saslauth.conf
 # and must be present when supervisord starts. Introduced by PR:
 # https://github.com/docker-mailserver/docker-mailserver/pull/676
 # These ENV are also configured with the same defaults at:

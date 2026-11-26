@@ -37,10 +37,10 @@ LICENSE             text
 
 ## SOURCE CODE
 *.sh                text eol=lf
-### acme.json extractor (scripts/bin/)
+### acme.json extractor (rootfs/usr/local/bin/)
 *.py                text eol=lf
 ### Only contain scripts (glob for extensionless)
-scripts/bin/**      text eol=lf
+rootfs/usr/local/bin/** text eol=lf
 
 #################################################
 ###  Config  ####################################
@@ -48,8 +48,8 @@ scripts/bin/**      text eol=lf
 
 ## CONFIG
 ### Contains only text files (glob for extensionless)
-etc/**              text
-### Generic etc/ + test/config/
+rootfs/etc/**       text
+### Generic rootfs/etc/ + test/config/
 *.cf                text
 *.conf              text
 ### Dovecot

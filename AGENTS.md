@@ -6,16 +6,17 @@ Docker Mailserver (DMS) is a single-container mail server (Postfix, Dovecot, Rsp
 
 | Path | Purpose |
 | :- | :- |
-| `Dockerfile` | Image build; copies `etc/` to `/etc/` and `scripts/bin/`, `scripts/lib/` to their image paths |
-| `etc/` | Static config files, laid out like `/etc` in the container (`etc/postfix/main.cf` is `/etc/postfix/main.cf`); no Bash scripts |
-| `scripts/lib/` | Copied to `/usr/local/lib/dms/`: internal scripts, only sourced or started by supervisord |
-| `scripts/lib/start-mailserver.sh` | Container entrypoint; registers and runs check, setup, and daemon functions |
-| `scripts/lib/startup/` | `variables-stack.sh` (ENV defaults), `check-stack.sh`, `setup-stack.sh`, `daemons-stack.sh` |
-| `scripts/lib/startup/setup.d/` | Per-feature `_setup_*` functions, all sourced at startup |
-| `scripts/lib/helpers/` | Shared Bash helpers (logging, errors, Postfix, TLS, accounts, ...) |
-| `scripts/lib/check-for-changes.sh` | Change detector; reloads services when files in the config volume change |
-| `scripts/bin/` | Copied to `/usr/local/bin/`: in-container commands (`setup` and its subcommands); `setup.sh` in the root wraps them via `docker exec` |
-| `scripts/build.sh` | Build-time only (package installation), not part of the final image |
+| `Dockerfile` | Image build; copies `rootfs/etc/` to `/etc/` and `rootfs/usr/local/` to `/usr/local/` |
+| `rootfs/` | Everything that ships in the image, laid out like the container's filesystem (`rootfs/etc/postfix/main.cf` is `/etc/postfix/main.cf`) |
+| `rootfs/etc/` | Static config files; no Bash scripts |
+| `rootfs/usr/local/lib/dms/` | Internal scripts, only sourced or started by supervisord |
+| `rootfs/usr/local/lib/dms/start-mailserver.sh` | Container entrypoint; registers and runs check, setup, and daemon functions |
+| `rootfs/usr/local/lib/dms/startup/` | `variables-stack.sh` (ENV defaults), `check-stack.sh`, `setup-stack.sh`, `daemons-stack.sh` |
+| `rootfs/usr/local/lib/dms/startup/setup.d/` | Per-feature `_setup_*` functions, all sourced at startup |
+| `rootfs/usr/local/lib/dms/helpers/` | Shared Bash helpers (logging, errors, Postfix, TLS, accounts, ...) |
+| `rootfs/usr/local/lib/dms/check-for-changes.sh` | Change detector; reloads services when files in the config volume change |
+| `rootfs/usr/local/bin/` | In-container commands (`setup` and its subcommands); `setup.sh` in the root wraps them via `docker exec` |
+| `build.sh` | Build-time only (package installation), not part of the final image |
 | `test/tests/{parallel,serial}/` | BATS integration tests |
 | `test/helper/` | Test helpers; read their doc comments before writing tests |
 | `docs/content/` | MkDocs Material sources (`docs/site/` is build output, do not edit) |
@@ -23,7 +24,7 @@ Docker Mailserver (DMS) is a single-container mail server (Postfix, Dovecot, Rsp
 
 ## Startup Flow
 
-`start-mailserver.sh` registers functions conditionally based on ENV, then runs: variables, then checks, then setup, then daemons (managed by supervisord, see `etc/supervisor/`). Registration order matters and is documented inline. On container restart (`/CONTAINER_START` exists) most setup is skipped, so setup code only runs on a fresh container.
+`start-mailserver.sh` registers functions conditionally based on ENV, then runs: variables, then checks, then setup, then daemons (managed by supervisord, see `rootfs/etc/supervisor/`). Registration order matters and is documented inline. On container restart (`/CONTAINER_START` exists) most setup is skipped, so setup code only runs on a fresh container.
 
 ## Commands
 
@@ -37,7 +38,7 @@ make clean generate-accounts tests/parallel/set1
 make clean tests                              # full suite (slow)
 ```
 
-Tests run against the built image. After changing anything under `etc/`, `scripts/` or the `Dockerfile`, run `make build` before testing, or the tests exercise stale code.
+Tests run against the built image. After changing anything under `rootfs/`, `build.sh` or the `Dockerfile`, run `make build` before testing, or the tests exercise stale code.
 
 ## Bash Conventions
 
@@ -56,7 +57,7 @@ ShellCheck runs with `enable=all` (see `.shellcheckrc`), and the code base is de
 
 A complete change touches all of these:
 
-1. default value in `scripts/lib/startup/variables-stack.sh` (`VARS[NAME]="${NAME:=default}"`), plus validation if needed
+1. default value in `rootfs/usr/local/lib/dms/startup/variables-stack.sh` (`VARS[NAME]="${NAME:=default}"`), plus validation if needed
 2. documented entry in `mailserver.env`
 3. entry in `docs/content/config/environment.md`
 4. `CHANGELOG.md` under `Unreleased`

@@ -124,7 +124,7 @@ Amavis content filter (used for ClamAV & SpamAssassin). [Rspamd][docs-rspamd] (`
 
 ##### ENABLE_DNSBL
 
-This enables DNS block lists in _Postscreen_. If you want to know which lists we are using, have a look at [the default `main.cf` for Postfix we provide](https://github.com/docker-mailserver/docker-mailserver/blob/master/etc/postfix/main.cf) and search for `postscreen_dnsbl_sites`.
+This enables DNS block lists in _Postscreen_. If you want to know which lists we are using, have a look at [the default `main.cf` for Postfix we provide](https://github.com/docker-mailserver/docker-mailserver/blob/master/rootfs/etc/postfix/main.cf) and search for `postscreen_dnsbl_sites`.
 
 !!! danger "A Warning On DNS Block Lists"
 

@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - etc/**
-      - scripts/**
+      - rootfs/**
       - test/**
       - .dockerignore
       - .gitmodules
+      - build.sh
       - Dockerfile
       - Makefile
       - setup.sh

@@ -1,14 +1,14 @@
 load "${REPOSITORY_ROOT}/test/helper/common"
 
-source "${REPOSITORY_ROOT}/scripts/lib/helpers/log.sh"
-source "${REPOSITORY_ROOT}/scripts/lib/helpers/utils.sh"
-source "${REPOSITORY_ROOT}/scripts/lib/startup/setup.d/ldap.sh"
+source "${REPOSITORY_ROOT}/rootfs/usr/local/lib/dms/helpers/log.sh"
+source "${REPOSITORY_ROOT}/rootfs/usr/local/lib/dms/helpers/utils.sh"
+source "${REPOSITORY_ROOT}/rootfs/usr/local/lib/dms/startup/setup.d/ldap.sh"
 
 BATS_TEST_NAME_PREFIX='[Dovecot LDAP config] '
 
 function setup() {
   TMP_CONFIG_FILE=$(mktemp)
-  cp "${REPOSITORY_ROOT}/etc/dovecot/features/auth-ldap.conf" "${TMP_CONFIG_FILE}"
+  cp "${REPOSITORY_ROOT}/rootfs/etc/dovecot/features/auth-ldap.conf" "${TMP_CONFIG_FILE}"
 }
 
 function teardown() {
