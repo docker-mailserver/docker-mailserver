@@ -15,8 +15,8 @@
 #
 # This function is internal and should not be used in tests.
 function __load_bats_helper() {
-  load "${REPOSITORY_ROOT}/test/test_helper/bats-support/load"
-  load "${REPOSITORY_ROOT}/test/test_helper/bats-assert/load"
+  load "${REPOSITORY_ROOT}/test/helper/bats-support/load"
+  load "${REPOSITORY_ROOT}/test/helper/bats-assert/load"
   load "${REPOSITORY_ROOT}/test/helper/sending"
   load "${REPOSITORY_ROOT}/test/helper/log_and_filtering"
 }

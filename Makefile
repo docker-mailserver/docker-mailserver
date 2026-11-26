@@ -79,7 +79,8 @@ lint: ALWAYS_RUN
 		--tmpfs /tmp/.git \
 		--tmpfs /tmp/test/bats \
 		--tmpfs /tmp/test/duplicate_configs \
-		--tmpfs /tmp/test/test_helper \
+		--tmpfs /tmp/test/helper/bats-assert \
+		--tmpfs /tmp/test/helper/bats-support \
 		-e "ENABLE_ACTIONLINT=$${ENABLE_ACTIONLINT:-true}" \
 		-e "ENABLE_EDITORCONFIG_CHECKER=$${ENABLE_EDITORCONFIG_CHECKER:-true}" \
 		-e "ENABLE_HADOLINT=$${ENABLE_HADOLINT:-true}" \
