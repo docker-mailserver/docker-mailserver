@@ -262,6 +262,10 @@ function _post_installation_steps() {
   apt-get "${QUIET}" clean
   rm -rf /var/lib/apt/lists/*
 
+  _log 'trace' 'Removing locales, man pages and documentation'
+  rm -rf /usr/share/locale/* /usr/share/man/* /usr/share/doc/*
+  update-locale
+
   # Irrelevant config for DMS:
   # Creating a separate syslog socket was necessary as Debian configured
   # Postfix to run via chroot jail (DMS avoids that intentionally).

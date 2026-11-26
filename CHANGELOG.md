@@ -61,6 +61,16 @@ All notable changes to this project will be documented in this file. The format 
     | `/usr/local/bin/update-check.sh`                          | `/usr/local/lib/dms/update-check.sh`                                  |
     | `/usr/local/bin/getmail-service.sh`                       | `/usr/local/lib/dms/getmail-service.sh`                               |
 
+- **Image**
+  - The image no longer ships a `HEALTHCHECK`, and the `Dockerfile` no longer uses `SHELL`. Neither is part of the OCI image specification, so builders like Podman and Buildah warned about them (_and ignored them_). The image now builds without warnings with every OCI compliant builder.
+  - **If you rely on the health status of the container** (_for example `depends_on: condition: service_healthy` in Docker Compose_), configure `dms-healthcheck` in your container runtime, as users of Kubernetes or Podman already had to. The `compose.yaml` of this repository does this:
+
+    ```yaml
+    healthcheck:
+      test: dms-healthcheck
+      start_period: 30s
+    ```
+
 ### Updated
 
 - **Rspamd**
