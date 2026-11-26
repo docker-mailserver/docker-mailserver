@@ -36,7 +36,7 @@ function teardown_file() { _default_teardown ; }
 
   refute_line --partial '@localdomain2.com'
 
-  # Relevant log output from scripts/lib/helpers/accounts.sh:_create_dovecot_alias_dummy_accounts():
+  # Relevant log output from rootfs/usr/local/lib/dms/helpers/accounts.sh:_create_dovecot_alias_dummy_accounts():
   # [  DEBUG  ]  Adding alias 'alias1@localhost.localdomain' for user 'user1@localhost.localdomain' to Dovecot's userdb
   # [  DEBUG  ]  Alias 'alias2@localhost.localdomain' is non-local (or mapped to a non-existing account) and will not be added to Dovecot's userdb
 }

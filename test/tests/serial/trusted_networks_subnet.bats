@@ -1,103 +1,98 @@
-load "${REPOSITORY_ROOT}/test/test_helper/common"
+load "${REPOSITORY_ROOT}/test/helper/setup"
+load "${REPOSITORY_ROOT}/test/helper/common"
 
-NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME=non-default-docker-mail-network
-# The mail log assertions rely on the Amavis hand-off, Rspamd would classify the test mail as spam.
-# Pin the services to what used to be the default stack:
-setup_file() {
-  docker network create --driver bridge "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}"
-  docker network create --driver bridge "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2"
+BATS_TEST_NAME_PREFIX='[DMS_TRUSTED_NETWORKS] '
+CONTAINER1_NAME='dms-test_trusted_networks_subnet'
+CONTAINER2_NAME='dms-test_trusted_networks_subnet_sender'
+CONTAINER3_NAME='dms-test_trusted_networks_none'
+NETWORK1_NAME='dms-test_trusted_networks_1'
+NETWORK2_NAME='dms-test_trusted_networks_2'
 
-  # use two networks (default ("bridge") and our custom network) to recreate problematic test case where trusting only the network of the first interface would not help
-  # currently we cannot use --network in `docker run` multiple times, it will just use the last one
-  # instead we need to use create, network connect and start (see https://success.docker.com/article/multiple-docker-networks)
-  local PRIVATE_CONFIG
+function setup_file() {
+  docker network create --driver bridge "${NETWORK1_NAME}"
+  docker network create --driver bridge "${NETWORK2_NAME}"
 
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_smtponly_second_network)
-  docker create --name mail_smtponly_second_network \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
-    -e SMTP_ONLY=1 \
-    -e DMS_TRUSTED_NETWORKS=subnet \
-    -e ENABLE_AMAVIS=1 \
-    -e ENABLE_RSPAMD=0 \
-    -e OVERRIDE_HOSTNAME=mail.my-domain.com \
-    --network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}" \
-    -t "${NAME}"
+  local COMMON_ARGUMENTS=(
+    --env SMTP_ONLY=1
+    # The mail log assertions rely on the Amavis hand-off, Rspamd would classify the test mail as spam.
+    --env ENABLE_AMAVIS=1
+    --env OVERRIDE_HOSTNAME=mail.my-domain.com
+  )
 
-  docker network connect "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2" mail_smtponly_second_network
-  docker start mail_smtponly_second_network
+  # Use two networks (the default one of the container and a second one) to recreate the problematic case
+  # where trusting only the network of the first interface would not help. `docker create` accepts a single
+  # `--network` only, so the container is connected to the second network before it is started.
+  export CONTAINER_NAME=${CONTAINER1_NAME}
+  _init_with_defaults
+  local CONTAINER1_ARGUMENTS=(
+    "${COMMON_ARGUMENTS[@]}"
+    --env DMS_TRUSTED_NETWORKS=subnet
+    --network "${NETWORK1_NAME}"
+  )
+  _common_container_create 'CONTAINER1_ARGUMENTS'
+  docker network connect "${NETWORK2_NAME}" "${CONTAINER_NAME}"
+  _common_container_start
+  _wait_for_finished_setup_in_container "${CONTAINER_NAME}"
+  _wait_for_smtp_port_in_container
 
-  PRIVATE_CONFIG=$(duplicate_config_for_container . mail_smtponly_second_network_sender)
-  docker run -d --name mail_smtponly_second_network_sender \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
-    -e SMTP_ONLY=1 \
-    -e DMS_TRUSTED_NETWORKS=subnet \
-    -e ENABLE_AMAVIS=1 \
-    -e ENABLE_RSPAMD=0 \
-    -e OVERRIDE_HOSTNAME=mail.my-domain.com \
-    --network "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2" \
-    -t "${NAME}"
+  # Sends mail to the first container from the second network
+  export CONTAINER_NAME=${CONTAINER2_NAME}
+  _init_with_defaults
+  local CONTAINER2_ARGUMENTS=(
+    "${COMMON_ARGUMENTS[@]}"
+    --env DMS_TRUSTED_NETWORKS=subnet
+    --network "${NETWORK2_NAME}"
+  )
+  _common_container_setup 'CONTAINER2_ARGUMENTS'
 
-  # wait until postfix is up
-  wait_for_smtp_port_in_container mail_smtponly_second_network
-
-  # create another container that enforces authentication even on local connections
-  docker run -d --name mail_smtponly_force_authentication \
-    -v "${PRIVATE_CONFIG}":/tmp/docker-mailserver \
-    -v "$(pwd)/test/files":/tmp/docker-mailserver-test:ro \
-    -e SMTP_ONLY=1 \
-    -e DMS_TRUSTED_NETWORKS=none \
-    -e ENABLE_AMAVIS=1 \
-    -e ENABLE_RSPAMD=0 \
-    -e OVERRIDE_HOSTNAME=mail.my-domain.com \
-    -t "${NAME}"
-
-  # wait until postfix is up
-  wait_for_smtp_port_in_container mail_smtponly_force_authentication
+  # Enforces authentication, even for local connections
+  export CONTAINER_NAME=${CONTAINER3_NAME}
+  _init_with_defaults
+  local CONTAINER3_ARGUMENTS=(
+    "${COMMON_ARGUMENTS[@]}"
+    --env DMS_TRUSTED_NETWORKS=none
+  )
+  _common_container_setup 'CONTAINER3_ARGUMENTS'
+  _wait_for_smtp_port_in_container
 }
 
-teardown_file() {
-  docker logs mail_smtponly_second_network
-  docker rm -f mail_smtponly_second_network mail_smtponly_second_network_sender mail_smtponly_force_authentication
-  docker network rm "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}" "${NON_DEFAULT_DOCKER_MAIL_NETWORK_NAME}2"
+function teardown_file() {
+  docker logs "${CONTAINER1_NAME}"
+  docker rm -f "${CONTAINER1_NAME}" "${CONTAINER2_NAME}" "${CONTAINER3_NAME}"
+  docker network rm "${NETWORK1_NAME}" "${NETWORK2_NAME}"
 }
 
-@test "checking DMS_TRUSTED_NETWORKS: subnet" {
-  IPNET1=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network)
-  IPNET2=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' non-default-docker-mail-network2)
-  run docker exec mail_smtponly_second_network /bin/sh -c "postconf | grep '^mynetworks ='"
+@test 'subnet: the subnets of all networks of the container are trusted' {
+  local IPNET1 IPNET2
+  IPNET1=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' "${NETWORK1_NAME}")
+  IPNET2=$(docker network inspect --format '{{(index .IPAM.Config 0).Subnet}}' "${NETWORK2_NAME}")
+
+  _run_in_container_explicit "${CONTAINER1_NAME}" /bin/sh -c "postconf | grep '^mynetworks ='"
   assert_output --partial "${IPNET1}"
   assert_output --partial "${IPNET2}"
 
-  run docker exec mail_smtponly_second_network /bin/sh -c "postconf smtp_host_lookup=no"
+  _run_in_container_explicit "${CONTAINER1_NAME}" /bin/sh -c 'postconf smtp_host_lookup=no'
   assert_success
 
-  _reload_postfix mail_smtponly_second_network
+  _reload_postfix "${CONTAINER1_NAME}"
 
   # we should be able to send from the other container on the second network!
-  run docker exec mail_smtponly_second_network_sender /bin/sh -c "while read -r LINE; do sleep 0.5s; echo \"\${LINE}\"; done < /tmp/docker-mailserver-test/emails/nc_raw/smtp-only.txt | nc mail_smtponly_second_network 25"
-  assert_output --partial "250 2.0.0 Ok: queued as "
-  repeat_in_container_until_success_or_timeout 60 mail_smtponly_second_network /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
+  local CONTAINER_NAME=${CONTAINER2_NAME}
+  _send_raw_transaction_smtp 'transactions/smtp/smtp-only.txt' "${CONTAINER1_NAME} 25"
+  assert_output --partial '250 2.0.0 Ok: queued as '
+
+  _repeat_in_container_until_success_or_timeout 60 "${CONTAINER1_NAME}" \
+    /bin/sh -c 'grep -cE "to=<user2\@external.tld>.*status\=sent" /var/log/mail/mail.log'
 }
 
-@test "checking DMS_TRUSTED_NETWORKS: none" {
-  run docker exec mail_smtponly_force_authentication /bin/sh -c "postconf smtp_host_lookup=no"
+@test 'none: authentication is required' {
+  _run_in_container_explicit "${CONTAINER3_NAME}" /bin/sh -c 'postconf smtp_host_lookup=no'
   assert_success
 
-  _reload_postfix mail_smtponly_force_authentication
+  _reload_postfix "${CONTAINER3_NAME}"
 
   # the mailserver should require authentication and a protocol error should occur when using TLS
-  run docker exec mail_smtponly_force_authentication /bin/sh -c "nc localhost 25 < /tmp/docker-mailserver-test/emails/nc_raw/smtp-only.txt"
-  assert_output --partial "550 5.5.1 Protocol error"
-  [[ ${status} -ge 0 ]]
-}
-
-@test "checking DMS_TRUSTED_NETWORKS=172.16.0.0/12: opendmarc/opendkim config" {
-  skip 'TODO: this test was taken from mail_smtponly, where it did not actually belong to'
-  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendmarc/ignore.hosts | grep '172.16.0.0/12'"
-  assert_success
-
-  run docker exec mail_smtponly /bin/sh -c "cat /etc/opendkim/TrustedHosts | grep '172.16.0.0/12'"
-  assert_success
+  local CONTAINER_NAME=${CONTAINER3_NAME}
+  _send_raw_transaction 'transactions/smtp/smtp-only.txt' 'localhost 25'
+  assert_output --partial '550 5.5.1 Protocol error'
 }

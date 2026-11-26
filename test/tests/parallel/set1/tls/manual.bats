@@ -5,7 +5,7 @@ BATS_TEST_NAME_PREFIX='[Security] (TLS) (SSL_TYPE=manual) '
 CONTAINER_NAME='dms-test_tls-manual'
 
 function setup_file() {
-  # Internal copies made by `scripts/lib/helpers/ssl.sh`:
+  # Internal copies made by `rootfs/usr/local/lib/dms/helpers/ssl.sh`:
   export PRIMARY_KEY='/etc/dms/tls/key'
   export PRIMARY_CERT='/etc/dms/tls/cert'
   export FALLBACK_KEY='/etc/dms/tls/fallback_key'
@@ -20,7 +20,7 @@ function setup_file() {
   export TEST_DOMAIN='example.test'
 
   local CUSTOM_SETUP_ARGUMENTS=(
-    --volume "${PWD}/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/:/config/ssl/:ro"
+    --volume "${PWD}/test/fixtures/tls/${TEST_DOMAIN}/with_ca/ecdsa/:/config/ssl/:ro"
     --env LOG_LEVEL='trace'
     --env SSL_TYPE='manual'
     --env TLS_LEVEL='modern'
@@ -115,13 +115,13 @@ function teardown_file() { _default_teardown ; }
   assert_success
 
   printf '%s' 'someThingsChangedHere' \
-    >>"$(pwd)/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
+    >>"$(pwd)/test/fixtures/tls/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
 
   # Read from the start of the log, so that lines written before `tail` attaches are not missed:
   run timeout 15 docker exec "${CONTAINER_NAME}" bash -c "tail -n +1 -F /var/log/supervisor/changedetector.log | sed -n '/Manual certificates have changed/,/Completed handling of detected change/ { /Completed handling of detected change/ q }'"
   assert_success
 
-  sed -i '/someThingsChangedHere/d' "$(pwd)/test/files/ssl/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
+  sed -i '/someThingsChangedHere/d' "$(pwd)/test/fixtures/tls/${TEST_DOMAIN}/with_ca/ecdsa/key.ecdsa.pem"
 
   _run_in_container postconf -h tls_high_cipherlist
   assert_output "${CUSTOM_CIPHERS}"

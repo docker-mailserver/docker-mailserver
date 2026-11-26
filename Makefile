@@ -79,7 +79,8 @@ lint: ALWAYS_RUN
 		--tmpfs /tmp/.git \
 		--tmpfs /tmp/test/bats \
 		--tmpfs /tmp/test/duplicate_configs \
-		--tmpfs /tmp/test/test_helper \
+		--tmpfs /tmp/test/helper/bats-assert \
+		--tmpfs /tmp/test/helper/bats-support \
 		-e "ENABLE_ACTIONLINT=$${ENABLE_ACTIONLINT:-true}" \
 		-e "ENABLE_EDITORCONFIG_CHECKER=$${ENABLE_EDITORCONFIG_CHECKER:-true}" \
 		-e "ENABLE_HADOLINT=$${ENABLE_HADOLINT:-true}" \
@@ -88,4 +89,4 @@ lint: ALWAYS_RUN
 		-e "ENABLE_ZIZMOR=$${ENABLE_ZIZMOR:-false}" \
 		-e "HADOLINT_CONFIG=/tmp/.github/linter/hadolint.yaml" \
 		-e "SHELLCHECK_CONFIG=/tmp/.shellcheckrc" \
-		ghcr.io/georglauterbach/linter:0.4.5
+		ghcr.io/georglauterbach/linter:0.5.0

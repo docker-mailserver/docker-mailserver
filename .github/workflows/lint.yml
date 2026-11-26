@@ -28,7 +28,7 @@ jobs:
           persist-credentials: false
 
       - name: Run Linter
-        uses: georglauterbach/linter@v0.4.5
+        uses: georglauterbach/linter@v0.5.0
         with:
           enable_yamllint: 'false'
           enable_zizmor: 'false'

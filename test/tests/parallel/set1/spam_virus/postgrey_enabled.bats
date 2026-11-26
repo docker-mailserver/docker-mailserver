@@ -76,7 +76,7 @@ function teardown_file() { _default_teardown ; }
     'client_address=127.0.0.1, sender=user@external.tld, recipient=user1@localhost.localdomain'
 }
 
-# NOTE: These two whitelist tests use `files/nc/` instead of `files/emails`.
+# NOTE: These two whitelist tests use `test/fixtures/transactions/policy/` instead of `test/fixtures/emails/`.
 # `nc` option `-w 0` terminates the connection after sending the template, it does not wait for a response.
 # This is required for port 10023, otherwise the connection never drops.
 # - This allows to bypass the SMTP protocol on port 25, and send data directly to Postgrey instead.
@@ -86,7 +86,7 @@ function teardown_file() { _default_teardown ; }
 #   - It'd also cause the earlier greylist test to fail.
 # - TODO: Actually confirm whitelist feature works correctly as these test cases are using a workaround:
 @test "should whitelist sender 'user@whitelist.tld'" {
-  _send_raw_transaction 'nc/postgrey_whitelist.txt' '-w 0 127.0.0.1 10023'
+  _send_raw_transaction 'transactions/policy/postgrey_whitelist.txt' '-w 0 127.0.0.1 10023'
 
   _should_have_log_entry \
     'action=pass' \
@@ -95,7 +95,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "should whitelist recipient 'user2@otherdomain.tld'" {
-  _send_raw_transaction 'nc/postgrey_whitelist_recipients.txt' '-w 0 127.0.0.1 10023'
+  _send_raw_transaction 'transactions/policy/postgrey_whitelist_recipients.txt' '-w 0 127.0.0.1 10023'
 
   _should_have_log_entry \
     'action=pass' \

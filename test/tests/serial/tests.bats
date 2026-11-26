@@ -80,12 +80,12 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "imap: authentication works" {
-  _send_raw_transaction 'auth/imap-auth.txt' '-w 1 0.0.0.0 143'
+  _send_raw_transaction 'transactions/imap/imap-auth.txt' '-w 1 0.0.0.0 143'
   assert_success
 }
 
 @test "imap: added user authentication works" {
-  _send_raw_transaction 'auth/added-imap-auth.txt' '-w 1 0.0.0.0 143'
+  _send_raw_transaction 'transactions/imap/added-imap-auth.txt' '-w 1 0.0.0.0 143'
   assert_success
 }
 

@@ -6,10 +6,10 @@ on:
     branches:
       - master
     paths:
-      - etc/**
-      - scripts/**
+      - rootfs/**
       - .dockerignore
       - .gitmodules
+      - build.sh
       - Dockerfile
       - setup.sh
     tags:

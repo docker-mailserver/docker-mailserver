@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# shellcheck source=../lib/helpers/index.sh
-source /usr/local/lib/dms/helpers/index.sh
-
-_log 'debug' 'Printing environment variables. Make sure no sensitive data is copied.'
-cat /etc/dms-settings

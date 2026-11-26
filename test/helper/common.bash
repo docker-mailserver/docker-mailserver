@@ -15,8 +15,8 @@
 #
 # This function is internal and should not be used in tests.
 function __load_bats_helper() {
-  load "${REPOSITORY_ROOT}/test/test_helper/bats-support/load"
-  load "${REPOSITORY_ROOT}/test/test_helper/bats-assert/load"
+  load "${REPOSITORY_ROOT}/test/helper/bats-support/load"
+  load "${REPOSITORY_ROOT}/test/helper/bats-assert/load"
   load "${REPOSITORY_ROOT}/test/helper/sending"
   load "${REPOSITORY_ROOT}/test/helper/log_and_filtering"
 }
@@ -415,7 +415,7 @@ function _should_have_content_in_directory() {
 # A simple wrapper for netcat (`nc`).
 # Useful to perform a low-level automation of a "raw" protocol transaction.
 #
-# @param ${1} = the file that is given to `nc`
+# @param ${1} = the file that is given to `nc`, relative to `test/fixtures/` (see `transactions/`)
 # @param ${2} = custom parameters for `nc` [OPTIONAL] (default: `0.0.0.0 25`)
 function _send_raw_transaction() {
   [[ -v CONTAINER_NAME ]] || return 1
@@ -446,7 +446,7 @@ function _send_raw_transaction() {
 # A wrapper for netcat (`nc`).
 # Like {@link _send_raw_transaction} but avoids piping commands all at once to better respect the SMTP protocol.
 #
-# @param ${1} = the file that is given to `nc`
+# @param ${1} = the file that is given to `nc`, relative to `test/fixtures/` (see `transactions/`)
 # @param ${2} = custom parameters for `nc` [OPTIONAL] (default: 0.0.0.0 25)
 function _send_raw_transaction_smtp() {
   [[ -v CONTAINER_NAME ]] || return 1

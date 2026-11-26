@@ -14,7 +14,7 @@
 #
 # To send a custom email, you can
 #
-# 1. create a file at `test/files/<TEST FILE>` and provide `<TEST FILE>` via `--data` as an argument to this function;
+# 1. create a file at `test/fixtures/emails/<TEST FILE>` and provide `<TEST FILE>` via `--data` as an argument to this function;
 # 2. use this function without the `--data` argument, in which case we provide a default;
 # 3. provide data inline (`--data <INLINE DATA>`).
 #
@@ -22,7 +22,7 @@
 # successfully. All other (following) parameters include all options that one can supply to `swaks` itself.
 # As mentioned before, the `--data` parameter expects a value of either:
 #
-# - A relative path from `test/files/emails/`
+# - A relative path from `test/fixtures/emails/`
 # - An "inline" data string (e.g., `Date: 1 Jan 2024\nSubject: This is a test`)
 #
 # ## Output

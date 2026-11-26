@@ -17,7 +17,7 @@ function setup_file() {
 
   # Contains various certs for testing TLS support (read-only):
   export TLS_CONFIG_VOLUME
-  TLS_CONFIG_VOLUME="${PWD}/test/files/ssl/${TEST_DOMAIN}/:/config/ssl/:ro"
+  TLS_CONFIG_VOLUME="${PWD}/test/fixtures/tls/${TEST_DOMAIN}/:/config/ssl/:ro"
 
   # Used for connecting testssl and DMS containers via network name `TEST_DOMAIN`:
   # NOTE: If the network already exists, the test will fail to start
@@ -190,7 +190,7 @@ function compare_cipherlist() {
   assert_output "${EXPECTED_CIPHERLIST}"
 }
 
-# Expected cipher lists. Should match `TLS_LEVEL` cipher lists set in `scripts/lib/helpers/ssl.sh`.
+# Expected cipher lists. Should match `TLS_LEVEL` cipher lists set in `rootfs/usr/local/lib/dms/helpers/ssl.sh`.
 # Excluding Port 25 which uses defaults from Postfix after applying `smtpd_tls_exclude_ciphers` rules.
 # NOTE: If a test fails, look at the `check_ports` params, then update the corresponding associative key's value
 # with the `actual` error value (assuming an update needs to be made, and not a valid security issue to look into).
