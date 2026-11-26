@@ -78,7 +78,7 @@ function teardown_file() {
 
   # we should be able to send from the other container on the second network!
   local CONTAINER_NAME=${CONTAINER2_NAME}
-  _send_raw_transaction_smtp 'emails/nc_raw/smtp-only.txt' "${CONTAINER1_NAME} 25"
+  _send_raw_transaction_smtp 'transactions/smtp/smtp-only.txt' "${CONTAINER1_NAME} 25"
   assert_output --partial '250 2.0.0 Ok: queued as '
 
   _repeat_in_container_until_success_or_timeout 60 "${CONTAINER1_NAME}" \
@@ -93,6 +93,6 @@ function teardown_file() {
 
   # the mailserver should require authentication and a protocol error should occur when using TLS
   local CONTAINER_NAME=${CONTAINER3_NAME}
-  _send_raw_transaction 'emails/nc_raw/smtp-only.txt' 'localhost 25'
+  _send_raw_transaction 'transactions/smtp/smtp-only.txt' 'localhost 25'
   assert_output --partial '550 5.5.1 Protocol error'
 }

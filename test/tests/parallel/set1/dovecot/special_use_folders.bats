@@ -28,7 +28,7 @@ function teardown_file() { _default_teardown ; }
 }
 
 @test "(IMAP) special-use folders should be created when necessary" {
-  _send_raw_transaction 'nc/imap_special_use_folders.txt' '-w 8 0.0.0.0 143'
+  _send_raw_transaction 'transactions/imap/imap_special_use_folders.txt' '-w 8 0.0.0.0 143'
   assert_output --partial 'Drafts'
   assert_output --partial 'Junk'
   assert_output --partial 'Trash'

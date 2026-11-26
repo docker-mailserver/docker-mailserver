@@ -118,7 +118,7 @@
     import route-introspect
   }
 
-  # An additional endpoint for maintainers to generate `test/files/auth/imap-oauth2-auth.txt`
+  # An additional endpoint for maintainers to generate `test/fixtures/transactions/imap/imap-oauth2-auth.txt`
   handle_path /imap/* {
     import route-imap
   }

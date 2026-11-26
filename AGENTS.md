@@ -18,7 +18,8 @@ Docker Mailserver (DMS) is a single-container mail server (Postfix, Dovecot, Rsp
 | `rootfs/usr/local/bin/` | In-container commands (`setup` and its subcommands); `setup.sh` in the root wraps them via `docker exec` |
 | `build.sh` | Build-time only (package installation), not part of the final image |
 | `test/tests/{parallel,serial}/` | BATS integration tests |
-| `test/helper/` | Test helpers; read their doc comments before writing tests |
+| `test/helper/` | Test helpers; read their doc comments before writing tests. Also holds the `bats-support` and `bats-assert` submodules |
+| `test/fixtures/` | Read-only files that tests mount into containers at `/tmp/docker-mailserver-test`: `emails/` (for `_send_email --data`), `transactions/{smtp,imap,pop3,policy}/` (for `_send_raw_transaction*`), `tls/` (certificates) |
 | `docs/content/` | MkDocs Material sources (`docs/site/` is build output, do not edit) |
 | `mailserver.env` | User-facing ENV reference with inline documentation |
 

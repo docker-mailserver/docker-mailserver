@@ -318,7 +318,7 @@ function teardown_file() { _default_teardown ; }
 
   # Move an email to the "Junk" folder from "INBOX"; the first email we
   # sent should pass fine, hence we can now move it.
-  _send_raw_transaction 'nc/rspamd_imap_move_to_junk.txt' '127.0.0.1 143'
+  _send_raw_transaction 'transactions/imap/rspamd_imap_move_to_junk.txt' '127.0.0.1 143'
   sleep 1 # wait for the transaction to finish
 
   _service_log_should_contain_string 'mail' 'imapsieve: storage learn_spam: file: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-spam.sieve'
@@ -332,7 +332,7 @@ function teardown_file() { _default_teardown ; }
   # Move an email to the "INBOX" folder from "Junk"; there should be two mails
   # in the "Junk" folder, since the second email we sent during setup should
   # have landed in the Junk folder already.
-  _send_raw_transaction 'nc/rspamd_imap_move_to_inbox.txt' '127.0.0.1 143'
+  _send_raw_transaction 'transactions/imap/rspamd_imap_move_to_inbox.txt' '127.0.0.1 143'
   sleep 1 # wait for the transaction to finish
 
   _service_log_should_contain_string 'mail' 'imapsieve: storage learn_ham: file: Using Sieve script path: /usr/lib/dovecot/sieve-pipe/learn-ham.sieve'
@@ -344,7 +344,7 @@ function teardown_file() { _default_teardown ; }
 
   # Move the remaining email from "Junk" to "Trash" (i.e., delete it). The learn-ham script
   # runs again, but must not learn this email as ham: no third email is piped to `rspamc`.
-  _send_raw_transaction 'nc/rspamd_imap_move_to_trash.txt' '127.0.0.1 143'
+  _send_raw_transaction 'transactions/imap/rspamd_imap_move_to_trash.txt' '127.0.0.1 143'
   _repeat_in_container_until_success_or_timeout 20 "${CONTAINER_NAME}" \
     grep -F --quiet 'Mailbox Trash: imapsieve: storage learn_ham' /var/log/mail/mail.log
 

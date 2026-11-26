@@ -96,9 +96,9 @@ function _init_with_defaults() {
   export TEST_TMP_CONFIG
   TEST_TMP_CONFIG=$(_duplicate_config_for_container . "${CONTAINER_NAME}")
 
-  # Common complimentary test files, read-only safe to share across containers:
-  export TEST_FILES_CONTAINER_PATH='/tmp/docker-mailserver-test'
-  export TEST_FILES_VOLUME="${REPOSITORY_ROOT}/test/files:${TEST_FILES_CONTAINER_PATH}:ro"
+  # Common complimentary test fixtures (`test/fixtures/`), read-only safe to share across containers:
+  export TEST_FIXTURES_CONTAINER_PATH='/tmp/docker-mailserver-test'
+  export TEST_FIXTURES_VOLUME="${REPOSITORY_ROOT}/test/fixtures:${TEST_FIXTURES_CONTAINER_PATH}:ro"
 
   # The config volume cannot be read-only as some data needs to be written at container startup
   #
@@ -108,7 +108,7 @@ function _init_with_defaults() {
   export TEST_CONFIG_VOLUME="${TEST_TMP_CONFIG}:/tmp/docker-mailserver"
 
   # Default Root CA cert used in TLS tests with `openssl` commands:
-  export TEST_CA_CERT="${TEST_FILES_CONTAINER_PATH}/ssl/example.test/with_ca/ecdsa/ca-cert.ecdsa.pem"
+  export TEST_CA_CERT="${TEST_FIXTURES_CONTAINER_PATH}/tls/example.test/with_ca/ecdsa/ca-cert.ecdsa.pem"
 }
 
 
@@ -154,7 +154,7 @@ function _common_container_create() {
     --tty \
     --name "${CONTAINER_NAME}" \
     --hostname "${TEST_FQDN:-mail.example.test}" \
-    --volume "${TEST_FILES_VOLUME}" \
+    --volume "${TEST_FIXTURES_VOLUME}" \
     --volume "${TEST_CONFIG_VOLUME}" \
     --env ENABLE_AMAVIS=0 \
     --env ENABLE_RSPAMD=0 \
