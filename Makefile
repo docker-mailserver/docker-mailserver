@@ -88,4 +88,4 @@ lint: ALWAYS_RUN
 		-e "ENABLE_ZIZMOR=$${ENABLE_ZIZMOR:-false}" \
 		-e "HADOLINT_CONFIG=/tmp/.github/linter/hadolint.yaml" \
 		-e "SHELLCHECK_CONFIG=/tmp/.shellcheckrc" \
-		ghcr.io/georglauterbach/linter:0.4.5
+		ghcr.io/georglauterbach/linter:0.5.0
