@@ -3194,7 +3194,7 @@
 <details class="abstract">
 <summary>Technical Details</summary>
 <ul>
-<li>The service is the script <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/scripts/lib/check-for-changes.sh"><code>check-for-changes.sh</code></a>, which is started by <code>supervisord</code>. The monitored files are listed in <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/scripts/lib/helpers/change-detection.sh"><code>change-detection.sh</code></a>.</li>
+<li>The service is the script <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/rootfs/usr/local/lib/dms/check-for-changes.sh"><code>check-for-changes.sh</code></a>, which is started by <code>supervisord</code>. The monitored files are listed in <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/rootfs/usr/local/lib/dms/helpers/change-detection.sh"><code>change-detection.sh</code></a>.</li>
 <li>While the service applies a change, it holds the lock file <code>check-for-changes.sh.lock</code> in the config volume. Containers that share a config volume therefore do not apply changes at the same time. A lock that is older than one minute is considered stale and removed.</li>
 </ul>
 </details>

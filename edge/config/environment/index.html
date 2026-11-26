@@ -6385,7 +6385,7 @@
 <li>3/4/5    =&gt; log debug information (very verbose)</li>
 </ul>
 <h5 id="enable_dnsbl"><a class="toclink" href="#enable_dnsbl">ENABLE_DNSBL</a></h5>
-<p>This enables DNS block lists in <em>Postscreen</em>. If you want to know which lists we are using, have a look at <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/etc/postfix/main.cf">the default <code>main.cf</code> for Postfix we provide</a> and search for <code>postscreen_dnsbl_sites</code>.</p>
+<p>This enables DNS block lists in <em>Postscreen</em>. If you want to know which lists we are using, have a look at <a href="https://github.com/docker-mailserver/docker-mailserver/blob/master/rootfs/etc/postfix/main.cf">the default <code>main.cf</code> for Postfix we provide</a> and search for <code>postscreen_dnsbl_sites</code>.</p>
 <div class="admonition danger">
 <p class="admonition-title">A Warning On DNS Block Lists</p>
 <p>Make sure your DNS queries are properly resolved, i.e. you will most likely not want to use a public DNS resolver as these queries do not return meaningful results. We try our best to only evaluate proper return codes - this is not a guarantee that all codes are handled fine though.</p>
