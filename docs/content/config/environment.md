@@ -812,6 +812,10 @@ Enable or disable `getmail`.
 - **0** => Disabled
 - 1 => Enabled
 
+!!! note "A configuration is required"
+
+    With `ENABLE_GETMAIL=1`, DMS fails to start when there is no valid [Getmail configuration][docs-getmail]. With [`GETMAIL_PARALLEL=1`](#getmail_parallel), a configuration whose name contains unsupported characters is skipped and does not count. DMS v17 and earlier started anyway, without a running `getmail` service.
+
 ##### GETMAIL_POLL
 
 - **5** => `getmail` The number of minutes for the interval. Min: 1; Default: 5.
@@ -1260,6 +1264,7 @@ Provide the credentials to use with `RELAY_HOST` or `DEFAULT_RELAY_HOST`.
 
 [docs-rspamd]: ./security/rspamd.md
 [docs-dkim-dmarc-spf]: ./best-practices/dkim_dmarc_spf.md
+[docs-getmail]: ./advanced/mail-getmail.md
 [docs-tls]: ./security/ssl.md
 [docs-tls-letsencrypt]: ./security/ssl.md#lets-encrypt-recommended
 [docs-tls-manual]: ./security/ssl.md#bring-your-own-certificates

@@ -137,8 +137,13 @@ function _register_functions() {
     fi
   fi
 
+  # Daemons registered between two `_wait_for_daemons` (a barrier) start concurrently (each takes at least 1 second to start).
+  # A daemon must therefore be registered after a barrier if it depends on a daemon that was registered before that barrier.
+
   # The order here matters: Since Rspamd is using Valkey, Valkey should be started before Rspamd.
   [[ ${ENABLE_RSPAMD_VALKEY}    -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd_valkey'
+  _register_start_daemon '_wait_for_daemons'
+
   [[ ${ENABLE_RSPAMD}           -eq 1 ]] && _register_start_daemon '_start_daemon_rspamd'
 
   # needs to be started before SASLauthd
@@ -147,8 +152,10 @@ function _register_functions() {
 
   # needs to be started before postfix
   [[ ${ENABLE_POSTGREY}         -eq 1 ]] &&	_register_start_daemon '_start_daemon_postgrey'
+  _register_start_daemon '_wait_for_daemons'
 
   _register_start_daemon '_start_daemon_postfix'
+  _register_start_daemon '_wait_for_daemons'
 
   # needs to be started after postfix
   [[ ${ENABLE_SASLAUTHD}        -eq 1 ]] && _register_start_daemon '_start_daemon_saslauthd'
